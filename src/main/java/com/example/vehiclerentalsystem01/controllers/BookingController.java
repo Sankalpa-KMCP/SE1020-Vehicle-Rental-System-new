@@ -7,8 +7,11 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @WebServlet("/bookings")
@@ -42,10 +45,39 @@ public class BookingController extends HttpServlet {
             // Handles User View All Button
             request.setAttribute("bookingList", bookingDAO.getAllBookings());
             request.getRequestDispatcher("view-all-bookings.jsp").forward(request, response);
+
         } else {
-            // Handles Admin View All Button
-            request.setAttribute("bookingList", bookingDAO.getAllBookings());
-            request.getRequestDispatcher("booking-dashboard.jsp").forward(request, response);
+            // MAIN DASHBOARD ROUTING: Handles Admin vs Customer View
+            HttpSession session = request.getSession();
+            Boolean isAdmin = (Boolean) session.getAttribute("adminLoggedIn");
+            Boolean isCustomer = (Boolean) session.getAttribute("customerLoggedIn");
+
+            if (isAdmin != null && isAdmin) {
+                // Admin gets to see EVERY booking
+                request.setAttribute("bookingList", bookingDAO.getAllBookings());
+                request.getRequestDispatcher("booking-dashboard.jsp").forward(request, response);
+
+            } else if (isCustomer != null && isCustomer) {
+                // Customer only gets to see THEIR bookings
+                String customerName = (String) session.getAttribute("name");
+                if (customerName == null) customerName = (String) session.getAttribute("username");
+
+                List<Booking> allBookings = bookingDAO.getAllBookings();
+                List<Booking> myBookings = new ArrayList<>();
+
+                for (Booking b : allBookings) {
+                    if (b.getCustomerName() != null && b.getCustomerName().equalsIgnoreCase(customerName)) {
+                        myBookings.add(b);
+                    }
+                }
+
+                request.setAttribute("bookingList", myBookings);
+                request.getRequestDispatcher("booking-dashboard.jsp").forward(request, response);
+
+            } else {
+                // Not logged in? Kick back to login screen
+                response.sendRedirect("index.jsp");
+            }
         }
     }
 
