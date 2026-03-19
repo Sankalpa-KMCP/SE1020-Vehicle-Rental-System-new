@@ -22,15 +22,13 @@ public class CustomerController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        // DEBUGGER: This will print to your IntelliJ/Eclipse terminal!
-        System.out.println("==== CUSTOMER CONTROLLER TRIGGERED ====");
-        System.out.println("Action Requested: " + action);
-
         try {
+            // 1. Handle Deletions (from the table view)
             if ("delete".equals(action)) {
                 customerDAO.deleteCustomer(request.getParameter("id"));
                 response.sendRedirect("customers?action=view_directory");
 
+                // 2. Handle Edit Page Requests
             } else if ("edit".equals(action)) {
                 Customer existingCustomer = customerDAO.getCustomerById(request.getParameter("id"));
                 if(existingCustomer != null) {
@@ -40,15 +38,10 @@ public class CustomerController extends HttpServlet {
                     response.sendRedirect("customers?action=view_directory");
                 }
 
+                // 3. Handle Directory & Search Views
             } else {
-                System.out.println("Fetching all customers from database...");
                 List<Customer> allCustomers = customerDAO.getAllCustomers();
-
-                // CRITICAL CRASH FIX: If the file is empty and DAO returns null, make an empty list so it doesn't crash!
-                if (allCustomers == null) {
-                    System.out.println("WARNING: DAO returned null! Creating an empty safety list.");
-                    allCustomers = new ArrayList<>();
-                }
+                if (allCustomers == null) allCustomers = new ArrayList<>();
 
                 int totalGuests = allCustomers.size();
                 int verifiedGuests = 0;
@@ -57,26 +50,34 @@ public class CustomerController extends HttpServlet {
                     boolean hasNic = c.getNic() != null && !c.getNic().trim().isEmpty() && !c.getNic().equalsIgnoreCase("N/A");
                     boolean hasLicense = c.getLicenseNumber() != null && !c.getLicenseNumber().trim().isEmpty() && !c.getLicenseNumber().equalsIgnoreCase("N/A");
 
-                    if (hasNic && hasLicense) {
-                        verifiedGuests++;
-                    }
+                    if (hasNic && hasLicense) verifiedGuests++;
                 }
 
-                System.out.println("Total Guests Found: " + totalGuests);
+                // ==========================================
+                // THE NEW SEARCH LOGIC
+                // ==========================================
+                if ("search".equals(action)) {
+                    String searchUsername = request.getParameter("searchUsername");
+                    if (searchUsername != null && !searchUsername.trim().isEmpty()) {
+                        for (Customer c : allCustomers) {
+                            // Check if the typed username matches a database username (ignoring case)
+                            if (c.getUsername().equalsIgnoreCase(searchUsername.trim())) {
+                                request.setAttribute("foundCustomer", c);
+                                break; // Stop searching once we find them!
+                            }
+                        }
+                    }
+                }
 
                 request.setAttribute("customerList", allCustomers);
                 request.setAttribute("totalGuests", totalGuests);
                 request.setAttribute("verifiedGuests", verifiedGuests);
                 request.setAttribute("unverifiedGuests", totalGuests - verifiedGuests);
 
-                System.out.println("Forwarding safely to /customer-dashboard.jsp...");
                 request.getRequestDispatcher("/customer-dashboard.jsp").forward(request, response);
             }
         } catch (Exception e) {
-            // If it still crashes, it will print the exact reason in red text in your IDE!
-            System.out.println("!!! MASSIVE CRASH IN CUSTOMER CONTROLLER !!!");
             e.printStackTrace();
-            // Send back to admin home safely instead of index.jsp
             response.sendRedirect("admin-home.jsp");
         }
     }
@@ -84,6 +85,13 @@ public class CustomerController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+
+        // Handle POST deletions from the Search Profile view
+        if ("delete".equals(action)) {
+            customerDAO.deleteCustomer(request.getParameter("id"));
+            response.sendRedirect("customers?action=view_directory");
+            return;
+        }
 
         String name = request.getParameter("name");
         String email = request.getParameter("email");

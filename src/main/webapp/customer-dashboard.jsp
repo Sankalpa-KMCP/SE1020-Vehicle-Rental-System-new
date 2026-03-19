@@ -4,7 +4,7 @@
 <%@ page import="com.example.vehiclerentalsystem01.models.Booking" %>
 
 <%
-  // Admin Security Check - This is what was missing!
+  // THE FIXED BOUNCER: If your session drops, it sends you to Admin Login, NOT index.jsp!
   Boolean isLoggedIn = (Boolean) session.getAttribute("adminLoggedIn");
   if (isLoggedIn == null || !isLoggedIn) {
     response.sendRedirect("admin-login.jsp");
@@ -82,14 +82,15 @@
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-xl border border-gray-200">
+      <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
         <table class="w-full text-left border-collapse">
           <thead>
-          <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider border-b border-gray-200">
+          <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-200">
             <th class="py-4 px-6 font-semibold">Username</th>
             <th class="py-4 px-6 font-semibold">Name</th>
             <th class="py-4 px-6 font-semibold">Email</th>
             <th class="py-4 px-6 font-semibold">Verification</th>
+            <th class="py-4 px-6 font-semibold text-right">Actions</th>
           </tr>
           </thead>
           <tbody class="text-gray-700 text-sm">
@@ -100,23 +101,33 @@
                 boolean isVerified = c.getNic() != null && !c.getNic().equals("N/A") && !c.getNic().isEmpty() &&
                         c.getLicenseNumber() != null && !c.getLicenseNumber().equals("N/A") && !c.getLicenseNumber().isEmpty();
           %>
-          <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-            <td class="py-4 px-6 font-medium text-gray-900">@<%= c.getUsername() %></td>
-            <td class="py-4 px-6"><%= c.getName() %></td>
+          <tr class="border-b border-gray-100 hover:bg-blue-50/30 transition-colors group">
+            <td class="py-4 px-6 font-bold text-gray-900">@<%= c.getUsername() %></td>
+            <td class="py-4 px-6 font-medium"><%= c.getName() %></td>
             <td class="py-4 px-6 text-gray-500"><%= c.getEmail() %></td>
             <td class="py-4 px-6">
               <% if (isVerified) { %>
-              <span class="bg-green-50 text-green-700 border border-green-200 font-medium px-2.5 py-1 rounded-md text-xs flex items-center gap-1 w-max"><i class="ph-bold ph-check-circle"></i> Verified</span>
+              <span class="bg-green-50 text-green-700 border border-green-200 font-bold px-2.5 py-1 rounded-md text-xs flex items-center gap-1 w-max"><i class="ph-bold ph-check-circle"></i> Verified</span>
               <% } else { %>
-              <span class="bg-red-50 text-red-700 border border-red-200 font-medium px-2.5 py-1 rounded-md text-xs flex items-center gap-1 w-max"><i class="ph-bold ph-warning"></i> Missing Docs</span>
+              <span class="bg-red-50 text-red-700 border border-red-200 font-bold px-2.5 py-1 rounded-md text-xs flex items-center gap-1 w-max"><i class="ph-bold ph-warning"></i> Missing Docs</span>
               <% } %>
+            </td>
+            <td class="py-4 px-6 text-right">
+              <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <a href="customers?action=edit&id=<%= c.getId() %>" class="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white p-2 rounded-lg transition-colors shadow-sm" title="Edit Profile">
+                  <i class="ph-bold ph-pencil-simple text-lg"></i>
+                </a>
+                <a href="customers?action=delete&id=<%= c.getId() %>" onclick="return confirm('WARNING: Are you sure you want to delete @<%= c.getUsername() %>?');" class="text-red-500 bg-red-50 hover:bg-red-600 hover:text-white p-2 rounded-lg transition-colors shadow-sm" title="Delete Profile">
+                  <i class="ph-bold ph-trash text-lg"></i>
+                </a>
+              </div>
             </td>
           </tr>
           <%
             }
           } else {
           %>
-          <tr><td colspan="4" class="py-8 text-center text-gray-500">No registered guests found.</td></tr>
+          <tr><td colspan="5" class="py-8 text-center text-gray-500 font-medium">No registered guests found in the system.</td></tr>
           <% } %>
           </tbody>
         </table>
@@ -273,10 +284,10 @@
     <hr class="my-8 border-gray-200">
 
     <div class="flex justify-center flex-wrap gap-4">
-      <button onclick="switchView('list')" class="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
+      <button id="btn-list" onclick="switchView('list')" class="flex items-center gap-2 px-6 py-2.5 font-semibold rounded-xl transition-colors shadow-sm bg-blue-50 border-2 border-blue-500 text-blue-700">
         <i class="ph-bold ph-list-dashes text-lg"></i> View Directory
       </button>
-      <button onclick="switchView('search')" class="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
+      <button id="btn-search" onclick="switchView('search')" class="flex items-center gap-2 px-6 py-2.5 font-semibold rounded-xl transition-colors shadow-sm bg-white border-2 border-gray-200 text-gray-700 hover:bg-gray-50">
         <i class="ph-bold ph-magnifying-glass text-lg"></i> Find Guest
       </button>
     </div>
@@ -285,18 +296,43 @@
 
 <script>
   function switchView(view) {
-    document.getElementById('listSection').classList.add('hidden');
-    document.getElementById('searchSection').classList.add('hidden');
+    // 1. Get Elements
+    const listSection = document.getElementById('listSection');
+    const searchSection = document.getElementById('searchSection');
+    const btnList = document.getElementById('btn-list');
+    const btnSearch = document.getElementById('btn-search');
 
+    // 2. Hide both sections
+    listSection.classList.add('hidden');
+    searchSection.classList.add('hidden');
+
+    // 3. Define styling classes
+    const activeClass = "bg-blue-50 border-blue-500 text-blue-700 hover:bg-blue-50".split(" ");
+    const inactiveClass = "bg-white border-gray-200 text-gray-700 hover:bg-gray-50".split(" ");
+
+    // 4. Reset both buttons to inactive
+    btnList.classList.remove(...activeClass);
+    btnList.classList.add(...inactiveClass);
+    btnSearch.classList.remove(...activeClass);
+    btnSearch.classList.add(...inactiveClass);
+
+    // 5. Show and highlight the active one
     if (view === 'list') {
-      document.getElementById('listSection').classList.remove('hidden');
+      listSection.classList.remove('hidden');
+      btnList.classList.remove(...inactiveClass);
+      btnList.classList.add(...activeClass);
     } else {
-      document.getElementById('searchSection').classList.remove('hidden');
+      searchSection.classList.remove('hidden');
+      btnSearch.classList.remove(...inactiveClass);
+      btnSearch.classList.add(...activeClass);
     }
   }
 
+  // Check if server sent us here from a Search action
   <% if (foundCustomer != null || "search".equals(request.getParameter("action"))) { %>
   switchView('search');
+  <% } else { %>
+  switchView('list'); // Default to list
   <% } %>
 </script>
 
