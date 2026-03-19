@@ -10,14 +10,21 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
+
+        /* Added a smooth slide-down animation for the alerts */
+        .animate-slide-down {
+            animation: slideDown 0.4s ease-out forwards;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
-<!-- Centered Login Card -->
 <div class="bg-white w-full max-w-md rounded-[24px] shadow-lg border border-gray-100 p-8 sm:p-10 relative">
 
-    <!-- Logo -->
     <div class="flex justify-center items-center gap-3 mb-8 text-gray-900">
         <i class="ph-bold ph-car-profile text-4xl text-[#0D6EFD]"></i>
         <span class="text-3xl font-extrabold tracking-tight">DriveAway</span>
@@ -28,28 +35,38 @@
         <p class="text-gray-500 font-medium">Sign in to manage your bookings and rentals.</p>
     </div>
 
-    <!-- Customer Sign-In Form -->
     <form action="auth" method="post" class="space-y-5">
         <input type="hidden" name="action" value="customer_login">
 
-        <!-- Success/Error Messages -->
         <% if ("invalid".equals(request.getParameter("error"))) { %>
-        <div class="bg-red-50 text-red-600 text-sm p-3.5 rounded-xl border border-red-100 font-bold flex items-center gap-2">
-            <i class="ph-fill ph-warning-circle text-xl"></i> Invalid Username or Password.
+        <div class="bg-red-50 p-4 rounded-xl border border-red-200 flex items-start gap-3 animate-slide-down shadow-sm mb-6">
+            <div class="bg-red-100 p-2 rounded-lg text-red-600 mt-0.5">
+                <i class="ph-bold ph-warning-circle text-xl"></i>
+            </div>
+            <div>
+                <p class="font-bold text-red-800">Login Failed</p>
+                <p class="text-sm text-red-600 font-medium mt-0.5">Invalid username or password. Please try again.</p>
+            </div>
         </div>
         <% } else if ("registered".equals(request.getParameter("success"))) { %>
-        <div class="bg-green-50 text-green-700 text-sm p-3.5 rounded-xl border border-green-100 font-bold flex items-center gap-2">
-            <i class="ph-fill ph-check-circle text-xl"></i> Account created! Please sign in.
+        <div class="bg-green-50 p-4 rounded-xl border border-green-200 flex items-start gap-3 animate-slide-down shadow-sm mb-6">
+            <div class="bg-green-100 p-2 rounded-lg text-green-600 mt-0.5">
+                <i class="ph-bold ph-check-circle text-xl"></i>
+            </div>
+            <div>
+                <p class="font-bold text-green-800">Account Created!</p>
+                <p class="text-sm text-green-700 font-medium mt-0.5">Your registration was successful. You can now sign in.</p>
+            </div>
         </div>
         <% } %>
 
         <div>
-            <label class="block text-sm font-bold text-gray-700 mb-1.5">Username or Email</label>
+            <label class="block text-sm font-bold text-gray-700 mb-1.5">Username</label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <i class="ph-bold ph-user text-gray-400 text-xl"></i>
                 </div>
-                <input type="text" name="username" required placeholder="master1"
+                <input type="text" name="username" required placeholder="johndoe123"
                        class="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D6EFD] focus:border-[#0D6EFD] outline-none transition-all font-medium text-gray-800 text-lg">
             </div>
         </div>
@@ -80,7 +97,6 @@
         </p>
     </div>
 
-    <!-- Staff Login Link (Kept subtle at the bottom) -->
     <div class="mt-8 text-center">
         <a href="admin-login.jsp" class="text-red-500 hover:text-red-700 transition-colors inline-flex items-center justify-center gap-1.5 text-sm font-bold tracking-wide bg-red-50 px-4 py-2 rounded-lg" title="Staff Portal">
             <i class="ph-bold ph-shield-check text-lg"></i> Staff Access

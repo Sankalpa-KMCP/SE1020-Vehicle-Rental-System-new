@@ -33,7 +33,32 @@ public class CustomerController extends HttpServlet {
                 response.sendRedirect("customers?action=list");
             }
         } else {
-            request.setAttribute("customerList", customerDAO.getAllCustomers());
+            // 1. Get the list of all customers
+            List<Customer> allCustomers = customerDAO.getAllCustomers();
+
+            // 2. Set up counters
+            int totalGuests = allCustomers.size();
+            int verifiedGuests = 0;
+
+            // 3. Loop through to check who has both NIC and License
+            for (Customer c : allCustomers) {
+                boolean hasNic = c.getNic() != null && !c.getNic().trim().isEmpty() && !c.getNic().equalsIgnoreCase("N/A");
+                boolean hasLicense = c.getLicenseNumber() != null && !c.getLicenseNumber().trim().isEmpty() && !c.getLicenseNumber().equalsIgnoreCase("N/A");
+
+                if (hasNic && hasLicense) {
+                    verifiedGuests++;
+                }
+            }
+
+            // 4. Calculate missing docs
+            int unverifiedGuests = totalGuests - verifiedGuests;
+
+            // 5. Send all this data to the JSP
+            request.setAttribute("customerList", allCustomers);
+            request.setAttribute("totalGuests", totalGuests);
+            request.setAttribute("verifiedGuests", verifiedGuests);
+            request.setAttribute("unverifiedGuests", unverifiedGuests);
+
             request.getRequestDispatcher("customer-dashboard.jsp").forward(request, response);
         }
     }
