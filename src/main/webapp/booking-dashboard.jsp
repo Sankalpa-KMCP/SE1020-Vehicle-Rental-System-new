@@ -1,25 +1,13 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.example.vehiclerentalsystem01.models.Booking" %>
-<%@ page contentType="text/html; charset=UTF-8" %>
+
 <%
-  // SECURITY UPDATE: Check for BOTH Admin and Customer sessions
-  Boolean isAdmin = (Boolean) session.getAttribute("adminLoggedIn");
-  Boolean isCustomer = (Boolean) session.getAttribute("customerLoggedIn");
-
-  // If NEITHER is logged in, kick them back to the login page
-  if ((isAdmin == null || !isAdmin) && (isCustomer == null || !isCustomer)) {
-    response.sendRedirect("index.jsp");
+  // SECURITY BOUNCER
+  Boolean isLoggedIn = (Boolean) session.getAttribute("adminLoggedIn");
+  if (isLoggedIn == null || !isLoggedIn) {
+    response.sendRedirect("admin-login.jsp");
     return;
-  }
-
-  // Determine which mode we are rendering
-  boolean adminMode = (isAdmin != null && isAdmin);
-
-  // Grab the username for the header
-  String displayName = (String) session.getAttribute("name");
-  if (displayName == null) {
-    displayName = (String) session.getAttribute("username");
-    if (displayName == null) displayName = adminMode ? "Admin" : "Customer";
   }
 %>
 <!DOCTYPE html>
@@ -27,182 +15,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= adminMode ? "Reservation Management" : "My Bookings" %> - DriveAway</title>
+  <title>Reservation Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .sidebar { background-color: #0F172A; } /* Deep Navy */
-    .accent-cyan { background-color: #06B6D4; } /* Admin Accent */
-    .text-accent-cyan { color: #06B6D4; }
-    .fade-in { animation: fadeIn 0.4s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    body { font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
+<body class="min-h-screen p-8 relative text-gray-800">
 
-<% if (adminMode) { %>
-<body class="flex h-screen overflow-hidden text-gray-800 bg-[#F8F9FA]">
-<aside class="sidebar w-64 text-white flex flex-col shrink-0 z-20 shadow-xl">
-  <div class="h-24 flex items-center px-8">
-    <i class="ph-bold ph-car-profile text-3xl text-blue-500 mr-3"></i>
-    <h1 class="text-xl font-bold tracking-wide">DriveAway Pro</h1>
-  </div>
-  <nav class="flex-1 px-5 py-2 space-y-2 overflow-y-auto">
-    <a href="customers?action=list" class="flex items-center px-4 py-3.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition-all">
-      <i class="ph-bold ph-users text-xl mr-3"></i> Customers
-    </a>
-    <a href="vehicles?action=list" class="flex items-center px-4 py-3.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition-all">
-      <i class="ph-bold ph-car text-xl mr-3"></i> Vehicle Fleet
-    </a>
-    <a href="bookings?action=list" class="flex items-center px-4 py-3.5 accent-cyan text-white rounded-xl font-semibold shadow-md transition-all">
-      <i class="ph-bold ph-calendar-check text-xl mr-3"></i> Bookings
-    </a>
-    <a href="payments?action=list" class="flex items-center px-4 py-3.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition-all">
-      <i class="ph-bold ph-credit-card text-xl mr-3"></i> Payments
-    </a>
-    <a href="staff?action=list" class="flex items-center px-4 py-3.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition-all">
-      <i class="ph-bold ph-identification-badge text-xl mr-3"></i> Staff & Admins
-    </a>
-  </nav>
-  <div class="p-5 mb-2 space-y-2">
-    <a href="admin-home.jsp" class="flex items-center px-4 py-3 text-sm text-slate-400 hover:text-white font-medium transition-all rounded-xl hover:bg-slate-800">
-      <i class="ph-bold ph-arrow-square-out text-lg mr-3"></i> Admin Hub
-    </a>
-    <form action="auth" method="post" class="m-0">
-      <input type="hidden" name="action" value="logout">
-      <button type="submit" class="w-full flex items-center px-4 py-3 text-sm text-slate-400 hover:text-white font-medium transition-all rounded-xl hover:bg-slate-800">
-        <i class="ph-bold ph-sign-out text-lg mr-3"></i> Logout
-      </button>
-    </form>
-  </div>
-</aside>
+<div class="flex gap-4 mb-8 max-w-7xl mx-auto">
+  <button onclick="history.back()" class="flex items-center justify-center gap-2 bg-white px-6 py-3 rounded-xl font-bold text-gray-700 shadow-sm border border-gray-200 hover:bg-gray-50 transition text-lg">
+    <i class="ph-bold ph-arrow-left text-xl text-gray-500"></i>
+    <span>Back</span>
+  </button>
+  <a href="admin-home.jsp" class="flex items-center justify-center gap-2 bg-gray-900 px-6 py-3 rounded-xl font-bold text-white shadow-sm hover:bg-black transition text-lg">
+    <i class="ph-fill ph-house text-gray-300 text-2xl"></i>
+    <span>Dashboard Home</span>
+  </a>
+</div>
 
-<div class="flex-1 flex flex-col h-screen overflow-hidden">
-  <header class="h-24 bg-white flex items-center justify-between px-10 z-10 border-b border-gray-100">
-    <h2 class="text-2xl font-medium text-gray-800">Reservation Management Portal</h2>
-    <div class="flex items-center gap-4">
-      <span class="text-sm font-medium text-gray-500">Welcome, <%= displayName %></span>
-      <div class="w-11 h-11 rounded-full accent-cyan text-white flex items-center justify-center font-bold text-lg shadow-sm">
-        <%= displayName.substring(0,1).toUpperCase() %>
+<div class="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
+    <div>
+      <p class="text-gray-500 font-bold tracking-wide text-base uppercase">Total Bookings</p>
+      <h3 class="text-5xl font-extrabold text-gray-900 mt-2"><%= request.getAttribute("totalBookings") != null ? request.getAttribute("totalBookings") : 0 %></h3>
+    </div>
+    <div class="bg-blue-50 p-4 rounded-2xl text-blue-600">
+      <i class="ph-fill ph-calendar-check text-5xl"></i>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
+    <div>
+      <p class="text-gray-500 font-bold tracking-wide text-base uppercase">Active Rentals</p>
+      <h3 class="text-5xl font-extrabold text-gray-900 mt-2"><%= request.getAttribute("activeBookings") != null ? request.getAttribute("activeBookings") : 0 %></h3>
+    </div>
+    <div class="bg-green-50 p-4 rounded-2xl text-green-600">
+      <i class="ph-fill ph-car-profile text-5xl"></i>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
+    <div>
+      <p class="text-gray-500 font-bold tracking-wide text-base uppercase">Pending Actions</p>
+      <h3 class="text-5xl font-extrabold text-gray-900 mt-2"><%= request.getAttribute("pendingBookings") != null ? request.getAttribute("pendingBookings") : 0 %></h3>
+    </div>
+    <div class="bg-yellow-50 p-4 rounded-2xl text-yellow-600">
+      <i class="ph-fill ph-clock-countdown text-5xl"></i>
+    </div>
+  </div>
+</div>
+
+<div class="flex justify-center items-start pb-16">
+  <div class="w-full max-w-7xl bg-white border border-gray-200 rounded-3xl p-10 shadow-sm">
+
+    <div class="flex justify-between items-end mb-8">
+      <div>
+        <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Reservation Directory</h2>
+        <p class="text-gray-500 text-lg mt-1 font-medium">Monitor and manage all vehicle rentals across the system.</p>
       </div>
     </div>
-  </header>
-  <main class="flex-1 overflow-y-auto p-10">
-      <% } else { %>
-    <body class="min-h-screen text-gray-800 flex flex-col bg-[#F4F7F6]">
-    <nav class="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
-      <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
-        <div class="flex items-center gap-2 text-gray-900">
-          <i class="ph-bold ph-car-profile text-3xl text-blue-600"></i>
-          <span class="text-2xl font-extrabold tracking-tight">DriveAway</span>
-        </div>
-        <div class="flex items-center gap-6">
-          <a href="customer-home.jsp" class="text-gray-500 hover:text-blue-600 font-bold flex items-center gap-2 transition-colors mr-2">
-            <i class="ph-bold ph-house text-xl"></i> Dashboard
-          </a>
-          <div class="flex items-center gap-3">
-            <div class="bg-blue-50 text-blue-600 p-2 rounded-full border border-blue-100"><i class="ph-bold ph-user text-xl"></i></div>
-            <div class="hidden sm:block">
-              <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">Welcome Back</p>
-              <p class="font-bold text-gray-900 leading-tight"><%= displayName %></p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
 
-    <main class="flex-grow max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
-      <% } %>
+    <div class="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <table class="w-full text-left border-collapse">
+        <thead>
+        <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider border-b border-gray-200">
+          <th class="py-5 px-8 font-bold">Booking ID</th>
+          <th class="py-5 px-8 font-bold">Customer</th>
+          <th class="py-5 px-8 font-bold">Vehicle ID</th>
+          <th class="py-5 px-8 font-bold">Rental Date</th>
+          <th class="py-5 px-8 font-bold">Duration</th>
+          <th class="py-5 px-8 font-bold">Status</th>
+          <th class="py-5 px-8 font-bold text-right">Actions</th>
+        </tr>
+        </thead>
+        <tbody class="text-gray-700 text-base">
+        <%
+          List<Booking> bookingList = (List<Booking>) request.getAttribute("bookingList");
+          if (bookingList != null && !bookingList.isEmpty()) {
+            for(Booking b : bookingList) {
+        %>
+        <tr class="border-b border-gray-100 hover:bg-blue-50/40 transition-colors group">
+          <td class="py-5 px-8 font-bold text-gray-900 text-lg">#<%= b.getId() %></td>
+          <td class="py-5 px-8 font-semibold"><%= b.getCustomerName() %></td>
+          <td class="py-5 px-8 font-semibold text-gray-600"><%= b.getVehicleId() %></td>
+          <td class="py-5 px-8 text-gray-500"><%= b.getRentalDate() %></td>
+          <td class="py-5 px-8 font-medium"><%= b.getDays() %> Days</td>
+          <td class="py-5 px-8">
+            <% if ("CONFIRMED".equalsIgnoreCase(b.getStatus()) || "UPDATED".equalsIgnoreCase(b.getStatus())) { %>
+            <span class="bg-green-50 text-green-700 border border-green-200 font-bold px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 w-max">Active</span>
+            <% } else if ("PENDING".equalsIgnoreCase(b.getStatus())) { %>
+            <span class="bg-yellow-50 text-yellow-700 border border-yellow-200 font-bold px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 w-max">Pending</span>
+            <% } else { %>
+            <span class="bg-gray-100 text-gray-700 border border-gray-200 font-bold px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 w-max"><%= b.getStatus() %></span>
+            <% } %>
+          </td>
+          <td class="py-5 px-8 text-right">
+            <form action="bookings" method="POST" class="m-0 p-0 flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+              <input type="hidden" name="id" value="<%= b.getId() %>">
 
-      <div class="flex justify-between items-end mb-8">
-        <div>
-          <h3 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight"><%= adminMode ? "Active Bookings" : "My Bookings" %></h3>
-          <p class="text-gray-500 text-sm font-medium"><%= adminMode ? "Manage, approve, or cancel upcoming rentals." : "View your active rentals, check past transaction history, and modify dates." %></p>
-        </div>
-        <% if (adminMode) { %>
-        <a href="add-booking.jsp" class="flex items-center accent-cyan hover:bg-cyan-600 text-white px-6 py-3.5 rounded-xl font-bold shadow-md transition-all">
-          <i class="ph-bold ph-plus mr-2 text-xl"></i> New Booking
-        </a>
-        <% } else { %>
-        <a href="vehicle-dashboard.jsp" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-xl font-bold shadow-md transition-all">
-          <i class="ph-bold ph-car mr-2 text-xl"></i> Book New Ride
-        </a>
+              <button type="submit" name="action" value="delete" onclick="return confirm('WARNING: Are you sure you want to cancel booking <%= b.getId() %>?');" class="text-red-500 bg-red-50 hover:bg-red-600 hover:text-white p-2.5 rounded-xl transition-colors shadow-sm" title="Cancel Booking">
+                <i class="ph-bold ph-trash text-xl"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        <%
+          }
+        } else {
+        %>
+        <tr><td colspan="7" class="py-10 text-center text-gray-500 font-medium text-lg">No active reservations found in the system.</td></tr>
         <% } %>
-      </div>
+        </tbody>
+      </table>
+    </div>
 
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <table class="w-full text-left border-collapse">
-          <thead>
-          <tr class="bg-gray-50 border-b border-gray-100">
-            <th class="py-5 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Booking ID</th>
-            <% if (adminMode) { %><th class="py-5 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Customer</th><% } %>
-            <th class="py-5 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Vehicle ID</th>
-            <th class="py-5 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Date & Duration</th>
-            <th class="py-5 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Status</th>
-            <th class="py-5 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest text-right">Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          <%
-            List<Booking> bookingList = (List<Booking>) request.getAttribute("bookingList");
-            if (bookingList != null && !bookingList.isEmpty()) {
-              for (Booking b : bookingList) {
-          %>
-          <tr class="hover:bg-blue-50/40 transition-colors group border-b border-gray-50 last:border-none">
-            <td class="py-5 px-8 whitespace-nowrap text-sm font-semibold text-gray-500">#<%= b.getTransactionId() %></td>
-            <% if (adminMode) { %><td class="py-5 px-8 whitespace-nowrap text-sm font-bold text-gray-900"><%= b.getCustomerName() %></td><% } %>
-            <td class="py-5 px-8 whitespace-nowrap text-sm text-gray-600 font-medium"><%= b.getVehicleId() %></td>
-            <td class="py-5 px-8 whitespace-nowrap text-sm text-gray-600">
-              <%= b.getRentalDate() %> <span class="text-xs text-gray-400 ml-1">(<%= b.getDurationDays() %> Days)</span>
-            </td>
-            <td class="py-5 px-8 whitespace-nowrap text-sm font-bold">
-              <% if ("Active".equalsIgnoreCase(b.getStatus())) { %>
-              <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide">Active</span>
-              <% } else if ("Completed".equalsIgnoreCase(b.getStatus())) { %>
-              <span class="bg-green-50 text-green-600 px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide">Completed</span>
-              <% } else { %>
-              <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide"><%= b.getStatus() %></span>
-              <% } %>
-            </td>
-            <td class="py-5 px-8 whitespace-nowrap text-right text-sm font-medium">
-              <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                <% if (adminMode) { %>
-                <a href="bookings?action=edit&id=<%= b.getTransactionId() %>" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2.5 rounded-lg transition-colors" title="Edit Booking">
-                  <i class="ph-bold ph-pencil-simple text-lg"></i>
-                </a>
-                <% } %>
-                <a href="bookings?action=delete&id=<%= b.getTransactionId() %>" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2.5 rounded-lg transition-colors" onclick="return confirm('WARNING: Are you sure you want to cancel this booking?');" title="Cancel Booking">
-                  <i class="ph-bold ph-trash text-lg"></i>
-                </a>
-              </div>
-            </td>
-          </tr>
-          <%
-            }
-          } else {
-          %>
-          <tr>
-            <td colspan="<%= adminMode ? 6 : 5 %>" class="py-24 text-center">
-              <div class="flex flex-col items-center justify-center">
-                <div class="bg-gray-50 p-6 rounded-full mb-4">
-                  <i class="ph ph-calendar-blank text-5xl text-gray-300"></i>
-                </div>
-                <p class="text-xl font-bold text-gray-900 mb-2 tracking-tight">No bookings found.</p>
-                <p class="text-sm text-gray-500 font-medium">
-                  <%= adminMode ? "Get started by creating a new reservation in the system." : "You haven't rented any vehicles yet. Start exploring our fleet!" %>
-                </p>
-              </div>
-            </td>
-          </tr>
-          <% } %>
-          </tbody>
-        </table>
-      </div>
-
-    </main>
-      <% if (adminMode) { %>
+  </div>
 </div>
-<% } %>
+
 </body>
 </html>
