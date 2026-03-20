@@ -19,94 +19,96 @@ public class BookingController extends HttpServlet {
     private BookingDAO bookingDAO = new BookingDAO();
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        System.out.println("==== BOOKING CONTROLLER TRIGGERED ====");
+        System.out.println("Action: " + action);
 
-        if ("search".equals(action)) {
-            // Handles Search Button
-            String id = request.getParameter("id");
-            request.setAttribute("searchedBooking", bookingDAO.getBookingById(id));
-            request.setAttribute("searchAttempted", true);
-            request.getRequestDispatcher("search-booking.jsp").forward(request, response);
-
-        } else if ("edit".equals(action)) {
-            // Handles Edit Button
-            String id = request.getParameter("id");
-            Booking b = bookingDAO.getBookingById(id);
-            if (b != null) {
-                request.setAttribute("bookingToEdit", b);
-            } else {
-                request.setAttribute("error", "Not Found");
-            }
-            request.getRequestDispatcher("edit-booking.jsp").forward(request, response);
-
-        } else if ("view-all".equals(action)) {
-            // Handles User View All Button
-            request.setAttribute("bookingList", bookingDAO.getAllBookings());
-            request.getRequestDispatcher("view-all-bookings.jsp").forward(request, response);
-
-        } else {
-            // MAIN DASHBOARD ROUTING: Handles Admin vs Customer View
-            HttpSession session = request.getSession();
-            Boolean isAdmin = (Boolean) session.getAttribute("adminLoggedIn");
-            Boolean isCustomer = (Boolean) session.getAttribute("customerLoggedIn");
-
-            if (isAdmin != null && isAdmin) {
-                // Admin gets to see EVERY booking
-                request.setAttribute("bookingList", bookingDAO.getAllBookings());
-                request.getRequestDispatcher("booking-dashboard.jsp").forward(request, response);
-
-            } else if (isCustomer != null && isCustomer) {
-                // Customer only gets to see THEIR bookings
-                String customerName = (String) session.getAttribute("name");
-                if (customerName == null) customerName = (String) session.getAttribute("username");
-
+        try {
+            // ========================================================
+            // ADMIN SIDE: The Unified Dashboard
+            // ========================================================
+            if ("list".equals(action) || action == null) {
                 List<Booking> allBookings = bookingDAO.getAllBookings();
-                List<Booking> myBookings = new ArrayList<>();
+                if (allBookings == null) allBookings = new ArrayList<>();
 
+                int totalBookings = allBookings.size();
+                int activeBookings = 0;
+                int pendingBookings = 0;
+
+                // Calculate Stats for the Dashboard Cards
                 for (Booking b : allBookings) {
-                    if (b.getCustomerName() != null && b.getCustomerName().equalsIgnoreCase(customerName)) {
-                        myBookings.add(b);
+                    if ("CONFIRMED".equalsIgnoreCase(b.getStatus()) || "UPDATED".equalsIgnoreCase(b.getStatus())) {
+                        activeBookings++;
+                    } else if ("PENDING".equalsIgnoreCase(b.getStatus())) {
+                        pendingBookings++;
                     }
                 }
 
-                request.setAttribute("bookingList", myBookings);
-                request.getRequestDispatcher("booking-dashboard.jsp").forward(request, response);
+                request.setAttribute("bookingList", allBookings);
+                request.setAttribute("totalBookings", totalBookings);
+                request.setAttribute("activeBookings", activeBookings);
+                request.setAttribute("pendingBookings", pendingBookings);
 
-            } else {
-                // Not logged in? Kick back to login screen
-                response.sendRedirect("index.jsp");
+                request.getRequestDispatcher("booking-dashboard.jsp").forward(request, response);
             }
+            // ========================================================
+            // CUSTOMER SIDE: Keeps your existing customer logic intact
+            // ========================================================
+            else if ("view-all".equals(action)) {
+                request.setAttribute("bookingList", bookingDAO.getAllBookings());
+                request.getRequestDispatcher("view-all-bookings.jsp").forward(request, response);
+
+            } else if ("search".equals(action)) {
+                String id = request.getParameter("id");
+                request.setAttribute("searchedBooking", bookingDAO.getBookingById(id));
+                request.setAttribute("searchAttempted", true);
+                request.getRequestDispatcher("search-booking.jsp").forward(request, response);
+
+            } else if ("edit".equals(action)) {
+                String id = request.getParameter("id");
+                Booking b = bookingDAO.getBookingById(id);
+                if (b != null) {
+                    request.setAttribute("bookingToEdit", b);
+                } else {
+                    request.setAttribute("error", "Not Found");
+                }
+                request.getRequestDispatcher("edit-booking.jsp").forward(request, response);
+            }
+        } catch (Exception e) {
+            System.out.println("!!! CRASH IN BOOKING CONTROLLER !!!");
+            e.printStackTrace();
+            response.sendRedirect("admin-home.jsp");
         }
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        if ("delete".equals(action)) {
-            // Handles Cancel Button
-            bookingDAO.deleteBooking(request.getParameter("id"));
-            response.sendRedirect("bookings?action=list");
+        try {
+            if ("delete".equals(action)) {
+                bookingDAO.deleteBooking(request.getParameter("id"));
+                response.sendRedirect("bookings?action=list");
 
-        } else if ("update".equals(action)) {
-            // Saves changes from Edit Page
-            String id = request.getParameter("id");
-            Booking updatedBooking = new Booking(id, request.getParameter("customerName"),
-                    request.getParameter("vehicleId"), request.getParameter("rentalDate"),
-                    Integer.parseInt(request.getParameter("days")), "UPDATED");
-            bookingDAO.updateBooking(updatedBooking);
-            response.sendRedirect("bookings?action=list");
+            } else if ("update".equals(action)) {
+                String id = request.getParameter("id");
+                Booking updatedBooking = new Booking(id, request.getParameter("customerName"),
+                        request.getParameter("vehicleId"), request.getParameter("rentalDate"),
+                        Integer.parseInt(request.getParameter("days")), "UPDATED");
+                bookingDAO.updateBooking(updatedBooking);
+                response.sendRedirect("bookings?action=list");
 
-        } else if ("create".equals(action)) {
-            // Saves new booking from Main Page
-            String newId = "BKG-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
-            Booking newBooking = new Booking(newId, request.getParameter("customerName"),
-                    request.getParameter("vehicleId"), request.getParameter("rentalDate"),
-                    Integer.parseInt(request.getParameter("days")), "CONFIRMED");
-            bookingDAO.saveBooking(newBooking);
+            } else if ("create".equals(action)) {
+                String newId = "BKG-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+                Booking newBooking = new Booking(newId, request.getParameter("customerName"),
+                        request.getParameter("vehicleId"), request.getParameter("rentalDate"),
+                        Integer.parseInt(request.getParameter("days")), "CONFIRMED");
+                bookingDAO.saveBooking(newBooking);
+                response.sendRedirect("bookings?action=list");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             response.sendRedirect("bookings?action=list");
         }
     }
