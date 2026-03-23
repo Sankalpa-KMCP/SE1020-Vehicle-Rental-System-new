@@ -24,6 +24,13 @@ public abstract class Vehicle {
      * Abstract method that forces child classes to define their specific type.
      */
     public abstract String getVehicleType();
+    /**
+     * OOP Concept: Polymorphism.
+     * Forces child classes to define their own rate calculation, specific details, and file formatting.
+     */
+    public abstract double calculateRentalRate();
+    public abstract String getSpecificDetail();
+    public abstract String toCSV();
 
     // Getters and Setters (Encapsulation)
     public String getId() { return id; }
