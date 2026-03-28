@@ -3,7 +3,7 @@
     // Ensure the user is actually logged in as a customer
     Boolean customerLoggedIn = (Boolean) session.getAttribute("customerLoggedIn");
     if (customerLoggedIn == null || !customerLoggedIn) {
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("login.jsp");
         return;
     }
 

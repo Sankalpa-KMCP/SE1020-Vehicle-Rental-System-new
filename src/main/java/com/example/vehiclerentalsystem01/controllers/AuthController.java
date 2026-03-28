@@ -46,7 +46,6 @@ public class AuthController extends HttpServlet {
             if (loggedInStaff != null) {
                 session.setAttribute("adminLoggedIn", true);
                 session.setAttribute("adminUser", loggedInStaff.getUsername());
-                // Required for the new unified dashboard headers
                 session.setAttribute("username", loggedInStaff.getUsername());
                 session.setAttribute("name", loggedInStaff.getName());
                 session.setAttribute("isMasterAdmin", "Admin".equalsIgnoreCase(loggedInStaff.getRole()));
@@ -57,7 +56,7 @@ public class AuthController extends HttpServlet {
             }
 
             // ==========================================
-            // 2. CUSTOMER LOGIN (Restored)
+            // 2. CUSTOMER LOGIN
             // ==========================================
         } else if ("customer_login".equals(action)) {
             String user = request.getParameter("username");
@@ -69,13 +68,13 @@ public class AuthController extends HttpServlet {
             if (loggedInCustomer != null) {
                 session.setAttribute("customerLoggedIn", true);
                 session.setAttribute("customerUser", user);
-                // Required for the new unified dashboard headers
                 session.setAttribute("username", loggedInCustomer.getUsername());
                 session.setAttribute("name", loggedInCustomer.getName());
 
                 response.sendRedirect(request.getContextPath() + "/customer-home.jsp");
             } else {
-                response.sendRedirect(request.getContextPath() + "/index.jsp?error=invalid");
+                // UPDATED: Now redirects to the new login.jsp on failure
+                response.sendRedirect(request.getContextPath() + "/login.jsp?error=invalid");
             }
 
             // ==========================================
@@ -98,13 +97,14 @@ public class AuthController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/admin-login.jsp?success=requested");
 
             // ==========================================
-            // 4. LOGOUT HANDLING (Restored)
+            // 4. LOGOUT HANDLING
             // ==========================================
         } else if ("logout".equals(action)) {
             if (session != null) {
                 session.invalidate(); // Destroy the session completely
             }
-            response.sendRedirect(request.getContextPath() + "/index.jsp"); // Go back to login screen
+            // UPDATED: Now redirects to the new login.jsp upon logout
+            response.sendRedirect(request.getContextPath() + "/login.jsp");
 
             // ==========================================
             // UNKNOWN ACTION FALLBACK
