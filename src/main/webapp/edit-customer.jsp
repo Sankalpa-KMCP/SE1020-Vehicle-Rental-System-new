@@ -23,7 +23,7 @@
 
   // If absolutely no profile is found, kick back to login
   if (customer == null) {
-    response.sendRedirect("index.jsp");
+    response.sendRedirect("login.jsp");
     return;
   }
 %>

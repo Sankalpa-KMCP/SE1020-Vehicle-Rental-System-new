@@ -40,7 +40,7 @@
     </div>
     <span class="text-lg">Back</span>
   </button>
-  <a href="<%= isAdmin ? "admin-home.jsp" : "index.jsp" %>" class="flex items-center justify-center gap-2
+  <a href="<%= isAdmin ? "admin-home.jsp" : "login.jsp" %>" class="flex items-center justify-center gap-2
       bg-[#1C2024] px-5 py-2.5 rounded-xl font-bold text-white shadow-sm hover:bg-black transition">
     <i class="ph-fill ph-house text-[#FFC107] text-2xl"></i>
     <span class="text-lg">Home</span>

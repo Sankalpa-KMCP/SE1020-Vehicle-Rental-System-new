@@ -88,7 +88,7 @@
 
   <!-- Footer Area -->
   <div class="bg-gray-50 p-5 text-center border-t border-gray-100">
-    <a href="index.jsp" class="text-slate-500 hover:text-slate-800 text-sm font-medium flex items-center justify-center gap-1 transition-colors">
+    <a href="login.jsp" class="text-slate-500 hover:text-slate-800 text-sm font-medium flex items-center justify-center gap-1 transition-colors">
       <i class="ph ph-arrow-left"></i> Return to Public Site
     </a>
   </div>

@@ -3,7 +3,7 @@
     // SECURITY BOUNCER: Ensure only logged-in customers can access support
     Boolean customerLoggedIn = (Boolean) session.getAttribute("customerLoggedIn");
     if (customerLoggedIn == null || !customerLoggedIn) {
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("login.jsp");
         return;
     }
 %>
