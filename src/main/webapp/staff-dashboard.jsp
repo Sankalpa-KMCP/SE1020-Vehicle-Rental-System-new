@@ -3,7 +3,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%
     if (session.getAttribute("adminLoggedIn") == null || !(Boolean)session.getAttribute("adminLoggedIn")) {
-        response.sendRedirect("index.jsp"); return;
+        response.sendRedirect("login.jsp"); return;
     }
 %>
 <!DOCTYPE html>
@@ -52,7 +52,7 @@
         <a href="admin-home.jsp" class="flex items-center px-4 py-3 text-sm text-slate-400 hover:text-white font-medium transition-all rounded-xl hover:bg-slate-800">
             <i class="ph-bold ph-arrow-square-out text-lg mr-3"></i> Admin Hub
         </a>
-        <a href="index.jsp" class="flex items-center px-4 py-3 text-sm text-slate-400 hover:text-white font-medium transition-all rounded-xl hover:bg-slate-800">
+        <a href="login.jsp" class="flex items-center px-4 py-3 text-sm text-slate-400 hover:text-white font-medium transition-all rounded-xl hover:bg-slate-800">
             <i class="ph-bold ph-sign-out text-lg mr-3"></i> Logout
         </a>
     </div>

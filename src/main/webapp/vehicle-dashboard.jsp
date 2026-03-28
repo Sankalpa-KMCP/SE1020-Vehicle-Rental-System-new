@@ -31,7 +31,7 @@
     </a>
   </nav>
   <div class="p-4 border-t border-slate-800">
-    <a href="index.jsp" class="flex items-center px-4 py-2 text-sm text-slate-400 hover:text-white transition-all">
+    <a href="login.jsp" class="flex items-center px-4 py-2 text-sm text-slate-400 hover:text-white transition-all">
       <i class="ph ph-sign-out text-lg mr-2"></i> Logout
     </a>
   </div>

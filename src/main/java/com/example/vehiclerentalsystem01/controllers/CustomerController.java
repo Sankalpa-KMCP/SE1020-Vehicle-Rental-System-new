@@ -120,7 +120,8 @@ public class CustomerController extends HttpServlet {
         if (isAdmin != null && isAdmin) {
             response.sendRedirect("customers?action=view_directory");
         } else {
-            response.sendRedirect("index.jsp?success=registered");
+            // UPDATED: Now redirects to login.jsp with the success flag
+            response.sendRedirect("login.jsp?success=registered");
         }
     }
 }

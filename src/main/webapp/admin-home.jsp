@@ -3,7 +3,7 @@
   // Security Mechanism: Kick out anyone trying to access this page directly!
   Boolean isLoggedIn = (Boolean) session.getAttribute("adminLoggedIn");
   if (isLoggedIn == null || !isLoggedIn) {
-    response.sendRedirect("index.jsp");
+    response.sendRedirect("login.jsp");
     return;
   }
 %>

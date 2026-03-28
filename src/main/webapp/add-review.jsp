@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%
     if (session.getAttribute("adminLoggedIn") == null || !(Boolean)session.getAttribute("adminLoggedIn")) {
-        response.sendRedirect("index.jsp"); return;
+        response.sendRedirect("login.jsp"); return;
     }
 %>
 <!DOCTYPE html>
