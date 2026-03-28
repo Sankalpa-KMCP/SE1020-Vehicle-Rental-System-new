@@ -1,0 +1,168 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%
+    // SECURITY BOUNCER: Ensure only logged-in customers can access support
+    Boolean customerLoggedIn = (Boolean) session.getAttribute("customerLoggedIn");
+    if (customerLoggedIn == null || !customerLoggedIn) {
+        response.sendRedirect("index.jsp");
+        return;
+    }
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveAway | Help & Support</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #F4F7F6; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Clean styling for the native HTML accordion */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 flex flex-col">
+
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-gray-900">
+            <i class="ph-bold ph-car-profile text-3xl text-blue-600"></i>
+            <span class="text-2xl font-extrabold tracking-tight">DriveAway</span>
+        </div>
+        <a href="customer-home.jsp" class="text-gray-600 hover:text-blue-600 font-bold border border-gray-200 bg-white hover:bg-blue-50 hover:border-blue-200 px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-sm">
+            <i class="ph-bold ph-arrow-left text-lg"></i> Back to Portal
+        </a>
+    </div>
+</nav>
+
+<main class="flex-grow max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
+
+    <div class="bg-gradient-to-br from-rose-500 to-rose-700 rounded-3xl p-10 sm:p-12 text-white shadow-lg mb-10 relative overflow-hidden">
+        <div class="relative z-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">How can we help you?</h1>
+            <p class="text-rose-100 text-lg font-medium max-w-2xl leading-relaxed">Whether you have a question about your current reservation, need help with billing, or want to report an issue, our 24/7 support team is here for you.</p>
+        </div>
+        <i class="ph-fill ph-headset absolute -right-10 -bottom-10 text-[250px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+        <div class="lg:col-span-7 space-y-6">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
+                    <i class="ph-bold ph-question"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">Frequently Asked Questions</h2>
+            </div>
+
+            <details class="group bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden open:ring-2 open:ring-blue-100 transition-all">
+                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-gray-900 hover:text-blue-600 transition-colors">
+                    <span>What happens if I return the vehicle late?</span>
+                    <span class="transition group-open:rotate-180">
+            <i class="ph-bold ph-caret-down text-gray-400 group-hover:text-blue-500"></i>
+          </span>
+                </summary>
+                <div class="text-gray-500 font-medium px-6 pb-6 leading-relaxed">
+                    A grace period of 2 hours is provided for all returns. After that, you will be charged for an additional full day of rental. If you know you will be late, please contact support immediately to extend your booking.
+                </div>
+            </details>
+
+            <details class="group bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden open:ring-2 open:ring-blue-100 transition-all">
+                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-gray-900 hover:text-blue-600 transition-colors">
+                    <span>What do I do in case of an accident or breakdown?</span>
+                    <span class="transition group-open:rotate-180">
+            <i class="ph-bold ph-caret-down text-gray-400 group-hover:text-blue-500"></i>
+          </span>
+                </summary>
+                <div class="text-gray-500 font-medium px-6 pb-6 leading-relaxed">
+                    First, ensure you are in a safe location. Then, immediately call our emergency roadside assistance number listed below. Do not attempt to repair the vehicle yourself. If another vehicle is involved, please obtain a police report.
+                </div>
+            </details>
+
+            <details class="group bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden open:ring-2 open:ring-blue-100 transition-all">
+                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-gray-900 hover:text-blue-600 transition-colors">
+                    <span>How do I cancel or modify my reservation?</span>
+                    <span class="transition group-open:rotate-180">
+            <i class="ph-bold ph-caret-down text-gray-400 group-hover:text-blue-500"></i>
+          </span>
+                </summary>
+                <div class="text-gray-500 font-medium px-6 pb-6 leading-relaxed">
+                    You can modify or cancel your booking directly from the "My Bookings" module on your dashboard. Cancellations made 24 hours before the pickup time are fully refunded.
+                </div>
+            </details>
+        </div>
+
+        <div class="lg:col-span-5 space-y-8">
+
+            <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <h3 class="text-xl font-extrabold text-gray-900 mb-6 flex items-center gap-2">
+                    <i class="ph-fill ph-paper-plane-tilt text-rose-500"></i> Send a Message
+                </h3>
+
+                <% if ("sent".equals(request.getParameter("status"))) { %>
+                <div class="mb-6 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-bold flex items-center gap-2">
+                    <i class="ph-bold ph-check-circle text-xl"></i> Message sent successfully!
+                </div>
+                <% } %>
+
+                <form action="support" method="POST" class="space-y-5">
+                    <input type="hidden" name="action" value="submit_ticket">
+                    <input type="hidden" name="username" value="<%= session.getAttribute("username") %>">
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-600 mb-2">Subject</label>
+                        <select name="subject" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all font-medium text-gray-800" required>
+                            <option value="" disabled selected>Select an issue type...</option>
+                            <option value="Vehicle Issue">Report a Vehicle Issue</option>
+                            <option value="Billing Question">Billing & Payments</option>
+                            <option value="Reservation Change">Modify Reservation</option>
+                            <option value="Other">Other / General Inquiry</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-600 mb-2">Message</label>
+                        <textarea name="message" rows="4" placeholder="Please describe your issue in detail..." class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all font-medium text-gray-800 resize-none" required></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl transition-colors shadow-md flex items-center justify-center gap-2">
+                        Submit Ticket <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-slate-900 rounded-2xl p-8 text-white shadow-lg">
+                <h3 class="text-lg font-bold mb-6 text-slate-100">Direct Contact</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-rose-400">
+                            <i class="ph-fill ph-phone text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Emergency Roadside</p>
+                            <p class="font-semibold">+94 77 123 4567</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-rose-400">
+                            <i class="ph-fill ph-envelope text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Email Support</p>
+                            <p class="font-semibold">support@driveaway.lk</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
