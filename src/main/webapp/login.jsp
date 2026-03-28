@@ -9,7 +9,17 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+        /* --- FASTER PAGE TRANSITION CSS --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            opacity: 0;
+            transition: opacity 0.15s ease-out; /* Reduced from 0.4s to 0.15s */
+        }
+        body.page-loaded {
+            opacity: 1;
+        }
 
         input:-webkit-autofill {
             -webkit-box-shadow: 0 0 0 30px white inset !important;
@@ -28,7 +38,6 @@
             will-change: transform;
         }
 
-        /* Standardized Eye Container */
         .mascot-eyes {
             position: absolute;
             transform: translateZ(40px);
@@ -72,8 +81,8 @@
             left: 8rem; bottom: 0; z-index: 20;
         }
         .shape-rookie {
-            background: linear-gradient(135deg, #FF9A44, #D65A00);
-            box-shadow: inset 4px 4px 15px rgba(255,255,255,0.6), inset -4px -4px 15px rgba(0,0,0,0.2), 10px 20px 30px rgba(255, 154, 68, 0.3);
+            background: linear-gradient(135deg, #FB923C, #C2410C);
+            box-shadow: inset 4px 4px 15px rgba(255,255,255,0.6), inset -4px -4px 15px rgba(0,0,0,0.2), 10px 20px 30px rgba(251, 146, 60, 0.3);
             width: 7rem; height: 8rem; border-radius: 3rem 3rem 0 1rem;
             left: 14rem; bottom: 0; z-index: 30;
         }
@@ -99,8 +108,8 @@
         }
 
         .shape-yellow-girl {
-            background: linear-gradient(135deg, #FFE044, #D6A200);
-            box-shadow: inset 3px 3px 10px rgba(255,255,255,0.6), inset -3px -3px 10px rgba(0,0,0,0.2), 10px 20px 30px rgba(251, 207, 20, 0.3);
+            background: linear-gradient(135deg, #FBBF24, #B45309);
+            box-shadow: inset 3px 3px 10px rgba(255,255,255,0.6), inset -3px -3px 10px rgba(0,0,0,0.2), 10px 20px 30px rgba(251, 191, 36, 0.3);
             width: 4.5rem; height: 5.5rem; border-radius: 4rem 4rem 0 0;
             left: 12.5rem; bottom: 0; z-index: 35;
         }
@@ -182,7 +191,7 @@
 <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-16 relative z-50 bg-white shadow-[-20px_0_50px_rgba(0,0,0,0.05)]">
 
     <div class="absolute top-8 left-8 sm:top-12 sm:left-12">
-        <a href="index.jsp" class="flex items-center gap-2 text-base font-bold text-gray-500 hover:text-black transition-colors">
+        <a href="index.jsp" class="transition-link flex items-center gap-2 text-base font-bold text-gray-500 hover:text-black transition-colors">
             <i class="ph-bold ph-arrow-left text-2xl"></i> Back
         </a>
     </div>
@@ -243,7 +252,7 @@
 
         <div class="mt-12 pt-8 border-t border-gray-100 flex justify-between items-center">
             <p class="text-sm font-medium text-gray-500">
-                New user? <a href="register.jsp" class="text-black font-bold hover:underline">Register</a>
+                New user? <a href="register.jsp" class="transition-link text-black font-bold hover:underline">Register</a>
             </p>
             <a href="admin-login.jsp" class="text-sm text-red-500 font-bold hover:underline bg-red-50 px-4 py-2 rounded-lg flex items-center gap-2">
                 <i class="ph-bold ph-shield-check"></i> Staff Login
@@ -419,6 +428,23 @@
 
     usernameInput.addEventListener('input', () => { if(activeState === 'sad') { activeState = 'idle'; evaluateState(); } }, {once: true});
     passwordInput.addEventListener('input', () => { if(activeState === 'sad') { activeState = 'idle'; evaluateState(); } }, {once: true});
+
+    // --- FASTER PAGE TRANSITION LOGIC ---
+    window.addEventListener('load', () => {
+        document.body.classList.add('page-loaded');
+    });
+
+    document.querySelectorAll('.transition-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetUrl = this.href;
+            document.body.classList.remove('page-loaded');
+            // Timeout reduced to 150ms for lightning-fast routing
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 150);
+        });
+    });
 </script>
 </body>
 </html>

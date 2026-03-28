@@ -15,7 +15,17 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+    /* --- FASTER PAGE TRANSITION CSS --- */
+    body {
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      opacity: 0;
+      transition: opacity 0.15s ease-out; /* Reduced from 0.4s to 0.15s */
+    }
+    body.page-loaded {
+      opacity: 1;
+    }
 
     input:-webkit-autofill {
       -webkit-box-shadow: 0 0 0 30px white inset !important;
@@ -37,6 +47,7 @@
       position: absolute;
       transform: translateZ(40px);
       will-change: transform;
+      z-index: 2;
     }
     .mascot-prop {
       position: absolute;
@@ -60,7 +71,7 @@
       transition: transform 0.2s ease;
     }
 
-    /* --- THE 4 GUYS DESIGNS (matching login page) --- */
+    /* --- THE 4 GUYS DESIGNS --- */
     .shape-boss {
       background: linear-gradient(135deg, #EF4444, #B91C1C);
       box-shadow: inset 4px 4px 15px rgba(255,255,255,0.3), inset -4px -4px 15px rgba(0,0,0,0.3), 10px 20px 30px rgba(239, 68, 68, 0.3);
@@ -74,8 +85,8 @@
       left: 8rem; bottom: 0; z-index: 20;
     }
     .shape-rookie {
-      background: linear-gradient(135deg, #FF9A44, #D65A00);
-      box-shadow: inset 4px 4px 15px rgba(255,255,255,0.6), inset -4px -4px 15px rgba(0,0,0,0.2), 10px 20px 30px rgba(255, 154, 68, 0.3);
+      background: linear-gradient(135deg, #FB923C, #C2410C);
+      box-shadow: inset 4px 4px 15px rgba(255,255,255,0.6), inset -4px -4px 15px rgba(0,0,0,0.2), 10px 20px 30px rgba(251, 146, 60, 0.3);
       width: 7rem; height: 8rem; border-radius: 3rem 3rem 0 1rem;
       left: 14rem; bottom: 0; z-index: 30;
     }
@@ -86,7 +97,7 @@
       left: 3.5rem; bottom: 0; z-index: 5;
     }
 
-    /* --- THE 2 GIRLS DESIGNS (matching login page) --- */
+    /* --- THE 2 GIRLS DESIGNS --- */
     .shape-hijab {
       background: linear-gradient(135deg, #7A52FA, #4A12DA);
       box-shadow: inset 4px 4px 15px rgba(255,255,255,0.4), inset -4px -4px 15px rgba(0,0,0,0.5), 10px 20px 30px rgba(90, 50, 250, 0.4);
@@ -101,8 +112,8 @@
     }
 
     .shape-yellow-girl {
-      background: linear-gradient(135deg, #FFE044, #D6A200);
-      box-shadow: inset 3px 3px 10px rgba(255,255,255,0.6), inset -3px -3px 10px rgba(0,0,0,0.2), 10px 20px 30px rgba(251, 207, 20, 0.3);
+      background: linear-gradient(135deg, #FBBF24, #B45309);
+      box-shadow: inset 3px 3px 10px rgba(255,255,255,0.6), inset -3px -3px 10px rgba(0,0,0,0.2), 10px 20px 30px rgba(251, 191, 36, 0.3);
       width: 4.5rem; height: 5.5rem; border-radius: 4rem 4rem 0 0;
       left: 12.5rem; bottom: 0; z-index: 35;
     }
@@ -129,7 +140,7 @@
 <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-16 relative min-h-screen z-50 shadow-[20px_0_50px_rgba(0,0,0,0.05)]">
 
   <div class="absolute top-8 left-8 sm:top-12 sm:left-12">
-    <a href='<%= isAdmin ? "admin-home.jsp" : "index.jsp" %>' class="flex items-center gap-2 text-base font-bold text-gray-500 hover:text-black transition-colors">
+    <a href='<%= isAdmin ? "admin-home.jsp" : "index.jsp" %>' class="transition-link flex items-center gap-2 text-base font-bold text-gray-500 hover:text-black transition-colors">
       <i class="ph-bold ph-arrow-left text-2xl"></i> Back
     </a>
   </div>
@@ -217,12 +228,8 @@
     <div class="mt-12 pt-8 border-t border-gray-100 text-center flex justify-between items-center">
       <p class="text-sm font-medium text-gray-500">
         Already have an account?
-        <a href="login.jsp" class="text-black font-bold hover:underline">Sign In</a>
+        <a href="login.jsp" class="transition-link text-black font-bold hover:underline">Sign In</a>
       </p>
-      <!-- Optional Staff Login link (as in login page) -->
-      <a href="admin-login.jsp" class="text-sm text-red-500 font-bold hover:underline bg-red-50 px-4 py-2 rounded-lg flex items-center gap-2">
-        <i class="ph-bold ph-shield-check"></i> Staff Login
-      </a>
     </div>
     <% } %>
   </div>
@@ -231,26 +238,23 @@
 <div id="art-container" class="hidden lg:flex lg:w-1/2 bg-[#F0F2F5] items-end justify-center overflow-hidden pb-16 lg:h-screen lg:sticky lg:top-0">
   <div class="relative w-80 h-80 flex items-end justify-center transform scale-125 xl:scale-[1.3] origin-bottom perspective-[1000px]">
 
-    <!-- Tall Black -->
-    <div id="mascot-tall-black" class="mascot-body shape-tall-black flex justify-center pt-8 border border-white/20">
-      <div class="mascot-eyes flex gap-3 drop-shadow-md">
+    <div id="mascot-tall-black" class="mascot-body shape-tall-black">
+      <div class="mascot-eyes flex gap-3 drop-shadow-md absolute inset-x-0 mx-auto w-fit top-8">
         <div class="w-2 h-2 rounded-full bg-white eye-dot" style="animation-delay: 4s;"></div>
         <div class="w-2 h-2 rounded-full bg-white eye-dot" style="animation-delay: 4s;"></div>
       </div>
     </div>
 
-    <!-- Boss (Red) -->
-    <div id="mascot-boss" class="mascot-body shape-boss flex flex-col justify-start items-center pt-6 border border-white/20">
-      <div class="mascot-eyes flex gap-4 drop-shadow-md">
+    <div id="mascot-boss" class="mascot-body shape-boss">
+      <div class="mascot-eyes flex gap-4 drop-shadow-md absolute inset-x-0 mx-auto w-fit top-6">
         <div class="w-2.5 h-2.5 rounded-full bg-white eye-dot"></div>
         <div class="w-2.5 h-2.5 rounded-full bg-white eye-dot"></div>
       </div>
     </div>
 
-    <!-- Hijab Girl (Purple) -->
-    <div id="mascot-hijab" class="mascot-body shape-hijab flex justify-center border border-white/30">
-      <div class="hijab-face flex justify-center items-center">
-        <div class="mascot-eyes glasses-wrapper drop-shadow-sm">
+    <div id="mascot-hijab" class="mascot-body shape-hijab flex justify-center">
+      <div class="hijab-face relative">
+        <div class="mascot-eyes glasses-wrapper drop-shadow-sm absolute inset-x-0 mx-auto inset-y-0 my-auto w-fit h-fit">
           <div class="glasses-bridge"></div>
           <div class="glasses-frame glasses-lg relative z-20"><div class="w-1.5 h-1.5 rounded-full bg-black eye-dot" style="animation-delay: 3s;"></div></div>
           <div class="glasses-frame glasses-lg relative z-20"><div class="w-1.5 h-1.5 rounded-full bg-black eye-dot" style="animation-delay: 3s;"></div></div>
@@ -258,9 +262,8 @@
       </div>
     </div>
 
-    <!-- Guard Cyan -->
-    <div id="mascot-guard-cyan" class="mascot-body shape-guard-cyan flex justify-center pt-6 border border-white/10">
-      <div class="mascot-eyes flex gap-3 drop-shadow-md">
+    <div id="mascot-guard-cyan" class="mascot-body shape-guard-cyan">
+      <div class="mascot-eyes flex gap-3 drop-shadow-md absolute inset-x-0 mx-auto w-fit top-6">
         <div class="w-2.5 h-2.5 rounded-full bg-black eye-dot" style="animation-delay: 1s;"></div>
         <div class="w-2.5 h-2.5 rounded-full bg-black eye-dot" style="animation-delay: 1s;"></div>
       </div>
@@ -269,17 +272,15 @@
       </div>
     </div>
 
-    <!-- Rookie (Orange) -->
-    <div id="mascot-rookie" class="mascot-body shape-rookie flex justify-end items-center pr-3 border border-white/40">
-      <div class="mascot-eyes flex gap-2 items-center mb-6 drop-shadow-sm">
+    <div id="mascot-rookie" class="mascot-body shape-rookie">
+      <div class="mascot-eyes flex gap-2 drop-shadow-sm absolute inset-x-0 mx-auto w-fit top-6">
         <div class="w-2 h-2 rounded-full bg-black eye-dot" style="animation-delay: 2s;"></div>
         <div class="w-2 h-2 rounded-full bg-black eye-dot" style="animation-delay: 2s;"></div>
       </div>
     </div>
 
-    <!-- Yellow Girl -->
-    <div id="mascot-yellow-girl" class="mascot-body shape-yellow-girl flex justify-center pt-3 border border-white/40">
-      <div class="mascot-eyes glasses-wrapper drop-shadow-sm">
+    <div id="mascot-yellow-girl" class="mascot-body shape-yellow-girl">
+      <div class="mascot-eyes glasses-wrapper drop-shadow-sm absolute inset-x-0 mx-auto w-fit top-4">
         <div class="glasses-bridge"></div>
         <div class="glasses-frame glasses-sm relative z-20"><div class="w-1.5 h-1.5 rounded-full bg-black eye-dot" style="animation-delay: 1.5s;"></div></div>
         <div class="glasses-frame glasses-sm relative z-20"><div class="w-1.5 h-1.5 rounded-full bg-black eye-dot" style="animation-delay: 1.5s;"></div></div>
@@ -326,7 +327,6 @@
       this.currentX += (this.targetX - this.currentX) * this.weight;
       this.currentY += (this.targetY - this.currentY) * this.weight;
 
-      // Form is on the LEFT, so movement aligns to look towards the left
       const moveX = this.currentX * 25;
       const moveY = this.currentY * 25;
       const rotX = this.currentY * -(this.maxRotation * 1.5);
@@ -341,7 +341,6 @@
     }
   }
 
-  // Initialize mascots
   const tallBlackGuy = new Mascot('mascot-tall-black', 0.015, 10, -20);
   const bossGuy = new Mascot('mascot-boss', 0.03, 15, 0);
   const hijabGirl = new Mascot('mascot-hijab', 0.08, 22, 5);
@@ -358,7 +357,7 @@
   const propShield = document.getElementById('prop-shield');
   const artContainer = document.getElementById('art-container');
 
-  let globalMouseX = -0.5; // Look slightly left by default (form is on left)
+  let globalMouseX = -0.5;
   let globalMouseY = 0;
   let activeState = 'idle';
   let isHoveringPassword = false;
@@ -406,7 +405,6 @@
         propShield.classList.add('show-prop');
         guardCyanGuy.scale = 1.1;
 
-        // Shield mode: some mascots look away, guard stares
         tallBlackGuy.lookAt(1, -1);
         bossGuy.lookAt(0.8, -0.8);
         hijabGirl.lookAt(0.5, 0);
@@ -419,7 +417,7 @@
 
         mascots.forEach(m => {
           m.scale = 1.05;
-          m.lookAt(-0.7, 0.2); // Look left towards the form
+          m.lookAt(-0.7, 0.2);
           m.setSquint(true);
         });
       }
@@ -433,7 +431,6 @@
     if (activeState !== 'inspecting') return;
     const activeInput = document.activeElement;
     const typeProgress = Math.min((activeInput.value || '').length / 20, 1);
-    // Look from left to middle-left as you type
     const lookX = -0.6 + (typeProgress * 0.4);
     mascots.forEach(m => m.lookAt(lookX, 0.1));
   }
@@ -464,6 +461,23 @@
   }
 
   requestAnimationFrame(renderLoop);
+
+  // --- FASTER PAGE TRANSITION LOGIC ---
+  window.addEventListener('load', () => {
+    document.body.classList.add('page-loaded');
+  });
+
+  document.querySelectorAll('.transition-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetUrl = this.href;
+      document.body.classList.remove('page-loaded');
+      // Timeout reduced to 150ms for lightning-fast routing
+      setTimeout(() => {
+        window.location.href = targetUrl;
+      }, 150);
+    });
+  });
 </script>
 </body>
 </html>
