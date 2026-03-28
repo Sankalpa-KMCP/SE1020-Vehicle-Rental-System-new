@@ -35,10 +35,11 @@ public class Car extends Vehicle {
 
     @Override
     public String toCSV() {
-        // Formats the data perfectly for Student 2 to write into vehicles.txt
+        // Formats the data perfectly to write into vehicles.txt
         // VITAL: Added "Car," so the DAO knows what this is!
         return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity;
     }
 
-    //comment to commit
+    //commit
 }
+
