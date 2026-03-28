@@ -15,7 +15,7 @@ public abstract class Vehicle {
 
     public abstract String getVehicleType();
 
-    // Exactly ONE copy of our 3 abstract methods!
+    // --- THESE ARE THE 3 REQUIRED RULES ---
     public abstract double calculateRentalRate();
     public abstract String getSpecificDetail();
     public abstract String toCSV();
@@ -28,5 +28,6 @@ public abstract class Vehicle {
     public void setModel(String model) { this.model = model; }
     public double getDailyRate() { return dailyRate; }
     public void setDailyRate(double dailyRate) { this.dailyRate = dailyRate; }
-}
 
+    //commit
+}
