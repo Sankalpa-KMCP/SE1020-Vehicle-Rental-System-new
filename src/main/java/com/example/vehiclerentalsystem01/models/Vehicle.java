@@ -46,4 +46,6 @@ public abstract class Vehicle {
     public void setModel(String model) { this.model = model; }
     public double getDailyRate() { return dailyRate; }
     public void setDailyRate(double dailyRate) { this.dailyRate = dailyRate; }
+
+    //to fix the commit issue
 }
