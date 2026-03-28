@@ -32,6 +32,11 @@ public abstract class Vehicle {
     public abstract String getSpecificDetail();
     public abstract String toCSV();
 
+    // --- THESE ARE THE 3 MISSING RULES FOR POLYMORPHISM ---
+    public abstract double calculateRentalRate();
+    public abstract String getSpecificDetail();
+    public abstract String toCSV();
+
     // Getters and Setters (Encapsulation)
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
