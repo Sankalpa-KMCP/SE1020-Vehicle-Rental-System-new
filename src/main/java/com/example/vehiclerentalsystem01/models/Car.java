@@ -39,4 +39,6 @@ public class Car extends Vehicle {
         // VITAL: Added "Car," so the DAO knows what this is!
         return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity;
     }
+
+    //comment to commit
 }
