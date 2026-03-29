@@ -1066,7 +1066,7 @@
             mascots.forEach(m => m.lookAt(mouseX, mouseY));
         });
 
-        function renderMascots() {
+        function renderMascots() {//
             mascots.forEach(m => m.update());
             requestAnimationFrame(renderMascots);
         }
