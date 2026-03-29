@@ -1,0 +1,134 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%
+  // Security Mechanism: Kick out anyone trying to access this page directly!
+  Boolean isLoggedIn = (Boolean) session.getAttribute("adminLoggedIn");
+  if (isLoggedIn == null || !isLoggedIn) {
+    response.sendRedirect("login.jsp");
+    return;
+  }
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DriveAway - Central Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { background-color: #F8F9FA; font-family: 'Inter', sans-serif; }
+    .top-bar { background-color: #0F172A; }
+    .dashboard-card {
+      background: #FFFFFF;
+      border-radius: 24px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+      transition: all 0.3s ease;
+      border: 2px solid #f3f4f6;
+    }
+    .dashboard-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      border-color: #e5e7eb;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-gray-800 pb-16 relative">
+
+<header class="top-bar h-24 w-full flex items-center justify-between px-12 shadow-lg">
+  <div class="text-white text-3xl font-bold flex items-center gap-4 tracking-wide">
+    <i class="ph-bold ph-car-profile text-[#0D6EFD] text-5xl"></i>
+    DriveAway Hub
+  </div>
+  <div class="flex items-center gap-6">
+    <span class="text-gray-200 text-lg font-medium mr-2">Hello, <%= session.getAttribute("adminUser") != null ? session.getAttribute("adminUser") : "Admin" %></span>
+
+    <form action="auth" method="post" class="m-0">
+      <input type="hidden" name="action" value="logout">
+      <button type="submit" class="bg-[#DC3545] hover:bg-[#c82333] text-white font-bold py-3 px-8 rounded-xl flex items-center gap-3 transition-colors border-2 border-[#DC3545] hover:border-[#c82333] text-lg shadow-sm">
+        <i class="ph-bold ph-sign-out text-2xl"></i> Sign Out
+      </button>
+    </form>
+
+  </div>
+</header>
+
+<main class="max-w-[100rem] mx-auto mt-12 px-10">
+
+  <%
+    Boolean isMaster = (Boolean) session.getAttribute("isMasterAdmin");
+    if (isMaster != null && isMaster) {
+  %>
+  <div class="mb-12">
+    <a href="master-console.jsp" class="bg-[#1A1A1A] text-white rounded-[24px] p-8 flex flex-col sm:flex-row items-center justify-between shadow-xl hover:shadow-2xl transition-all border-2 border-gray-800 group">
+      <div class="flex items-center gap-6 mb-4 sm:mb-0">
+        <div class="w-24 h-24 rounded-full bg-[#FFC107]/20 flex items-center justify-center">
+          <i class="ph-fill ph-shield-check text-5xl text-[#FFC107]"></i>
+        </div>
+        <div>
+          <h3 class="text-3xl font-bold text-white mb-2 tracking-wide">Master Admin Console</h3>
+          <p class="text-gray-400 text-lg">Review pending staff access requests and manage security.</p>
+        </div>
+      </div>
+      <div class="bg-[#FFC107] text-gray-900 font-extrabold text-xl px-8 py-4 rounded-xl flex items-center gap-3 group-hover:bg-[#e0a800] transition-colors">
+        View Requests <i class="ph-bold ph-arrow-right text-2xl"></i>
+      </div>
+    </a>
+  </div>
+  <% } %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+
+    <a href="customers?action=view_directory" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+      <div class="w-28 h-28 rounded-full bg-blue-50 flex items-center justify-center mb-8">
+        <i class="ph-fill ph-users text-[64px] text-[#0D6EFD]"></i>
+      </div>
+      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Customer Management</h3>
+      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Register customers, view profiles, and update contact details.</p>
+    </a>
+
+    <a href="vehicles?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+      <div class="w-28 h-28 rounded-full bg-green-50 flex items-center justify-center mb-8">
+        <i class="ph-fill ph-car text-[64px] text-[#28A745]"></i>
+      </div>
+      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Vehicle Inventory</h3>
+      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Add, search, and remove rental vehicles from the catalog.</p>
+    </a>
+
+    <a href="bookings?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+      <div class="w-28 h-28 rounded-full bg-[#EBF4FF] flex items-center justify-center mb-8">
+        <i class="ph-fill ph-calendar-check text-[64px] text-[#0D6EFD]"></i>
+      </div>
+      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Reservations & Bookings</h3>
+      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Handle check-ins, check-outs, and booking cancellations.</p>
+    </a>
+
+    <a href="payments?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+      <div class="w-28 h-28 rounded-full bg-yellow-50 flex items-center justify-center mb-8">
+        <i class="ph-fill ph-receipt text-[64px] text-[#FFC107]"></i>
+      </div>
+      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Payments & Billing</h3>
+      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Generate invoices, track transactions, and update payment status.</p>
+    </a>
+
+    <a href="staff?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+      <div class="w-28 h-28 rounded-full bg-red-50 flex items-center justify-center mb-8">
+        <i class="ph-fill ph-identification-badge text-[64px] text-[#DC3545]"></i>
+      </div>
+      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Staff Directory</h3>
+      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Manage rental employees, departments, and onboarding.</p>
+    </a>
+
+    <a href="reviews?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+      <div class="w-28 h-28 rounded-full bg-slate-100 flex items-center justify-center mb-8">
+        <i class="ph-fill ph-star text-[64px] text-[#475569]"></i>
+      </div>
+      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Customer Reviews</h3>
+      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Submit feedback, read testimonials, and moderate reviews.</p>
+    </a>
+  </div>
+</main>
+</body>
+</html>
