@@ -63,6 +63,11 @@ public class ReviewController extends HttpServlet {
             reviewDAO.saveReview(newReview);
         }
 
-        response.sendRedirect("reviews?action=list");
+        String source = request.getParameter("source");
+        if ("customer".equals(source)) {
+            response.sendRedirect("customer-home.jsp");
+        } else {
+            response.sendRedirect("reviews?action=list");
+        }
     }
 }

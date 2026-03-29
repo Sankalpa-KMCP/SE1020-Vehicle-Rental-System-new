@@ -104,7 +104,7 @@
                     <td class="py-5 px-8 whitespace-nowrap text-sm text-yellow-500 font-bold">
                         <% for(int i=0; i<cr.getRating(); i++) { out.print("⭐"); } %>
                     </td>
-                    <td class="py-5 px-8 whitespace-nowrap text-sm text-gray-600 max-w-xs truncate overflow-hidden">
+                    <td class="py-5 px-8 whitespace-nowrap text-sm text-gray-600 max-w-xs truncate overflow-hidden" title="<%= cr.getComments().replace("\"", "&quot;") %>">
                         "<%= cr.getComments() %>"
                     </td>
                     <td class="py-5 px-8 whitespace-nowrap text-sm font-bold">
