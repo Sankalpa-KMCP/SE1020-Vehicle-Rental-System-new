@@ -18,8 +18,7 @@ public class ReviewController extends HttpServlet {
     private ReviewDAO reviewDAO = new ReviewDAO();
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
         if ("delete".equals(action)) {
@@ -29,7 +28,7 @@ public class ReviewController extends HttpServlet {
         } else if ("edit".equals(action)) {
             String id = request.getParameter("id");
             Feedback f = reviewDAO.getReviewById(id);
-            if (f != null) {
+            if(f != null) {
                 request.setAttribute("review", f);
                 request.getRequestDispatcher("edit-review.jsp").forward(request, response);
             } else {
@@ -43,8 +42,7 @@ public class ReviewController extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
         String reviewerName = request.getParameter("reviewerName");
@@ -58,14 +56,18 @@ public class ReviewController extends HttpServlet {
             reviewDAO.updateReview(updatedReview);
         } else {
             String manualId = request.getParameter("manualId");
-            String newId = (manualId != null && !manualId.trim().isEmpty()) ? manualId.trim()
-                    : "REV-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+            String newId = (manualId != null && !manualId.trim().isEmpty()) ? manualId.trim() : "REV-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
 
             // New reviews are automatically PUBLISHED unless noted otherwise
             Feedback newReview = new CustomerReview(newId, reviewerName, rating, comments, "PUBLISHED");
             reviewDAO.saveReview(newReview);
         }
 
-        response.sendRedirect("reviews?action=list");
+        String source = request.getParameter("source");
+        if ("customer".equals(source)) {
+            response.sendRedirect("customer-home.jsp");
+        } else {
+            response.sendRedirect("reviews?action=list");
+        }
     }
 }
