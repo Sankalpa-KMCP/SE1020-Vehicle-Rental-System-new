@@ -13,9 +13,10 @@
   <title>DriveAway | Register Account</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
     /* --- FASTER PAGE TRANSITION CSS --- */
     body {
       font-family: 'Inter', sans-serif;
@@ -43,12 +44,15 @@
       transform-style: preserve-3d;
       will-change: transform;
     }
+
+    /* FIX 1: Changed to relative so flexbox handles the perfect centering */
     .mascot-eyes {
-      position: absolute;
+      position: relative;
       transform: translateZ(40px);
       will-change: transform;
       z-index: 2;
     }
+
     .mascot-prop {
       position: absolute;
       opacity: 0;
@@ -119,7 +123,8 @@
     }
 
     /* --- GLASSES ACCESSORY CSS --- */
-    .glasses-wrapper { display: flex; gap: 0.1rem; position: relative; align-items: center; justify-content: center; }
+    /* FIX 2: Removed position: relative from here to prevent fighting with .mascot-eyes */
+    .glasses-wrapper { display: flex; gap: 0.1rem; align-items: center; justify-content: center; }
     .glasses-frame {
       border: 3px solid #1F2937;
       border-radius: 50%;
@@ -238,23 +243,23 @@
 <div id="art-container" class="hidden lg:flex lg:w-1/2 bg-[#F0F2F5] items-end justify-center overflow-hidden pb-16 lg:h-screen lg:sticky lg:top-0">
   <div class="relative w-80 h-80 flex items-end justify-center transform scale-125 xl:scale-[1.3] origin-bottom perspective-[1000px]">
 
-    <div id="mascot-tall-black" class="mascot-body shape-tall-black">
-      <div class="mascot-eyes flex gap-3 drop-shadow-md absolute inset-x-0 mx-auto w-fit top-8">
+    <div id="mascot-tall-black" class="mascot-body shape-tall-black flex justify-center pt-8">
+      <div class="mascot-eyes flex gap-3 drop-shadow-md">
         <div class="w-2 h-2 rounded-full bg-white eye-dot" style="animation-delay: 4s;"></div>
         <div class="w-2 h-2 rounded-full bg-white eye-dot" style="animation-delay: 4s;"></div>
       </div>
     </div>
 
-    <div id="mascot-boss" class="mascot-body shape-boss">
-      <div class="mascot-eyes flex gap-4 drop-shadow-md absolute inset-x-0 mx-auto w-fit top-6">
+    <div id="mascot-boss" class="mascot-body shape-boss flex justify-center pt-6">
+      <div class="mascot-eyes flex gap-4 drop-shadow-md">
         <div class="w-2.5 h-2.5 rounded-full bg-white eye-dot"></div>
         <div class="w-2.5 h-2.5 rounded-full bg-white eye-dot"></div>
       </div>
     </div>
 
     <div id="mascot-hijab" class="mascot-body shape-hijab flex justify-center">
-      <div class="hijab-face relative">
-        <div class="mascot-eyes glasses-wrapper drop-shadow-sm absolute inset-x-0 mx-auto inset-y-0 my-auto w-fit h-fit">
+      <div class="hijab-face flex justify-center items-center">
+        <div class="mascot-eyes glasses-wrapper drop-shadow-sm">
           <div class="glasses-bridge"></div>
           <div class="glasses-frame glasses-lg relative z-20"><div class="w-1.5 h-1.5 rounded-full bg-black eye-dot" style="animation-delay: 3s;"></div></div>
           <div class="glasses-frame glasses-lg relative z-20"><div class="w-1.5 h-1.5 rounded-full bg-black eye-dot" style="animation-delay: 3s;"></div></div>
@@ -262,8 +267,8 @@
       </div>
     </div>
 
-    <div id="mascot-guard-cyan" class="mascot-body shape-guard-cyan">
-      <div class="mascot-eyes flex gap-3 drop-shadow-md absolute inset-x-0 mx-auto w-fit top-6">
+    <div id="mascot-guard-cyan" class="mascot-body shape-guard-cyan flex justify-center pt-6">
+      <div class="mascot-eyes flex gap-3 drop-shadow-md">
         <div class="w-2.5 h-2.5 rounded-full bg-black eye-dot" style="animation-delay: 1s;"></div>
         <div class="w-2.5 h-2.5 rounded-full bg-black eye-dot" style="animation-delay: 1s;"></div>
       </div>
@@ -272,15 +277,15 @@
       </div>
     </div>
 
-    <div id="mascot-rookie" class="mascot-body shape-rookie">
-      <div class="mascot-eyes flex gap-2 drop-shadow-sm absolute inset-x-0 mx-auto w-fit top-6">
+    <div id="mascot-rookie" class="mascot-body shape-rookie flex justify-center pt-6">
+      <div class="mascot-eyes flex gap-2 drop-shadow-sm">
         <div class="w-2 h-2 rounded-full bg-black eye-dot" style="animation-delay: 2s;"></div>
         <div class="w-2 h-2 rounded-full bg-black eye-dot" style="animation-delay: 2s;"></div>
       </div>
     </div>
 
-    <div id="mascot-yellow-girl" class="mascot-body shape-yellow-girl">
-      <div class="mascot-eyes glasses-wrapper drop-shadow-sm absolute inset-x-0 mx-auto w-fit top-4">
+    <div id="mascot-yellow-girl" class="mascot-body shape-yellow-girl flex justify-center pt-4">
+      <div class="mascot-eyes glasses-wrapper drop-shadow-sm">
         <div class="glasses-bridge"></div>
         <div class="glasses-frame glasses-sm relative z-20"><div class="w-1.5 h-1.5 rounded-full bg-black eye-dot" style="animation-delay: 1.5s;"></div></div>
         <div class="glasses-frame glasses-sm relative z-20"><div class="w-1.5 h-1.5 rounded-full bg-black eye-dot" style="animation-delay: 1.5s;"></div></div>

@@ -14,8 +14,10 @@
     <title>Customer Reviews - DriveAway Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
         .sidebar { background-color: #0F172A; }
     </style>
@@ -102,7 +104,7 @@
                     <td class="py-5 px-8 whitespace-nowrap text-sm text-yellow-500 font-bold">
                         <% for(int i=0; i<cr.getRating(); i++) { out.print("⭐"); } %>
                     </td>
-                    <td class="py-5 px-8 whitespace-nowrap text-sm text-gray-600 max-w-xs truncate overflow-hidden">
+                    <td class="py-5 px-8 whitespace-nowrap text-sm text-gray-600 max-w-xs truncate overflow-hidden" title="<%= cr.getComments().replace("\"", "&quot;") %>">
                         "<%= cr.getComments() %>"
                     </td>
                     <td class="py-5 px-8 whitespace-nowrap text-sm font-bold">

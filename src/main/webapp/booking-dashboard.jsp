@@ -1,11 +1,12 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.example.vehiclerentalsystem01.models.Booking" %>
-<%@ page contentType="text/html; charset=UTF-8" %>
+
 <%
-  // Security check to ensure only admins can view this page
+  // SECURITY BOUNCER
   Boolean isLoggedIn = (Boolean) session.getAttribute("adminLoggedIn");
   if (isLoggedIn == null || !isLoggedIn) {
-    response.sendRedirect("index.jsp");
+    response.sendRedirect("admin-login.jsp");
     return;
   }
 %>
@@ -14,151 +15,129 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reservation Management - DriveAway Pro</title>
+  <title>Reservation Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     body { font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
-    .sidebar { background-color: #0F172A; } /* Deep Navy */
-    .accent-cyan { background-color: #06B6D4; } /* The Cyan accent for Student 3 */
-    .text-accent-cyan { color: #06B6D4; }
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
-<body class="flex h-screen overflow-hidden text-gray-800">
+<body class="min-h-screen p-8 relative text-gray-800">
 
-<!-- PROFESSIONAL SIDEBAR -->
-<aside class="sidebar w-64 text-white flex flex-col shrink-0 z-20 shadow-xl">
-  <div class="h-24 flex items-center px-8">
-    <i class="ph-bold ph-car-profile text-3xl text-blue-500 mr-3"></i>
-    <h1 class="text-xl font-bold tracking-wide">DriveAway Pro</h1>
-  </div>
+<div class="flex gap-4 mb-8 max-w-7xl mx-auto">
+  <button onclick="history.back()" class="flex items-center justify-center gap-2 bg-white px-6 py-3 rounded-xl font-bold text-gray-700 shadow-sm border border-gray-200 hover:bg-gray-50 transition text-lg">
+    <i class="ph-bold ph-arrow-left text-xl text-gray-500"></i>
+    <span>Back</span>
+  </button>
+  <a href="admin-home.jsp" class="flex items-center justify-center gap-2 bg-gray-900 px-6 py-3 rounded-xl font-bold text-white shadow-sm hover:bg-black transition text-lg">
+    <i class="ph-fill ph-house text-gray-300 text-2xl"></i>
+    <span>Dashboard Home</span>
+  </a>
+</div>
 
-  <nav class="flex-1 px-5 py-2 space-y-2 overflow-y-auto">
-    <a href="customers?action=list" class="flex items-center px-4 py-3.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition-all">
-      <i class="ph-bold ph-users text-xl mr-3"></i> Customers
-    </a>
-
-    <a href="vehicles?action=list" class="flex items-center px-4 py-3.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition-all">
-      <i class="ph-bold ph-car text-xl mr-3"></i> Vehicle Fleet
-    </a>
-
-    <!-- ACTIVE TAB (Cyan for Bookings) -->
-    <a href="bookings?action=list" class="flex items-center px-4 py-3.5 accent-cyan text-white rounded-xl font-semibold shadow-md transition-all">
-      <i class="ph-bold ph-calendar-check text-xl mr-3"></i> Bookings
-    </a>
-
-    <a href="payments?action=list" class="flex items-center px-4 py-3.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition-all">
-      <i class="ph-bold ph-credit-card text-xl mr-3"></i> Payments
-    </a>
-    <a href="staff?action=list" class="flex items-center px-4 py-3.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition-all">
-      <i class="ph-bold ph-identification-badge text-xl mr-3"></i> Staff & Admins
-    </a>
-    <a href="reviews?action=list" class="flex items-center px-4 py-3.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl font-medium transition-all">
-      <i class="ph-bold ph-star text-xl mr-3"></i> Reviews
-    </a>
-  </nav>
-
-  <div class="p-5 mb-2 space-y-2">
-    <a href="admin-home.jsp" class="flex items-center px-4 py-3 text-sm text-slate-400 hover:text-white font-medium transition-all rounded-xl hover:bg-slate-800">
-      <i class="ph-bold ph-arrow-square-out text-lg mr-3"></i> Admin Hub
-    </a>
-    <a href="index.jsp" class="flex items-center px-4 py-3 text-sm text-slate-400 hover:text-white font-medium transition-all rounded-xl hover:bg-slate-800">
-      <i class="ph-bold ph-sign-out text-lg mr-3"></i> Logout
-    </a>
-  </div>
-</aside>
-
-<!-- MAIN CONTENT AREA -->
-<main class="flex-1 flex flex-col h-screen overflow-hidden">
-
-  <!-- Top Header (Pure white, matching pixel-perfect screenshots) -->
-  <header class="h-24 bg-white flex items-center justify-between px-10 z-10 border-b border-gray-100">
-    <h2 class="text-2xl font-medium text-gray-800">Reservation Management Portal</h2>
-    <div class="flex items-center gap-4">
-      <span class="text-sm font-medium text-gray-500">Welcome, <%= session.getAttribute("adminUser") != null ? session.getAttribute("adminUser") : "Admin" %></span>
-      <div class="w-11 h-11 rounded-full accent-cyan text-white flex items-center justify-center font-bold text-lg shadow-sm">
-        <%= session.getAttribute("adminUser") != null ? session.getAttribute("adminUser").toString().substring(0,1).toUpperCase() : "A" %>
-      </div>
+<div class="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
+    <div>
+      <p class="text-gray-500 font-bold tracking-wide text-base uppercase">Total Bookings</p>
+      <h3 class="text-5xl font-extrabold text-gray-900 mt-2"><%= request.getAttribute("totalBookings") != null ? request.getAttribute("totalBookings") : 0 %></h3>
     </div>
-  </header>
+    <div class="bg-blue-50 p-4 rounded-2xl text-blue-600">
+      <i class="ph-fill ph-calendar-check text-5xl"></i>
+    </div>
+  </div>
 
-  <!-- Dashboard Content -->
-  <div class="flex-1 overflow-y-auto p-10 bg-[#F8F9FA]">
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
+    <div>
+      <p class="text-gray-500 font-bold tracking-wide text-base uppercase">Active Rentals</p>
+      <h3 class="text-5xl font-extrabold text-gray-900 mt-2"><%= request.getAttribute("activeBookings") != null ? request.getAttribute("activeBookings") : 0 %></h3>
+    </div>
+    <div class="bg-green-50 p-4 rounded-2xl text-green-600">
+      <i class="ph-fill ph-car-profile text-5xl"></i>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
+    <div>
+      <p class="text-gray-500 font-bold tracking-wide text-base uppercase">Pending Actions</p>
+      <h3 class="text-5xl font-extrabold text-gray-900 mt-2"><%= request.getAttribute("pendingBookings") != null ? request.getAttribute("pendingBookings") : 0 %></h3>
+    </div>
+    <div class="bg-yellow-50 p-4 rounded-2xl text-yellow-600">
+      <i class="ph-fill ph-clock-countdown text-5xl"></i>
+    </div>
+  </div>
+</div>
+
+<div class="flex justify-center items-start pb-16">
+  <div class="w-full max-w-7xl bg-white border border-gray-200 rounded-3xl p-10 shadow-sm">
 
     <div class="flex justify-between items-end mb-8">
       <div>
-        <h3 class="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">Active Bookings</h3>
-        <p class="text-gray-500 text-sm font-medium">Manage, approve, or cancel upcoming rentals.</p>
+        <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Reservation Directory</h2>
+        <p class="text-gray-500 text-lg mt-1 font-medium">Monitor and manage all vehicle rentals across the system.</p>
       </div>
-      <a href="add-booking.jsp" class="flex items-center accent-cyan hover:bg-cyan-600 text-white px-6 py-3.5 rounded-xl font-bold shadow-md transition-all">
-        <i class="ph-bold ph-plus mr-2 text-xl"></i> New Booking
-      </a>
     </div>
 
-    <!-- Seamless Data Table Card -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
       <table class="w-full text-left border-collapse">
         <thead>
-        <tr class="border-b border-gray-100">
-          <th class="py-6 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Booking ID</th>
-          <th class="py-6 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Customer</th>
-          <th class="py-6 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Vehicle ID</th>
-          <th class="py-6 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Date & Duration</th>
-          <th class="py-6 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Status</th>
-          <th class="py-6 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest text-right">Actions</th>
+        <tr class="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider border-b border-gray-200">
+          <th class="py-5 px-8 font-bold">Booking ID</th>
+          <th class="py-5 px-8 font-bold">Customer</th>
+          <th class="py-5 px-8 font-bold">Vehicle ID</th>
+          <th class="py-5 px-8 font-bold">Rental Date</th>
+          <th class="py-5 px-8 font-bold">Duration</th>
+          <th class="py-5 px-8 font-bold">Status</th>
+          <th class="py-5 px-8 font-bold text-right">Actions</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody class="text-gray-700 text-base">
         <%
           List<Booking> bookingList = (List<Booking>) request.getAttribute("bookingList");
           if (bookingList != null && !bookingList.isEmpty()) {
-            for (Booking b : bookingList) {
+            for(Booking b : bookingList) {
         %>
-        <tr class="hover:bg-cyan-50/40 transition-colors group border-b border-gray-50 last:border-none">
-          <td class="py-5 px-8 whitespace-nowrap text-sm font-semibold text-gray-500">#<%= b.getTransactionId() %></td>
-          <td class="py-5 px-8 whitespace-nowrap text-sm font-bold text-gray-900"><%= b.getCustomerName() %></td>
-          <td class="py-5 px-8 whitespace-nowrap text-sm text-gray-600 font-medium"><%= b.getVehicleId() %></td>
-          <td class="py-5 px-8 whitespace-nowrap text-sm text-gray-600">
-            <%= b.getRentalDate() %> <span class="text-xs text-gray-400 ml-1">(<%= b.getDurationDays() %> Days)</span>
+        <tr class="border-b border-gray-100 hover:bg-blue-50/40 transition-colors group">
+          <td class="py-5 px-8 font-bold text-gray-900 text-lg">#<%= b.getId() %></td>
+          <td class="py-5 px-8 font-semibold"><%= b.getCustomerName() %></td>
+          <td class="py-5 px-8 font-semibold text-gray-600"><%= b.getVehicleId() %></td>
+          <td class="py-5 px-8 text-gray-500"><%= b.getRentalDate() %></td>
+          <td class="py-5 px-8 font-medium"><%= b.getDays() %> Days</td>
+          <td class="py-5 px-8">
+            <% if ("CONFIRMED".equalsIgnoreCase(b.getStatus()) || "UPDATED".equalsIgnoreCase(b.getStatus())) { %>
+            <span class="bg-green-50 text-green-700 border border-green-200 font-bold px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 w-max">Active</span>
+            <% } else if ("PENDING".equalsIgnoreCase(b.getStatus())) { %>
+            <span class="bg-yellow-50 text-yellow-700 border border-yellow-200 font-bold px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 w-max">Pending</span>
+            <% } else { %>
+            <span class="bg-gray-100 text-gray-700 border border-gray-200 font-bold px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 w-max"><%= b.getStatus() %></span>
+            <% } %>
           </td>
-          <td class="py-5 px-8 whitespace-nowrap text-sm font-bold">
-                                <span class="bg-cyan-50 text-[#06B6D4] px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide">
-                                    <%= b.getStatus() %>
-                                </span>
-          </td>
-          <td class="py-5 px-8 whitespace-nowrap text-right text-sm font-medium">
-            <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-              <a href="bookings?action=edit&id=<%= b.getTransactionId() %>" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2.5 rounded-lg transition-colors" title="Edit Booking">
-                <i class="ph-bold ph-pencil-simple text-lg"></i>
-              </a>
-              <a href="bookings?action=delete&id=<%= b.getTransactionId() %>" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2.5 rounded-lg transition-colors" onclick="return confirm('WARNING: Are you sure you want to cancel this booking?');" title="Cancel Booking">
-                <i class="ph-bold ph-trash text-lg"></i>
-              </a>
-            </div>
+          <td class="py-5 px-8 text-right">
+            <form action="bookings" method="POST" class="m-0 p-0 flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+              <input type="hidden" name="id" value="<%= b.getId() %>">
+
+              <button type="submit" name="action" value="delete" onclick="return confirm('WARNING: Are you sure you want to cancel booking <%= b.getId() %>?');" class="text-red-500 bg-red-50 hover:bg-red-600 hover:text-white p-2.5 rounded-xl transition-colors shadow-sm" title="Cancel Booking">
+                <i class="ph-bold ph-trash text-xl"></i>
+              </button>
+            </form>
           </td>
         </tr>
         <%
           }
         } else {
         %>
-        <!-- Empty State - Exactly matching image_4dd781.png -->
-        <tr>
-          <td colspan="6" class="py-24 text-center">
-            <div class="flex flex-col items-center justify-center">
-              <div class="bg-gray-50 p-6 rounded-full mb-4">
-                <i class="ph ph-calendar-blank text-5xl text-gray-300"></i>
-              </div>
-              <p class="text-xl font-bold text-gray-900 mb-2 tracking-tight">No bookings found.</p>
-              <p class="text-sm text-gray-500 font-medium">Get started by creating a new reservation in the system.</p>
-            </div>
-          </td>
-        </tr>
+        <tr><td colspan="7" class="py-10 text-center text-gray-500 font-medium text-lg">No active reservations found in the system.</td></tr>
         <% } %>
         </tbody>
       </table>
     </div>
+
   </div>
-</main>
+</div>
+
 </body>
 </html>

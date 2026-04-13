@@ -1,12 +1,6 @@
 package com.example.vehiclerentalsystem01.models;
 
-/**
- * OOP Concept: Abstraction.
- * This is an abstract base class for all vehicles in the fleet.
- * It cannot be instantiated directly.
- */
 public abstract class Vehicle {
-    // OOP Concept: Encapsulation (Private fields)
     private String id;
     private String brand;
     private String model;
@@ -19,13 +13,13 @@ public abstract class Vehicle {
         this.dailyRate = dailyRate;
     }
 
-    /**
-     * OOP Concept: Abstraction.
-     * Abstract method that forces child classes to define their specific type.
-     */
     public abstract String getVehicleType();
 
-    // Getters and Setters (Encapsulation)
+    // --- THESE ARE THE 3 REQUIRED RULES ---
+    public abstract double calculateRentalRate();
+    public abstract String getSpecificDetail();
+    public abstract String toCSV();
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public String getBrand() { return brand; }
@@ -34,4 +28,6 @@ public abstract class Vehicle {
     public void setModel(String model) { this.model = model; }
     public double getDailyRate() { return dailyRate; }
     public void setDailyRate(double dailyRate) { this.dailyRate = dailyRate; }
+
+    //commit
 }
