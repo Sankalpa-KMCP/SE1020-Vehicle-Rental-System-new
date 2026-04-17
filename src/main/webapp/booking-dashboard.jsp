@@ -50,26 +50,6 @@
       <i class="ph-fill ph-calendar-check text-5xl"></i>
     </div>
   </div>
-
-  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
-    <div>
-      <p class="text-gray-500 font-bold tracking-wide text-base uppercase">Active Rentals</p>
-      <h3 class="text-5xl font-extrabold text-gray-900 mt-2"><%= request.getAttribute("activeBookings") != null ? request.getAttribute("activeBookings") : 0 %></h3>
-    </div>
-    <div class="bg-green-50 p-4 rounded-2xl text-green-600">
-      <i class="ph-fill ph-car-profile text-5xl"></i>
-    </div>
-  </div>
-
-  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
-    <div>
-      <p class="text-gray-500 font-bold tracking-wide text-base uppercase">Pending Actions</p>
-      <h3 class="text-5xl font-extrabold text-gray-900 mt-2"><%= request.getAttribute("pendingBookings") != null ? request.getAttribute("pendingBookings") : 0 %></h3>
-    </div>
-    <div class="bg-yellow-50 p-4 rounded-2xl text-yellow-600">
-      <i class="ph-fill ph-clock-countdown text-5xl"></i>
-    </div>
-  </div>
 </div>
 
 <div class="flex justify-center items-start pb-16">
@@ -112,15 +92,30 @@
             <span class="bg-green-50 text-green-700 border border-green-200 font-bold px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 w-max">Active</span>
             <% } else if ("PENDING".equalsIgnoreCase(b.getStatus())) { %>
             <span class="bg-yellow-50 text-yellow-700 border border-yellow-200 font-bold px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 w-max">Pending</span>
+            <% } else if ("REJECTED".equalsIgnoreCase(b.getStatus())) { %>
+            <span class="bg-red-50 text-red-700 border border-red-200 font-bold px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 w-max">Rejected</span>
             <% } else { %>
             <span class="bg-gray-100 text-gray-700 border border-gray-200 font-bold px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 w-max"><%= b.getStatus() %></span>
             <% } %>
           </td>
           <td class="py-5 px-8 text-right">
-            <form action="bookings" method="POST" class="m-0 p-0 flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <form action="bookings" method="POST" class="m-0 p-0 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <input type="hidden" name="id" value="<%= b.getId() %>">
+              <input type="hidden" name="customerName" value="<%= b.getCustomerName() %>">
+              <input type="hidden" name="rentalDate" value="<%= b.getRentalDate() %>">
+              <input type="hidden" name="vehicleId" value="<%= b.getVehicleId() %>">
+              <input type="hidden" name="days" value="<%= b.getDays() %>">
 
-              <button type="submit" name="action" value="delete" onclick="return confirm('WARNING: Are you sure you want to cancel booking <%= b.getId() %>?');" class="text-red-500 bg-red-50 hover:bg-red-600 hover:text-white p-2.5 rounded-xl transition-colors shadow-sm" title="Cancel Booking">
+              <% if ("PENDING".equalsIgnoreCase(b.getStatus())) { %>
+              <button type="submit" name="action" value="approve" class="text-green-600 bg-green-50 hover:bg-green-600 hover:text-white p-2 rounded-lg transition-colors shadow-sm" title="Approve Booking">
+                <i class="ph-bold ph-check text-xl"></i>
+              </button>
+              <button type="submit" name="action" value="reject" class="text-yellow-600 bg-yellow-50 hover:bg-yellow-600 hover:text-white p-2 rounded-lg transition-colors shadow-sm" title="Reject Booking">
+                <i class="ph-bold ph-x text-xl"></i>
+              </button>
+              <% } %>
+
+              <button type="submit" name="action" value="delete" onclick="return confirm('WARNING: Are you sure you want to delete <%= b.getId() %>?');" class="text-red-500 bg-red-50 hover:bg-red-600 hover:text-white p-2 rounded-lg transition-colors shadow-sm" title="Delete Booking">
                 <i class="ph-bold ph-trash text-xl"></i>
               </button>
             </form>
