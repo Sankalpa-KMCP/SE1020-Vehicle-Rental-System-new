@@ -17,10 +17,29 @@ public class Car extends Vehicle {
 
     /**
      * OOP Concept: Polymorphism.
-     * Overriding the abstract method from the parent Vehicle class.
      */
     @Override
     public String getVehicleType() {
         return "Car / SUV";
     }
+
+    @Override
+    public double calculateRentalRate() {
+        return getDailyRate();
+    }
+
+    @Override
+    public String getSpecificDetail() {
+        return seatingCapacity + " Seats";
+    }
+
+    @Override
+    public String toCSV() {
+        // Formats the data perfectly to write into vehicles.txt
+        // VITAL: Added "Car," so the DAO knows what this is!
+        return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity;
+    }
+
+    //commit
 }
+
