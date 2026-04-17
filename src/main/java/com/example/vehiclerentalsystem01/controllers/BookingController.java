@@ -21,64 +21,29 @@ public class BookingController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        System.out.println("==== BOOKING CONTROLLER TRIGGERED ====");
-        System.out.println("Action: " + action);
 
         try {
-            // ========================================================
-            // ADMIN SIDE: The Unified Dashboard
-            // ========================================================
             if ("list".equals(action) || action == null) {
                 List<Booking> allBookings = bookingDAO.getAllBookings();
                 if (allBookings == null) allBookings = new ArrayList<>();
 
                 int totalBookings = allBookings.size();
-                int activeBookings = 0;
-                int pendingBookings = 0;
-
-                // Calculate Stats for the Dashboard Cards
+                int confirmedBookings = 0;
                 for (Booking b : allBookings) {
-                    if ("CONFIRMED".equalsIgnoreCase(b.getStatus()) || "UPDATED".equalsIgnoreCase(b.getStatus())) {
-                        activeBookings++;
-                    } else if ("PENDING".equalsIgnoreCase(b.getStatus())) {
-                        pendingBookings++;
-                    }
+                    if ("CONFIRMED".equalsIgnoreCase(b.getStatus())) confirmedBookings++;
                 }
 
+                // Provide multiple names just in case different JSPs expect different variables
+                request.setAttribute("bookings", allBookings);
                 request.setAttribute("bookingList", allBookings);
-                request.setAttribute("totalBookings", totalBookings);
-                request.setAttribute("activeBookings", activeBookings);
-                request.setAttribute("pendingBookings", pendingBookings);
+                request.setAttribute("allBookings", allBookings);
 
+                request.setAttribute("totalBookings", totalBookings);
+                request.setAttribute("confirmedBookings", confirmedBookings);
                 request.getRequestDispatcher("booking-dashboard.jsp").forward(request, response);
             }
-            // ========================================================
-            // CUSTOMER SIDE: Keeps your existing customer logic intact
-            // ========================================================
-            else if ("view-all".equals(action)) {
-                request.setAttribute("bookingList", bookingDAO.getAllBookings());
-                request.getRequestDispatcher("view-all-bookings.jsp").forward(request, response);
-
-            } else if ("search".equals(action)) {
-                String id = request.getParameter("id");
-                request.setAttribute("searchedBooking", bookingDAO.getBookingById(id));
-                request.setAttribute("searchAttempted", true);
-                request.getRequestDispatcher("search-booking.jsp").forward(request, response);
-
-            } else if ("edit".equals(action)) {
-                String id = request.getParameter("id");
-                Booking b = bookingDAO.getBookingById(id);
-                if (b != null) {
-                    request.setAttribute("bookingToEdit", b);
-                } else {
-                    request.setAttribute("error", "Not Found");
-                }
-                request.getRequestDispatcher("edit-booking.jsp").forward(request, response);
-            }
         } catch (Exception e) {
-            System.out.println("!!! CRASH IN BOOKING CONTROLLER !!!");
             e.printStackTrace();
-            response.sendRedirect("admin-home.jsp");
         }
     }
 
@@ -94,22 +59,55 @@ public class BookingController extends HttpServlet {
             } else if ("update".equals(action)) {
                 String id = request.getParameter("id");
                 Booking updatedBooking = new Booking(id, request.getParameter("customerName"),
-                        request.getParameter("vehicleId"), request.getParameter("rentalDate"),
-                        Integer.parseInt(request.getParameter("days")), "UPDATED");
+                        request.getParameter("rentalDate"), request.getParameter("vehicleId"),
+                        Integer.parseInt(request.getParameter("days").trim()), "UPDATED");
                 bookingDAO.updateBooking(updatedBooking);
                 response.sendRedirect("bookings?action=list");
 
+                // --- THE NEW APPROVE / REJECT LOGIC ---
+            } else if ("approve".equals(action) || "reject".equals(action)) {
+                String id = request.getParameter("id");
+
+                // If they clicked approve, status becomes CONFIRMED. Otherwise, REJECTED.
+                String newStatus = "approve".equals(action) ? "CONFIRMED" : "REJECTED";
+
+                Booking updatedBooking = new Booking(id, request.getParameter("customerName"),
+                        request.getParameter("rentalDate"), request.getParameter("vehicleId"),
+                        Integer.parseInt(request.getParameter("days").trim()), newStatus);
+
+                bookingDAO.updateBooking(updatedBooking);
+                response.sendRedirect("bookings?action=list");
+
+                // --- THE CREATION LOGIC (NOW SAVES AS PENDING) ---
             } else if ("create".equals(action)) {
                 String newId = "BKG-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
-                Booking newBooking = new Booking(newId, request.getParameter("customerName"),
-                        request.getParameter("vehicleId"), request.getParameter("rentalDate"),
-                        Integer.parseInt(request.getParameter("days")), "CONFIRMED");
+
+                String custName = request.getParameter("customerName");
+                String rentDate = request.getParameter("rentalDate");
+                String vehId = request.getParameter("vehicleId");
+                String daysParam = request.getParameter("days");
+
+                int days = (daysParam != null && !daysParam.trim().isEmpty()) ? Integer.parseInt(daysParam.trim()) : 1;
+                if (custName != null) custName = custName.replace(",", "");
+
+                // SAVES AS PENDING INSTEAD OF CONFIRMED
+                Booking newBooking = new Booking(newId, custName, rentDate, vehId, days, "PENDING");
                 bookingDAO.saveBooking(newBooking);
-                response.sendRedirect("bookings?action=list");
+
+                // Smart Redirect
+                HttpSession session = request.getSession();
+                Boolean customerLoggedIn = (Boolean) session.getAttribute("customerLoggedIn");
+
+                if (customerLoggedIn != null && customerLoggedIn) {
+                    response.sendRedirect("my-bookings.jsp");
+                } else {
+                    response.sendRedirect("bookings?action=list");
+                }
             }
         } catch (Exception e) {
+            System.out.println("CRITICAL ERROR IN CONTROLLER: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("bookings?action=list");
+            response.sendRedirect("my-bookings.jsp"); // Safe fallback
         }
     }
 }
