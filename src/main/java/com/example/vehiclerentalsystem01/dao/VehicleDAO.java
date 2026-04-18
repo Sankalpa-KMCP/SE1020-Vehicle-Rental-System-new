@@ -1,16 +1,19 @@
 package com.example.vehiclerentalsystem01.dao;
 
 import com.example.vehiclerentalsystem01.models.Car;
+import com.example.vehiclerentalsystem01.models.Motorcycle;
 import com.example.vehiclerentalsystem01.models.Vehicle;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Data Access Object for handling File Read/Write operations for Vehicles.
- */
 public class VehicleDAO {
+    //file handling
+    // to get the user's home directory when running in different machines.
+    // this is needed only for data accessing (only this class) so we put private.
+    //static because the file path belongs to this class. so wont recreate for every object
+    //Final because the the fle path shouldnt change by any override.
     private static final String FOLDER_PATH = System.getProperty("user.home") + File.separator + "RentalData";
     private static final String FILE_PATH = FOLDER_PATH + File.separator + "vehicles.txt";
 
@@ -21,19 +24,16 @@ public class VehicleDAO {
         }
     }
 
-    // CRUD: CREATE
     public void saveVehicle(Vehicle vehicle) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            // We cast to Car to get seating capacity. In a larger system, you'd handle motorcycles/vans too.
-            Car car = (Car) vehicle;
-            writer.write(car.getId() + "," + car.getBrand() + "," + car.getModel() + "," + car.getDailyRate() + "," + car.getSeatingCapacity());
+            // Polymorphism: The object formats itself! No casting needed.
+            writer.write(vehicle.formatForFile());
             writer.newLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // CRUD: READ
     public List<Vehicle> getAllVehicles() {
         List<Vehicle> vehicles = new ArrayList<>();
         File file = new File(FILE_PATH);
@@ -43,8 +43,23 @@ public class VehicleDAO {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
-                if (data.length == 5) {
-                    vehicles.add(new Car(data[0], data[1], data[2], Double.parseDouble(data[3]), Integer.parseInt(data[4])));
+
+                // Checks for our new 6-part format: Type, ID, Brand, Model, Rate, Detail
+                if (data.length == 6) {
+                    String type = data[0];
+                    String id = data[1];
+                    String brand = data[2];
+                    String model = data[3];
+                    double rate = Double.parseDouble(data[4]);
+
+                    // Build the correct object based on the first word in the text file
+                    if ("Car".equals(type)) {
+                        int capacity = Integer.parseInt(data[5]);
+                        vehicles.add(new Car(id, brand, model, rate, capacity));
+                    } else if ("Motorcycle".equals(type)) {
+                        boolean helmet = Boolean.parseBoolean(data[5]);
+                        vehicles.add(new Motorcycle(id, brand, model, rate, helmet));
+                    }
                 }
             }
         } catch (IOException e) {
@@ -53,14 +68,13 @@ public class VehicleDAO {
         return vehicles;
     }
 
-    // CRUD: DELETE
     public void deleteVehicle(String id) {
         List<Vehicle> vehicles = getAllVehicles();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
             for (Vehicle v : vehicles) {
                 if (!v.getId().equals(id)) {
-                    Car car = (Car) v;
-                    writer.write(car.getId() + "," + car.getBrand() + "," + car.getModel() + "," + car.getDailyRate() + "," + car.getSeatingCapacity());
+                    // Fixed the typo: using 'v' instead of 'vehicle'
+                    writer.write(v.formatForFile());
                     writer.newLine();
                 }
             }
