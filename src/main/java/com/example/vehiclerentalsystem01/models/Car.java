@@ -38,4 +38,4 @@ public class Car extends Vehicle {
         // Formats the data perfectly to write into vehicles.txt
         return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity;
     }
-}
+} //

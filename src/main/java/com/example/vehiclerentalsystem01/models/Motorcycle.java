@@ -38,4 +38,4 @@ public class Motorcycle extends Vehicle {
         // FIX 3: We must use Getters to access the parent's private data
         return "Motorcycle," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + helmetIncluded;
     }
-}
+} //

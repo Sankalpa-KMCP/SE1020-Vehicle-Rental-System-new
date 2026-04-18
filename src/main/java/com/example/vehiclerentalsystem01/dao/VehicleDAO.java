@@ -81,7 +81,7 @@ public class VehicleDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }// comment
+    }
 
 
 }
