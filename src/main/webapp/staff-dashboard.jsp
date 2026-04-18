@@ -3,7 +3,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%
     if (session.getAttribute("adminLoggedIn") == null || !(Boolean)session.getAttribute("adminLoggedIn")) {
-        response.sendRedirect("index.jsp"); return;
+        response.sendRedirect("login.jsp"); return;
     }
 %>
 <!DOCTYPE html>
@@ -13,8 +13,10 @@
     <title>Staff Directory - DriveAway Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
         .sidebar { background-color: #0F172A; }
     </style>
@@ -52,7 +54,7 @@
         <a href="admin-home.jsp" class="flex items-center px-4 py-3 text-sm text-slate-400 hover:text-white font-medium transition-all rounded-xl hover:bg-slate-800">
             <i class="ph-bold ph-arrow-square-out text-lg mr-3"></i> Admin Hub
         </a>
-        <a href="index.jsp" class="flex items-center px-4 py-3 text-sm text-slate-400 hover:text-white font-medium transition-all rounded-xl hover:bg-slate-800">
+        <a href="login.jsp" class="flex items-center px-4 py-3 text-sm text-slate-400 hover:text-white font-medium transition-all rounded-xl hover:bg-slate-800">
             <i class="ph-bold ph-sign-out text-lg mr-3"></i> Logout
         </a>
     </div>

@@ -3,7 +3,7 @@
   // Security Mechanism: Kick out anyone trying to access this page directly!
   Boolean isLoggedIn = (Boolean) session.getAttribute("adminLoggedIn");
   if (isLoggedIn == null || !isLoggedIn) {
-    response.sendRedirect("index.jsp");
+    response.sendRedirect("login.jsp");
     return;
   }
 %>
@@ -15,8 +15,10 @@
   <title>DriveAway - Central Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     body { background-color: #F8F9FA; font-family: 'Inter', sans-serif; }
     .top-bar { background-color: #0F172A; }
     .dashboard-card {

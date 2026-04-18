@@ -49,7 +49,7 @@
             Go to Main Dashboard
         </a>
 
-        <a href="index.jsp" class="bg-[#DC3545] hover:bg-[#c82333] text-white font-semibold py-2 px-5 rounded-md flex items-center gap-2 transition-colors">
+        <a href="login.jsp" class="bg-[#DC3545] hover:bg-[#c82333] text-white font-semibold py-2 px-5 rounded-md flex items-center gap-2 transition-colors">
             <i class="ph ph-sign-out text-lg"></i> Logout
         </a>
     </div>

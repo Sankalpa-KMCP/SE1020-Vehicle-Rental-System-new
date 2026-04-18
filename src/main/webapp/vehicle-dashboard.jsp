@@ -38,9 +38,12 @@
       <i class="ph-bold ph-car text-xl mr-3"></i> Vehicle Fleet
     </a>
   </nav>
+
   <div class="p-6 border-t border-white/10">
     <a href="index.jsp" class="flex items-center text-gray-400 hover:text-red-400 transition-colors font-bold">
       <i class="ph-bold ph-sign-out text-xl mr-2"></i> Secure Logout
+
+ 
     </a>
   </div>
 </aside>

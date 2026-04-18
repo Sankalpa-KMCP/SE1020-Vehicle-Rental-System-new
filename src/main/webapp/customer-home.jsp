@@ -3,7 +3,7 @@
     // Ensure the user is actually logged in as a customer
     Boolean customerLoggedIn = (Boolean) session.getAttribute("customerLoggedIn");
     if (customerLoggedIn == null || !customerLoggedIn) {
-        response.sendRedirect("index.jsp");
+        response.sendRedirect("login.jsp");
         return;
     }
 
@@ -26,8 +26,10 @@
     <title>DriveAway | My Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #F4F7F6; }
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -94,7 +96,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
 
-        <a href="vehicle-dashboard.jsp" class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
+        <a href="browse-cars.jsp" class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-blue-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
             <div class="flex items-center gap-5 mb-5">
                 <div class="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-3xl group-hover:bg-blue-600 group-hover:text-white transition-colors shadow-inner">
@@ -108,7 +110,7 @@
             </div>
         </a>
 
-        <a href="booking-dashboard.jsp" class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
+        <a href="my-bookings.jsp" class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-green-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
             <div class="flex items-center gap-5 mb-5">
                 <div class="w-16 h-16 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-3xl group-hover:bg-green-600 group-hover:text-white transition-colors shadow-inner">
@@ -150,7 +152,7 @@
             </div>
         </a>
 
-        <a href="review-dashboard.jsp" class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
+        <a href="customer-add-review.jsp" class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-orange-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
             <div class="flex items-center gap-5 mb-5">
                 <div class="w-16 h-16 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center text-3xl group-hover:bg-orange-600 group-hover:text-white transition-colors shadow-inner">
@@ -164,7 +166,7 @@
             </div>
         </a>
 
-        <a href="#" class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
+        <a href="contact.jsp" class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-rose-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
             <div class="flex items-center gap-5 mb-5">
                 <div class="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-3xl group-hover:bg-rose-600 group-hover:text-white transition-colors shadow-inner">
