@@ -46,25 +46,21 @@ public class CustomerController extends HttpServlet {
                 int totalGuests = allCustomers.size();
                 int verifiedGuests = 0;
 
+                // OOP: Use Customer.isVerified() helper method for cleaner code
                 for (Customer c : allCustomers) {
-                    boolean hasNic = c.getNic() != null && !c.getNic().trim().isEmpty() && !c.getNic().equalsIgnoreCase("N/A");
-                    boolean hasLicense = c.getLicenseNumber() != null && !c.getLicenseNumber().trim().isEmpty() && !c.getLicenseNumber().equalsIgnoreCase("N/A");
-
-                    if (hasNic && hasLicense) verifiedGuests++;
+                    if (c.isVerified()) verifiedGuests++;
                 }
 
                 // ==========================================
-                // THE NEW SEARCH LOGIC
+                // THE NEW SEARCH LOGIC (Using DAO layer)
                 // ==========================================
                 if ("search".equals(action)) {
                     String searchUsername = request.getParameter("searchUsername");
                     if (searchUsername != null && !searchUsername.trim().isEmpty()) {
-                        for (Customer c : allCustomers) {
-                            // Check if the typed username matches a database username (ignoring case)
-                            if (c.getUsername().equalsIgnoreCase(searchUsername.trim())) {
-                                request.setAttribute("foundCustomer", c);
-                                break; // Stop searching once we find them!
-                            }
+                        // OOP: Use DAO method instead of inline logic
+                        Customer foundCustomer = customerDAO.getCustomerByUsername(searchUsername.trim());
+                        if (foundCustomer != null) {
+                            request.setAttribute("foundCustomer", foundCustomer);
                         }
                     }
                 }
@@ -93,6 +89,9 @@ public class CustomerController extends HttpServlet {
             return;
         }
 
+        // ==========================================
+        // VALIDATE INPUT (Best practice for CRUD)
+        // ==========================================
         String name = request.getParameter("name");
         String email = request.getParameter("email");
         String username = request.getParameter("username");
@@ -104,6 +103,26 @@ public class CustomerController extends HttpServlet {
 
         String license = request.getParameter("license");
         if (license == null || license.trim().isEmpty()) license = "N/A";
+
+        // Validation: Check required fields
+        if (name == null || name.trim().isEmpty() ||
+            email == null || email.trim().isEmpty() ||
+            username == null || username.trim().isEmpty() ||
+            password == null || password.trim().isEmpty() ||
+            phone == null || phone.trim().isEmpty()) {
+
+            response.sendRedirect("register.jsp?error=missing_fields");
+            return;
+        }
+
+        // Validation: Username uniqueness check (only for new registrations)
+        if (!"update".equals(action)) {
+            Customer existingCustomer = customerDAO.getCustomerByUsername(username);
+            if (existingCustomer != null) {
+                response.sendRedirect("register.jsp?error=username_taken");
+                return;
+            }
+        }
 
         if ("update".equals(action)) {
             String id = request.getParameter("id");

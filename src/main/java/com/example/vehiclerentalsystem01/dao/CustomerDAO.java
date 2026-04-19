@@ -25,37 +25,37 @@ public class CustomerDAO {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] data = line.split(",");
-
-                // Format: ID(0), Name(1), Email(2), Username(3), Password(4), NIC(5), License(6), Phone(7)
-                // Therefore, Username is index 3, Password is index 4
-                if (data.length == 8) {
-                    String savedUser = data[3].trim();
-                    String savedPass = data[4].trim();
-
-                    if (savedUser.equals(username) && savedPass.equals(password)) {
-                        // Match found! Return the full Customer object
-                        return new Customer(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
-                    }
+                Customer customer = Customer.fromCSV(line);
+                if (customer != null && customer.getUsername().equals(username) &&
+                    customer.getPassword().equals(password)) {
+                    return customer;
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null; // No match found, return null instead of false
+        return null; // No match found, return null
     }
 
     // ==========================================
     // CRUD OPERATIONS
     // ==========================================
+
+    /**
+     * CREATE: Save a new customer to the file
+     * OOP: Uses polymorphism - delegates serialization to Customer.toCSV()
+     */
     public void saveCustomer(Customer c) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            writer.write(c.getId() + "," + c.getName() + "," + c.getEmail() + "," + c.getUsername() + "," +
-                    c.getPassword() + "," + c.getNic() + "," + c.getLicenseNumber() + "," + c.getPhoneNumber());
+            writer.write(c.toCSV());
             writer.newLine();
         } catch (IOException e) { e.printStackTrace(); }
     }
 
+    /**
+     * READ: Retrieve all customers from file
+     * OOP: Uses Customer.fromCSV() for deserialization
+     */
     public List<Customer> getAllCustomers() {
         List<Customer> customers = new ArrayList<>();
         File file = new File(FILE_PATH);
@@ -64,15 +64,18 @@ public class CustomerDAO {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] data = line.split(",");
-                if (data.length == 8) { // Updated to 8 fields!
-                    customers.add(new Customer(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]));
+                Customer customer = Customer.fromCSV(line);
+                if (customer != null) {
+                    customers.add(customer);
                 }
             }
         } catch (IOException e) { e.printStackTrace(); }
         return customers;
     }
 
+    /**
+     * READ: Retrieve a single customer by ID
+     */
     public Customer getCustomerById(String id) {
         for (Customer c : getAllCustomers()) {
             if (c.getId().equals(id)) return c;
@@ -80,30 +83,45 @@ public class CustomerDAO {
         return null;
     }
 
+    /**
+     * READ: Retrieve a single customer by username
+     * OOP: Extracted from controller logic into DAO layer (better encapsulation)
+     */
+    public Customer getCustomerByUsername(String username) {
+        for (Customer c : getAllCustomers()) {
+            if (c.getUsername().equalsIgnoreCase(username)) return c;
+        }
+        return null;
+    }
+
+    /**
+     * UPDATE: Modify an existing customer
+     * OOP: Uses Customer.toCSV() for consistent serialization
+     */
     public void updateCustomer(Customer updatedCustomer) {
         List<Customer> customers = getAllCustomers();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
             for (Customer c : customers) {
                 if (c.getId().equals(updatedCustomer.getId())) {
-                    writer.write(updatedCustomer.getId() + "," + updatedCustomer.getName() + "," + updatedCustomer.getEmail() + "," +
-                            updatedCustomer.getUsername() + "," + updatedCustomer.getPassword() + "," + updatedCustomer.getNic() + "," +
-                            updatedCustomer.getLicenseNumber() + "," + updatedCustomer.getPhoneNumber());
+                    writer.write(updatedCustomer.toCSV());
                 } else {
-                    writer.write(c.getId() + "," + c.getName() + "," + c.getEmail() + "," + c.getUsername() + "," +
-                            c.getPassword() + "," + c.getNic() + "," + c.getLicenseNumber() + "," + c.getPhoneNumber());
+                    writer.write(c.toCSV());
                 }
                 writer.newLine();
             }
         } catch (IOException e) { e.printStackTrace(); }
     }
 
+    /**
+     * DELETE: Remove a customer by ID
+     * OOP: Uses Customer.toCSV() for consistent serialization
+     */
     public void deleteCustomer(String id) {
         List<Customer> customers = getAllCustomers();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
             for (Customer c : customers) {
                 if (!c.getId().equals(id)) {
-                    writer.write(c.getId() + "," + c.getName() + "," + c.getEmail() + "," + c.getUsername() + "," +
-                            c.getPassword() + "," + c.getNic() + "," + c.getLicenseNumber() + "," + c.getPhoneNumber());
+                    writer.write(c.toCSV());
                     writer.newLine();
                 }
             }
