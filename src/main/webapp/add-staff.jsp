@@ -1,19 +1,20 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.example.vehiclerentalsystem01.models.Staff" %>
+
 <%
     if (session.getAttribute("adminLoggedIn") == null || !(Boolean)session.getAttribute("adminLoggedIn")) {
         response.sendRedirect("login.jsp"); return;
     }
 %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Staff Management</title>
 
-    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <style>
@@ -25,7 +26,7 @@
 
 <div class="max-w-6xl mx-auto">
 
-    <!-- 🔵 TOP NAV -->
+    <!-- TOP NAV -->
     <div class="flex justify-between items-center mb-6">
         <div class="flex gap-3">
             <button onclick="history.back()" class="bg-gray-100 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200">
@@ -38,7 +39,7 @@
         </div>
     </div>
 
-    <!-- 🟦 STATS CARD -->
+    <!-- STATS -->
     <div class="bg-white rounded-xl shadow p-6 w-64 mb-6">
         <p class="text-gray-500 font-semibold">TOTAL STAFF</p>
         <h1 class="text-4xl font-bold mt-2">
@@ -46,13 +47,13 @@
         </h1>
     </div>
 
-    <!-- 🟨 TITLE -->
+    <!-- TITLE -->
     <div class="mb-6">
         <h2 class="text-3xl font-bold">Staff Directory</h2>
         <p class="text-gray-500">Manage and onboard employees in the system.</p>
     </div>
 
-    <!-- 🟩 FORM CARD -->
+    <!-- FORM -->
     <div class="bg-white rounded-xl shadow p-6 mb-8">
         <form action="staff" method="POST" class="grid grid-cols-2 gap-4">
 
@@ -88,7 +89,7 @@
         </form>
     </div>
 
-    <!-- 🟥 TABLE -->
+    <!-- TABLE -->
     <div class="bg-white rounded-xl shadow overflow-hidden">
 
         <div class="p-4 border-b">
@@ -110,24 +111,23 @@
             <tbody>
 
             <%
-                List staffList = (List) request.getAttribute("staffList");
+                List<Staff> staffList = (List<Staff>) request.getAttribute("staffList");
+
                 if (staffList != null && !staffList.isEmpty()) {
-                    for (Object obj : staffList) {
-                        // assuming Staff class getters
-                        com.yourpackage.Staff s = (com.yourpackage.Staff) obj;
+                    for (Staff s : staffList) {
             %>
 
             <tr class="border-t">
-                <td class="p-4"><%= s.getManualId() %></td>
+                <td class="p-4"><%= s.getStaffId() %></td>
                 <td class="p-4"><%= s.getName() %></td>
                 <td class="p-4"><%= s.getEmail() %></td>
                 <td class="p-4"><%= s.getPhone() %></td>
                 <td class="p-4"><%= s.getRole() %></td>
                 <td class="p-4">
-                    <a href="staff?action=edit&id=<%= s.getManualId() %>"
+                    <a href="staff?action=edit&id=<%= s.getStaffId() %>"
                        class="text-blue-500 font-semibold">Edit</a>
 
-                    <a href="staff?action=delete&id=<%= s.getManualId() %>"
+                    <a href="staff?action=delete&id=<%= s.getStaffId() %>"
                        onclick="return confirm('Are you sure?')"
                        class="text-red-500 font-semibold ml-3">Delete</a>
                 </td>
