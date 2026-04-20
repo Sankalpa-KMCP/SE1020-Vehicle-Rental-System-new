@@ -14,6 +14,27 @@ public class CustomerDAO {
         if (!folder.exists()) folder.mkdirs();
     }
 
+    private String normalize(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private boolean isSameValue(String left, String right) {
+        return normalize(left).equalsIgnoreCase(normalize(right));
+    }
+
+    private boolean writeAllCustomers(List<Customer> customers) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
+            for (Customer c : customers) {
+                writer.write(c.toCSV());
+                writer.newLine();
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // ==========================================
     // AUTHENTICATION: Check if Customer exists
     // ==========================================
@@ -22,12 +43,16 @@ public class CustomerDAO {
         File file = new File(FILE_PATH);
         if (!file.exists()) return null; // No customers registered yet! Return null.
 
+        String normalizedUsername = normalize(username);
+        String normalizedPassword = normalize(password);
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 Customer customer = Customer.fromCSV(line);
-                if (customer != null && customer.getUsername().equals(username) &&
-                    customer.getPassword().equals(password)) {
+                if (customer != null &&
+                        isSameValue(customer.getUsername(), normalizedUsername) &&
+                        customer.getPassword().equals(normalizedPassword)) {
                     return customer;
                 }
             }
@@ -45,11 +70,19 @@ public class CustomerDAO {
      * CREATE: Save a new customer to the file
      * OOP: Uses polymorphism - delegates serialization to Customer.toCSV()
      */
-    public void saveCustomer(Customer c) {
+    public boolean saveCustomer(Customer c) {
+        if (c == null || getCustomerByUsername(c.getUsername()) != null) {
+            return false;
+        }
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             writer.write(c.toCSV());
             writer.newLine();
-        } catch (IOException e) { e.printStackTrace(); }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**
@@ -78,7 +111,7 @@ public class CustomerDAO {
      */
     public Customer getCustomerById(String id) {
         for (Customer c : getAllCustomers()) {
-            if (c.getId().equals(id)) return c;
+            if (isSameValue(c.getId(), id)) return c;
         }
         return null;
     }
@@ -89,7 +122,7 @@ public class CustomerDAO {
      */
     public Customer getCustomerByUsername(String username) {
         for (Customer c : getAllCustomers()) {
-            if (c.getUsername().equalsIgnoreCase(username)) return c;
+            if (isSameValue(c.getUsername(), username)) return c;
         }
         return null;
     }
@@ -98,33 +131,47 @@ public class CustomerDAO {
      * UPDATE: Modify an existing customer
      * OOP: Uses Customer.toCSV() for consistent serialization
      */
-    public void updateCustomer(Customer updatedCustomer) {
+    public boolean updateCustomer(Customer updatedCustomer) {
+        if (updatedCustomer == null || normalize(updatedCustomer.getId()).isEmpty()) {
+            return false;
+        }
+
         List<Customer> customers = getAllCustomers();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
-            for (Customer c : customers) {
-                if (c.getId().equals(updatedCustomer.getId())) {
-                    writer.write(updatedCustomer.toCSV());
-                } else {
-                    writer.write(c.toCSV());
-                }
-                writer.newLine();
+        boolean updated = false;
+
+        for (int i = 0; i < customers.size(); i++) {
+            Customer c = customers.get(i);
+            if (isSameValue(c.getId(), updatedCustomer.getId())) {
+                customers.set(i, updatedCustomer);
+                updated = true;
+                break;
             }
-        } catch (IOException e) { e.printStackTrace(); }
+        }
+
+        return updated && writeAllCustomers(customers);
     }
 
     /**
      * DELETE: Remove a customer by ID
      * OOP: Uses Customer.toCSV() for consistent serialization
      */
-    public void deleteCustomer(String id) {
+    public boolean deleteCustomer(String id) {
+        if (normalize(id).isEmpty()) {
+            return false;
+        }
+
         List<Customer> customers = getAllCustomers();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
-            for (Customer c : customers) {
-                if (!c.getId().equals(id)) {
-                    writer.write(c.toCSV());
-                    writer.newLine();
-                }
+        boolean removed = false;
+
+        List<Customer> filtered = new ArrayList<>();
+        for (Customer c : customers) {
+            if (isSameValue(c.getId(), id)) {
+                removed = true;
+                continue;
             }
-        } catch (IOException e) { e.printStackTrace(); }
+            filtered.add(c);
+        }
+
+        return removed && writeAllCustomers(filtered);
     }
 }
