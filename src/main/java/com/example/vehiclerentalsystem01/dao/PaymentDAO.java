@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class PaymentDAO {
     private static final String FOLDER_PATH = System.getProperty("user.home") + File.separator + "RentalData";
     private static final String FILE_PATH = FOLDER_PATH + File.separator + "payments.txt";
@@ -17,14 +18,17 @@ public class PaymentDAO {
         if (!folder.exists()) folder.mkdirs();
     }
 
+
     public void savePayment(Payment payment) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true)))   // open the file in append mode
+        {
             writer.write(payment.getPaymentId() + "," + payment.getBookingId() + "," +
                     payment.getAmount() + "," + payment.getPaymentMethod() + "," + payment.getStatus());
             writer.newLine();
         } catch (IOException e) { e.printStackTrace(); }
     }
 
+    // Admin dashboard
     public List<Payment> getAllPayments() {
         List<Payment> payments = new ArrayList<>();
         File file = new File(FILE_PATH);
@@ -48,12 +52,14 @@ public class PaymentDAO {
         return payments;
     }
 
+    // Edit (finding a record)
     public Payment getPaymentById(String id) {
-        for (Payment p : getAllPayments()) {
-            if (p.getPaymentId().equals(id)) return p;
+        for (Payment payment : getAllPayments()) {
+            if (payment.getPaymentId().equals(id)) return payment;
         }
         return null;
     }
+
 
     public void updatePayment(Payment updatedPayment) {
         List<Payment> payments = getAllPayments();
@@ -71,6 +77,7 @@ public class PaymentDAO {
         } catch (IOException e) { e.printStackTrace(); }
     }
 
+
     public void deletePayment(String id) {
         List<Payment> payments = getAllPayments();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
@@ -83,4 +90,5 @@ public class PaymentDAO {
             }
         } catch (IOException e) { e.printStackTrace(); }
     }
+
 }
