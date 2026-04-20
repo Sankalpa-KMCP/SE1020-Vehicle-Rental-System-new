@@ -75,6 +75,24 @@
 <div class="flex justify-center items-start pb-16">
   <div class="w-full max-w-7xl bg-white border border-gray-200 rounded-3xl p-10 shadow-sm">
 
+    <% if ("created".equals(request.getParameter("msg"))) { %>
+    <div class="mb-8 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-semibold flex items-center gap-2">
+      <i class="ph-bold ph-check-circle text-xl"></i> Customer registered successfully.
+    </div>
+    <% } else if ("updated".equals(request.getParameter("msg"))) { %>
+    <div class="mb-8 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-semibold flex items-center gap-2">
+      <i class="ph-bold ph-check-circle text-xl"></i> Customer profile updated successfully.
+    </div>
+    <% } else if ("deleted".equals(request.getParameter("msg"))) { %>
+    <div class="mb-8 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-semibold flex items-center gap-2">
+      <i class="ph-bold ph-check-circle text-xl"></i> Customer deleted successfully.
+    </div>
+    <% } else if ("not_found".equals(request.getParameter("error"))) { %>
+    <div class="mb-8 bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 font-semibold flex items-center gap-2">
+      <i class="ph-bold ph-warning-circle text-xl"></i> Customer not found.
+    </div>
+    <% } %>
+
     <div id="listSection" class="fade-in block">
       <div class="flex justify-between items-end mb-8">
         <div>
@@ -99,8 +117,7 @@
             List<Customer> customerList = (List<Customer>) request.getAttribute("customerList");
             if (customerList != null && !customerList.isEmpty()) {
               for(Customer c : customerList) {
-                boolean isVerified = c.getNic() != null && !c.getNic().equals("N/A") && !c.getNic().isEmpty() &&
-                        c.getLicenseNumber() != null && !c.getLicenseNumber().equals("N/A") && !c.getLicenseNumber().isEmpty();
+                boolean isVerified = c.isVerified();
           %>
           <tr class="border-b border-gray-100 hover:bg-blue-50/40 transition-colors group">
             <td class="py-5 px-8 font-bold text-gray-900 text-lg">@<%= c.getUsername() %></td>
@@ -147,7 +164,7 @@
           <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
             <i class="ph-bold ph-magnifying-glass text-gray-400 text-xl"></i>
           </div>
-          <input type="text" name="searchUsername" placeholder="Enter Username (e.g., johndoe123)..." class="w-full pl-14 pr-6 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-shadow text-gray-900 text-lg font-medium" required>
+          <input type="text" name="searchUsername" value="<%= request.getParameter("searchUsername") != null ? request.getParameter("searchUsername") : "" %>" placeholder="Enter Username (e.g., johndoe123)..." class="w-full pl-14 pr-6 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-shadow text-gray-900 text-lg font-medium" required>
         </div>
         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-10 py-4 rounded-2xl flex items-center justify-center gap-2 shadow-md transition-colors shrink-0 text-lg">
           Find Guest
@@ -157,8 +174,7 @@
       <%
         Customer foundCustomer = (Customer) request.getAttribute("foundCustomer");
         if (foundCustomer != null) {
-          boolean foundIsVerified = foundCustomer.getNic() != null && !foundCustomer.getNic().equals("N/A") && !foundCustomer.getNic().isEmpty() &&
-                  foundCustomer.getLicenseNumber() != null && !foundCustomer.getLicenseNumber().equals("N/A") && !foundCustomer.getLicenseNumber().isEmpty();
+          boolean foundIsVerified = foundCustomer.isVerified();
       %>
       <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
 

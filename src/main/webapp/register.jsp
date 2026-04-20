@@ -166,6 +166,11 @@
       <i class="ph-bold ph-warning-circle text-2xl"></i>
       Username is already taken. Please try another.
     </div>
+    <% } else if ("missing_fields".equals(request.getParameter("error"))) { %>
+    <div id="error-alert" class="bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-600 font-bold flex items-center gap-3 mb-10 shadow-sm">
+      <i class="ph-bold ph-warning-circle text-2xl"></i>
+      Please fill in all required fields before submitting.
+    </div>
     <% } %>
 
     <form action="customers" method="POST" class="space-y-8">

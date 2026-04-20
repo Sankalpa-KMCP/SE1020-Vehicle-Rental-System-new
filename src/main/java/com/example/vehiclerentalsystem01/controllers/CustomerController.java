@@ -16,62 +16,103 @@ import java.util.UUID;
 
 @WebServlet("/customers")
 public class CustomerController extends HttpServlet {
-    private CustomerDAO customerDAO = new CustomerDAO();
+    private final CustomerDAO customerDAO = new CustomerDAO();
+
+    private String normalized(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private String normalizeOptionalDoc(String value) {
+        String trimmed = normalized(value);
+        return trimmed.isEmpty() ? "N/A" : trimmed;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private void loadDashboard(HttpServletRequest request) {
+        List<Customer> allCustomers = customerDAO.getAllCustomers();
+        if (allCustomers == null) allCustomers = new ArrayList<>();
+
+        int totalGuests = allCustomers.size();
+        int verifiedGuests = 0;
+
+        for (Customer c : allCustomers) {
+            if (c.isVerified()) verifiedGuests++;
+        }
+
+        request.setAttribute("customerList", allCustomers);
+        request.setAttribute("totalGuests", totalGuests);
+        request.setAttribute("verifiedGuests", verifiedGuests);
+        request.setAttribute("unverifiedGuests", totalGuests - verifiedGuests);
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        if (action == null || action.trim().isEmpty()) {
+            action = "view_directory";
+        }
 
         try {
-            // 1. Handle Deletions (from the table view)
             if ("delete".equals(action)) {
-                customerDAO.deleteCustomer(request.getParameter("id"));
-                response.sendRedirect("customers?action=view_directory");
+                String id = normalized(request.getParameter("id"));
+                if (!id.isEmpty()) {
+                    customerDAO.deleteCustomer(id);
+                }
+                response.sendRedirect("customers?action=view_directory&msg=deleted");
+                return;
+            }
 
-                // 2. Handle Edit Page Requests
-            } else if ("edit".equals(action)) {
-                Customer existingCustomer = customerDAO.getCustomerById(request.getParameter("id"));
-                if(existingCustomer != null) {
-                    request.setAttribute("customer", existingCustomer);
-                    request.getRequestDispatcher("/edit-customer.jsp").forward(request, response);
-                } else {
-                    response.sendRedirect("customers?action=view_directory");
+            if ("edit".equals(action)) {
+                String id = normalized(request.getParameter("id"));
+                Customer existingCustomer = customerDAO.getCustomerById(id);
+                if (existingCustomer == null) {
+                    response.sendRedirect("customers?action=view_directory&error=not_found");
+                    return;
                 }
 
-                // 3. Handle Directory & Search Views
-            } else {
-                List<Customer> allCustomers = customerDAO.getAllCustomers();
-                if (allCustomers == null) allCustomers = new ArrayList<>();
+                request.setAttribute("customer", existingCustomer);
+                request.setAttribute("isCustomerMode", false);
+                request.getRequestDispatcher("/edit-customer.jsp").forward(request, response);
+                return;
+            }
 
-                int totalGuests = allCustomers.size();
-                int verifiedGuests = 0;
-
-                // OOP: Use Customer.isVerified() helper method for cleaner code
-                for (Customer c : allCustomers) {
-                    if (c.isVerified()) verifiedGuests++;
+            if ("editSelf".equals(action)) {
+                HttpSession session = request.getSession(false);
+                boolean isCustomerLoggedIn = session != null && Boolean.TRUE.equals(session.getAttribute("customerLoggedIn"));
+                if (!isCustomerLoggedIn) {
+                    response.sendRedirect("login.jsp");
+                    return;
                 }
 
-                // ==========================================
-                // THE NEW SEARCH LOGIC (Using DAO layer)
-                // ==========================================
-                if ("search".equals(action)) {
-                    String searchUsername = request.getParameter("searchUsername");
-                    if (searchUsername != null && !searchUsername.trim().isEmpty()) {
-                        // OOP: Use DAO method instead of inline logic
-                        Customer foundCustomer = customerDAO.getCustomerByUsername(searchUsername.trim());
-                        if (foundCustomer != null) {
-                            request.setAttribute("foundCustomer", foundCustomer);
-                        }
+                String username = normalized((String) session.getAttribute("username"));
+                Customer loggedInCustomer = customerDAO.getCustomerByUsername(username);
+                if (loggedInCustomer == null) {
+                    response.sendRedirect("login.jsp?error=profile_not_found");
+                    return;
+                }
+
+                request.setAttribute("customer", loggedInCustomer);
+                request.setAttribute("isCustomerMode", true);
+                request.getRequestDispatcher("/edit-customer.jsp").forward(request, response);
+                return;
+            }
+
+            loadDashboard(request);
+
+            if ("search".equals(action)) {
+                String searchUsername = normalized(request.getParameter("searchUsername"));
+                if (!searchUsername.isEmpty()) {
+                    Customer foundCustomer = customerDAO.getCustomerByUsername(searchUsername);
+                    if (foundCustomer != null) {
+                        request.setAttribute("foundCustomer", foundCustomer);
                     }
                 }
-
-                request.setAttribute("customerList", allCustomers);
-                request.setAttribute("totalGuests", totalGuests);
-                request.setAttribute("verifiedGuests", verifiedGuests);
-                request.setAttribute("unverifiedGuests", totalGuests - verifiedGuests);
-
-                request.getRequestDispatcher("/customer-dashboard.jsp").forward(request, response);
             }
+
+            request.getRequestDispatcher("/customer-dashboard.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("admin-home.jsp");
@@ -81,41 +122,43 @@ public class CustomerController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        if (action == null || action.trim().isEmpty()) {
+            action = "register";
+        }
 
-        // Handle POST deletions from the Search Profile view
         if ("delete".equals(action)) {
-            customerDAO.deleteCustomer(request.getParameter("id"));
-            response.sendRedirect("customers?action=view_directory");
+            String id = normalized(request.getParameter("id"));
+            if (!id.isEmpty()) {
+                customerDAO.deleteCustomer(id);
+            }
+            response.sendRedirect("customers?action=view_directory&msg=deleted");
             return;
         }
 
-        // ==========================================
-        // VALIDATE INPUT (Best practice for CRUD)
-        // ==========================================
-        String name = request.getParameter("name");
-        String email = request.getParameter("email");
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String phone = request.getParameter("phone");
+        String id = normalized(request.getParameter("id"));
+        String name = normalized(request.getParameter("name"));
+        String email = normalized(request.getParameter("email"));
+        String username = normalized(request.getParameter("username"));
+        String password = normalized(request.getParameter("password"));
+        String phone = normalized(request.getParameter("phone"));
+        String nic = normalizeOptionalDoc(request.getParameter("nic"));
+        String license = normalizeOptionalDoc(request.getParameter("license"));
 
-        String nic = request.getParameter("nic");
-        if (nic == null || nic.trim().isEmpty()) nic = "N/A";
-
-        String license = request.getParameter("license");
-        if (license == null || license.trim().isEmpty()) license = "N/A";
-
-        // Validation: Check required fields
-        if (name == null || name.trim().isEmpty() ||
-            email == null || email.trim().isEmpty() ||
-            username == null || username.trim().isEmpty() ||
-            password == null || password.trim().isEmpty() ||
-            phone == null || phone.trim().isEmpty()) {
-
-            response.sendRedirect("register.jsp?error=missing_fields");
+        if (isBlank(name) || isBlank(email) || isBlank(username) || isBlank(password) || isBlank(phone)) {
+            if ("update".equals(action)) {
+                HttpSession session = request.getSession(false);
+                boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute("adminLoggedIn"));
+                if (isAdmin) {
+                    response.sendRedirect("customers?action=edit&id=" + id + "&error=missing_fields");
+                } else {
+                    response.sendRedirect("customers?action=editSelf&error=missing_fields");
+                }
+            } else {
+                response.sendRedirect("register.jsp?error=missing_fields");
+            }
             return;
         }
 
-        // Validation: Username uniqueness check (only for new registrations)
         if (!"update".equals(action)) {
             Customer existingCustomer = customerDAO.getCustomerByUsername(username);
             if (existingCustomer != null) {
@@ -125,22 +168,28 @@ public class CustomerController extends HttpServlet {
         }
 
         if ("update".equals(action)) {
-            String id = request.getParameter("id");
             Customer updatedCustomer = new Customer(id, name, email, username, password, nic, license, phone);
             customerDAO.updateCustomer(updatedCustomer);
+
+            HttpSession session = request.getSession(false);
+            boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute("adminLoggedIn"));
+            if (isAdmin) {
+                response.sendRedirect("customers?action=view_directory&msg=updated");
+            } else {
+                response.sendRedirect("customers?action=editSelf&msg=updated");
+            }
         } else {
             String newId = "C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
             Customer newCustomer = new Customer(newId, name, email, username, password, nic, license, phone);
             customerDAO.saveCustomer(newCustomer);
-        }
 
-        HttpSession session = request.getSession();
-        Boolean isAdmin = (Boolean) session.getAttribute("adminLoggedIn");
-        if (isAdmin != null && isAdmin) {
-            response.sendRedirect("customers?action=view_directory");
-        } else {
-            // UPDATED: Now redirects to login.jsp with the success flag
-            response.sendRedirect("login.jsp?success=registered");
+            HttpSession session = request.getSession(false);
+            Boolean isAdmin = session != null ? (Boolean) session.getAttribute("adminLoggedIn") : null;
+            if (isAdmin != null && isAdmin) {
+                response.sendRedirect("customers?action=view_directory&msg=created");
+            } else {
+                response.sendRedirect("login.jsp?success=registered");
+            }
         }
     }
 }

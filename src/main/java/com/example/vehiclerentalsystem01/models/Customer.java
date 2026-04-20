@@ -21,11 +21,20 @@ public class Customer extends User {
     // Master Constructor with 8 arguments
     public Customer(String id, String name, String email, String username, String password, String nic, String licenseNumber, String phoneNumber) {
         super(id, name, email); // Call parent constructor with common fields
-        this.username = username;
-        this.password = password;
-        this.nic = nic;
-        this.licenseNumber = licenseNumber;
-        this.phoneNumber = phoneNumber;
+        this.username = normalize(username);
+        this.password = normalize(password);
+        this.nic = normalizeDocument(nic);
+        this.licenseNumber = normalizeDocument(licenseNumber);
+        this.phoneNumber = normalize(phoneNumber);
+    }
+
+    private String normalizeDocument(String value) {
+        String cleaned = normalize(value);
+        return cleaned.isEmpty() ? "N/A" : cleaned;
+    }
+
+    private String safeCsvValue(String value) {
+        return value == null ? "" : value.replace(",", " ").trim();
     }
 
     // ==========================================
@@ -48,11 +57,11 @@ public class Customer extends User {
     // ==========================================
     // SETTERS (Customer-specific fields)
     // ==========================================
-    public void setUsername(String username) { this.username = username; }
-    public void setPassword(String password) { this.password = password; }
-    public void setNic(String nic) { this.nic = nic; }
-    public void setLicenseNumber(String licenseNumber) { this.licenseNumber = licenseNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public void setUsername(String username) { this.username = normalize(username); }
+    public void setPassword(String password) { this.password = normalize(password); }
+    public void setNic(String nic) { this.nic = normalizeDocument(nic); }
+    public void setLicenseNumber(String licenseNumber) { this.licenseNumber = normalizeDocument(licenseNumber); }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = normalize(phoneNumber); }
 
     // ==========================================
     // OOP: Data Serialization (Encapsulation)
@@ -62,8 +71,8 @@ public class Customer extends User {
      * Format: ID,Name,Email,Username,Password,NIC,License,Phone
      */
     public String toCSV() {
-        return getId() + "," + getName() + "," + getEmail() + "," + username + "," +
-                password + "," + nic + "," + licenseNumber + "," + phoneNumber;
+        return safeCsvValue(getId()) + "," + safeCsvValue(getName()) + "," + safeCsvValue(getEmail()) + "," + safeCsvValue(username) + "," +
+                safeCsvValue(password) + "," + safeCsvValue(nic) + "," + safeCsvValue(licenseNumber) + "," + safeCsvValue(phoneNumber);
     }
 
     /**
@@ -71,7 +80,11 @@ public class Customer extends User {
      * OOP: Static factory method for object creation
      */
     public static Customer fromCSV(String line) {
-        String[] data = line.split(",");
+        if (line == null || line.trim().isEmpty()) {
+            return null;
+        }
+
+        String[] data = line.split(",", -1);
         if (data.length == 8) {
             return new Customer(data[0].trim(), data[1].trim(), data[2].trim(), data[3].trim(),
                     data[4].trim(), data[5].trim(), data[6].trim(), data[7].trim());
@@ -83,7 +96,11 @@ public class Customer extends User {
      * OOP: Helper method to check if customer has complete verification documents
      */
     public boolean isVerified() {
-        return nic != null && !nic.isEmpty() && !nic.equalsIgnoreCase("N/A") &&
-               licenseNumber != null && !licenseNumber.isEmpty() && !licenseNumber.equalsIgnoreCase("N/A");
+        return isDocumentAvailable(nic) && isDocumentAvailable(licenseNumber);
+    }
+
+    public boolean isDocumentAvailable(String value) {
+        String cleaned = normalize(value);
+        return !cleaned.isEmpty() && !"N/A".equalsIgnoreCase(cleaned);
     }
 }

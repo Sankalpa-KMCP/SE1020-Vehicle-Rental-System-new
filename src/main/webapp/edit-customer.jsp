@@ -1,31 +1,22 @@
 <%@ page import="com.example.vehiclerentalsystem01.models.Customer" %>
-<%@ page import="com.example.vehiclerentalsystem01.dao.CustomerDAO" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%
   Customer customer = (Customer) request.getAttribute("customer");
-  boolean isCustomerMode = false;
+  Boolean customerModeAttr = (Boolean) request.getAttribute("isCustomerMode");
+  boolean isCustomerMode = customerModeAttr != null && customerModeAttr;
 
-  // If the controller didn't send a customer (Admin mode), check if a Customer is editing themselves
   if (customer == null) {
     Boolean customerLoggedIn = (Boolean) session.getAttribute("customerLoggedIn");
     if (customerLoggedIn != null && customerLoggedIn) {
-      String sessionUser = (String) session.getAttribute("username");
-      CustomerDAO dao = new CustomerDAO();
-      for(Customer c : dao.getAllCustomers()) {
-        if(c.getUsername().equals(sessionUser)) {
-          customer = c;
-          isCustomerMode = true;
-          break;
-        }
-      }
+      response.sendRedirect("customers?action=editSelf");
+    } else {
+      response.sendRedirect("login.jsp");
     }
-  }
-
-  // If absolutely no profile is found, kick back to login
-  if (customer == null) {
-    response.sendRedirect("login.jsp");
     return;
   }
+
+  String nicValue = customer.getNic() != null && !"N/A".equalsIgnoreCase(customer.getNic()) ? customer.getNic() : "";
+  String licenseValue = customer.getLicenseNumber() != null && !"N/A".equalsIgnoreCase(customer.getLicenseNumber()) ? customer.getLicenseNumber() : "";
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -58,6 +49,18 @@
       <p class="text-gray-500 font-medium mt-1">Update contact details and identity verification documents.</p>
     </div>
   </div>
+
+  <% if ("updated".equals(request.getParameter("msg"))) { %>
+  <div class="mb-6 bg-green-50 p-4 rounded-xl border border-green-200 text-green-700 font-semibold flex items-center gap-2">
+    <i class="ph-bold ph-check-circle text-xl"></i> Profile updated successfully.
+  </div>
+  <% } %>
+
+  <% if ("missing_fields".equals(request.getParameter("error"))) { %>
+  <div class="mb-6 bg-red-50 p-4 rounded-xl border border-red-200 text-red-700 font-semibold flex items-center gap-2">
+    <i class="ph-bold ph-warning-circle text-xl"></i> Please fill in all required fields.
+  </div>
+  <% } %>
 
   <form action="customers" method="post" class="space-y-6">
     <input type="hidden" name="action" value="update">
@@ -100,12 +103,12 @@
 
       <div>
         <label class="block text-sm font-bold text-gray-700 mb-2">NIC Number</label>
-        <input type="text" name="nic" value="<%= customer.getNic().equals("N/A") ? "" : customer.getNic() %>" placeholder="Leave blank if none" class="w-full border border-gray-300 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-800 transition-shadow">
+        <input type="text" name="nic" value="<%= nicValue %>" placeholder="Leave blank if none" class="w-full border border-gray-300 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-800 transition-shadow">
       </div>
 
       <div>
         <label class="block text-sm font-bold text-gray-700 mb-2">Driver's License</label>
-        <input type="text" name="license" value="<%= customer.getLicenseNumber().equals("N/A") ? "" : customer.getLicenseNumber() %>" placeholder="Leave blank if none" class="w-full border border-gray-300 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-800 transition-shadow">
+        <input type="text" name="license" value="<%= licenseValue %>" placeholder="Leave blank if none" class="w-full border border-gray-300 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-800 transition-shadow">
       </div>
 
     </div>
