@@ -7,17 +7,21 @@ import com.example.vehiclerentalsystem01.models.Payment;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;     // to read what the user typed
+import jakarta.servlet.http.HttpServletResponse;    // send an answer back to user
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
+import java.util.UUID;      // generate unique, random IDs
 
-@WebServlet("/payments")
+
+// setup and connection
+@WebServlet("/payments")    // URL routing
 public class PaymentController extends HttpServlet {
     private PaymentDAO paymentDAO = new PaymentDAO();
 
+
+    // Handling links and views
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
@@ -26,22 +30,27 @@ public class PaymentController extends HttpServlet {
             String id = request.getParameter("id");
             paymentDAO.deletePayment(id);
             response.sendRedirect("payments?action=list");
-        } else if ("edit".equals(action)) {
+        }
+        else if ("edit".equals(action)) {
             String id = request.getParameter("id");
-            Payment p = paymentDAO.getPaymentById(id);
-            if(p != null) {
-                request.setAttribute("payment", p);
+            Payment payment = paymentDAO.getPaymentById(id);
+            if(payment != null) {
+                request.setAttribute("payment", payment);
                 request.getRequestDispatcher("edit-payment.jsp").forward(request, response);
             } else {
                 response.sendRedirect("payments?action=list");
             }
-        } else {
+        }
+
+        else {
             List<Payment> payments = paymentDAO.getAllPayments();
             request.setAttribute("paymentList", payments);
             request.getRequestDispatcher("payment-dashboard.jsp").forward(request, response);
         }
     }
 
+
+    // Handling form submissions
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
@@ -51,13 +60,16 @@ public class PaymentController extends HttpServlet {
         String method = request.getParameter("method");
         String status = request.getParameter("status");
 
+
         if ("update".equals(action)) {
             String id = request.getParameter("id");
             Payment updatedPayment = method.equals("Card") ?
                     new CardPayment(id, bookingId, amount, status) :
                     new CashPayment(id, bookingId, amount, status);
             paymentDAO.updatePayment(updatedPayment);
-        } else {
+        }
+        // Creating a new payment
+        else {
             String manualId = request.getParameter("manualId");
             String newId = (manualId != null && !manualId.trim().isEmpty()) ? manualId.trim() : "INV-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
 
