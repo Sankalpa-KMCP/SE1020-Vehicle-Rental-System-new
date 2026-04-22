@@ -46,6 +46,13 @@
             </select>
         </div>
 
+        <% if (cr.getStaffReply() != null && !cr.getStaffReply().trim().isEmpty()) { %>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p class="text-xs font-bold text-blue-700 mb-1">Current Staff Reply (<%= cr.getRepliedBy() %>)</p>
+            <p class="text-sm text-blue-900"><%= cr.getStaffReply() %></p>
+        </div>
+        <% } %>
+
         <div class="pt-4 flex gap-3">
             <a href="reviews?action=list" class="w-1/3 bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 text-center transition">Cancel</a>
             <button type="submit" class="w-2/3 bg-[#475569] text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-800 transition">Save Moderation</button>
