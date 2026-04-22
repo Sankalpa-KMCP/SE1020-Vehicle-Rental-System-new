@@ -15,16 +15,16 @@ public class Car extends Vehicle {
     public int getSeatingCapacity() { return seatingCapacity; }
     public void setSeatingCapacity(int seatingCapacity) { this.seatingCapacity = seatingCapacity; }
 
+    /**
+     * OOP Concept: Polymorphism.
+     */
     @Override
     public String getVehicleType() {
         return "Car / SUV";
     }
 
-    // --- POLYMORPHISM METHODS ---
-
     @Override
     public double calculateRentalRate() {
-        // Cars pay the standard daily rate
         return getDailyRate();
     }
 
@@ -34,8 +34,11 @@ public class Car extends Vehicle {
     }
 
     @Override
-    public String formatForFile() {
+    public String toCSV() {
         // Formats the data perfectly to write into vehicles.txt
+        // VITAL: Added "Car," so the DAO knows what this is!
         return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity;
     }
-} // /
+
+    //commit
+}
