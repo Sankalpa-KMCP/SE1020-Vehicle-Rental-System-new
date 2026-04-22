@@ -5,6 +5,11 @@
   if (sessionUsername == null) {
     sessionUsername = ""; // Fallback
   }
+
+  String preselectedVehicleId = request.getParameter("vehicleId");
+  if (preselectedVehicleId == null) {
+    preselectedVehicleId = "";
+  }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,6 +52,12 @@
   <form action="bookings" method="POST" class="space-y-6">
     <input type="hidden" name="action" value="create">
 
+    <% if ("vehicle_unavailable".equals(request.getParameter("error"))) { %>
+    <div class="bg-red-50 border border-red-200 text-red-700 font-semibold px-4 py-3 rounded-xl">
+      This vehicle is currently unavailable based on booking decisions. Please choose a different vehicle.
+    </div>
+    <% } %>
+
     <div>
       <label class="block font-bold text-gray-700 mb-2">Customer Name</label>
       <input type="text" name="customerName" value="<%= sessionUsername %>" readonly
@@ -56,7 +67,7 @@
 
     <div>
       <label class="block font-bold text-gray-700 mb-2">Vehicle ID</label>
-      <input type="text" name="vehicleId" required placeholder="e.g., V-101"
+      <input type="text" name="vehicleId" value="<%= preselectedVehicleId %>" required placeholder="e.g., V-101"
              class="w-full border border-gray-300 rounded-xl p-4 outline-none focus:border-[#06B6D4] focus:ring-2 focus:ring-cyan-200 transition-all">
     </div>
 

@@ -3,8 +3,12 @@ package com.example.vehiclerentalsystem01.dao;
 import com.example.vehiclerentalsystem01.models.Booking;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Data Access Object for Bookings.
@@ -20,12 +24,25 @@ public class BookingDAO {
         if (!folder.exists()) folder.mkdirs();
     }
 
+    private String normalized(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private boolean hasStatus(Booking booking, String expectedStatus) {
+        return booking != null && expectedStatus.equalsIgnoreCase(normalized(booking.getStatus()));
+    }
+
+    private String csvSafe(String value) {
+        if (value == null) return "";
+        return value.replace(",", " ").replace("\r", " ").replace("\n", " ").trim();
+    }
+
     // CRUD: CREATE
     public void saveBooking(Booking booking) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             writer.write(booking.getTransactionId() + "," + booking.getCustomerName() + "," +
                     booking.getRentalDate() + "," + booking.getVehicleId() + "," +
-                    booking.getDurationDays() + "," + booking.getStatus());
+                    booking.getDurationDays() + "," + booking.getStatus() + "," + csvSafe(booking.getStaffMessage()));
             writer.newLine();
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,15 +58,17 @@ public class BookingDAO {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] data = line.split(",");
-                if (data.length == 6) {
+                String[] data = line.split(",", -1);
+                if (data.length >= 6) {
+                    String staffMessage = data.length >= 7 ? data[6] : "";
                     bookings.add(new Booking(
-                            data[0], // ID
-                            data[1], // Name
-                            data[2], // Date
-                            data[3], // VehicleID
-                            Integer.parseInt(data[4]), // Days
-                            data[5]  // Status
+                            data[0],
+                            data[1],
+                            data[2],
+                            data[3],
+                            Integer.parseInt(data[4]),
+                            data[5],
+                            staffMessage
                     ));
                 }
             }
@@ -78,12 +97,12 @@ public class BookingDAO {
                     // Write the new data
                     writer.write(updatedBooking.getTransactionId() + "," + updatedBooking.getCustomerName() + "," +
                             updatedBooking.getRentalDate() + "," + updatedBooking.getVehicleId() + "," +
-                            updatedBooking.getDurationDays() + "," + updatedBooking.getStatus());
+                            updatedBooking.getDurationDays() + "," + updatedBooking.getStatus() + "," + csvSafe(updatedBooking.getStaffMessage()));
                 } else {
                     // Keep existing data
                     writer.write(b.getTransactionId() + "," + b.getCustomerName() + "," +
                             b.getRentalDate() + "," + b.getVehicleId() + "," +
-                            b.getDurationDays() + "," + b.getStatus());
+                            b.getDurationDays() + "," + b.getStatus() + "," + csvSafe(b.getStaffMessage()));
                 }
                 writer.newLine();
             }
@@ -101,7 +120,7 @@ public class BookingDAO {
                 if (!b.getTransactionId().equals(id)) {
                     writer.write(b.getTransactionId() + "," + b.getCustomerName() + "," +
                             b.getRentalDate() + "," + b.getVehicleId() + "," +
-                            b.getDurationDays() + "," + b.getStatus());
+                            b.getDurationDays() + "," + b.getStatus() + "," + csvSafe(b.getStaffMessage()));
                     writer.newLine();
                 }
             }
@@ -122,11 +141,66 @@ public class BookingDAO {
                 }
                 writer.write(b.getTransactionId() + "," + b.getCustomerName() + "," +
                         b.getRentalDate() + "," + b.getVehicleId() + "," +
-                        b.getDurationDays() + "," + b.getStatus());
+                        b.getDurationDays() + "," + b.getStatus() + "," + csvSafe(b.getStaffMessage()));
                 writer.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean isPaymentAllowed(String bookingId) {
+        Booking booking = getBookingById(bookingId);
+        return hasStatus(booking, "CONFIRMED");
+    }
+
+    public boolean hasEligibleReviewBooking(String customerName) {
+        String normalizedCustomer = normalized(customerName);
+        if (normalizedCustomer.isEmpty()) {
+            return false;
+        }
+
+        for (Booking booking : getAllBookings()) {
+            if (normalized(booking.getCustomerName()).equalsIgnoreCase(normalizedCustomer)
+                    && (hasStatus(booking, "CONFIRMED") || hasStatus(booking, "COMPLETED"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Set<String> getUnavailableVehicleIds() {
+        Set<String> unavailableVehicleIds = new HashSet<>();
+        for (Booking booking : getAllBookings()) {
+            if (hasStatus(booking, "CONFIRMED") || hasStatus(booking, "CANCELLATION_REQUESTED") || hasStatus(booking, "UPDATED")) {
+                String vehicleId = normalized(booking.getVehicleId());
+                if (!vehicleId.isEmpty()) {
+                    unavailableVehicleIds.add(vehicleId);
+                }
+            }
+        }
+        return unavailableVehicleIds;
+    }
+
+    public boolean isVehicleAvailable(String vehicleId) {
+        String normalizedVehicleId = normalized(vehicleId);
+        if (normalizedVehicleId.isEmpty()) {
+            return false;
+        }
+        return !getUnavailableVehicleIds().contains(normalizedVehicleId);
+    }
+
+    public boolean hasDateOverlap(Booking booking, LocalDate requestedStart, LocalDate requestedEnd) {
+        if (booking == null || requestedStart == null || requestedEnd == null) {
+            return false;
+        }
+
+        try {
+            LocalDate bookingStart = LocalDate.parse(normalized(booking.getRentalDate()));
+            LocalDate bookingEnd = bookingStart.plusDays(Math.max(1, booking.getDurationDays()) - 1L);
+            return !bookingEnd.isBefore(requestedStart) && !bookingStart.isAfter(requestedEnd);
+        } catch (DateTimeParseException ex) {
+            return false;
         }
     }
 }

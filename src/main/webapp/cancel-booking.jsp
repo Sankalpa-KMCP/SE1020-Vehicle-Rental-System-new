@@ -16,15 +16,18 @@
     <h2 class="text-3xl font-bold text-[#EF4444] flex items-center gap-3"><i class="ph-bold ph-trash"></i> Cancel Booking</h2>
     <a href="add-booking.jsp" class="text-gray-500 hover:text-gray-800 font-bold">Close ✕</a>
   </div>
-  <p class="text-gray-600 mb-8 font-medium">Enter the Booking ID you wish to permanently delete from the system.</p>
+  <p class="text-gray-600 mb-8 font-medium">Enter your Booking ID to send a cancellation request for staff approval.</p>
 
   <form action="bookings" method="POST" class="space-y-6">
-    <input type="hidden" name="action" value="delete">
+    <input type="hidden" name="action" value="request_cancel">
     <div>
       <input type="text" name="id" placeholder="Booking ID (e.g. BKG-101)" required class="w-full border border-gray-300 rounded-xl px-4 py-4 text-lg outline-none focus:border-[#EF4444]">
     </div>
-    <button type="submit" onclick="return confirm('Are you sure you want to cancel this booking?');" class="w-full bg-[#EF4444] text-white py-4 rounded-xl font-bold text-xl hover:bg-red-600 transition shadow-md">
-      Permanently Cancel Reservation
+    <div>
+      <textarea name="cancelReason" rows="3" placeholder="Reason (optional)" class="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-[#EF4444]"></textarea>
+    </div>
+    <button type="submit" onclick="return confirm('Submit this cancellation request?');" class="w-full bg-[#EF4444] text-white py-4 rounded-xl font-bold text-xl hover:bg-red-600 transition shadow-md">
+      Submit Cancellation Request
     </button>
   </form>
 </div>
