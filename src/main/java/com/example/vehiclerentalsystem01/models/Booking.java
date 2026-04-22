@@ -8,12 +8,18 @@ public class Booking extends Transaction {
     private String vehicleId;
     private int durationDays;
     private String status; // e.g., PENDING, CONFIRMED, CANCELLED
+    private String staffMessage;
 
     public Booking(String transactionId, String customerName, String rentalDate, String vehicleId, int durationDays, String status) {
+        this(transactionId, customerName, rentalDate, vehicleId, durationDays, status, "");
+    }
+
+    public Booking(String transactionId, String customerName, String rentalDate, String vehicleId, int durationDays, String status, String staffMessage) {
         super(transactionId, customerName, rentalDate); // Call parent constructor
         this.vehicleId = vehicleId;
         this.durationDays = durationDays;
         this.status = status;
+        this.staffMessage = staffMessage == null ? "" : staffMessage;
     }
 
     // Getters and Setters
@@ -23,6 +29,8 @@ public class Booking extends Transaction {
     public void setDurationDays(int durationDays) { this.durationDays = durationDays; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public String getStaffMessage() { return staffMessage; }
+    public void setStaffMessage(String staffMessage) { this.staffMessage = staffMessage == null ? "" : staffMessage; }
 
     // --- JSP COMPATIBILITY ALIASES ---
     // These methods fix the "method undefined" errors in search-booking.jsp
