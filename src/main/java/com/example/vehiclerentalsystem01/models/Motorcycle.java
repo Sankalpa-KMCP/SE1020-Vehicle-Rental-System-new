@@ -1,5 +1,4 @@
 package com.example.vehiclerentalsystem01.models;
-
 /**
  * OOP Concept: Inheritance.
  * The Motorcycle class inherits all attributes and methods from the Vehicle class.
@@ -35,8 +34,8 @@ public class Motorcycle extends Vehicle {
     }
 
     @Override
-    public String toCSV() {
+    public String formatForFile() {
         // FIX 3: We must use Getters to access the parent's private data
         return "Motorcycle," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + helmetIncluded;
     }
-}
+} //
