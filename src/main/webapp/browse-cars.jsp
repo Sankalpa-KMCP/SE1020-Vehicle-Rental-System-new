@@ -1,8 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.example.vehiclerentalsystem01.models.Vehicle" %>
-<%@ page import="com.example.vehiclerentalsystem01.models.Car" %>
 <%@ page import="com.example.vehiclerentalsystem01.dao.VehicleDAO" %>
+<%@ page import="com.example.vehiclerentalsystem01.dao.BookingDAO" %>
+<%@ page import="java.util.Set" %>
 
 <%
     // Security Check: Only logged-in customers can view the cars!
@@ -15,6 +16,8 @@
     // Fetch all vehicles from the text file using Student 2's DAO!
     VehicleDAO vehicleDAO = new VehicleDAO();
     List<Vehicle> availableVehicles = vehicleDAO.getAllVehicles();
+    BookingDAO bookingDAO = new BookingDAO();
+    Set<String> unavailableVehicleIds = bookingDAO.getUnavailableVehicleIds();
 %>
 
 <!DOCTYPE html>
@@ -47,9 +50,13 @@
 <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 fade-in">
 
     <%
+        int renderedVehicles = 0;
         if (availableVehicles != null && !availableVehicles.isEmpty()) {
             for (Vehicle v : availableVehicles) {
-                Car c = (Car) v; // We cast to Car to get seating capacity
+                if (unavailableVehicleIds.contains(v.getId())) {
+                    continue;
+                }
+                renderedVehicles++;
     %>
     <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300 flex flex-col">
 
@@ -58,46 +65,48 @@
                 <i class="ph-fill ph-car text-9xl"></i>
             </div>
             <div class="relative z-10">
-                <p class="text-blue-400 font-bold tracking-wider text-sm uppercase mb-1"><%= c.getBrand() %></p>
-                <h2 class="text-2xl font-extrabold truncate"><%= c.getModel() %></h2>
+                <p class="text-blue-400 font-bold tracking-wider text-sm uppercase mb-1"><%= v.getBrand() %></p>
+                <h2 class="text-2xl font-extrabold truncate"><%= v.getModel() %></h2>
             </div>
         </div>
 
         <div class="p-6 flex-grow">
             <div class="flex justify-between items-center mb-6">
                 <div class="bg-blue-50 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm flex items-center gap-1.5">
-                    <i class="ph-bold ph-steering-wheel"></i> <%= c.getVehicleType() %>
+                    <i class="ph-bold ph-steering-wheel"></i> <%= v.getVehicleType() %>
                 </div>
                 <div class="bg-gray-100 text-gray-700 font-bold px-3 py-1 rounded-lg text-sm flex items-center gap-1.5">
-                    <i class="ph-bold ph-users"></i> <%= c.getSeatingCapacity() %> Seats
+                    <i class="ph-bold ph-list-checks"></i> <%= v.getSpecificDetail() %>
                 </div>
             </div>
 
             <div class="border-t border-b border-gray-100 py-4 mb-6 text-center">
                 <p class="text-gray-500 font-medium text-sm">Daily Rental Rate</p>
-                <p class="text-3xl font-extrabold text-gray-900 mt-1">$<%= String.format("%.2f", c.getDailyRate()) %> <span class="text-lg text-gray-400 font-medium">/day</span></p>
+                <p class="text-3xl font-extrabold text-gray-900 mt-1">$<%= String.format("%.2f", v.calculateRentalRate()) %> <span class="text-lg text-gray-400 font-medium">/day</span></p>
             </div>
 
             <ul class="text-sm text-gray-600 space-y-2 font-medium mb-6">
-                <li class="flex items-center gap-2"><i class="ph-bold ph-check-circle text-green-500 text-lg"></i> Vehicle ID: <%= c.getId() %></li>
+                <li class="flex items-center gap-2"><i class="ph-bold ph-check-circle text-green-500 text-lg"></i> Vehicle ID: <%= v.getId() %></li>
                 <li class="flex items-center gap-2"><i class="ph-bold ph-check-circle text-green-500 text-lg"></i> Fully Insured & Inspected</li>
             </ul>
         </div>
 
         <div class="p-4 bg-gray-50 border-t border-gray-100">
-            <a href="add-booking.jsp?vehicleId=<%= c.getId() %>&rate=<%= c.getDailyRate() %>" class="w-full block text-center bg-[#0D6EFD] text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-colors shadow-md text-lg">
+            <a href="add-booking.jsp?vehicleId=<%= v.getId() %>&rate=<%= v.calculateRentalRate() %>" class="w-full block text-center bg-[#0D6EFD] text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-colors shadow-md text-lg">
                 Book This Vehicle
             </a>
         </div>
     </div>
     <%
+            }
         }
-    } else {
+
+        if (renderedVehicles == 0) {
     %>
     <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-200 border-dashed">
         <i class="ph-fill ph-car-profile text-6xl text-gray-300 mb-4"></i>
         <h3 class="text-2xl font-bold text-gray-700">No Vehicles Available</h3>
-        <p class="text-gray-500 mt-2">Check back later for new inventory!</p>
+        <p class="text-gray-500 mt-2">No vehicles are currently open for booking decisions.</p>
     </div>
     <% } %>
 
