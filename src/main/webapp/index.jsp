@@ -1,5 +1,29 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.*" %>
+<%@ page import="com.example.vehiclerentalsystem01.dao.VehicleDAO" %>
+<%@ page import="com.example.vehiclerentalsystem01.models.Vehicle" %>
+<%
+    // Check if user is logged in
+    Boolean customerLoggedIn = (Boolean) session.getAttribute("customerLoggedIn");
+    Boolean staffLoggedIn = (Boolean) session.getAttribute("staffLoggedIn");
+    String displayName = "";
+    String userRole = "";
+
+    if (customerLoggedIn != null && customerLoggedIn) {
+        displayName = (String) session.getAttribute("name");
+        if (displayName == null) displayName = (String) session.getAttribute("username");
+        if (displayName == null) displayName = "Customer";
+        userRole = "customer";
+    } else if (staffLoggedIn != null && staffLoggedIn) {
+        displayName = (String) session.getAttribute("name");
+        if (displayName == null) displayName = "Staff";
+        userRole = "staff";
+    }
+
+    // Fetch vehicles from DAO
+    VehicleDAO vehicleDAO = new VehicleDAO();
+    List<Vehicle> vehicles = vehicleDAO.getAllVehicles();
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -193,27 +217,45 @@
     <div class="max-w-[1400px] mx-auto px-6 lg:px-8 flex justify-between items-center">
 
         <a href="index.jsp" class="flex items-center gap-3 group transition-link">
-            <div class="bg-gray-100 p-2.5 rounded-xl group-hover:bg-[#0D6EFD] transition-colors duration-300 shadow-sm">
-                <i class="ph-fill ph-car-profile text-2xl text-[#0D6EFD] group-hover:text-white transition-colors duration-300"></i>
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-2.5 rounded-xl shadow-lg group-hover:shadow-blue-500/30 transition-all">
+                <i class="ph-fill ph-car-profile text-2xl text-white"></i>
             </div>
-            <span class="text-2xl font-black tracking-tight text-gray-900">DriveAway</span>
+            <span class="text-2xl font-black tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">DriveAway</span>
         </a>
 
         <div class="hidden lg:flex items-center gap-8">
             <a href="#fleet" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">Our Fleet</a>
             <a href="#how-it-works" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">Process</a>
-            <a href="#locations" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">Hubs</a>
-            <a href="#team" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">The Team</a>
             <a href="about.jsp" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide transition-link">About</a>
             <a href="contact.jsp" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide transition-link">Contact</a>
         </div>
 
+        <% if (userRole.isEmpty()) { %>
         <div class="hidden md:flex items-center gap-4">
             <a href="login.jsp" class="text-base font-extrabold text-gray-600 hover:text-black transition-colors px-4 py-2 transition-link">Sign In</a>
-            <a href="register.jsp" class="bg-[#0D6EFD] text-white font-extrabold py-3 px-8 rounded-full hover:bg-blue-700 transition-all transform hover:-translate-y-0.5 shadow-[0_10px_20px_rgba(13,110,253,0.3)] tracking-wide transition-link">
+            <a href="register.jsp" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold py-3 px-8 rounded-full hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:-translate-y-0.5 shadow-lg shadow-blue-500/30 tracking-wide transition-link">
                 Join Network
             </a>
         </div>
+        <% } else { %>
+        <div class="hidden md:flex items-center gap-4">
+            <div class="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100">
+                <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                    <i class="ph-bold ph-user text-lg text-white"></i>
+                </div>
+                <span class="font-bold text-gray-900 text-sm"><%= displayName %></span>
+            </div>
+            <% if ("customer".equals(userRole)) { %>
+            <a href="customer-home.jsp" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold py-3 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/30 transition-link">
+                Dashboard
+            </a>
+            <% } else { %>
+            <a href="staff-home.jsp" class="bg-gradient-to-r from-rose-500 to-pink-600 text-white font-extrabold py-3 px-6 rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-lg shadow-rose-500/30 transition-link">
+                Staff Portal
+            </a>
+            <% } %>
+        </div>
+        <% } %>
 
         <button id="mobile-menu-btn" class="lg:hidden text-gray-600 focus:outline-none bg-gray-50 p-2 rounded-lg">
             <i class="ph-bold ph-list text-2xl"></i>
@@ -224,13 +266,25 @@
         <div class="flex flex-col p-6 space-y-3">
             <a href="#fleet" class="text-lg font-bold text-gray-800 hover:text-[#0D6EFD] py-2 border-b border-gray-50">Our Fleet</a>
             <a href="#how-it-works" class="text-lg font-bold text-gray-800 hover:text-[#0D6EFD] py-2 border-b border-gray-50">How it Works</a>
-            <a href="#locations" class="text-lg font-bold text-gray-800 hover:text-[#0D6EFD] py-2 border-b border-gray-50">Locations</a>
             <a href="about.jsp" class="text-lg font-bold text-gray-800 hover:text-[#0D6EFD] py-2 border-b border-gray-50 transition-link">About Us</a>
             <a href="contact.jsp" class="text-lg font-bold text-gray-800 hover:text-[#0D6EFD] py-2 border-b border-gray-50 transition-link">Contact Support</a>
+            <% if (userRole.isEmpty()) { %>
             <div class="pt-4 flex flex-col gap-3">
                 <a href="login.jsp" class="bg-gray-100 text-gray-900 font-bold py-3 rounded-xl text-center transition-link">Sign In</a>
                 <a href="register.jsp" class="bg-[#0D6EFD] text-white font-bold py-3 rounded-xl text-center transition-link">Join Network</a>
             </div>
+            <% } else { %>
+            <div class="pt-4 flex flex-col gap-3">
+                <div class="bg-blue-50 text-gray-900 font-bold py-3 rounded-xl text-center px-4 flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-user"></i> <%= displayName %>
+                </div>
+                <% if ("customer".equals(userRole)) { %>
+                <a href="customer-home.jsp" class="bg-[#0D6EFD] text-white font-bold py-3 rounded-xl text-center transition-link">Go to Dashboard</a>
+                <% } else { %>
+                <a href="staff-home.jsp" class="bg-rose-500 text-white font-bold py-3 rounded-xl text-center transition-link">Staff Portal</a>
+                <% } %>
+            </div>
+            <% } %>
         </div>
     </div>
 </nav>
@@ -260,46 +314,50 @@
             </div>
 
             <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-gray-100 max-w-2xl mx-auto lg:mx-0 reveal" style="transition-delay: 0.1s;">
+                <% if (userRole.isEmpty()) { %>
                 <form action="login.jsp" method="GET" class="space-y-6">
-                    <div class="border-b border-gray-200 pb-6 mb-6">
-                        <label class="block text-xs font-black text-gray-400 mb-3 uppercase tracking-widest">Pick-up Location</label>
-                        <div class="relative">
-                            <i class="ph-fill ph-map-pin absolute left-4 top-4 text-[#0D6EFD] text-xl"></i>
-                            <select class="w-full bg-gray-50 border border-gray-200 py-4 pl-12 pr-4 rounded-xl focus:border-[#0D6EFD] outline-none transition-colors text-lg font-bold text-gray-900 appearance-none">
-                                <option value="colombo">Colombo 03 - Main Hub</option>
-                                <option value="airport">BIA Airport - Katunayake</option>
-                                <option value="kandy">Kandy - City Center</option>
-                                <option value="galle">Galle - Fort Entrance</option>
-                            </select>
-                            <i class="ph-bold ph-caret-down absolute right-4 top-4 text-gray-400"></i>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-[#0D6EFD] transition-colors">
-                            <label class="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest">Pick-up</label>
-                            <div class="flex items-center gap-2">
-                                <input type="date" required class="w-full bg-transparent outline-none text-lg font-bold text-gray-900">
+                        <% } else { %>
+                    <form action="browse-cars.jsp" method="GET" class="space-y-6">
+                        <% } %>
+                        <div class="border-b border-gray-200 pb-6 mb-6">
+                            <label class="block text-xs font-black text-gray-400 mb-3 uppercase tracking-widest">Pick-up Location</label>
+                            <div class="relative">
+                                <i class="ph-fill ph-map-pin absolute left-4 top-4 text-[#0D6EFD] text-xl"></i>
+                                <select name="location" class="w-full bg-gray-50 border border-gray-200 py-4 pl-12 pr-4 rounded-xl focus:border-[#0D6EFD] outline-none transition-colors text-lg font-bold text-gray-900 appearance-none">
+                                    <option value="colombo">Colombo 03 - Main Hub</option>
+                                    <option value="airport">BIA Airport - Katunayake</option>
+                                    <option value="kandy">Kandy - City Center</option>
+                                    <option value="galle">Galle - Fort Entrance</option>
+                                </select>
+                                <i class="ph-bold ph-caret-down absolute right-4 top-4 text-gray-400"></i>
                             </div>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-[#0D6EFD] transition-colors">
-                            <label class="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest">Drop-off</label>
-                            <div class="flex items-center gap-2">
-                                <input type="date" required class="w-full bg-transparent outline-none text-lg font-bold text-gray-900">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-[#0D6EFD] transition-colors">
+                                <label class="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest">Pick-up</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="date" name="pickupDate" required class="w-full bg-transparent outline-none text-lg font-bold text-gray-900">
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-[#0D6EFD] transition-colors">
+                                <label class="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest">Drop-off</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="date" name="dropoffDate" required class="w-full bg-transparent outline-none text-lg font-bold text-gray-900">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <button type="submit" class="w-full bg-[#1A1C23] text-white font-black py-5 rounded-2xl hover:bg-black transition-all transform hover:-translate-y-1 shadow-[0_10px_20px_rgba(0,0,0,0.1)] mt-4 text-xl tracking-wide flex justify-center items-center gap-3">
-                        Find Available Vehicles <i class="ph-bold ph-magnifying-glass text-2xl"></i>
-                    </button>
-                </form>
+                        <button type="submit" class="w-full bg-gradient-to-r from-gray-900 to-black text-white font-black py-5 rounded-2xl hover:from-black hover:to-gray-900 transition-all transform hover:-translate-y-1 shadow-lg mt-4 text-xl tracking-wide flex justify-center items-center gap-3">
+                            Find Available Vehicles <i class="ph-bold ph-magnifying-glass text-2xl"></i>
+                        </button>
+                    </form>
             </div>
         </div>
 
         <div class="w-full lg:w-1/2 flex justify-center lg:justify-end reveal-right" style="transition-delay: 0.2s;">
             <div class="relative w-full max-w-lg lg:max-w-full perspective-[1000px]">
-                <img src="https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1200&auto=format&fit=crop" alt="Luxury Car" class="rounded-[3rem] shadow-2xl object-cover h-[600px] w-full border-[8px] border-white transform lg:rotate-3 transition-transform hover:rotate-0 duration-700 ease-out">
+                <img src="https://placehold.co/800x600/0D6EFD/ffffff?text=DriveAway+Premium+Fleet" alt="Luxury Car" class="rounded-[3rem] shadow-2xl object-cover h-[600px] w-full border-[8px] border-white transform lg:rotate-3 transition-transform hover:rotate-0 duration-700 ease-out">
 
                 <div class="absolute -bottom-8 -left-8 bg-white p-6 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] hidden lg:flex items-center gap-4 animate-bounce" style="animation-duration: 3s;">
                     <div class="bg-yellow-50 p-3 rounded-2xl"><i class="ph-fill ph-star text-yellow-400 text-3xl"></i></div>
@@ -437,61 +495,71 @@
                 <h2 class="text-[2.5rem] font-black mb-4 tracking-tight text-gray-900">Live Inventory</h2>
                 <p class="text-gray-500 font-medium text-xl">The cleanest, most reliable fleet in the country.</p>
             </div>
-            <a href="login.jsp" class="transition-link hidden md:flex items-center gap-2 text-lg font-bold text-white bg-[#1A1C23] hover:bg-black px-8 py-4 rounded-2xl transition-all shadow-lg transform hover:-translate-y-1">
+            <% if (userRole.isEmpty()) { %>
+            <a href="login.jsp" class="transition-link hidden md:flex items-center gap-2 text-lg font-bold text-white bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-900 px-8 py-4 rounded-2xl transition-all shadow-lg transform hover:-translate-y-1">
                 View All Vehicles <i class="ph-bold ph-arrow-right"></i>
             </a>
-        </div>
-
-        <div class="flex flex-wrap gap-4 mb-12 reveal">
-            <button class="filter-btn active border-2 border-gray-200 text-gray-700 font-bold px-6 py-2.5 rounded-full text-sm uppercase tracking-widest" data-filter="all">All Vehicles</button>
-            <button class="filter-btn border-2 border-gray-200 text-gray-700 font-bold px-6 py-2.5 rounded-full text-sm uppercase tracking-widest hover:border-[#0D6EFD] hover:text-[#0D6EFD]" data-filter="sedan">Sedans</button>
-            <button class="filter-btn border-2 border-gray-200 text-gray-700 font-bold px-6 py-2.5 rounded-full text-sm uppercase tracking-widest hover:border-[#0D6EFD] hover:text-[#0D6EFD]" data-filter="suv">SUVs & 4x4</button>
-            <button class="filter-btn border-2 border-gray-200 text-gray-700 font-bold px-6 py-2.5 rounded-full text-sm uppercase tracking-widest hover:border-[#0D6EFD] hover:text-[#0D6EFD]" data-filter="luxury">Luxury</button>
+            <% } else { %>
+            <a href="browse-cars.jsp" class="transition-link hidden md:flex items-center gap-2 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-8 py-4 rounded-2xl transition-all shadow-lg shadow-blue-500/30 transform hover:-translate-y-1">
+                Browse Full Fleet <i class="ph-bold ph-arrow-right"></i>
+            </a>
+            <% } %>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" id="fleet-grid">
             <%
-                String[][] allCars = {
-                        {"Toyota Axio 2020", "Hybrid", "Rs. 8,000", "Auto", "5", "https://images.unsplash.com/photo-1590362891991-f776e747a588?q=80&w=800&auto=format&fit=crop", "4.9", "sedan"},
-                        {"Honda Vezel 2019", "SUV", "Rs. 9,500", "Auto", "5", "https://images.unsplash.com/photo-1568844293986-8d0400ba4790?q=80&w=800&auto=format&fit=crop", "4.8", "suv"},
-                        {"Mercedes Benz E200", "Luxury", "Rs. 25,000", "Auto", "5", "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=800&auto=format&fit=crop", "5.0", "luxury"},
-                        {"Toyota Land Cruiser", "4x4", "Rs. 30,000", "Auto", "7", "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800&auto=format&fit=crop", "4.9", "suv"},
-                        {"Honda Civic 2022", "Sedan", "Rs. 12,000", "Auto", "5", "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800&auto=format&fit=crop", "4.9", "sedan"},
-                        {"BMW C-Class", "Luxury", "Rs. 22,000", "Auto", "5", "https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=800&auto=format&fit=crop", "4.8", "luxury"},
-                        {"Suzuki Every 2018", "Mini Van", "Rs. 6,000", "Manual", "7", "https://images.unsplash.com/photo-1520031441872-265e4ff70366?q=80&w=800&auto=format&fit=crop", "4.6", "sedan"},
-                        {"Nissan Leaf EV", "Electric", "Rs. 7,500", "Auto", "5", "https://images.unsplash.com/photo-1593941707882-a5bba14938cb?q=80&w=800&auto=format&fit=crop", "4.7", "sedan"},
-                        {"Range Rover V8", "Luxury SUV", "Rs. 40,000", "Auto", "7", "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=800&auto=format&fit=crop", "5.0", "suv"}
-                };
-
-                for(int i = 0; i < allCars.length; i++) {
+                int displayCount = 0;
+                int maxDisplay = 6;
+                if (vehicles != null && !vehicles.isEmpty()) {
+                    for (Vehicle v : vehicles) {
+                        if (displayCount >= maxDisplay) break;
+                        displayCount++;
+                        String vehicleType = v.getVehicleType().toLowerCase();
+                        String category = "sedan";
+                        if (vehicleType.contains("suv") || vehicleType.contains("4x4")) category = "suv";
+                        else if (vehicleType.contains("luxury")) category = "luxury";
+                        String imageUrl = "https://placehold.co/600x400/0D6EFD/ffffff?text=Sedan+" + v.getBrand();
+                        if (vehicleType.contains("suv")) imageUrl = "https://placehold.co/600x400/10B981/ffffff?text=SUV+" + v.getBrand();
+                        else if (vehicleType.contains("luxury")) imageUrl = "https://placehold.co/600x400/7C3AED/ffffff?text=Luxury+" + v.getBrand();
+                        else if (vehicleType.contains("hatchback")) imageUrl = "https://placehold.co/600x400/F59E0B/ffffff?text=Hatchback+" + v.getBrand();
             %>
-            <div class="car-item premium-card bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden reveal shadow-[0_10px_30px_rgba(0,0,0,0.03)]" data-category="<%= allCars[i][7] %>">
+            <div class="car-item premium-card bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden reveal shadow-[0_10px_30px_rgba(0,0,0,0.03)]" data-category="<%= category %>">
                 <div class="h-64 overflow-hidden relative bg-gray-100 group">
-                    <img src="<%= allCars[i][5] %>" alt="Car" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out">
-                    <div class="absolute top-5 left-5 bg-white/95 backdrop-blur-md px-4 py-1.5 rounded-xl text-xs font-black text-gray-900 shadow-sm uppercase tracking-widest"><%= allCars[i][1] %></div>
+                    <img src="<%= imageUrl %>" alt="Car" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out">
+                    <div class="absolute top-5 left-5 bg-white/95 backdrop-blur-md px-4 py-1.5 rounded-xl text-xs font-black text-gray-900 shadow-sm uppercase tracking-widest"><%= v.getBrand() %></div>
                     <div class="absolute top-5 right-5 bg-black/80 backdrop-blur-md text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm flex items-center gap-1">
-                        <i class="ph-fill ph-star text-yellow-400"></i> <%= allCars[i][6] %>
+                        <i class="ph-fill ph-star text-yellow-400"></i> 4.8
                     </div>
                 </div>
 
                 <div class="p-8">
                     <div class="flex justify-between items-start mb-6 border-b border-gray-100 pb-6">
-                        <h3 class="text-2xl font-black text-gray-900 tracking-tight leading-tight w-2/3"><%= allCars[i][0] %></h3>
+                        <h3 class="text-2xl font-black text-gray-900 tracking-tight leading-tight w-2/3"><%= v.getBrand() %> <%= v.getModel() %></h3>
                         <div class="text-right w-1/3">
-                            <span class="block text-2xl font-black text-[#0D6EFD]"><%= allCars[i][2] %></span>
+                            <span class="block text-2xl font-black text-[#0D6EFD]">$<%= String.format("%.0f", v.calculateRentalRate()) %></span>
                             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Per Day</span>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 mb-8">
-                        <div class="flex items-center gap-3 text-gray-700 font-bold bg-[#F8FAFF] border border-blue-50 p-3 rounded-2xl"><div class="bg-white p-1.5 rounded-lg shadow-sm"><i class="ph-fill ph-steering-wheel text-[#0D6EFD] text-lg"></i></div> <%= allCars[i][3] %></div>
-                        <div class="flex items-center gap-3 text-gray-700 font-bold bg-[#F8FAFF] border border-blue-50 p-3 rounded-2xl"><div class="bg-white p-1.5 rounded-lg shadow-sm"><i class="ph-fill ph-users text-[#0D6EFD] text-lg"></i></div> <%= allCars[i][4] %> Seats</div>
+                        <div class="flex items-center gap-3 text-gray-700 font-bold bg-[#F8FAFF] border border-blue-50 p-3 rounded-2xl"><div class="bg-white p-1.5 rounded-lg shadow-sm"><i class="ph-fill ph-car text-[#0D6EFD] text-lg"></i></div> <%= v.getVehicleType() %></div>
+                        <div class="flex items-center gap-3 text-gray-700 font-bold bg-[#F8FAFF] border border-blue-50 p-3 rounded-2xl"><div class="bg-white p-1.5 rounded-lg shadow-sm"><i class="ph-fill ph-info text-[#0D6EFD] text-lg"></i></div> <%= v.getSpecificDetail() %></div>
                     </div>
 
+                    <% if (userRole.isEmpty()) { %>
                     <a href="login.jsp" class="transition-link block w-full bg-gray-50 border border-gray-200 text-gray-900 font-extrabold py-4 rounded-2xl hover:bg-[#0D6EFD] hover:text-white hover:border-[#0D6EFD] transition-colors shadow-sm text-center text-lg tracking-wide">
                         Check Dates
                     </a>
+                    <% } else { %>
+                    <a href="add-booking.jsp?vehicleId=<%= v.getId() %>&rate=<%= v.calculateRentalRate() %>" class="transition-link block w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold py-4 rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-colors shadow-lg shadow-blue-500/30 text-center text-lg tracking-wide">
+                        Book Now
+                    </a>
+                    <% } %>
                 </div>
+            </div>
+            <% } } else { %>
+            <div class="col-span-full text-center py-12">
+                <p class="text-gray-500 font-medium text-lg">No vehicles available at the moment.</p>
             </div>
             <% } %>
         </div>

@@ -1,6 +1,8 @@
 package com.example.vehiclerentalsystem01.controllers;
 
+import com.example.vehiclerentalsystem01.dao.BookingDAO;
 import com.example.vehiclerentalsystem01.dao.CustomerDAO;
+import com.example.vehiclerentalsystem01.models.Booking;
 import com.example.vehiclerentalsystem01.models.Customer;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @WebServlet("/customers")
 public class CustomerController extends HttpServlet {
     private final CustomerDAO customerDAO = new CustomerDAO();
+    private final BookingDAO bookingDAO = new BookingDAO();
 
     private String normalized(String value) {
         return value == null ? "" : value.trim();
@@ -108,6 +111,18 @@ public class CustomerController extends HttpServlet {
                     Customer foundCustomer = customerDAO.getCustomerByUsername(searchUsername);
                     if (foundCustomer != null) {
                         request.setAttribute("foundCustomer", foundCustomer);
+
+                        List<Booking> customerBookings = new ArrayList<>();
+                        for (Booking booking : bookingDAO.getAllBookings()) {
+                            String owner = normalized(booking.getCustomerName());
+                            if (!owner.isEmpty() && (
+                                    owner.equalsIgnoreCase(foundCustomer.getUsername()) ||
+                                            owner.equalsIgnoreCase(foundCustomer.getName())
+                            )) {
+                                customerBookings.add(booking);
+                            }
+                        }
+                        request.setAttribute("customerBookings", customerBookings);
                     }
                 }
             }
