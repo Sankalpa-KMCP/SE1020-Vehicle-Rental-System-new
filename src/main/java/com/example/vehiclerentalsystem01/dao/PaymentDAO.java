@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class PaymentDAO {
     private static final String FOLDER_PATH = System.getProperty("user.home") + File.separator + "RentalData";
     private static final String FILE_PATH = FOLDER_PATH + File.separator + "payments.txt";
@@ -17,14 +18,17 @@ public class PaymentDAO {
         if (!folder.exists()) folder.mkdirs();
     }
 
+
     public void savePayment(Payment payment) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true)))   // open the file in append mode
+        {
             writer.write(payment.getPaymentId() + "," + payment.getBookingId() + "," +
                     payment.getAmount() + "," + payment.getPaymentMethod() + "," + payment.getStatus());
             writer.newLine();
         } catch (IOException e) { e.printStackTrace(); }
     }
 
+    // Admin dashboard
     public List<Payment> getAllPayments() {
         List<Payment> payments = new ArrayList<>();
         File file = new File(FILE_PATH);
@@ -33,14 +37,17 @@ public class PaymentDAO {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] data = line.split(",");
+                String[] data = line.split(",", -1);
                 if (data.length == 5) {
-                    double amount = Double.parseDouble(data[2]);
-                    // Re-instantiate the correct object based on the saved text!
-                    if (data[3].contains("Card")) {
-                        payments.add(new CardPayment(data[0], data[1], amount, data[4]));
-                    } else {
-                        payments.add(new CashPayment(data[0], data[1], amount, data[4]));
+                    try {
+                        double amount = Double.parseDouble(data[2].trim());
+                        if (data[3].contains("Card")) {
+                            payments.add(new CardPayment(data[0], data[1], amount, data[4]));
+                        } else {
+                            payments.add(new CashPayment(data[0], data[1], amount, data[4]));
+                        }
+                    } catch (NumberFormatException ignored) {
+                        // Skip malformed rows instead of breaking dashboard rendering.
                     }
                 }
             }
@@ -48,12 +55,42 @@ public class PaymentDAO {
         return payments;
     }
 
+    // Edit (finding a record)
     public Payment getPaymentById(String id) {
-        for (Payment p : getAllPayments()) {
-            if (p.getPaymentId().equals(id)) return p;
+        for (Payment payment : getAllPayments()) {
+            if (payment.getPaymentId().equals(id)) return payment;
         }
         return null;
     }
+
+    public Payment getLatestPaymentByBookingId(String bookingId) {
+        if (bookingId == null || bookingId.trim().isEmpty()) {
+            return null;
+        }
+
+        Payment latest = null;
+        for (Payment payment : getAllPayments()) {
+            if (bookingId.equalsIgnoreCase(payment.getBookingId())) {
+                latest = payment;
+            }
+        }
+        return latest;
+    }
+
+    public boolean hasAnyPaymentForBooking(String bookingId) {
+        return getLatestPaymentByBookingId(bookingId) != null;
+    }
+
+    public boolean hasPaidPaymentForBooking(String bookingId) {
+        for (Payment payment : getAllPayments()) {
+            if (bookingId != null && bookingId.equalsIgnoreCase(payment.getBookingId())
+                    && "PAID".equalsIgnoreCase(payment.getStatus())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public void updatePayment(Payment updatedPayment) {
         List<Payment> payments = getAllPayments();
@@ -71,6 +108,7 @@ public class PaymentDAO {
         } catch (IOException e) { e.printStackTrace(); }
     }
 
+
     public void deletePayment(String id) {
         List<Payment> payments = getAllPayments();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
@@ -83,4 +121,5 @@ public class PaymentDAO {
             }
         } catch (IOException e) { e.printStackTrace(); }
     }
+
 }
