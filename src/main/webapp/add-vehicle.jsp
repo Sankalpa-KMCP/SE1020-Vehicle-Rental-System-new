@@ -2,111 +2,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Vehicle - DriveAway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
-        // AI-Generated logic to swap form fields effortlessly
         function toggleVehicleFields() {
-            const type = document.getElementById("vehicleType").value;
-            const extraLabel = document.getElementById("extraLabel");
-            const extraInput = document.getElementById("extraInput");
-
-            if (type === "Car") {
-                extraLabel.innerText = "Seating Capacity";
-                extraInput.type = "number";
-                extraInput.placeholder = "e.g., 5";
-                extraInput.value = "";
-            } else {
-                extraLabel.innerText = "Includes Helmet? (true/false)";
-                extraInput.type = "text";
-                extraInput.placeholder = "true or false";
-                extraInput.value = "";
-            }
+            const type = document.getElementById('vehicleType').value;
+            document.getElementById('carFields').classList.toggle('hidden', type !== 'Car');
+            document.getElementById('motorcycleFields').classList.toggle('hidden', type !== 'Motorcycle');
         }
+        window.addEventListener('DOMContentLoaded', toggleVehicleFields);
     </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F4F7F6; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body class="bg-[#F8F9FA] flex h-screen text-gray-800 antialiased">
-<div class="flex-1 flex flex-col h-screen overflow-y-auto">
+<body class="min-h-screen text-gray-800 flex flex-col">
 
-    <header class="h-16 bg-white shadow-sm flex items-center px-8 border-b border-gray-200">
-        <a href="vehicles?action=list" class="text-gray-500 hover:text-blue-600 flex items-center transition-colors font-medium">
-            <i class="ph-bold ph-arrow-left mr-2"></i> Back to Fleet
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
+        <a href="vehicles?action=list" class="flex items-center gap-2 text-gray-900">
+            <i class="ph-bold ph-car-profile text-3xl text-blue-600"></i>
+            <span class="text-2xl font-extrabold tracking-tight">DriveAway</span>
         </a>
-    </header>
+        <a href="vehicles?action=list" class="text-gray-600 hover:text-blue-600 font-semibold transition-colors flex items-center gap-2">
+            <i class="ph-bold ph-arrow-left"></i> Back to Fleet
+        </a>
+    </div>
+</nav>
 
-    <div class="max-w-2xl mx-auto w-full mt-12 p-10 bg-white rounded-[24px] shadow-lg border border-gray-100">
-        <div class="flex items-center mb-8 border-b border-gray-100 pb-6">
-            <div class="bg-blue-50 p-3 rounded-2xl mr-4 text-blue-600">
-                <i class="ph-bold ph-car-profile text-3xl"></i>
+<main class="flex-grow max-w-screen-md mx-auto w-full px-8 py-10 fade-in">
+    <div class="bg-gradient-to-br from-[#0D6EFD] to-[#0a58ca] rounded-3xl p-10 sm:p-12 text-white shadow-lg mb-8 relative overflow-hidden">
+        <div class="relative z-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Register New Vehicle</h1>
+            <p class="text-blue-100 text-lg font-medium max-w-2xl leading-relaxed">Create a new fleet item using the same polished style as the customer pages.</p>
+        </div>
+        <i class="ph-fill ph-car absolute -right-8 -bottom-16 text-[220px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
+    </div>
+
+    <div class="bg-white rounded-3xl p-10 sm:p-12 shadow-sm border border-gray-100">
+        <div class="flex items-center gap-4 mb-8">
+            <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl border border-blue-100">
+                <i class="ph ph-car-profile"></i>
             </div>
             <div>
-                <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Register New Vehicle</h2>
-                <p class="text-sm text-gray-500 font-medium mt-1">Add a new car or motorcycle to the rental fleet.</p>
+                <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Vehicle Details</h2>
+                <p class="text-gray-500 font-medium">Choose the vehicle type and fill in the relevant fields.</p>
             </div>
         </div>
-
-        <% if (request.getParameter("error") != null) { %>
-        <div class="mb-6 bg-red-50 text-red-600 text-sm p-4 rounded-xl border border-red-100 font-bold flex items-center">
-            <i class="ph-fill ph-warning-circle text-xl mr-2"></i> Invalid data entered. Please check your numbers and try again.
-        </div>
-        <% } %>
 
         <form action="vehicles" method="post" class="space-y-6">
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Vehicle Type</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <i class="ph-bold ph-steering-wheel text-gray-400 text-lg"></i>
-                    </div>
-                    <select id="vehicleType" name="type" onchange="toggleVehicleFields()" class="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D6EFD] focus:border-[#0D6EFD] outline-none transition-all font-medium text-gray-800 bg-white appearance-none cursor-pointer">
+            <input type="hidden" name="action" value="create">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Brand</label>
+                    <input type="text" name="brand" required class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 shadow-inner">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Model</label>
+                    <input type="text" name="model" required class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 shadow-inner">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Daily Rental Rate ($)</label>
+                    <input type="number" step="0.01" name="rate" required class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 shadow-inner">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Vehicle Type</label>
+                    <select id="vehicleType" name="vehicleType" onchange="toggleVehicleFields()" class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 shadow-inner">
                         <option value="Car">Car / SUV</option>
                         <option value="Motorcycle">Motorcycle</option>
                     </select>
-                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                        <i class="ph-bold ph-caret-down text-gray-400"></i>
-                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Brand</label>
-                    <input type="text" name="brand" required placeholder="eg:- Toyota" class="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D6EFD] outline-none transition-all font-medium text-gray-800">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Model</label>
-                    <input type="text" name="model" required placeholder="eg:- Camry" class="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D6EFD] outline-none transition-all font-medium text-gray-800">
-                </div>
+            <div id="carFields">
+                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Seating Capacity</label>
+                <input type="number" name="capacity" min="1" value="4" class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 shadow-inner">
             </div>
 
-            <div class="grid grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Base Daily Rate (Rs)</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <span class="text-gray-400 font-bold"> Rs </span>
-                        </div>
-                        <input type="number" step="0.01" name="rate" required placeholder="0.00" class="w-full pl-8 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D6EFD] outline-none transition-all font-medium text-gray-800">
-                    </div>
-                </div>
-                <div>
-                    <label id="extraLabel" class="block text-sm font-bold text-gray-700 mb-2">Seating Capacity</label>
-                    <input id="extraInput" type="number" name="extraDetail" required placeholder="eg:- 5" class="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D6EFD] outline-none transition-all font-medium text-gray-800">
-                </div>
+            <div id="motorcycleFields" class="hidden">
+                <label class="inline-flex items-center gap-3 text-sm font-bold text-gray-700">
+                    <input type="checkbox" name="helmetIncluded" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    Helmet included with rental
+                </label>
             </div>
 
-            <div class="pt-6 mt-2 border-t border-gray-100 flex justify-end">
-                <button type="submit" class="bg-[#0D6EFD] text-white font-bold py-3.5 px-8 rounded-xl hover:bg-blue-700 transition-colors shadow-md flex items-center text-lg">
-                    <i class="ph-bold ph-check-circle mr-2 text-xl"></i> Register Vehicle
+            <div class="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <a href="vehicles?action=list" class="text-gray-500 hover:text-gray-800 font-bold px-4 py-2 transition-colors order-2 sm:order-1">Cancel</a>
+                <button type="submit" class="w-full sm:w-auto bg-[#0D6EFD] hover:bg-blue-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all flex justify-center items-center gap-2 transform hover:-translate-y-0.5 order-1 sm:order-2">
+                    <i class="ph-bold ph-plus-circle text-lg"></i> Add Vehicle
                 </button>
             </div>
         </form>
     </div>
-</div>
+</main>
 </body>
 </html>
+
