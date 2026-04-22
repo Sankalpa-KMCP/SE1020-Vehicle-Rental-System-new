@@ -128,6 +128,14 @@
       <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Customer Reviews</h3>
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Submit feedback, read testimonials, and moderate reviews.</p>
     </a>
+
+    <a href="support?action=staff_list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+      <div class="w-28 h-28 rounded-full bg-rose-50 flex items-center justify-center mb-8">
+        <i class="ph-fill ph-headset text-[64px] text-[#E11D48]"></i>
+      </div>
+      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Support Tickets</h3>
+      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">View customer tickets and resolve support issues from one queue.</p>
+    </a>
   </div>
 </main>
 </body>
