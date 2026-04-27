@@ -436,7 +436,7 @@
 <header id="cinematic-hero" class="cinematic-hero pt-32 pb-20 bg-[#F8FAFF] relative overflow-hidden min-h-[90vh] flex items-center border-b border-gray-200">
     <div class="hero-video-shell" aria-hidden="true">
         <video id="hero-scroll-video" class="hero-video" muted loop playsinline preload="metadata" poster="https://placehold.co/1920x1080/0f172a/ffffff?text=DriveAway+Cinematic+Hero">
-            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+            <source src="<%= request.getContextPath() %>/assets/videos/hero-car.mp4" type="video/mp4">
         </video>
         <div class="hero-video-overlay"></div>
     </div>
