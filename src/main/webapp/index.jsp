@@ -52,6 +52,8 @@
             opacity: 0;
             transition: opacity 0.2s ease-out;
             scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         body.page-loaded { opacity: 1; }
 
@@ -91,17 +93,19 @@
             opacity: 0;
             transform: translateY(40px);
             transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            will-change: transform, opacity;
         }
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
+            will-change: auto;
         }
 
-        .reveal-left { opacity: 0; transform: translateX(-40px); transition: all 0.8s ease; }
-        .reveal-left.active { opacity: 1; transform: translateX(0); }
+        .reveal-left { opacity: 0; transform: translateX(-40px); transition: all 0.8s ease; will-change: transform, opacity; }
+        .reveal-left.active { opacity: 1; transform: translateX(0); will-change: auto; }
 
-        .reveal-right { opacity: 0; transform: translateX(40px); transition: all 0.8s ease; }
-        .reveal-right.active { opacity: 1; transform: translateX(0); }
+        .reveal-right { opacity: 0; transform: translateX(40px); transition: all 0.8s ease; will-change: transform, opacity; }
+        .reveal-right.active { opacity: 1; transform: translateX(0); will-change: auto; }
 
         .brand-shape {
             position: absolute;
@@ -111,10 +115,12 @@
             opacity: 0.4;
             pointer-events: none;
             z-index: 0;
+            will-change: transform;
+            transform: translateZ(0);
         }
         @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-            50% { transform: translateY(-20px) rotate(2deg) scale(1.05); }
+            0%, 100% { transform: translateY(0) rotate(0deg) scale(1) translateZ(0); }
+            50% { transform: translateY(-20px) rotate(2deg) scale(1.05) translateZ(0); }
         }
 
         /* ==========================================
@@ -237,12 +243,16 @@
             background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
             z-index: 80;
             box-shadow: 0 0 12px rgba(13, 110, 253, 0.45);
+            will-change: width;
+            transform: translateZ(0);
         }
 
         #navbar.nav-scrolled {
             padding-top: 0.75rem;
             padding-bottom: 0.75rem;
             background: rgba(255, 255, 255, 0.95);
+            transform: translateZ(0);
+            will-change: transform;
             box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
         }
 
@@ -265,8 +275,8 @@
         }
 
         .glass-panel {
-            background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,255,255,0.85));
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,255,255,0.96));
+            border: 1px solid rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
         }
 
@@ -304,16 +314,31 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scale(1);
-            opacity: 0.92;
+            transform: scale(1) translateZ(0);
+            opacity: 1;
             filter: saturate(1.1) contrast(1.05);
             transition: transform 0.2s linear, opacity 0.2s linear;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
         }
 
         .hero-video-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(95deg, rgba(248, 250, 255, 0.94) 0%, rgba(248, 250, 255, 0.78) 38%, rgba(15, 23, 42, 0.48) 100%);
+            background: linear-gradient(95deg, rgba(248, 250, 255, 0.2) 0%, rgba(248, 250, 255, 0.1) 38%, rgba(15, 23, 42, 0.05) 100%);
+        }
+
+        .hero-heading {
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .hero-text {
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .hero-paragraph {
+            color: #1a202c;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .floating-actions {
@@ -453,13 +478,13 @@
             <div class="reveal-left">
                 <div class="inline-flex items-center gap-2 bg-white px-5 py-2.5 rounded-full border border-gray-200 shadow-sm mb-8">
                     <div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
-                    <span class="text-sm font-black text-gray-700 tracking-widest uppercase">Sri Lanka's #1 Fleet</span>
+                    <span class="text-sm font-black text-gray-700 tracking-widest uppercase hero-text">Sri Lanka's #1 Fleet</span>
                 </div>
-                <h1 class="text-[4rem] md:text-[5rem] font-black mb-6 tracking-tight leading-[1.05] text-gray-900">
+                <h1 class="text-[4rem] md:text-[5rem] font-black mb-6 tracking-tight leading-[1.05] text-gray-900 hero-heading">
                     Your journey,<br>
                     <span class="gradient-text">perfectly driven.</span>
                 </h1>
-                <p class="text-xl text-gray-600 font-medium mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                <p class="text-xl font-medium mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed hero-paragraph">
                     Skip the counter. Browse verified vehicles, book your exact dates, and unlock the island's most reliable rental network.
                 </p>
                 <div class="flex flex-wrap gap-3 mb-10 justify-center lg:justify-start">
@@ -1172,12 +1197,13 @@
         const backToTopBtn = document.getElementById('back-to-top');
         const cinematicHero = document.getElementById('cinematic-hero');
         const heroScrollVideo = document.getElementById('hero-scroll-video');
-        let heroScrubDuration = 8;
+        let heroScrubDuration = 22;
+        let rafId = null;
 
         if (heroScrollVideo && !prefersReducedMotion) {
             heroScrollVideo.addEventListener('loadedmetadata', () => {
                 if (!Number.isNaN(heroScrollVideo.duration) && Number.isFinite(heroScrollVideo.duration)) {
-                    heroScrubDuration = Math.max(3, Math.min(heroScrollVideo.duration, 12));
+                    heroScrubDuration = heroScrollVideo.duration * 1.7;
                 }
                 heroScrollVideo.currentTime = 0;
                 heroScrollVideo.pause();
@@ -1193,15 +1219,18 @@
 
             if (heroScrollVideo.readyState >= 2) {
                 const targetTime = heroScrubDuration * progress;
-                if (Math.abs(heroScrollVideo.currentTime - targetTime) > 0.05) {
+                if (Math.abs(heroScrollVideo.currentTime - targetTime) > 0.25) {
                     heroScrollVideo.currentTime = targetTime;
                 }
             }
 
-            const scale = 1 + (progress * 0.12);
+            const scale = 1 + (progress * 0.06);
             heroScrollVideo.style.transform = 'scale(' + scale + ')';
-            heroScrollVideo.style.opacity = String(0.92 - (progress * 0.28));
+            heroScrollVideo.style.opacity = String(1.0 - (progress * 0.05));
         }
+
+
+        let ticking = false;
 
         function updateScrollChrome() {
             const scrollTop = window.scrollY;
@@ -1212,10 +1241,18 @@
             if (navBar) navBar.classList.toggle('nav-scrolled', scrollTop > 24);
             if (backToTopBtn) backToTopBtn.classList.toggle('visible', scrollTop > 500);
             syncCinematicHero();
+            ticking = false;
+        }
+
+        function scheduleScrollUpdate() {
+            if (!ticking) {
+                rafId = requestAnimationFrame(updateScrollChrome);
+                ticking = true;
+            }
         }
 
         updateScrollChrome();
-        window.addEventListener('scroll', updateScrollChrome, { passive: true });
+        window.addEventListener('scroll', scheduleScrollUpdate, { passive: true });
         window.addEventListener('resize', updateScrollChrome);
 
         if (backToTopBtn) {
