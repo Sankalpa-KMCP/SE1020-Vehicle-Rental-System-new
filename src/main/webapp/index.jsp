@@ -289,6 +289,33 @@
             clip-path: polygon(0 0, 100% 18%, 100% 100%, 0 100%);
         }
 
+        .cinematic-hero {
+            isolation: isolate;
+        }
+
+        .hero-video-shell {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .hero-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1);
+            opacity: 0.92;
+            filter: saturate(1.1) contrast(1.05);
+            transition: transform 0.2s linear, opacity 0.2s linear;
+        }
+
+        .hero-video-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(95deg, rgba(248, 250, 255, 0.94) 0%, rgba(248, 250, 255, 0.78) 38%, rgba(15, 23, 42, 0.48) 100%);
+        }
+
         .floating-actions {
             position: fixed;
             right: 1rem;
@@ -406,7 +433,14 @@
     </div>
 </nav>
 
-<header class="pt-32 pb-20 bg-[#F8FAFF] relative overflow-hidden min-h-[90vh] flex items-center border-b border-gray-200">
+<header id="cinematic-hero" class="cinematic-hero pt-32 pb-20 bg-[#F8FAFF] relative overflow-hidden min-h-[90vh] flex items-center border-b border-gray-200">
+    <div class="hero-video-shell" aria-hidden="true">
+        <video id="hero-scroll-video" class="hero-video" muted loop playsinline preload="metadata" poster="https://placehold.co/1920x1080/0f172a/ffffff?text=DriveAway+Cinematic+Hero">
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+        <div class="hero-video-overlay"></div>
+    </div>
+
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
         <div class="brand-shape w-[500px] h-[500px] -top-32 -left-32 bg-gradient-to-br from-[#7A52FA] to-[#4A12DA] rounded-full" style="animation-delay: 0s;"></div>
         <div class="brand-shape w-[600px] h-[600px] bottom-[-10%] right-[-5%] bg-gradient-to-br from-[#00F2FE] to-[#0088FF] rounded-full" style="animation-delay: 1.5s;"></div>
@@ -1136,6 +1170,38 @@
         const navBar = document.getElementById('navbar');
         const progressBar = document.getElementById('scroll-progress');
         const backToTopBtn = document.getElementById('back-to-top');
+        const cinematicHero = document.getElementById('cinematic-hero');
+        const heroScrollVideo = document.getElementById('hero-scroll-video');
+        let heroScrubDuration = 8;
+
+        if (heroScrollVideo && !prefersReducedMotion) {
+            heroScrollVideo.addEventListener('loadedmetadata', () => {
+                if (!Number.isNaN(heroScrollVideo.duration) && Number.isFinite(heroScrollVideo.duration)) {
+                    heroScrubDuration = Math.max(3, Math.min(heroScrollVideo.duration, 12));
+                }
+                heroScrollVideo.currentTime = 0;
+                heroScrollVideo.pause();
+            });
+        }
+
+        function syncCinematicHero() {
+            if (!cinematicHero || !heroScrollVideo || prefersReducedMotion) return;
+            const rect = cinematicHero.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const fullTravel = rect.height + viewportHeight;
+            const progress = Math.min(Math.max((viewportHeight - rect.top) / fullTravel, 0), 1);
+
+            if (heroScrollVideo.readyState >= 2) {
+                const targetTime = heroScrubDuration * progress;
+                if (Math.abs(heroScrollVideo.currentTime - targetTime) > 0.05) {
+                    heroScrollVideo.currentTime = targetTime;
+                }
+            }
+
+            const scale = 1 + (progress * 0.12);
+            heroScrollVideo.style.transform = 'scale(' + scale + ')';
+            heroScrollVideo.style.opacity = String(0.92 - (progress * 0.28));
+        }
 
         function updateScrollChrome() {
             const scrollTop = window.scrollY;
@@ -1145,10 +1211,12 @@
             if (progressBar) progressBar.style.width = progress + '%';
             if (navBar) navBar.classList.toggle('nav-scrolled', scrollTop > 24);
             if (backToTopBtn) backToTopBtn.classList.toggle('visible', scrollTop > 500);
+            syncCinematicHero();
         }
 
         updateScrollChrome();
         window.addEventListener('scroll', updateScrollChrome, { passive: true });
+        window.addEventListener('resize', updateScrollChrome);
 
         if (backToTopBtn) {
             backToTopBtn.addEventListener('click', () => {
