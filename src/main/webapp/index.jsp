@@ -38,6 +38,13 @@
         /* ==========================================
            1. CORE STYLES & GLOBALS
            ========================================== */
+        :root {
+            --brand-primary: #0D6EFD;
+            --brand-secondary: #4A12DA;
+            --surface-muted: #F8FAFF;
+            --text-main: #0f172a;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
@@ -47,6 +54,17 @@
             scroll-behavior: smooth;
         }
         body.page-loaded { opacity: 1; }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image: radial-gradient(rgba(13, 110, 253, 0.06) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.25;
+            z-index: -1;
+        }
 
         ::selection {
             background-color: #0D6EFD;
@@ -209,9 +227,107 @@
 
         input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
         input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0;
+            background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+            z-index: 80;
+            box-shadow: 0 0 12px rgba(13, 110, 253, 0.45);
+        }
+
+        #navbar.nav-scrolled {
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+            transition: width 0.25s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,255,255,0.85));
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-metric {
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 0.75rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            color: #334155;
+            box-shadow: 0 6px 14px rgba(2, 6, 23, 0.04);
+        }
+
+        .section-divider {
+            height: 70px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+            clip-path: polygon(0 0, 100% 18%, 100% 100%, 0 100%);
+        }
+
+        .floating-actions {
+            position: fixed;
+            right: 1rem;
+            bottom: 1rem;
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .fab {
+            width: 52px;
+            height: 52px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.25);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .fab:hover { transform: translateY(-3px); }
+        .fab-main { background: linear-gradient(135deg, #0D6EFD, #4A12DA); }
+        .fab-muted { background: #111827; opacity: 0; pointer-events: none; }
+        .fab-muted.visible { opacity: 1; pointer-events: auto; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
     </style>
 </head>
 <body class="text-gray-900 antialiased selection:bg-[#0D6EFD] selection:text-white">
+
+<div id="scroll-progress" class="scroll-progress" aria-hidden="true"></div>
 
 <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-5 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
     <div class="max-w-[1400px] mx-auto px-6 lg:px-8 flex justify-between items-center">
@@ -224,8 +340,9 @@
         </a>
 
         <div class="hidden lg:flex items-center gap-8">
-            <a href="#fleet" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">Our Fleet</a>
-            <a href="#how-it-works" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">Process</a>
+            <a href="#fleet" data-section-link="fleet" class="nav-link text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">Our Fleet</a>
+            <a href="#how-it-works" data-section-link="how-it-works" class="nav-link text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">Process</a>
+            <a href="#team" data-section-link="team" class="nav-link text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">Team</a>
             <a href="about.jsp" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide transition-link">About</a>
             <a href="contact.jsp" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide transition-link">Contact</a>
         </div>
@@ -311,19 +428,24 @@
                 <p class="text-xl text-gray-600 font-medium mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">
                     Skip the counter. Browse verified vehicles, book your exact dates, and unlock the island's most reliable rental network.
                 </p>
+                <div class="flex flex-wrap gap-3 mb-10 justify-center lg:justify-start">
+                    <div class="hero-metric"><i class="ph-fill ph-shield-check text-[#0D6EFD]"></i> Fully insured</div>
+                    <div class="hero-metric"><i class="ph-fill ph-lightning text-[#0D6EFD]"></i> Instant booking</div>
+                    <div class="hero-metric"><i class="ph-fill ph-headset text-[#0D6EFD]"></i> 24/7 support</div>
+                </div>
             </div>
 
-            <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-gray-100 max-w-2xl mx-auto lg:mx-0 reveal" style="transition-delay: 0.1s;">
+            <div class="glass-panel p-8 md:p-10 rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-gray-100 max-w-2xl mx-auto lg:mx-0 reveal" style="transition-delay: 0.1s;">
                 <% if (userRole.isEmpty()) { %>
                 <form action="login.jsp" method="GET" class="space-y-6">
                         <% } else { %>
                     <form action="browse-cars.jsp" method="GET" class="space-y-6">
                         <% } %>
                         <div class="border-b border-gray-200 pb-6 mb-6">
-                            <label class="block text-xs font-black text-gray-400 mb-3 uppercase tracking-widest">Pick-up Location</label>
+                            <label for="pickup-location" class="block text-xs font-black text-gray-400 mb-3 uppercase tracking-widest">Pick-up Location</label>
                             <div class="relative">
                                 <i class="ph-fill ph-map-pin absolute left-4 top-4 text-[#0D6EFD] text-xl"></i>
-                                <select name="location" class="w-full bg-gray-50 border border-gray-200 py-4 pl-12 pr-4 rounded-xl focus:border-[#0D6EFD] outline-none transition-colors text-lg font-bold text-gray-900 appearance-none">
+                                <select id="pickup-location" name="location" class="w-full bg-gray-50 border border-gray-200 py-4 pl-12 pr-4 rounded-xl focus:border-[#0D6EFD] outline-none transition-colors text-lg font-bold text-gray-900 appearance-none">
                                     <option value="colombo">Colombo 03 - Main Hub</option>
                                     <option value="airport">BIA Airport - Katunayake</option>
                                     <option value="kandy">Kandy - City Center</option>
@@ -335,15 +457,15 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-[#0D6EFD] transition-colors">
-                                <label class="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest">Pick-up</label>
+                                <label for="pickup-date" class="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest">Pick-up</label>
                                 <div class="flex items-center gap-2">
-                                    <input type="date" name="pickupDate" required class="w-full bg-transparent outline-none text-lg font-bold text-gray-900">
+                                    <input id="pickup-date" type="date" name="pickupDate" required class="w-full bg-transparent outline-none text-lg font-bold text-gray-900">
                                 </div>
                             </div>
                             <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-[#0D6EFD] transition-colors">
-                                <label class="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest">Drop-off</label>
+                                <label for="dropoff-date" class="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest">Drop-off</label>
                                 <div class="flex items-center gap-2">
-                                    <input type="date" name="dropoffDate" required class="w-full bg-transparent outline-none text-lg font-bold text-gray-900">
+                                    <input id="dropoff-date" type="date" name="dropoffDate" required class="w-full bg-transparent outline-none text-lg font-bold text-gray-900">
                                 </div>
                             </div>
                         </div>
@@ -365,6 +487,12 @@
                         <div class="font-black text-2xl text-gray-900">4.98 / 5.0</div>
                         <div class="text-sm font-bold text-gray-500 uppercase tracking-widest">Customer Rating</div>
                     </div>
+                </div>
+
+                <div class="absolute top-8 -right-6 bg-gray-900 text-white p-5 rounded-2xl shadow-xl hidden xl:block">
+                    <div class="text-[10px] font-bold text-blue-200 uppercase tracking-widest mb-1">Concierge</div>
+                    <div class="font-black text-lg">Roadside in 25 min</div>
+                    <div class="text-xs text-gray-300 mt-1">Island-wide emergency support</div>
                 </div>
             </div>
         </div>
@@ -395,6 +523,8 @@
         </div>
     </div>
 </section>
+
+<div class="section-divider" aria-hidden="true"></div>
 
 <section class="py-12 bg-white border-b border-gray-100 overflow-hidden">
     <div class="max-w-[1400px] mx-auto px-6 text-center reveal">
@@ -506,6 +636,13 @@
             <% } %>
         </div>
 
+        <div class="flex flex-wrap gap-3 mb-10 reveal" style="transition-delay: 0.05s;">
+            <button type="button" class="filter-btn active border border-blue-600 bg-[#0D6EFD] text-white px-5 py-2.5 rounded-full text-sm font-bold tracking-wide" data-filter="all" aria-pressed="true">All Vehicles</button>
+            <button type="button" class="filter-btn border border-gray-200 bg-white text-gray-700 px-5 py-2.5 rounded-full text-sm font-bold tracking-wide" data-filter="sedan" aria-pressed="false">Sedan</button>
+            <button type="button" class="filter-btn border border-gray-200 bg-white text-gray-700 px-5 py-2.5 rounded-full text-sm font-bold tracking-wide" data-filter="suv" aria-pressed="false">SUV / 4x4</button>
+            <button type="button" class="filter-btn border border-gray-200 bg-white text-gray-700 px-5 py-2.5 rounded-full text-sm font-bold tracking-wide" data-filter="luxury" aria-pressed="false">Luxury</button>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" id="fleet-grid">
             <%
                 int displayCount = 0;
@@ -558,8 +695,9 @@
                 </div>
             </div>
             <% } } else { %>
-            <div class="col-span-full text-center py-12">
-                <p class="text-gray-500 font-medium text-lg">No vehicles available at the moment.</p>
+            <div class="col-span-full text-center py-16 bg-white border border-dashed border-gray-300 rounded-3xl">
+                <i class="ph-fill ph-car text-5xl text-gray-300"></i>
+                <p class="text-gray-500 font-medium text-lg mt-4">No vehicles available at the moment.</p>
             </div>
             <% } %>
         </div>
@@ -686,7 +824,7 @@
                         <div class="bg-blue-50 rounded-2xl p-6 mb-6">
                             <div class="text-xs font-bold text-[#0D6EFD] uppercase tracking-widest mb-1">Active Booking</div>
                             <div class="font-black text-xl mb-4">Toyota Axio</div>
-                            <img src="https://images.unsplash.com/photo-1590362891991-f776e747a588?q=80&w=400&auto=format&fit=crop" class="rounded-xl w-full h-24 object-cover">
+                            <img src="https://images.unsplash.com/photo-1590362891991-f776e747a588?q=80&w=400&auto=format&fit=crop" alt="DriveAway mobile app showing active booking" class="rounded-xl w-full h-24 object-cover">
                         </div>
                         <div class="bg-gray-900 text-white text-center py-4 rounded-xl font-bold mt-auto flex justify-center items-center gap-2">
                             <i class="ph-bold ph-lock-key-open"></i> Tap to Unlock
@@ -826,7 +964,7 @@
     </div>
 </section>
 
-<section class="py-24 bg-[#F8FAFF] border-y border-gray-200">
+<section id="faq" class="py-24 bg-[#F8FAFF] border-y border-gray-200">
     <div class="max-w-[900px] mx-auto px-6 lg:px-8">
         <div class="text-center mb-16 reveal">
             <h2 class="text-[2.5rem] font-black mb-4 tracking-tight text-gray-900">Frequently Asked Questions</h2>
@@ -904,6 +1042,15 @@
     </div>
 </section>
 
+<div class="floating-actions" aria-label="Quick actions">
+    <a href="customer-support.jsp" class="fab fab-main transition-link" title="Customer support" aria-label="Open support">
+        <i class="ph-fill ph-chat-centered-dots text-2xl"></i>
+    </a>
+    <button id="back-to-top" class="fab fab-muted" type="button" title="Back to top" aria-label="Back to top">
+        <i class="ph-bold ph-arrow-up text-2xl"></i>
+    </button>
+</div>
+
 <footer class="bg-[#1A1C23] py-20 relative z-20">
     <div class="max-w-[1400px] mx-auto px-6 lg:px-8">
 
@@ -957,15 +1104,18 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
         // 1. PAGE TRANSITION LOGIC
         document.body.classList.add('page-loaded');
         document.querySelectorAll('.transition-link').forEach(link => {
             link.addEventListener('click', function(e) {
-                if(this.href.includes('#')) return;
+                if (this.href.includes('#')) return;
+                if (this.origin === window.location.origin && this.pathname === window.location.pathname) return;
                 e.preventDefault();
                 const targetUrl = this.href;
                 document.body.classList.remove('page-loaded');
-                setTimeout(() => { window.location.href = targetUrl; }, 150);
+                setTimeout(() => { window.location.href = targetUrl; }, prefersReducedMotion ? 0 : 150);
             });
         });
 
@@ -976,9 +1126,37 @@
             menuBtn.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
             });
+
+            mobileMenu.querySelectorAll('a').forEach(anchor => {
+                anchor.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+            });
         }
 
-        // 3. SCROLL REVEAL
+        // 3. SCROLL CHROME (progress bar, navbar state, back-to-top)
+        const navBar = document.getElementById('navbar');
+        const progressBar = document.getElementById('scroll-progress');
+        const backToTopBtn = document.getElementById('back-to-top');
+
+        function updateScrollChrome() {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+
+            if (progressBar) progressBar.style.width = progress + '%';
+            if (navBar) navBar.classList.toggle('nav-scrolled', scrollTop > 24);
+            if (backToTopBtn) backToTopBtn.classList.toggle('visible', scrollTop > 500);
+        }
+
+        updateScrollChrome();
+        window.addEventListener('scroll', updateScrollChrome, { passive: true });
+
+        if (backToTopBtn) {
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+            });
+        }
+
+        // 4. SCROLL REVEAL
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -989,7 +1167,23 @@
         }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
         document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => revealObserver.observe(el));
 
-        // 4. STATS COUNTER ANIMATION
+        // 5. NAVBAR SECTION HIGHLIGHT
+        const sectionLinks = document.querySelectorAll('[data-section-link]');
+        const sections = Array.from(sectionLinks)
+            .map(link => document.getElementById(link.getAttribute('data-section-link')))
+            .filter(Boolean);
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                sectionLinks.forEach(link => link.classList.remove('active'));
+                const activeLink = document.querySelector('[data-section-link="' + entry.target.id + '"]');
+                if (activeLink) activeLink.classList.add('active');
+            });
+        }, { threshold: 0.35 });
+        sections.forEach(section => sectionObserver.observe(section));
+
+        // 6. STATS COUNTER ANIMATION
         const counters = document.querySelectorAll('.counter');
         let hasCounted = false;
 
@@ -1017,7 +1211,7 @@
         }, { threshold: 0.5 });
         if(counters.length > 0) counterObserver.observe(counters[0].parentElement);
 
-        // 5. FLEET FILTERING ENGINE
+        // 7. FLEET FILTERING ENGINE
         const filterBtns = document.querySelectorAll('.filter-btn');
         const carItems = document.querySelectorAll('.car-item');
 
@@ -1025,10 +1219,12 @@
             btn.addEventListener('click', () => {
                 filterBtns.forEach(b => {
                     b.classList.remove('active', 'bg-[#0D6EFD]', 'text-white');
-                    b.classList.add('text-gray-700');
+                    b.classList.add('text-gray-700', 'border-gray-200', 'bg-white');
+                    b.setAttribute('aria-pressed', 'false');
                 });
                 btn.classList.add('active', 'bg-[#0D6EFD]', 'text-white');
-                btn.classList.remove('text-gray-700');
+                btn.classList.remove('text-gray-700', 'border-gray-200', 'bg-white');
+                btn.setAttribute('aria-pressed', 'true');
 
                 const filterValue = btn.getAttribute('data-filter');
 
@@ -1044,7 +1240,7 @@
             });
         });
 
-        // 6. FAQ ACCORDION LOGIC (FIXED CLASS NAME)
+        // 8. FAQ ACCORDION LOGIC
         const faqItems = document.querySelectorAll('.faq-item');
         faqItems.forEach(item => {
             item.addEventListener('click', () => {
@@ -1054,7 +1250,7 @@
             });
         });
 
-        // 7. TESTIMONIAL CAROUSEL
+        // 9. TESTIMONIAL CAROUSEL
         const slides = document.querySelectorAll('.testimonial-slide');
         let currentSlide = 0;
         let slideInterval;
@@ -1085,7 +1281,7 @@
             resetInterval();
         }
 
-        // 8. UNIFIED INTERACTIVE TEAM MASCOTS ENGINE
+        // 10. UNIFIED INTERACTIVE TEAM MASCOTS ENGINE
         class Mascot {
             constructor(id, weight, maxRotation) {
                 this.avatarContainer = document.getElementById(id);
