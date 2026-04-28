@@ -90,11 +90,11 @@
             will-change: opacity, transform;
             transition: opacity 0.4s ease;
             background: linear-gradient(135deg,
-                rgba(13, 110, 253, 0.06) 0%,
-                rgba(74, 18, 218, 0.03) 25%,
-                rgba(0, 242, 254, 0.04) 50%,
-                rgba(13, 110, 253, 0.03) 75%,
-                rgba(248, 250, 255, 0.02) 100%);
+            rgba(13, 110, 253, 0.06) 0%,
+            rgba(74, 18, 218, 0.03) 25%,
+            rgba(0, 242, 254, 0.04) 50%,
+            rgba(13, 110, 253, 0.03) 75%,
+            rgba(248, 250, 255, 0.02) 100%);
             background-size: 400% 400%;
             animation: gradientShift 24s ease-in-out infinite;
             transform: translate3d(0, 0, 0);
@@ -201,414 +201,6 @@
             z-index: 10;
             width: 7rem;
             height: 9rem;
-        }
-
-        /* ==========================================
-           LOAD ANIMATION & PAGE INTRO (ADDED)
-           ========================================== */
-        /* Full-screen loader with cinematic experience */
-        #page-loader {
-            position: fixed;
-            inset: 0;
-            z-index: 60;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(ellipse at center, #0f172a 0%, #0a0c14 50%, #000000 100%);
-            pointer-events: none;
-            transition: opacity 1.2s cubic-bezier(.2,.9,.2,1), visibility 1.2s;
-            opacity: 1;
-            overflow: hidden;
-            perspective: 1000px;
-        }
-        #page-loader.hide {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        /* Animated aurora background */
-        #page-loader::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: 
-                linear-gradient(45deg, transparent 30%, rgba(13, 110, 253, 0.1) 50%, transparent 70%),
-                linear-gradient(-45deg, transparent 30%, rgba(74, 18, 218, 0.08) 50%, transparent 70%),
-                linear-gradient(135deg, transparent 30%, rgba(0, 242, 254, 0.06) 50%, transparent 70%);
-            background-size: 200% 200%;
-            animation: auroraShift 8s ease-in-out infinite;
-            mix-blend-mode: screen;
-        }
-
-        @keyframes auroraShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        /* Star field background */
-        .star-field {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 50px 160px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(1.5px 1.5px at 90px 40px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 130px 80px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(1.5px 1.5px at 160px 120px, #ffffff, rgba(0,0,0,0));
-            background-size: 200px 200px;
-            animation: starTwinkle 4s ease-in-out infinite;
-            opacity: 0.5;
-        }
-
-        @keyframes starTwinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.7; }
-        }
-
-        /* 3D rotating geometric shapes */
-        .geo-shape {
-            position: absolute;
-            transform-style: preserve-3d;
-            animation: geoRotate 20s linear infinite;
-        }
-
-        .geo-shape-1 {
-            width: 200px;
-            height: 200px;
-            top: 15%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-
-        .geo-shape-2 {
-            width: 150px;
-            height: 150px;
-            bottom: 20%;
-            right: 15%;
-            animation-delay: 5s;
-            animation-direction: reverse;
-        }
-
-        .geo-shape-3 {
-            width: 100px;
-            height: 100px;
-            top: 60%;
-            left: 25%;
-            animation-delay: 10s;
-        }
-
-        @keyframes geoRotate {
-            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
-        }
-
-        .geo-face {
-            position: absolute;
-            inset: 0;
-            border: 1px solid rgba(13, 110, 253, 0.3);
-            background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), transparent);
-            backdrop-filter: blur(2px);
-        }
-
-        .geo-face:nth-child(1) { transform: translateZ(50px); }
-        .geo-face:nth-child(2) { transform: rotateY(90deg) translateZ(50px); }
-        .geo-face:nth-child(3) { transform: rotateY(180deg) translateZ(50px); }
-        .geo-face:nth-child(4) { transform: rotateY(-90deg) translateZ(50px); }
-        .geo-face:nth-child(5) { transform: rotateX(90deg) translateZ(50px); }
-        .geo-face:nth-child(6) { transform: rotateX(-90deg) translateZ(50px); }
-
-        #loader-inner {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 50px;
-            transform: translateY(0);
-            position: relative;
-            z-index: 10;
-        }
-
-        /* Premium logo with holographic effect */
-        #loader-logo {
-            font-weight: 900;
-            font-size: 56px;
-            background: linear-gradient(90deg, #ffffff 0%, #0D6EFD 25%, #4A12DA 50%, #00F2FE 75%, #ffffff 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: 4px;
-            transform: translateY(-30px) scale(0.85) rotateX(10deg);
-            opacity: 0;
-            transition: transform 1.2s cubic-bezier(.16,.84,.24,1), opacity 1s;
-            position: relative;
-            text-transform: uppercase;
-            filter: drop-shadow(0 0 40px rgba(13, 110, 253, 0.5));
-        }
-        #loader-logo.show {
-            transform: translateY(0) scale(1) rotateX(0deg);
-            opacity: 1;
-            animation: holographicShift 3s linear infinite, logoFloat 4s ease-in-out infinite;
-        }
-
-        @keyframes holographicShift {
-            0% { background-position: 0% center; }
-            100% { background-position: 200% center; }
-        }
-
-@keyframes logoFloat {
-    0%, 100% { transform: translateY(0) rotateX(0deg); }
-    50% { transform: translateY(-10px) rotateX(5deg); }
-}
-
-/* 3D car showcase with glassmorphism */
-#loader-car {
-    width: 500px;
-    height: 280px;
-    border-radius: 40px;
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.1) 0%, 
-        rgba(255, 255, 255, 0.05) 100%);
-    box-shadow: 
-        0 40px 120px rgba(0,0,0,0.6), 
-        inset 0 2px 0 rgba(255,255,255,0.2),
-        inset 0 -2px 0 rgba(0,0,0,0.2),
-        0 0 200px rgba(13, 110, 253, 0.4),
-        0 0 400px rgba(74, 18, 218, 0.2);
-    transform: translateY(40px) scale(0.5) translateX(-200px);
-    opacity: 0;
-    transition: transform 1.8s cubic-bezier(.2,.9,.2,1), opacity 1.2s;
-    position: relative;
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(20px);
-    transform-style: preserve-3d;
-}
-#loader-car.show { 
-    opacity: 1; 
-    animation: carAppearAndDrive 4s ease-in-out forwards;
-}
-
-@keyframes carAppearAndDrive {
-    0% {
-        transform: translateY(40px) scale(0.5) translateX(-200px);
-        opacity: 0;
-    }
-    20% {
-        transform: translateY(0) scale(1) translateX(0);
-        opacity: 1;
-    }
-    30% {
-        transform: translateY(0) scale(1) translateX(0) rotateX(0deg);
-    }
-    100% {
-        transform: translateY(0) scale(1) translateX(300px) rotateX(5deg);
-        opacity: 0;
-    }
-}
-
-/* SVG car icon */
-.car-svg {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 220px;
-    height: 130px;
-    opacity: 0;
-    animation: carSvgDrive 4s ease-in-out forwards;
-}
-
-@keyframes carSvgDrive {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.8) translateX(-100px);
-    }
-    20% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1) translateX(0);
-    }
-    30% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1) translateX(0);
-    }
-    100% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(1.1) translateX(150px);
-    }
-}
-
-/* Speed lines behind car */
-.speed-lines {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.speed-line {
-    position: absolute;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(13, 110, 253, 0.8), transparent);
-    border-radius: 1px;
-    animation: speedLineMove 0.8s ease-out infinite;
-}
-
-.speed-line:nth-child(1) { top: 30%; left: -20%; width: 40%; animation-delay: 0s; }
-.speed-line:nth-child(2) { top: 50%; left: -30%; width: 50%; animation-delay: 0.2s; }
-.speed-line:nth-child(3) { top: 70%; left: -25%; width: 45%; animation-delay: 0.4s; }
-.speed-line:nth-child(4) { top: 40%; left: -35%; width: 55%; animation-delay: 0.6s; }
-.speed-line:nth-child(5) { top: 60%; left: -15%; width: 35%; animation-delay: 0.8s; }
-
-@keyframes speedLineMove {
-    0% { transform: translateX(0); opacity: 0; }
-    20% { opacity: 1; }
-    80% { opacity: 1; }
-    100% { transform: translateX(400px); opacity: 0; }
-}
-            filter: blur(1px);
-            opacity: 0;
-            animation: particleTrail 6s ease-in-out infinite;
-        }
-
-        .particle-trail::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: inherit;
-            border-radius: inherit;
-            animation: trailFollow 0.5s ease-out infinite;
-        }
-
-        @keyframes particleTrail {
-            0% { opacity: 0; transform: translate(0, 0) scale(0); }
-            20% { opacity: 1; transform: translate(var(--tx), var(--ty)) scale(1); }
-            80% { opacity: 0.5; transform: translate(calc(var(--tx) * 2), calc(var(--ty) * 2)) scale(0.5); }
-            100% { opacity: 0; transform: translate(calc(var(--tx) * 3), calc(var(--ty) * 3)) scale(0); }
-        }
-
-        @keyframes trailFollow {
-            0% { transform: scale(1); opacity: 0.8; }
-            100% { transform: scale(0.5); opacity: 0; }
-        }
-
-        .particle-trail:nth-child(1) { --tx: -100px; --ty: -50px; animation-delay: 0s; }
-        .particle-trail:nth-child(2) { --tx: 100px; --ty: -50px; animation-delay: 0.5s; background: radial-gradient(circle, #4A12DA, transparent); }
-        .particle-trail:nth-child(3) { --tx: -100px; --ty: 50px; animation-delay: 1s; background: radial-gradient(circle, #00F2FE, transparent); }
-        .particle-trail:nth-child(4) { --tx: 100px; --ty: 50px; animation-delay: 1.5s; }
-        .particle-trail:nth-child(5) { --tx: 0px; --ty: -80px; animation-delay: 2s; background: radial-gradient(circle, #4A12DA, transparent); }
-        .particle-trail:nth-child(6) { --tx: 0px; --ty: 80px; animation-delay: 2.5s; background: radial-gradient(circle, #00F2FE, transparent); }
-
-        /* Loading text with glitch effect */
-        .loader-text {
-            font-size: 12px;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.8);
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            opacity: 0;
-            transform: translateY(15px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-            position: relative;
-        }
-        .loader-text.show {
-            opacity: 1;
-            transform: translateY(0);
-            animation: textGlitch 4s ease-in-out infinite;
-        }
-
-        @keyframes textGlitch {
-            0%, 90%, 100% { 
-                text-shadow: none;
-                transform: translateX(0);
-            }
-            92% { 
-                text-shadow: 2px 0 #0D6EFD, -2px 0 #4A12DA;
-                transform: translateX(2px);
-            }
-            94% { 
-                text-shadow: -2px 0 #00F2FE, 2px 0 #0D6EFD;
-                transform: translateX(-2px);
-            }
-            96% { 
-                text-shadow: 2px 0 #4A12DA, -2px 0 #00F2FE;
-                transform: translateX(0);
-            }
-        }
-
-        /* Circular loading indicator */
-        .circular-loader {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-        .circular-loader.show {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .circular-svg {
-            transform: rotate(-90deg);
-        }
-
-        .circular-bg {
-            fill: none;
-            stroke: rgba(255, 255, 255, 0.1);
-            stroke-width: 4;
-        }
-
-        .circular-progress {
-            fill: none;
-            stroke: url(#gradient);
-            stroke-width: 4;
-            stroke-linecap: round;
-            stroke-dasharray: 314;
-            stroke-dashoffset: 314;
-            animation: circularProgress 3s ease-out forwards;
-        }
-
-        @keyframes circularProgress {
-            0% { stroke-dashoffset: 314; }
-            100% { stroke-dashoffset: 0; }
-        }
-
-        .circular-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle, rgba(13, 110, 253, 0.3), transparent);
-            border-radius: 50%;
-            animation: centerPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes centerPulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
-            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
-        }
-
-        /* Intro reveal helpers (used to sequence content reveal) */
-        .intro-fade { opacity: 0; transform: translateY(14px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(.16,.84,.24,1); }
-        .intro-fade.visible { opacity: 1; transform: translateY(0); }
-
-        .intro-staggered { opacity: 0; transform: translateY(18px) scale(.995); }
-        .intro-staggered.visible { opacity: 1; transform: translateY(0) scale(1); transition: opacity 0.8s ease, transform 0.9s cubic-bezier(.16,.84,.24,1); }
-
-        /* ensure hero copy stands out during the intro */
-        .hero-copy { background: rgba(255,255,255,0.02); padding: 8px; border-radius: 12px; display: inline-block; }
-
-        /* accessibility: reduce motion preference */
-        @media (prefers-reduced-motion: reduce) {
-            #page-loader, #loader-logo, #loader-car, .intro-fade, .intro-staggered { transition: none !important; animation: none !important; }
         }
 
         .mascot-body {
@@ -823,7 +415,238 @@
         .fab-muted { background: #111827; opacity: 0; pointer-events: none; }
         .fab-muted.visible { opacity: 1; pointer-events: auto; }
 
+        /* Intro reveal helpers */
+        .intro-fade { opacity: 0; transform: translateY(14px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(.16,.84,.24,1); }
+        .intro-fade.visible { opacity: 1; transform: translateY(0); }
+        .intro-staggered { opacity: 0; transform: translateY(18px) scale(.995); }
+        .intro-staggered.visible { opacity: 1; transform: translateY(0) scale(1); transition: opacity 0.8s ease, transform 0.9s cubic-bezier(.16,.84,.24,1); }
+
+        /* ==========================================
+           LOAD ANIMATION & PAGE INTRO (UPDATED)
+           ========================================== */
+        #page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a; /* Deep slate background */
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s, transform 0.6s ease-out;
+            overflow: hidden;
+        }
+
+        /* Aurora background with brand colors */
+        #page-loader::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                linear-gradient(45deg, transparent 30%, rgba(13, 110, 253, 0.08) 50%, transparent 70%),
+                linear-gradient(-45deg, transparent 30%, rgba(74, 18, 218, 0.06) 50%, transparent 70%),
+                linear-gradient(135deg, transparent 30%, rgba(0, 242, 254, 0.05) 50%, transparent 70%);
+            background-size: 200% 200%;
+            animation: auroraShift 8s ease-in-out infinite;
+            mix-blend-mode: screen;
+            pointer-events: none;
+        }
+
+        @keyframes auroraShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        #page-loader.hide {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.02);
+        }
+
+        .loader-ring {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Static outer ring */
+        .loader-ring::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 3px solid rgba(13, 110, 253, 0.15);
+        }
+
+        /* Spinning gradient ring */
+        .loader-ring::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #0D6EFD;
+            border-right-color: #4A12DA;
+            animation: spinRing 0.8s linear infinite;
+        }
+
+        @keyframes spinRing {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Center icon with rotation */
+        .loader-icon {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            animation: pulseGlow 2s ease-in-out infinite, steerWheel 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 12px rgba(13, 110, 253, 0.5));
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 20px rgba(13, 110, 253, 0.9)); }
+        }
+
+        @keyframes steerWheel {
+            0%, 100% { transform: rotate(-15deg); }
+            50% { transform: rotate(15deg); }
+        }
+
+        /* Progress track */
+        .loader-track {
+            width: 180px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Progress bar sliding effect */
+        .loader-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 40%;
+            background: linear-gradient(90deg, #0D6EFD, #4A12DA, #00F2FE);
+            border-radius: 4px;
+            animation: slideBar 1.2s ease-in-out infinite;
+        }
+
+        @keyframes slideBar {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(150%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Animated Text */
+        .loader-text {
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #ffffff 0%, #0D6EFD 50%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textShine 2s linear infinite;
+        }
+
+        @keyframes textShine {
+            to { background-position: 200% center; }
+        }
+
+        /* DriveAway logo above loader */
+        .loader-logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #ffffff 0%, #0D6EFD 50%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: logoFadeIn 0.5s ease-out forwards, textShine 2s linear infinite 0.5s;
+            margin-bottom: 2rem;
+            opacity: 0;
+        }
+
+        @keyframes logoFadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Car silhouette animation */
+        .loader-car {
+            position: absolute;
+            bottom: 15%;
+            left: -100px;
+            width: 60px;
+            height: 30px;
+            opacity: 0.6;
+            animation: carDrive 2.5s ease-in-out infinite;
+        }
+
+        .loader-car svg {
+            width: 100%;
+            height: 100%;
+            fill: rgba(13, 110, 253, 0.4);
+        }
+
+        @keyframes carDrive {
+            0% { left: -100px; transform: scale(0.8); }
+            50% { left: calc(100% + 100px); transform: scale(1); }
+            50.01% { left: -100px; transform: scale(0.8); opacity: 0; }
+            50.02% { opacity: 0.6; }
+            100% { left: calc(100% + 100px); transform: scale(1); }
+        }
+
+        /* Particle effect around ring */
+        .loader-particles {
+            position: absolute;
+            inset: -20px;
+            pointer-events: none;
+        }
+
+        .loader-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(13, 110, 253, 0.8), transparent);
+            border-radius: 50%;
+            animation: particleFloat 2s ease-in-out infinite;
+        }
+
+        .loader-particle:nth-child(1) { top: 0; left: 50%; animation-delay: 0s; }
+        .loader-particle:nth-child(2) { top: 50%; right: 0; animation-delay: 0.3s; }
+        .loader-particle:nth-child(3) { bottom: 0; left: 50%; animation-delay: 0.6s; }
+        .loader-particle:nth-child(4) { top: 50%; left: 0; animation-delay: 0.9s; }
+        .loader-particle:nth-child(5) { top: 20%; left: 20%; animation-delay: 0.15s; }
+        .loader-particle:nth-child(6) { top: 20%; right: 20%; animation-delay: 0.45s; }
+        .loader-particle:nth-child(7) { bottom: 20%; left: 20%; animation-delay: 0.75s; }
+        .loader-particle:nth-child(8) { bottom: 20%; right: 20%; animation-delay: 1.05s; }
+
+        @keyframes particleFloat {
+            0%, 100% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+            50% { transform: translate(0, -15px) scale(1); opacity: 1; }
+        }
+
+        /* Accessibility: Reduce motion */
         @media (prefers-reduced-motion: reduce) {
+            .loader-ring::after, .loader-bar, .loader-text, .loader-icon {
+                animation: none !important;
+            }
             *, *::before, *::after {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
@@ -835,96 +658,35 @@
 </head>
 <body class="text-gray-900 antialiased selection:bg-[#0D6EFD] selection:text-white">
 
-<!-- Page loader: cinematic experience -->
 <div id="page-loader" aria-hidden="true">
-    <!-- Star field background -->
-    <div class="star-field" aria-hidden="true"></div>
-    
-    <!-- 3D rotating geometric shapes -->
-    <div class="geo-shape geo-shape-1" aria-hidden="true">
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-    </div>
-    <div class="geo-shape geo-shape-2" aria-hidden="true">
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-    </div>
-    <div class="geo-shape geo-shape-3" aria-hidden="true">
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-        <div class="geo-face"></div>
-    </div>
-    
-    <!-- Particle trails -->
-    <div class="particle-trail" aria-hidden="true"></div>
-    <div class="particle-trail" aria-hidden="true"></div>
-    <div class="particle-trail" aria-hidden="true"></div>
-    <div class="particle-trail" aria-hidden="true"></div>
-    <div class="particle-trail" aria-hidden="true"></div>
-    <div class="particle-trail" aria-hidden="true"></div>
-    
-    <div id="loader-inner" role="img" aria-label="DriveAway loading animation">
-        <div id="loader-logo">DriveAway</div>
-        <div id="loader-car" aria-hidden="true">
-            <!-- SVG car icon -->
-            <svg class="car-svg" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="carGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
-                        <stop offset="100%" style="stop-color:#0D6EFD;stop-opacity:0.7" />
-                    </linearGradient>
-                </defs>
-                <path d="M20 70 L20 55 L35 35 L75 30 L125 30 L165 35 L180 55 L180 70 L165 85 L35 85 L20 70 Z" fill="url(#carGradient)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
-                <circle cx="45" cy="85" r="12" fill="#1a1a2e" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
-                <circle cx="155" cy="85" r="12" fill="#1a1a2e" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
-                <rect x="60" y="40" width="60" height="20" rx="5" fill="rgba(13, 110, 253, 0.3)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
-            </svg>
-            <!-- Light rays -->
-            <div class="light-ray" aria-hidden="true"></div>
-            <div class="light-ray" aria-hidden="true"></div>
-            <div class="light-ray" aria-hidden="true"></div>
-            <div class="light-ray" aria-hidden="true"></div>
-            <div class="light-ray" aria-hidden="true"></div>
-            <div class="light-ray" aria-hidden="true"></div>
-            <div class="light-ray" aria-hidden="true"></div>
-            <div class="light-ray" aria-hidden="true"></div>
+    <div class="loader-logo">DriveAway</div>
+    <div class="loader-ring">
+        <div class="loader-particles">
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
         </div>
-        <!-- Circular loader -->
-        <div class="circular-loader" aria-hidden="true">
-            <svg class="circular-svg" width="120" height="120" viewBox="0 0 120 120">
-                <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#0D6EFD" />
-                        <stop offset="50%" style="stop-color:#4A12DA" />
-                        <stop offset="100%" style="stop-color:#00F2FE" />
-                    </linearGradient>
-                </defs>
-                <circle class="circular-bg" cx="60" cy="60" r="50"/>
-                <circle class="circular-progress" cx="60" cy="60" r="50"/>
-            </svg>
-            <div class="circular-center"></div>
+        <div class="loader-icon">
+            <i class="ph-fill ph-steering-wheel"></i>
         </div>
-        <!-- Progress bar -->
-        <div class="progress-container" aria-hidden="true">
-            <div class="progress-bar"></div>
-        </div>
-        <div class="loader-text">Initializing Experience</div>
+    </div>
+    <div class="loader-track">
+        <div class="loader-bar"></div>
+    </div>
+    <div class="loader-text">Igniting Engine</div>
+    <div class="loader-car">
+        <svg viewBox="0 0 60 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 20 L5 15 L10 10 L20 8 L40 8 L50 10 L55 15 L55 20 L50 25 L10 25 L5 20 Z" fill="currentColor"/>
+            <circle cx="12" cy="25" r="4" fill="#0f172a"/>
+            <circle cx="48" cy="25" r="4" fill="#0f172a"/>
+        </svg>
     </div>
 </div>
-
-<div id="parallax-bg" class="parallax-bg" aria-hidden="true"></div>
-<div id="scroll-progress" class="scroll-progress" aria-hidden="true"></div>
 
 <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-5 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
     <div class="max-w-[1400px] mx-auto px-6 lg:px-8 flex justify-between items-center">
@@ -1705,65 +1467,80 @@
     </div>
 </footer>
 
-<!-- ADDITIONAL LOAD ANIMATION SCRIPT -->
 <script>
-    // Orchestrated page-load intro tailored for DriveAway
-    (function(){
-        function qs(sel){ return document.querySelector(sel); }
-        function qsa(sel){ return Array.from(document.querySelectorAll(sel)); }
+    (function () {
+        let hasRun = false;
 
-        function showLoaderSequence() {
-            const logo = qs('#loader-logo');
-            const car = qs('#loader-car');
+        function qs(sel) { return document.querySelector(sel); }
+
+        function finishLoader(force) {
             const loader = qs('#page-loader');
 
-            // Show logo first
-            setTimeout(() => logo.classList.add('show'), 120);
-            // Then show the car block
-            setTimeout(() => car.classList.add('show'), 420);
+            // Always reveal page content, even if loader markup is missing.
+            document.body.classList.add('page-loaded');
 
-            // After the shine completes, reveal page content in sequence and hide loader
-            setTimeout(() => {
-                // Reveal hero copy and CTA gently
-                const heroCopy = qs('header .reveal, header .reveal-left, header .reveal-right');
-                if (heroCopy) heroCopy.classList.add('active');
+            if (!loader) return;
+            if (loader.dataset.closed === '1' && !force) return;
+            loader.dataset.closed = '1';
+            loader.classList.add('hide');
 
-                const heroHeading = qs('header h1');
-                if (heroHeading) heroHeading.classList.add('intro-fade', 'visible');
-
-                const heroPara = qs('header p');
-                if (heroPara) heroPara.classList.add('intro-fade', 'visible');
-
-                const searchPanel = qs('header form');
-                if (searchPanel) searchPanel.classList.add('intro-staggered', 'visible');
-
-                // Stagger reveal for fleet cards
-                const fleet = qsa('#fleet-grid .car-item');
-                fleet.forEach((el, idx) => {
-                    setTimeout(() => el.classList.add('intro-staggered','visible'), 380 + idx * 100);
-                });
-
-                // Slight brand nudge in navbar
-                const brand = qs('#navbar a');
-                if (brand) {
-                    brand.style.transition = 'transform 0.8s cubic-bezier(.16,.84,.24,1)';
-                    brand.style.transform = 'translateY(-6px)';
-                    setTimeout(() => brand.style.transform = 'translateY(0)', 900);
-                }
-
-                // finally fade loader
-                loader.classList.add('hide');
-            }, 1700);
-
-            // remove loader from DOM after it's hidden to free paint work
-            setTimeout(() => { if (loader && loader.parentNode) loader.parentNode.removeChild(loader); }, 3000);
+            // Hard fallback removal in case CSS transition never fires.
+            window.setTimeout(function () {
+                if (loader.parentNode) loader.parentNode.removeChild(loader);
+            }, 1300);
         }
 
-        // Use window 'load' so media (including hero video) has started decoding which reduces jank
+        function showLoaderSequence() {
+            if (hasRun) return;
+            hasRun = true;
+
+            const loader = qs('#page-loader');
+            const loaderText = qs('.loader-text');
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            if (!loader) {
+                finishLoader(true);
+                return;
+            }
+
+            // Dynamic text rotation
+            const textMessages = ['Igniting Engine', 'Loading Fleet', 'Ready to Drive'];
+            let textIndex = 0;
+
+            if (loaderText && !prefersReducedMotion) {
+                const textInterval = setInterval(function () {
+                    textIndex = (textIndex + 1) % textMessages.length;
+                    loaderText.textContent = textMessages[textIndex];
+                }, 400);
+                
+                // Clear interval when loader finishes
+                window.setTimeout(function () {
+                    clearInterval(textInterval);
+                }, 1200);
+            }
+
+            // With the new fast loader, we can get the user into the page much quicker.
+            // 800ms gives just enough time for the intro animation to register cleanly.
+            window.setTimeout(function () {
+                finishLoader(false);
+            }, prefersReducedMotion ? 0 : 800);
+
+            // Safety valve
+            window.setTimeout(function () { finishLoader(true); }, 1500);
+        }
+
         if (document.readyState === 'complete') {
             requestAnimationFrame(showLoaderSequence);
         } else {
-            window.addEventListener('load', () => { requestAnimationFrame(showLoaderSequence); });
+            window.addEventListener('load', function onLoad() {
+                window.removeEventListener('load', onLoad);
+                requestAnimationFrame(showLoaderSequence);
+            });
+
+            // If load is delayed too much, still let users in.
+            window.setTimeout(function () {
+                if (!hasRun) showLoaderSequence();
+            }, 1800);
         }
     })();
 </script>
