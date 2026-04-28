@@ -214,67 +214,150 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(180deg, rgba(10,12,20,0.85) 0%, rgba(10,12,20,0.45) 60%);
+            background: linear-gradient(180deg, rgba(10,12,20,0.92) 0%, rgba(13,110,253,0.15) 50%, rgba(10,12,20,0.92) 100%);
             pointer-events: none;
             transition: opacity 0.9s cubic-bezier(.2,.9,.2,1), visibility 0.9s;
             opacity: 1;
+            overflow: hidden;
         }
         #page-loader.hide {
             opacity: 0;
             visibility: hidden;
         }
 
+        /* Animated background particles */
+        #page-loader::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(13, 110, 253, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(74, 18, 218, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(0, 242, 254, 0.06) 0%, transparent 50%);
+            animation: loaderBgShift 8s ease-in-out infinite;
+        }
+
+        @keyframes loaderBgShift {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(-20px) translateY(-10px); }
+        }
+
         #loader-inner {
             display:flex;
             flex-direction:column;
             align-items:center;
-            gap:18px;
+            gap:24px;
             transform: translateY(0);
+            position: relative;
+            z-index: 1;
         }
 
-        /* Logo animate */
+        /* Logo animate with glow effect */
         #loader-logo {
             font-weight: 900;
-            font-size: 26px;
+            font-size: 32px;
             color: #ffffff;
-            letter-spacing: 0.6px;
-            transform: translateY(-8px) scale(0.97);
+            letter-spacing: 0.8px;
+            transform: translateY(-12px) scale(0.95);
             opacity: 0;
-            filter: drop-shadow(0 8px 20px rgba(0,0,0,0.45));
+            filter: drop-shadow(0 8px 32px rgba(13, 110, 253, 0.6)) drop-shadow(0 0 60px rgba(13, 110, 253, 0.3));
             transition: transform 0.9s cubic-bezier(.16,.84,.24,1), opacity 0.6s;
+            position: relative;
         }
         #loader-logo.show {
             transform: translateY(0) scale(1);
             opacity: 1;
+            animation: logoPulse 2s ease-in-out infinite;
         }
 
-        /* Small animated car silhouette - CSS only for speed */
+        @keyframes logoPulse {
+            0%, 100% { filter: drop-shadow(0 8px 32px rgba(13, 110, 253, 0.6)) drop-shadow(0 0 60px rgba(13, 110, 253, 0.3)); }
+            50% { filter: drop-shadow(0 8px 40px rgba(13, 110, 253, 0.8)) drop-shadow(0 0 80px rgba(13, 110, 253, 0.5)); }
+        }
+
+        /* Animated car silhouette with enhanced effects */
         #loader-car {
-            width: 280px;
-            height: 140px;
-            border-radius: 18px;
-            background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 -6px 20px rgba(0,0,0,0.15);
-            transform: translateY(14px) scale(0.98) translateZ(0);
+            width: 320px;
+            height: 160px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+            box-shadow: 
+                0 25px 80px rgba(0,0,0,0.6), 
+                inset 0 -8px 30px rgba(0,0,0,0.2),
+                0 0 100px rgba(13, 110, 253, 0.2);
+            transform: translateY(20px) scale(0.95) translateZ(0);
             opacity: 0;
             transition: transform 1.2s cubic-bezier(.2,.9,.2,1), opacity 0.7s;
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        #loader-car.show { transform: translateY(0) scale(1); opacity: 1; }
+        #loader-car.show { 
+            transform: translateY(0) scale(1); 
+            opacity: 1; 
+            animation: carFloat 3s ease-in-out infinite;
+        }
 
-        /* subtle shine sweep over the car block */
+        @keyframes carFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.02); }
+        }
+
+        /* Enhanced shine sweep effect */
         #loader-car::after {
             content: '';
             position: absolute;
-            left: -60%; top: -40%;
-            width: 60%; height: 200%;
-            background: linear-gradient(120deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.16) 50%, rgba(255,255,255,0.02) 100%);
+            left: -100%; top: -50%;
+            width: 80%; height: 250%;
+            background: linear-gradient(120deg, 
+                rgba(255,255,255,0) 0%, 
+                rgba(255,255,255,0.2) 45%, 
+                rgba(255,255,255,0.4) 50%, 
+                rgba(255,255,255,0.2) 55%, 
+                rgba(255,255,255,0) 100%);
             transform: rotate(25deg) translateX(0);
-            animation: carShine 1.6s ease-in-out 0.35s forwards;
+            animation: carShine 2.5s ease-in-out 0.5s infinite;
             opacity: 0;
         }
-        @keyframes carShine { 0% { opacity: 0; transform: translateX(0) rotate(25deg); } 30% { opacity: 1; } 100% { transform: translateX(220%) rotate(25deg); opacity: 0; } }
+
+        @keyframes carShine { 
+            0% { opacity: 0; transform: translateX(-100%) rotate(25deg); } 
+            20% { opacity: 1; } 
+            80% { opacity: 1; } 
+            100% { transform: translateX(350%) rotate(25deg); opacity: 0; } 
+        }
+
+        /* Loading spinner dots */
+        .loader-dots {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .loader-dots.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .loader-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0D6EFD, #4A12DA);
+            animation: dotBounce 1.4s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(13, 110, 253, 0.6);
+        }
+
+        .loader-dot:nth-child(1) { animation-delay: 0s; }
+        .loader-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loader-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotBounce {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
 
         /* Intro reveal helpers (used to sequence content reveal) */
         .intro-fade { opacity: 0; transform: translateY(14px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(.16,.84,.24,1); }
@@ -520,6 +603,11 @@
     <div id="loader-inner" role="img" aria-label="DriveAway loading animation">
         <div id="loader-logo">DriveAway</div>
         <div id="loader-car" aria-hidden="true"></div>
+        <div class="loader-dots" aria-hidden="true">
+            <div class="loader-dot"></div>
+            <div class="loader-dot"></div>
+            <div class="loader-dot"></div>
+        </div>
     </div>
 </div>
 
