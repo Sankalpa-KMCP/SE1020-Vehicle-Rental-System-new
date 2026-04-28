@@ -206,7 +206,7 @@
         /* ==========================================
            LOAD ANIMATION & PAGE INTRO (ADDED)
            ========================================== */
-        /* Full-screen loader overlay (subtle, brand oriented) */
+        /* Full-screen loader with cinematic experience */
         #page-loader {
             position: fixed;
             inset: 0;
@@ -214,149 +214,386 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(180deg, rgba(10,12,20,0.92) 0%, rgba(13,110,253,0.15) 50%, rgba(10,12,20,0.92) 100%);
+            background: radial-gradient(ellipse at center, #0f172a 0%, #0a0c14 50%, #000000 100%);
             pointer-events: none;
-            transition: opacity 0.9s cubic-bezier(.2,.9,.2,1), visibility 0.9s;
+            transition: opacity 1.2s cubic-bezier(.2,.9,.2,1), visibility 1.2s;
             opacity: 1;
             overflow: hidden;
+            perspective: 1000px;
         }
         #page-loader.hide {
             opacity: 0;
             visibility: hidden;
         }
 
-        /* Animated background particles */
+        /* Animated aurora background */
         #page-loader::before {
             content: '';
             position: absolute;
             inset: 0;
-            background-image: 
-                radial-gradient(circle at 20% 50%, rgba(13, 110, 253, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(74, 18, 218, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 50% 80%, rgba(0, 242, 254, 0.06) 0%, transparent 50%);
-            animation: loaderBgShift 8s ease-in-out infinite;
+            background: 
+                linear-gradient(45deg, transparent 30%, rgba(13, 110, 253, 0.1) 50%, transparent 70%),
+                linear-gradient(-45deg, transparent 30%, rgba(74, 18, 218, 0.08) 50%, transparent 70%),
+                linear-gradient(135deg, transparent 30%, rgba(0, 242, 254, 0.06) 50%, transparent 70%);
+            background-size: 200% 200%;
+            animation: auroraShift 8s ease-in-out infinite;
+            mix-blend-mode: screen;
         }
 
-        @keyframes loaderBgShift {
-            0%, 100% { transform: translateX(0) translateY(0); }
-            50% { transform: translateX(-20px) translateY(-10px); }
+        @keyframes auroraShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
+
+        /* Star field background */
+        .star-field {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 50px 160px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 130px 80px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 160px 120px, #ffffff, rgba(0,0,0,0));
+            background-size: 200px 200px;
+            animation: starTwinkle 4s ease-in-out infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* 3D rotating geometric shapes */
+        .geo-shape {
+            position: absolute;
+            transform-style: preserve-3d;
+            animation: geoRotate 20s linear infinite;
+        }
+
+        .geo-shape-1 {
+            width: 200px;
+            height: 200px;
+            top: 15%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .geo-shape-2 {
+            width: 150px;
+            height: 150px;
+            bottom: 20%;
+            right: 15%;
+            animation-delay: 5s;
+            animation-direction: reverse;
+        }
+
+        .geo-shape-3 {
+            width: 100px;
+            height: 100px;
+            top: 60%;
+            left: 25%;
+            animation-delay: 10s;
+        }
+
+        @keyframes geoRotate {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+        }
+
+        .geo-face {
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(13, 110, 253, 0.3);
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), transparent);
+            backdrop-filter: blur(2px);
+        }
+
+        .geo-face:nth-child(1) { transform: translateZ(50px); }
+        .geo-face:nth-child(2) { transform: rotateY(90deg) translateZ(50px); }
+        .geo-face:nth-child(3) { transform: rotateY(180deg) translateZ(50px); }
+        .geo-face:nth-child(4) { transform: rotateY(-90deg) translateZ(50px); }
+        .geo-face:nth-child(5) { transform: rotateX(90deg) translateZ(50px); }
+        .geo-face:nth-child(6) { transform: rotateX(-90deg) translateZ(50px); }
 
         #loader-inner {
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            gap:24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 50px;
             transform: translateY(0);
             position: relative;
-            z-index: 1;
+            z-index: 10;
         }
 
-        /* Logo animate with glow effect */
+        /* Premium logo with holographic effect */
         #loader-logo {
             font-weight: 900;
-            font-size: 32px;
-            color: #ffffff;
-            letter-spacing: 0.8px;
-            transform: translateY(-12px) scale(0.95);
+            font-size: 56px;
+            background: linear-gradient(90deg, #ffffff 0%, #0D6EFD 25%, #4A12DA 50%, #00F2FE 75%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 4px;
+            transform: translateY(-30px) scale(0.85) rotateX(10deg);
             opacity: 0;
-            filter: drop-shadow(0 8px 32px rgba(13, 110, 253, 0.6)) drop-shadow(0 0 60px rgba(13, 110, 253, 0.3));
-            transition: transform 0.9s cubic-bezier(.16,.84,.24,1), opacity 0.6s;
+            transition: transform 1.2s cubic-bezier(.16,.84,.24,1), opacity 1s;
             position: relative;
+            text-transform: uppercase;
+            filter: drop-shadow(0 0 40px rgba(13, 110, 253, 0.5));
         }
         #loader-logo.show {
-            transform: translateY(0) scale(1);
+            transform: translateY(0) scale(1) rotateX(0deg);
             opacity: 1;
-            animation: logoPulse 2s ease-in-out infinite;
+            animation: holographicShift 3s linear infinite, logoFloat 4s ease-in-out infinite;
         }
 
-        @keyframes logoPulse {
-            0%, 100% { filter: drop-shadow(0 8px 32px rgba(13, 110, 253, 0.6)) drop-shadow(0 0 60px rgba(13, 110, 253, 0.3)); }
-            50% { filter: drop-shadow(0 8px 40px rgba(13, 110, 253, 0.8)) drop-shadow(0 0 80px rgba(13, 110, 253, 0.5)); }
+        @keyframes holographicShift {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
         }
 
-        /* Animated car silhouette with enhanced effects */
-        #loader-car {
-            width: 320px;
-            height: 160px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
-            box-shadow: 
-                0 25px 80px rgba(0,0,0,0.6), 
-                inset 0 -8px 30px rgba(0,0,0,0.2),
-                0 0 100px rgba(13, 110, 253, 0.2);
-            transform: translateY(20px) scale(0.95) translateZ(0);
+@keyframes logoFloat {
+    0%, 100% { transform: translateY(0) rotateX(0deg); }
+    50% { transform: translateY(-10px) rotateX(5deg); }
+}
+
+/* 3D car showcase with glassmorphism */
+#loader-car {
+    width: 500px;
+    height: 280px;
+    border-radius: 40px;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(255, 255, 255, 0.05) 100%);
+    box-shadow: 
+        0 40px 120px rgba(0,0,0,0.6), 
+        inset 0 2px 0 rgba(255,255,255,0.2),
+        inset 0 -2px 0 rgba(0,0,0,0.2),
+        0 0 200px rgba(13, 110, 253, 0.4),
+        0 0 400px rgba(74, 18, 218, 0.2);
+    transform: translateY(40px) scale(0.5) translateX(-200px);
+    opacity: 0;
+    transition: transform 1.8s cubic-bezier(.2,.9,.2,1), opacity 1.2s;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    transform-style: preserve-3d;
+}
+#loader-car.show { 
+    opacity: 1; 
+    animation: carAppearAndDrive 4s ease-in-out forwards;
+}
+
+@keyframes carAppearAndDrive {
+    0% {
+        transform: translateY(40px) scale(0.5) translateX(-200px);
+        opacity: 0;
+    }
+    20% {
+        transform: translateY(0) scale(1) translateX(0);
+        opacity: 1;
+    }
+    30% {
+        transform: translateY(0) scale(1) translateX(0) rotateX(0deg);
+    }
+    100% {
+        transform: translateY(0) scale(1) translateX(300px) rotateX(5deg);
+        opacity: 0;
+    }
+}
+
+/* SVG car icon */
+.car-svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 220px;
+    height: 130px;
+    opacity: 0;
+    animation: carSvgDrive 4s ease-in-out forwards;
+}
+
+@keyframes carSvgDrive {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8) translateX(-100px);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) translateX(0);
+    }
+    30% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) translateX(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.1) translateX(150px);
+    }
+}
+
+/* Speed lines behind car */
+.speed-lines {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.speed-line {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(13, 110, 253, 0.8), transparent);
+    border-radius: 1px;
+    animation: speedLineMove 0.8s ease-out infinite;
+}
+
+.speed-line:nth-child(1) { top: 30%; left: -20%; width: 40%; animation-delay: 0s; }
+.speed-line:nth-child(2) { top: 50%; left: -30%; width: 50%; animation-delay: 0.2s; }
+.speed-line:nth-child(3) { top: 70%; left: -25%; width: 45%; animation-delay: 0.4s; }
+.speed-line:nth-child(4) { top: 40%; left: -35%; width: 55%; animation-delay: 0.6s; }
+.speed-line:nth-child(5) { top: 60%; left: -15%; width: 35%; animation-delay: 0.8s; }
+
+@keyframes speedLineMove {
+    0% { transform: translateX(0); opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateX(400px); opacity: 0; }
+}
+            filter: blur(1px);
             opacity: 0;
-            transition: transform 1.2s cubic-bezier(.2,.9,.2,1), opacity 0.7s;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        #loader-car.show { 
-            transform: translateY(0) scale(1); 
-            opacity: 1; 
-            animation: carFloat 3s ease-in-out infinite;
+            animation: particleTrail 6s ease-in-out infinite;
         }
 
-        @keyframes carFloat {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-8px) scale(1.02); }
-        }
-
-        /* Enhanced shine sweep effect */
-        #loader-car::after {
+        .particle-trail::after {
             content: '';
             position: absolute;
-            left: -100%; top: -50%;
-            width: 80%; height: 250%;
-            background: linear-gradient(120deg, 
-                rgba(255,255,255,0) 0%, 
-                rgba(255,255,255,0.2) 45%, 
-                rgba(255,255,255,0.4) 50%, 
-                rgba(255,255,255,0.2) 55%, 
-                rgba(255,255,255,0) 100%);
-            transform: rotate(25deg) translateX(0);
-            animation: carShine 2.5s ease-in-out 0.5s infinite;
-            opacity: 0;
+            inset: 0;
+            background: inherit;
+            border-radius: inherit;
+            animation: trailFollow 0.5s ease-out infinite;
         }
 
-        @keyframes carShine { 
-            0% { opacity: 0; transform: translateX(-100%) rotate(25deg); } 
-            20% { opacity: 1; } 
-            80% { opacity: 1; } 
-            100% { transform: translateX(350%) rotate(25deg); opacity: 0; } 
+        @keyframes particleTrail {
+            0% { opacity: 0; transform: translate(0, 0) scale(0); }
+            20% { opacity: 1; transform: translate(var(--tx), var(--ty)) scale(1); }
+            80% { opacity: 0.5; transform: translate(calc(var(--tx) * 2), calc(var(--ty) * 2)) scale(0.5); }
+            100% { opacity: 0; transform: translate(calc(var(--tx) * 3), calc(var(--ty) * 3)) scale(0); }
         }
 
-        /* Loading spinner dots */
-        .loader-dots {
-            display: flex;
-            gap: 12px;
-            margin-top: 16px;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
+        @keyframes trailFollow {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(0.5); opacity: 0; }
         }
-        .loader-dots.show {
+
+        .particle-trail:nth-child(1) { --tx: -100px; --ty: -50px; animation-delay: 0s; }
+        .particle-trail:nth-child(2) { --tx: 100px; --ty: -50px; animation-delay: 0.5s; background: radial-gradient(circle, #4A12DA, transparent); }
+        .particle-trail:nth-child(3) { --tx: -100px; --ty: 50px; animation-delay: 1s; background: radial-gradient(circle, #00F2FE, transparent); }
+        .particle-trail:nth-child(4) { --tx: 100px; --ty: 50px; animation-delay: 1.5s; }
+        .particle-trail:nth-child(5) { --tx: 0px; --ty: -80px; animation-delay: 2s; background: radial-gradient(circle, #4A12DA, transparent); }
+        .particle-trail:nth-child(6) { --tx: 0px; --ty: 80px; animation-delay: 2.5s; background: radial-gradient(circle, #00F2FE, transparent); }
+
+        /* Loading text with glitch effect */
+        .loader-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            position: relative;
+        }
+        .loader-text.show {
             opacity: 1;
             transform: translateY(0);
+            animation: textGlitch 4s ease-in-out infinite;
         }
 
-        .loader-dot {
-            width: 10px;
-            height: 10px;
+        @keyframes textGlitch {
+            0%, 90%, 100% { 
+                text-shadow: none;
+                transform: translateX(0);
+            }
+            92% { 
+                text-shadow: 2px 0 #0D6EFD, -2px 0 #4A12DA;
+                transform: translateX(2px);
+            }
+            94% { 
+                text-shadow: -2px 0 #00F2FE, 2px 0 #0D6EFD;
+                transform: translateX(-2px);
+            }
+            96% { 
+                text-shadow: 2px 0 #4A12DA, -2px 0 #00F2FE;
+                transform: translateX(0);
+            }
+        }
+
+        /* Circular loading indicator */
+        .circular-loader {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .circular-loader.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .circular-svg {
+            transform: rotate(-90deg);
+        }
+
+        .circular-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 4;
+        }
+
+        .circular-progress {
+            fill: none;
+            stroke: url(#gradient);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 314;
+            stroke-dashoffset: 314;
+            animation: circularProgress 3s ease-out forwards;
+        }
+
+        @keyframes circularProgress {
+            0% { stroke-dashoffset: 314; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .circular-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(13, 110, 253, 0.3), transparent);
             border-radius: 50%;
-            background: linear-gradient(135deg, #0D6EFD, #4A12DA);
-            animation: dotBounce 1.4s ease-in-out infinite;
-            box-shadow: 0 0 20px rgba(13, 110, 253, 0.6);
+            animation: centerPulse 2s ease-in-out infinite;
         }
 
-        .loader-dot:nth-child(1) { animation-delay: 0s; }
-        .loader-dot:nth-child(2) { animation-delay: 0.2s; }
-        .loader-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes dotBounce {
-            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-            40% { transform: scale(1.2); opacity: 1; }
+        @keyframes centerPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
         }
 
         /* Intro reveal helpers (used to sequence content reveal) */
@@ -598,16 +835,91 @@
 </head>
 <body class="text-gray-900 antialiased selection:bg-[#0D6EFD] selection:text-white">
 
-<!-- Page loader: a quick brand + car silhouette intro -->
+<!-- Page loader: cinematic experience -->
 <div id="page-loader" aria-hidden="true">
+    <!-- Star field background -->
+    <div class="star-field" aria-hidden="true"></div>
+    
+    <!-- 3D rotating geometric shapes -->
+    <div class="geo-shape geo-shape-1" aria-hidden="true">
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+    </div>
+    <div class="geo-shape geo-shape-2" aria-hidden="true">
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+    </div>
+    <div class="geo-shape geo-shape-3" aria-hidden="true">
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+        <div class="geo-face"></div>
+    </div>
+    
+    <!-- Particle trails -->
+    <div class="particle-trail" aria-hidden="true"></div>
+    <div class="particle-trail" aria-hidden="true"></div>
+    <div class="particle-trail" aria-hidden="true"></div>
+    <div class="particle-trail" aria-hidden="true"></div>
+    <div class="particle-trail" aria-hidden="true"></div>
+    <div class="particle-trail" aria-hidden="true"></div>
+    
     <div id="loader-inner" role="img" aria-label="DriveAway loading animation">
         <div id="loader-logo">DriveAway</div>
-        <div id="loader-car" aria-hidden="true"></div>
-        <div class="loader-dots" aria-hidden="true">
-            <div class="loader-dot"></div>
-            <div class="loader-dot"></div>
-            <div class="loader-dot"></div>
+        <div id="loader-car" aria-hidden="true">
+            <!-- SVG car icon -->
+            <svg class="car-svg" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="carGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+                        <stop offset="100%" style="stop-color:#0D6EFD;stop-opacity:0.7" />
+                    </linearGradient>
+                </defs>
+                <path d="M20 70 L20 55 L35 35 L75 30 L125 30 L165 35 L180 55 L180 70 L165 85 L35 85 L20 70 Z" fill="url(#carGradient)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+                <circle cx="45" cy="85" r="12" fill="#1a1a2e" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                <circle cx="155" cy="85" r="12" fill="#1a1a2e" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                <rect x="60" y="40" width="60" height="20" rx="5" fill="rgba(13, 110, 253, 0.3)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+            </svg>
+            <!-- Light rays -->
+            <div class="light-ray" aria-hidden="true"></div>
+            <div class="light-ray" aria-hidden="true"></div>
+            <div class="light-ray" aria-hidden="true"></div>
+            <div class="light-ray" aria-hidden="true"></div>
+            <div class="light-ray" aria-hidden="true"></div>
+            <div class="light-ray" aria-hidden="true"></div>
+            <div class="light-ray" aria-hidden="true"></div>
+            <div class="light-ray" aria-hidden="true"></div>
         </div>
+        <!-- Circular loader -->
+        <div class="circular-loader" aria-hidden="true">
+            <svg class="circular-svg" width="120" height="120" viewBox="0 0 120 120">
+                <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#0D6EFD" />
+                        <stop offset="50%" style="stop-color:#4A12DA" />
+                        <stop offset="100%" style="stop-color:#00F2FE" />
+                    </linearGradient>
+                </defs>
+                <circle class="circular-bg" cx="60" cy="60" r="50"/>
+                <circle class="circular-progress" cx="60" cy="60" r="50"/>
+            </svg>
+            <div class="circular-center"></div>
+        </div>
+        <!-- Progress bar -->
+        <div class="progress-container" aria-hidden="true">
+            <div class="progress-bar"></div>
+        </div>
+        <div class="loader-text">Initializing Experience</div>
     </div>
 </div>
 
