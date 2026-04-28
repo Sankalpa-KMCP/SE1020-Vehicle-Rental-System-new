@@ -130,10 +130,137 @@
             position: absolute; width: 0.4rem; height: 3px; background-color: #1F2937;
             left: 50%; transform: translateX(-50%); top: 50%; z-index: 10;
         }
+
+        /* --- SUCCESS ANIMATION CSS --- */
+        #success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        #success-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #10B981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition-delay: 0.1s;
+        }
+
+        #success-overlay.active .success-checkmark {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .checkmark-icon {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            transition: stroke-dashoffset 0.5s ease;
+            transition-delay: 0.4s;
+        }
+
+        #success-overlay.active .checkmark-icon {
+            stroke-dashoffset: 0;
+        }
+
+        .success-text {
+            color: #1F2937;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease;
+            transition-delay: 0.6s;
+        }
+
+        #success-overlay.active .success-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .success-subtext {
+            color: #6B7280;
+            font-size: 0.95rem;
+            font-weight: 400;
+            margin-top: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            transition-delay: 0.8s;
+        }
+
+        #success-overlay.active .success-subtext {
+            opacity: 1;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 6px;
+            margin-top: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            transition-delay: 1s;
+        }
+
+        #success-overlay.active .loading-dots {
+            opacity: 1;
+        }
+
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            background: #10B981;
+            border-radius: 50%;
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes pulse {
+            0%, 80%, 100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex bg-white text-gray-900">
-
 <div id="art-container" class="hidden lg:flex lg:w-1/2 bg-[#F0F2F5] relative items-end justify-center overflow-hidden pb-16">
     <div class="relative w-80 h-80 flex items-end justify-center transform scale-125 xl:scale-[1.3] origin-bottom perspective-[1000px]">
 
@@ -259,6 +386,22 @@
                 <i class="ph-bold ph-shield-check"></i> Staff Login
             </a>
         </div>
+    </div>
+</div>
+
+<!-- Success Animation Overlay -->
+<div id="success-overlay">
+    <div class="success-checkmark">
+        <svg class="checkmark-icon" viewBox="0 0 52 52">
+            <path d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+    </div>
+    <div class="success-text">Login Successful!</div>
+    <div class="success-subtext">Redirecting to dashboard...</div>
+    <div class="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
     </div>
 </div>
 
@@ -445,6 +588,27 @@
                 window.location.href = targetUrl;
             }, 150);
         });
+    });
+
+    // --- SUCCESS ANIMATION LOGIC ---
+    const form = document.querySelector('form');
+    const successOverlay = document.getElementById('success-overlay');
+
+    function triggerSuccessAnimation() {
+        successOverlay.classList.add('active');
+    }
+
+    form.addEventListener('submit', function(e) {
+        // Check if form is valid
+        if (form.checkValidity()) {
+            e.preventDefault();
+            triggerSuccessAnimation();
+            
+            // Submit form after animation
+            setTimeout(() => {
+                form.submit();
+            }, 2000);
+        }
     });
 </script>
 </body>
