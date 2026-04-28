@@ -43,6 +43,7 @@
             --brand-secondary: #4A12DA;
             --surface-muted: #F8FAFF;
             --text-main: #0f172a;
+            --ambient-glow-opacity: 0.05;
         }
 
         body {
@@ -66,6 +67,43 @@
             background-size: 24px 24px;
             opacity: 0.25;
             z-index: -1;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(180deg, rgba(248, 250, 255, 0.0) 0%, rgba(13, 110, 253, 0.02) 50%, rgba(248, 250, 255, 0.0) 100%);
+            z-index: -1;
+            opacity: var(--ambient-glow-opacity);
+            transition: opacity 0.6s ease;
+            will-change: opacity;
+        }
+
+        .parallax-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -2;
+            opacity: 0.08;
+            will-change: opacity, transform;
+            transition: opacity 0.4s ease;
+            background: linear-gradient(135deg,
+                rgba(13, 110, 253, 0.06) 0%,
+                rgba(74, 18, 218, 0.03) 25%,
+                rgba(0, 242, 254, 0.04) 50%,
+                rgba(13, 110, 253, 0.03) 75%,
+                rgba(248, 250, 255, 0.02) 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 24s ease-in-out infinite;
+            transform: translate3d(0, 0, 0);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         ::selection {
@@ -130,6 +168,7 @@
             transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             will-change: transform, box-shadow;
         }
+
         .premium-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 30px 60px -15px rgba(13, 110, 253, 0.15);
@@ -163,6 +202,95 @@
             width: 7rem;
             height: 9rem;
         }
+
+        /* ==========================================
+           LOAD ANIMATION & PAGE INTRO (ADDED)
+           ========================================== */
+        /* Full-screen loader overlay (subtle, brand oriented) */
+        #page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(10,12,20,0.85) 0%, rgba(10,12,20,0.45) 60%);
+            pointer-events: none;
+            transition: opacity 0.9s cubic-bezier(.2,.9,.2,1), visibility 0.9s;
+            opacity: 1;
+        }
+        #page-loader.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        #loader-inner {
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap:18px;
+            transform: translateY(0);
+        }
+
+        /* Logo animate */
+        #loader-logo {
+            font-weight: 900;
+            font-size: 26px;
+            color: #ffffff;
+            letter-spacing: 0.6px;
+            transform: translateY(-8px) scale(0.97);
+            opacity: 0;
+            filter: drop-shadow(0 8px 20px rgba(0,0,0,0.45));
+            transition: transform 0.9s cubic-bezier(.16,.84,.24,1), opacity 0.6s;
+        }
+        #loader-logo.show {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        /* Small animated car silhouette - CSS only for speed */
+        #loader-car {
+            width: 280px;
+            height: 140px;
+            border-radius: 18px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 -6px 20px rgba(0,0,0,0.15);
+            transform: translateY(14px) scale(0.98) translateZ(0);
+            opacity: 0;
+            transition: transform 1.2s cubic-bezier(.2,.9,.2,1), opacity 0.7s;
+            position: relative;
+            overflow: hidden;
+        }
+        #loader-car.show { transform: translateY(0) scale(1); opacity: 1; }
+
+        /* subtle shine sweep over the car block */
+        #loader-car::after {
+            content: '';
+            position: absolute;
+            left: -60%; top: -40%;
+            width: 60%; height: 200%;
+            background: linear-gradient(120deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.16) 50%, rgba(255,255,255,0.02) 100%);
+            transform: rotate(25deg) translateX(0);
+            animation: carShine 1.6s ease-in-out 0.35s forwards;
+            opacity: 0;
+        }
+        @keyframes carShine { 0% { opacity: 0; transform: translateX(0) rotate(25deg); } 30% { opacity: 1; } 100% { transform: translateX(220%) rotate(25deg); opacity: 0; } }
+
+        /* Intro reveal helpers (used to sequence content reveal) */
+        .intro-fade { opacity: 0; transform: translateY(14px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(.16,.84,.24,1); }
+        .intro-fade.visible { opacity: 1; transform: translateY(0); }
+
+        .intro-staggered { opacity: 0; transform: translateY(18px) scale(.995); }
+        .intro-staggered.visible { opacity: 1; transform: translateY(0) scale(1); transition: opacity 0.8s ease, transform 0.9s cubic-bezier(.16,.84,.24,1); }
+
+        /* ensure hero copy stands out during the intro */
+        .hero-copy { background: rgba(255,255,255,0.02); padding: 8px; border-radius: 12px; display: inline-block; }
+
+        /* accessibility: reduce motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            #page-loader, #loader-logo, #loader-car, .intro-fade, .intro-staggered { transition: none !important; animation: none !important; }
+        }
+
         .mascot-body {
             position: absolute;
             bottom: 0;
@@ -329,16 +457,24 @@
         }
 
         .hero-heading {
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.14), 0 10px 28px rgba(0, 0, 0, 0.12);
         }
 
         .hero-text {
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25);
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
         }
 
         .hero-paragraph {
-            color: #1a202c;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 4px 15px rgba(0, 0, 0, 0.3);
+            color: #111827;
+            text-shadow: 0 1px 4px rgba(255, 255, 255, 0.55);
+        }
+
+        .hero-copy {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.22));
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 1.75rem;
+            padding: 1.25rem 1.25rem 0.5rem;
+            backdrop-filter: blur(4px);
         }
 
         .floating-actions {
@@ -379,6 +515,15 @@
 </head>
 <body class="text-gray-900 antialiased selection:bg-[#0D6EFD] selection:text-white">
 
+<!-- Page loader: a quick brand + car silhouette intro -->
+<div id="page-loader" aria-hidden="true">
+    <div id="loader-inner" role="img" aria-label="DriveAway loading animation">
+        <div id="loader-logo">DriveAway</div>
+        <div id="loader-car" aria-hidden="true"></div>
+    </div>
+</div>
+
+<div id="parallax-bg" class="parallax-bg" aria-hidden="true"></div>
 <div id="scroll-progress" class="scroll-progress" aria-hidden="true"></div>
 
 <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-5 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
@@ -475,7 +620,7 @@
     <div class="max-w-[1400px] mx-auto px-6 lg:px-8 relative z-10 w-full flex flex-col lg:flex-row items-center gap-16">
 
         <div class="w-full lg:w-1/2 text-center lg:text-left">
-            <div class="reveal-left">
+            <div class="reveal-left hero-copy">
                 <div class="inline-flex items-center gap-2 bg-white px-5 py-2.5 rounded-full border border-gray-200 shadow-sm mb-8">
                     <div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
                     <span class="text-sm font-black text-gray-700 tracking-widest uppercase hero-text">Sri Lanka's #1 Fleet</span>
@@ -1160,10 +1305,96 @@
     </div>
 </footer>
 
+<!-- ADDITIONAL LOAD ANIMATION SCRIPT -->
+<script>
+    // Orchestrated page-load intro tailored for DriveAway
+    (function(){
+        function qs(sel){ return document.querySelector(sel); }
+        function qsa(sel){ return Array.from(document.querySelectorAll(sel)); }
+
+        function showLoaderSequence() {
+            const logo = qs('#loader-logo');
+            const car = qs('#loader-car');
+            const loader = qs('#page-loader');
+
+            // Show logo first
+            setTimeout(() => logo.classList.add('show'), 120);
+            // Then show the car block
+            setTimeout(() => car.classList.add('show'), 420);
+
+            // After the shine completes, reveal page content in sequence and hide loader
+            setTimeout(() => {
+                // Reveal hero copy and CTA gently
+                const heroCopy = qs('header .reveal, header .reveal-left, header .reveal-right');
+                if (heroCopy) heroCopy.classList.add('active');
+
+                const heroHeading = qs('header h1');
+                if (heroHeading) heroHeading.classList.add('intro-fade', 'visible');
+
+                const heroPara = qs('header p');
+                if (heroPara) heroPara.classList.add('intro-fade', 'visible');
+
+                const searchPanel = qs('header form');
+                if (searchPanel) searchPanel.classList.add('intro-staggered', 'visible');
+
+                // Stagger reveal for fleet cards
+                const fleet = qsa('#fleet-grid .car-item');
+                fleet.forEach((el, idx) => {
+                    setTimeout(() => el.classList.add('intro-staggered','visible'), 380 + idx * 100);
+                });
+
+                // Slight brand nudge in navbar
+                const brand = qs('#navbar a');
+                if (brand) {
+                    brand.style.transition = 'transform 0.8s cubic-bezier(.16,.84,.24,1)';
+                    brand.style.transform = 'translateY(-6px)';
+                    setTimeout(() => brand.style.transform = 'translateY(0)', 900);
+                }
+
+                // finally fade loader
+                loader.classList.add('hide');
+            }, 1700);
+
+            // remove loader from DOM after it's hidden to free paint work
+            setTimeout(() => { if (loader && loader.parentNode) loader.parentNode.removeChild(loader); }, 3000);
+        }
+
+        // Use window 'load' so media (including hero video) has started decoding which reduces jank
+        if (document.readyState === 'complete') {
+            requestAnimationFrame(showLoaderSequence);
+        } else {
+            window.addEventListener('load', () => { requestAnimationFrame(showLoaderSequence); });
+        }
+    })();
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // 0. PREMIUM PARALLAX & SCROLL EFFECTS
+        const parallaxBg = document.getElementById('parallax-bg');
+
+        function updateParallax() {
+            const scrollY = window.scrollY;
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = maxScroll > 0 ? scrollY / maxScroll : 0;
+
+            if (parallaxBg) {
+                if (prefersReducedMotion) {
+                    parallaxBg.style.transform = 'translate3d(0, 0, 0)';
+                    parallaxBg.style.opacity = '0.06';
+                } else {
+                    const parallaxDistance = Math.min(scrollY * 0.18, 140);
+                    const bgOpacity = 0.12 - (scrollPercent * 0.06);
+                    parallaxBg.style.transform = 'translate3d(0, ' + parallaxDistance + 'px, 0)';
+                    parallaxBg.style.opacity = String(Math.max(0.04, bgOpacity));
+                }
+            }
+
+            const glowOpacity = prefersReducedMotion ? 0.04 : 0.04 + (Math.sin(scrollPercent * Math.PI) * 0.08);
+            document.body.style.setProperty('--ambient-glow-opacity', String(Math.max(0.03, glowOpacity)));
+        }
 
         // 1. PAGE TRANSITION LOGIC
         document.body.classList.add('page-loaded');
@@ -1198,7 +1429,6 @@
         const cinematicHero = document.getElementById('cinematic-hero');
         const heroScrollVideo = document.getElementById('hero-scroll-video');
         let heroScrubDuration = 22;
-        let rafId = null;
 
         if (heroScrollVideo && !prefersReducedMotion) {
             heroScrollVideo.addEventListener('loadedmetadata', () => {
@@ -1228,8 +1458,6 @@
             heroScrollVideo.style.transform = 'scale(' + scale + ')';
             heroScrollVideo.style.opacity = String(1.0 - (progress * 0.05));
         }
-
-
         let ticking = false;
 
         function updateScrollChrome() {
@@ -1241,19 +1469,24 @@
             if (navBar) navBar.classList.toggle('nav-scrolled', scrollTop > 24);
             if (backToTopBtn) backToTopBtn.classList.toggle('visible', scrollTop > 500);
             syncCinematicHero();
+        }
+
+        function runScrollFrame() {
+            updateParallax();
+            updateScrollChrome();
             ticking = false;
         }
 
-        function scheduleScrollUpdate() {
+        function scheduleScrollFrame() {
             if (!ticking) {
-                rafId = requestAnimationFrame(updateScrollChrome);
+                requestAnimationFrame(runScrollFrame);
                 ticking = true;
             }
         }
 
-        updateScrollChrome();
-        window.addEventListener('scroll', scheduleScrollUpdate, { passive: true });
-        window.addEventListener('resize', updateScrollChrome);
+        runScrollFrame();
+        window.addEventListener('scroll', scheduleScrollFrame, { passive: true });
+        window.addEventListener('resize', scheduleScrollFrame);
 
         if (backToTopBtn) {
             backToTopBtn.addEventListener('click', () => {
@@ -1435,7 +1668,7 @@
             mascots.forEach(m => m.lookAt(mouseX, mouseY));
         });
 
-        function renderMascots() {//
+        function renderMascots() {
             mascots.forEach(m => m.update());
             requestAnimationFrame(renderMascots);
         }
