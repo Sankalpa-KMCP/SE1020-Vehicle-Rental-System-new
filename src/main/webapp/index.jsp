@@ -51,12 +51,13 @@
             overflow-x: hidden;
             background-color: #ffffff;
             opacity: 0;
-            transition: opacity 0.2s ease-out;
+            transition: opacity 0.2s ease-out, transform 0.3s ease-out;
             scroll-behavior: smooth;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
         body.page-loaded { opacity: 1; }
+        body.page-exit { opacity: 0; transform: scale(0.98); }
 
         body::before {
             content: "";
@@ -657,6 +658,22 @@
     </style>
 </head>
 <body class="text-gray-900 antialiased selection:bg-[#0D6EFD] selection:text-white">
+
+<!-- Welcome Transition Overlay -->
+<div id="welcome-overlay">
+    <div class="welcome-bg-circle"></div>
+    <div class="welcome-bg-circle"></div>
+    <div class="welcome-bg-circle"></div>
+    <div class="welcome-particles">
+        <div class="welcome-particle"></div>
+        <div class="welcome-particle"></div>
+        <div class="welcome-particle"></div>
+        <div class="welcome-particle"></div>
+        <div class="welcome-particle"></div>
+        <div class="welcome-particle"></div>
+    </div>
+    <div class="welcome-text">Welcome</div>
+</div>
 
 <div id="page-loader" aria-hidden="true">
     <div class="loader-logo">DriveAway</div>
@@ -1575,14 +1592,24 @@
 
         // 1. PAGE TRANSITION LOGIC
         document.body.classList.add('page-loaded');
+        const welcomeOverlay = document.getElementById('welcome-overlay');
+        
         document.querySelectorAll('.transition-link').forEach(link => {
             link.addEventListener('click', function(e) {
                 if (this.href.includes('#')) return;
                 if (this.origin === window.location.origin && this.pathname === window.location.pathname) return;
                 e.preventDefault();
                 const targetUrl = this.href;
-                document.body.classList.remove('page-loaded');
-                setTimeout(() => { window.location.href = targetUrl; }, prefersReducedMotion ? 0 : 150);
+                
+                // Special animation for login navigation
+                if (targetUrl.includes('login.jsp')) {
+                    document.body.classList.add('page-exit');
+                    welcomeOverlay.classList.add('active');
+                    setTimeout(() => { window.location.href = targetUrl; }, prefersReducedMotion ? 0 : 600);
+                } else {
+                    document.body.classList.remove('page-loaded');
+                    setTimeout(() => { window.location.href = targetUrl; }, prefersReducedMotion ? 0 : 150);
+                }
             });
         });
 
