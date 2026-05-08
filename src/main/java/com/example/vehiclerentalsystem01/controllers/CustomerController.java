@@ -168,6 +168,8 @@ public class CustomerController extends HttpServlet {
                 } else {
                     response.sendRedirect("customers?action=editSelf&error=missing_fields");
                 }
+            } else if ("create".equals(action)) {
+                response.sendRedirect("customers?action=view_directory&error=missing_fields");
             } else {
                 response.sendRedirect("register.jsp?error=missing_fields");
             }
@@ -177,7 +179,11 @@ public class CustomerController extends HttpServlet {
         if (!"update".equals(action)) {
             Customer existingCustomer = customerDAO.getCustomerByUsername(username);
             if (existingCustomer != null) {
-                response.sendRedirect("register.jsp?error=username_taken");
+                if ("create".equals(action)) {
+                    response.sendRedirect("customers?action=view_directory&error=username_taken");
+                } else {
+                    response.sendRedirect("register.jsp?error=username_taken");
+                }
                 return;
             }
         }
@@ -193,6 +199,11 @@ public class CustomerController extends HttpServlet {
             } else {
                 response.sendRedirect("customers?action=editSelf&msg=updated");
             }
+        } else if ("create".equals(action)) {
+            String newId = "C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+            Customer newCustomer = new Customer(newId, name, email, username, password, nic, license, phone);
+            customerDAO.saveCustomer(newCustomer);
+            response.sendRedirect("customers?action=view_directory&msg=created");
         } else {
             String newId = "C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
             Customer newCustomer = new Customer(newId, name, email, username, password, nic, license, phone);

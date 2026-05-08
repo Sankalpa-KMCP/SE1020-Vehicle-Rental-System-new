@@ -132,41 +132,117 @@
         <span class="text-xs font-bold text-white bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">ACTION</span>
       </div>
       <p class="text-lg font-extrabold mb-2">Add New</p>
-      <p class="text-sm text-blue-100 mb-4">Register a customer</p>
-      <a href="register.jsp" class="inline-flex items-center gap-2 bg-white text-blue-600 font-bold px-4 py-2 rounded-xl hover:bg-blue-50 transition-colors text-sm">
-        <i class="ph-bold ph-plus"></i> Register
-      </a>
+      <p class="text-sm text-blue-100 mb-4">Create a customer account</p>
+      <button onclick="toggleCreateForm()" class="inline-flex items-center gap-2 bg-white text-blue-600 font-bold px-4 py-2 rounded-xl hover:bg-blue-50 transition-colors text-sm">
+        <i class="ph-bold ph-plus"></i> Create Customer
+      </button>
     </div>
   </div>
 
   <div class="w-full max-w-screen-xl mx-auto pb-16">
     <div class="bg-white border border-slate-200 rounded-3xl p-10 soft-card shadow-lg">
 
-      <% if ("created".equals(request.getParameter("msg"))) { %>
-      <div class="mb-8 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-semibold flex items-center gap-2">
-        <i class="ph-bold ph-check-circle text-xl"></i> Customer registered successfully.
-      </div>
-      <% } else if ("updated".equals(request.getParameter("msg"))) { %>
-      <div class="mb-8 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-semibold flex items-center gap-2">
-        <i class="ph-bold ph-check-circle text-xl"></i> Customer profile updated successfully.
-      </div>
-      <% } else if ("deleted".equals(request.getParameter("msg"))) { %>
-      <div class="mb-8 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-semibold flex items-center gap-2">
-        <i class="ph-bold ph-check-circle text-xl"></i> Customer deleted successfully.
-      </div>
-      <% } else if ("not_found".equals(request.getParameter("error"))) { %>
-      <div class="mb-8 bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 font-semibold flex items-center gap-2">
-        <i class="ph-bold ph-warning-circle text-xl"></i> Customer not found.
-      </div>
-      <% } %>
+       <% if ("created".equals(request.getParameter("msg"))) { %>
+       <div class="mb-8 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-semibold flex items-center gap-2">
+         <i class="ph-bold ph-check-circle text-xl"></i> Customer registered successfully.
+       </div>
+       <% } else if ("updated".equals(request.getParameter("msg"))) { %>
+       <div class="mb-8 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-semibold flex items-center gap-2">
+         <i class="ph-bold ph-check-circle text-xl"></i> Customer profile updated successfully.
+       </div>
+       <% } else if ("deleted".equals(request.getParameter("msg"))) { %>
+       <div class="mb-8 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 font-semibold flex items-center gap-2">
+         <i class="ph-bold ph-check-circle text-xl"></i> Customer deleted successfully.
+       </div>
+       <% } else if ("not_found".equals(request.getParameter("error"))) { %>
+       <div class="mb-8 bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 font-semibold flex items-center gap-2">
+         <i class="ph-bold ph-warning-circle text-xl"></i> Customer not found.
+       </div>
+       <% } else if ("missing_fields".equals(request.getParameter("error"))) { %>
+       <div class="mb-8 bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 font-semibold flex items-center gap-2">
+         <i class="ph-bold ph-warning-circle text-xl"></i> Please fill in all required fields.
+       </div>
+       <% } else if ("username_taken".equals(request.getParameter("error"))) { %>
+       <div class="mb-8 bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 font-semibold flex items-center gap-2">
+         <i class="ph-bold ph-warning-circle text-xl"></i> Username is already taken. Please try another.
+       </div>
+       <% } %>
 
-      <div id="listSection" class="fade-in block">
-        <div class="flex justify-between items-end mb-8">
-          <div>
-            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Guest Directory</h2>
-            <p class="text-gray-500 text-lg mt-1 font-medium">Manage and verify your registered rental customers.</p>
-          </div>
-        </div>
+       <!-- CREATE FORM SECTION -->
+       <div id="createFormSection" class="hidden fade-in mb-10 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-8">
+         <div class="flex justify-between items-center mb-8">
+           <div>
+             <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Create New Customer</h2>
+             <p class="text-gray-500 text-lg mt-1 font-medium">Add a new customer account to the system.</p>
+           </div>
+           <button onclick="toggleCreateForm()" class="text-gray-500 hover:text-gray-700 text-3xl">
+             <i class="ph-bold ph-x"></i>
+           </button>
+         </div>
+
+         <form action="customers" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <input type="hidden" name="action" value="create">
+
+           <div>
+             <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Full Name <span class="text-red-500">*</span></label>
+             <input type="text" name="name" placeholder="John Doe"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none" required>
+           </div>
+
+           <div>
+             <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Username <span class="text-red-500">*</span></label>
+             <input type="text" name="username" placeholder="johndoe123"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none" required>
+           </div>
+
+           <div>
+             <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Email Address <span class="text-red-500">*</span></label>
+             <input type="email" name="email" placeholder="john@example.com"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none" required>
+           </div>
+
+           <div>
+             <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Phone Number <span class="text-red-500">*</span></label>
+             <input type="tel" name="phone" pattern="[0-9]{10}" title="Please enter exactly 10 digits" placeholder="0712345678"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none" required>
+           </div>
+
+           <div>
+             <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Password <span class="text-red-500">*</span></label>
+             <input type="password" name="password" placeholder="••••••••"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none" required>
+           </div>
+
+           <div>
+             <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">NIC Number (Optional)</label>
+             <input type="text" name="nic" placeholder="e.g. 199912345678"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none">
+           </div>
+
+           <div>
+             <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Driver's License (Optional)</label>
+             <input type="text" name="license" placeholder="e.g. B1234567"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none">
+           </div>
+
+           <div class="md:col-span-2 flex gap-4">
+             <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition flex justify-center items-center gap-2 text-lg">
+               <i class="ph-bold ph-user-plus"></i> Create Customer
+             </button>
+             <button type="button" onclick="toggleCreateForm()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 rounded-lg transition text-lg">
+               Cancel
+             </button>
+           </div>
+         </form>
+       </div>
+
+       <div id="listSection" class="fade-in block">
+         <div class="flex justify-between items-end mb-8">
+           <div>
+             <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Guest Directory</h2>
+             <p class="text-gray-500 text-lg mt-1 font-medium">Manage and verify your registered rental customers.</p>
+           </div>
+         </div>
 
         <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white soft-card">
           <table class="w-full text-left border-collapse">
@@ -379,6 +455,11 @@
 </main>
 
 <script>
+  function toggleCreateForm() {
+    const createFormSection = document.getElementById('createFormSection');
+    createFormSection.classList.toggle('hidden');
+  }
+
   function switchView(view) {
     const listSection = document.getElementById('listSection');
     const searchSection = document.getElementById('searchSection');
@@ -406,6 +487,11 @@
       btnSearch.classList.add(...activeClass);
     }
   }
+
+  // Auto-open create form if there are errors
+  <% if ("missing_fields".equals(request.getParameter("error")) || "username_taken".equals(request.getParameter("error"))) { %>
+  document.getElementById('createFormSection').classList.remove('hidden');
+  <% } %>
 
   <% if (foundCustomer != null || "search".equals(request.getParameter("action"))) { %>
   switchView('search');
