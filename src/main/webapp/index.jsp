@@ -971,32 +971,32 @@
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             <div class="category-card bg-white p-6 rounded-3xl text-center border border-gray-100 shadow-sm cursor-pointer reveal">
-                <i class="ph-fill ph-car text-[4.5rem] text-gray-300 mb-2 inline-block"></i>
+                <img src="https://cdn-icons-png.flaticon.com/512/3204/3204934.png" alt="Economy" class="w-20 mx-auto mb-4 opacity-80">
                 <h3 class="font-black text-lg text-gray-900">Economy</h3>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">From Rs.4,000</p>
             </div>
             <div class="category-card bg-white p-6 rounded-3xl text-center border border-gray-100 shadow-sm cursor-pointer reveal" style="transition-delay: 0.1s;">
-                <i class="ph-fill ph-car-profile text-[4.5rem] text-gray-300 mb-2 inline-block"></i>
+                <img src="https://cdn-icons-png.flaticon.com/512/3097/3097180.png" alt="Sedan" class="w-20 mx-auto mb-4 opacity-80">
                 <h3 class="font-black text-lg text-gray-900">Sedan</h3>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">From Rs.8,000</p>
             </div>
             <div class="category-card bg-[#0D6EFD] text-white p-6 rounded-3xl text-center shadow-lg cursor-pointer transform scale-105 reveal" style="transition-delay: 0.2s;">
-                <i class="ph-fill ph-jeep text-[4.5rem] text-white mb-2 inline-block opacity-90"></i>
+                <img src="https://cdn-icons-png.flaticon.com/512/3757/3757342.png" alt="SUV" class="w-20 mx-auto mb-4 filter invert">
                 <h3 class="font-black text-lg">Premium SUV</h3>
                 <p class="text-xs font-bold text-blue-200 uppercase tracking-widest mt-1">Most Popular</p>
             </div>
             <div class="category-card bg-white p-6 rounded-3xl text-center border border-gray-100 shadow-sm cursor-pointer reveal" style="transition-delay: 0.3s;">
-                <i class="ph-fill ph-van text-[4.5rem] text-gray-300 mb-2 inline-block"></i>
+                <img src="https://cdn-icons-png.flaticon.com/512/2554/2554982.png" alt="Van" class="w-20 mx-auto mb-4 opacity-80">
                 <h3 class="font-black text-lg text-gray-900">Family Van</h3>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">From Rs.6,000</p>
             </div>
             <div class="category-card bg-white p-6 rounded-3xl text-center border border-gray-100 shadow-sm cursor-pointer reveal" style="transition-delay: 0.4s;">
-                <i class="ph-fill ph-mountains text-[4.5rem] text-gray-300 mb-2 inline-block"></i>
+                <img src="https://cdn-icons-png.flaticon.com/512/2962/2962303.png" alt="4x4" class="w-20 mx-auto mb-4 opacity-80">
                 <h3 class="font-black text-lg text-gray-900">4x4 Off-Road</h3>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">From Rs.15,000</p>
             </div>
             <div class="category-card bg-white p-6 rounded-3xl text-center border border-gray-100 shadow-sm cursor-pointer reveal" style="transition-delay: 0.5s;">
-                <i class="ph-fill ph-charging-station text-[4.5rem] text-gray-300 mb-2 inline-block"></i>
+                <img src="https://cdn-icons-png.flaticon.com/512/2830/2830305.png" alt="EV" class="w-20 mx-auto mb-4 opacity-80">
                 <h3 class="font-black text-lg text-gray-900">Electric</h3>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Eco Friendly</p>
             </div>
