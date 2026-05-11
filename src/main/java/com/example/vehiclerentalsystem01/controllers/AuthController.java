@@ -88,7 +88,7 @@ public class AuthController {
         return "redirect:/admin-login.jsp?error=unknown_action";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Authentication error: " + e.getMessage());
-            return "redirect:/error";
+            return "redirect:/login.jsp?error=auth";
         }
     }
 }
