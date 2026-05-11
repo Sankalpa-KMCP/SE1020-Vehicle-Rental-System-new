@@ -1,35 +1,80 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page import="com.example.vehiclerentalsystem01.models.Booking" %>
+<%
+  // Get the booking object passed from the Spring Boot Controller
+  Booking b = (Booking) request.getAttribute("bookingToCancel");
+
+  // Security check: if somehow no booking is found, send them home
+  if (b == null) {
+    response.sendRedirect("customer-home.jsp");
+    return;
+  }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Cancel Booking</title>
+  <meta charset="UTF-8">
+  <title>Cancel Reservation - DriveAway</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-[#FAFAFA] min-h-screen flex items-center justify-center p-6">
-<div class="w-full max-w-lg bg-white p-10 rounded-[24px] shadow-lg border-[3px] border-[#EF4444]">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-3xl font-bold text-[#EF4444] flex items-center gap-3"><i class="ph-bold ph-trash"></i> Cancel Booking</h2>
-    <a href="add-booking.jsp" class="text-gray-500 hover:text-gray-800 font-bold">Close ✕</a>
+
+<div class="w-full max-w-xl bg-white p-10 rounded-[24px] shadow-lg border-[3px] border-[#EF4444]">
+
+  <div class="flex justify-between items-center mb-8">
+    <h2 class="text-3xl font-bold text-[#EF4444] flex items-center gap-3">
+      <i class="ph-bold ph-warning-circle"></i> Cancel Booking
+    </h2>
+    <a href="customer-home.jsp" class="text-gray-400 hover:text-gray-600 transition-colors">
+      <i class="ph-bold ph-x text-2xl"></i>
+    </a>
   </div>
-  <p class="text-gray-600 mb-8 font-medium">Enter your Booking ID to send a cancellation request for staff approval.</p>
+
+  <div class="bg-red-50 border border-red-100 p-5 rounded-2xl mb-8">
+    <p class="text-red-800 font-semibold mb-1">Warning: Irreversible Action</p>
+    <p class="text-red-600 text-sm">
+      You are requesting to cancel reservation <span class="font-bold">#<%= b.getTransactionId() %></span>.
+      Staff must approve this request before it is finalized.
+    </p>
+  </div>
 
   <form action="bookings" method="POST" class="space-y-6">
     <input type="hidden" name="action" value="request_cancel">
-    <div>
-      <input type="text" name="id" placeholder="Booking ID (e.g. BKG-101)" required class="w-full border border-gray-300 rounded-xl px-4 py-4 text-lg outline-none focus:border-[#EF4444]">
+    <input type="hidden" name="id" value="<%= b.getTransactionId() %>">
+
+    <div class="grid grid-cols-2 gap-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Vehicle</label>
+        <p class="font-bold text-gray-700"><%= b.getVehicleId() %></p>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Rental Date</label>
+        <p class="font-bold text-gray-700"><%= b.getRentalDate() %></p>
+      </div>
     </div>
+
     <div>
-      <textarea name="cancelReason" rows="3" placeholder="Reason (optional)" class="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-[#EF4444]"></textarea>
+      <label class="block font-bold text-gray-700 mb-2">Reason for Cancellation</label>
+      <textarea name="cancelReason" required
+                placeholder="Please explain why you need to cancel..."
+                class="w-full border border-gray-300 rounded-xl p-4 h-32 outline-none focus:border-[#EF4444] focus:ring-2 focus:ring-red-100 transition-all resize-none"></textarea>
     </div>
-    <button type="submit" onclick="return confirm('Submit this cancellation request?');" class="w-full bg-[#EF4444] text-white py-4 rounded-xl font-bold text-xl hover:bg-red-600 transition shadow-md">
-      Submit Cancellation Request
-    </button>
+
+    <div class="flex gap-4 pt-4">
+      <a href="customer-home.jsp" class="flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-4 rounded-xl transition-all">
+        Go Back
+      </a>
+      <button type="submit" onclick="return confirm('Submit this cancellation request?');"
+              class="flex-1 bg-[#EF4444] hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-md transition-all">
+        Confirm Request
+      </button>
+    </div>
   </form>
+
 </div>
+
 </body>
 </html>

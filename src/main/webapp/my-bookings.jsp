@@ -100,8 +100,9 @@
             <a href="edit-booking.jsp?id=<%= b.getId() %>" class="flex-1 md:flex-none text-center bg-gray-100 text-gray-700 font-bold py-2.5 px-5 rounded-xl hover:bg-gray-200 transition">
                 Modify Dates
             </a>
-            <a href="cancel-booking.jsp?id=<%= b.getId() %>" class="flex-1 md:flex-none text-center bg-red-50 text-red-600 font-bold py-2.5 px-5 rounded-xl hover:bg-red-100 transition border border-red-100">
-                Cancel Trip
+            <a href="bookings?action=cancel_page&id=<%= b.getId() %>"
+               class="text-red-500 hover:text-red-700">
+                <i class="ph-bold ph-trash"></i> Cancel
             </a>
         </div>
 

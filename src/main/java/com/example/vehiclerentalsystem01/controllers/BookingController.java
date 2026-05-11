@@ -66,6 +66,16 @@ public class BookingController {
                             @RequestParam(required = false) String id,
                             Model model) {
         try {
+            if ("cancel_page".equals(action)) {
+                if (id != null && !id.trim().isEmpty()) {
+                    Booking b = bookingDAO.getBookingById(id.trim());
+                    if (b != null) {
+                        model.addAttribute("bookingToCancel", b);
+                        return "cancel-booking"; // Renders cancel-booking.jsp
+                    }
+                }
+                return "redirect:/customer-home.jsp";
+            }
             if ("search".equals(action)) {
                 Booking found = null;
                 if (id != null && !id.trim().isEmpty()) {
@@ -120,22 +130,33 @@ public class BookingController {
                 return "redirect:/bookings?action=list";
             }
 
+            // Inside BookingController.java @PostMapping
             if ("update".equals(action)) {
                 String id = params.get("id");
-                Booking existingBooking = bookingDAO.getBookingById(id);
-                if (existingBooking != null) {
-                    Booking updatedBooking = new Booking(
-                            id,
-                            existingBooking.getCustomerName(),
-                            params.get("rentalDate"),
-                            existingBooking.getVehicleId(),
-                            Integer.parseInt(params.get("days").trim()),
-                            existingBooking.getStatus(),
-                            existingBooking.getStaffMessage()
+                String newDate = params.get("rentalDate");
+                String newDays = params.get("days");
+
+                Booking existing = bookingDAO.getBookingById(id);
+
+                if (existing != null) {
+                    // We set the status to UPDATE_REQUESTED
+                    // and store the new values in staffMessage field: "YYYY-MM-DD|Days"
+                    String requestedChanges = newDate + "|" + newDays;
+
+                    Booking updateRequest = new Booking(
+                            existing.getTransactionId(),
+                            existing.getCustomerName(),
+                            existing.getRentalDate(), // Keep old date for now
+                            existing.getVehicleId(),
+                            existing.getDurationDays(), // Keep old days for now
+                            "UPDATE_REQUESTED",
+                            requestedChanges // Store pending changes here
                     );
-                    bookingDAO.updateBooking(updatedBooking);
+
+                    bookingDAO.updateBooking(updateRequest);
                 }
                 return "redirect:/my-bookings.jsp";
+
             }
 
             if ("approve".equals(action) || "accept".equals(action) || "reject".equals(action) || "decline".equals(action)) {
@@ -209,6 +230,29 @@ public class BookingController {
                 }
                 return "redirect:/bookings?action=list";
             }
+
+        if ("approve_update".equals(action)) {
+            String id = params.get("id");
+            Booking b = bookingDAO.getBookingById(id);
+
+            if (b != null && "UPDATE_REQUESTED".equals(b.getStatus())) {
+                String[] parts = b.getStaffMessage().split("\\|");
+                if (parts.length == 2) {
+                    // Create final confirmed booking with the NEW data
+                    Booking finalBooking = new Booking(
+                            b.getTransactionId(),
+                            b.getCustomerName(),
+                            parts[0], // The new date from staffMessage
+                            b.getVehicleId(),
+                            Integer.parseInt(parts[1]), // The new days from staffMessage
+                            "CONFIRMED",
+                            "Update approved by staff"
+                    );
+                    bookingDAO.updateBooking(finalBooking);
+                }
+            }
+            return "redirect:/bookings?action=list";
+        }
 
             if ("create".equals(action)) {
                 String vehicleId = normalized(params.get("vehicleId"));
