@@ -1,22 +1,27 @@
 package com.example.vehiclerentalsystem01.dao;
 
 import com.example.vehiclerentalsystem01.models.Customer;
+import org.springframework.stereotype.Repository;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class CustomerDAO {
     private static final String FOLDER_PATH = System.getProperty("user.home") + File.separator + "RentalData";
     private static final String FILE_PATH = FOLDER_PATH + File.separator + "customers.txt";
 
     public CustomerDAO() {
         File folder = new File(FOLDER_PATH);
-        if (!folder.exists()) folder.mkdirs();
+        if (!folder.exists())
+            folder.mkdirs();
     }
 
     public Customer validateCustomer(String username, String password) {
         File file = new File(FILE_PATH);
-        if (!file.exists()) return null;
+        if (!file.exists())
+            return null;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
@@ -52,7 +57,8 @@ public class CustomerDAO {
     public List<Customer> getAllCustomers() {
         List<Customer> customers = new ArrayList<>();
         File file = new File(FILE_PATH);
-        if (!file.exists()) return customers;
+        if (!file.exists())
+            return customers;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
@@ -71,7 +77,8 @@ public class CustomerDAO {
 
     public Customer getCustomerById(String id) {
         for (Customer c : getAllCustomers()) {
-            if (c.getId().equals(id)) return c;
+            if (c.getId().equals(id))
+                return c;
         }
         return null;
     }
@@ -91,8 +98,10 @@ public class CustomerDAO {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
             for (Customer c : customers) {
                 if (c.getId().equals(updatedCustomer.getId())) {
-                    writer.write(updatedCustomer.getId() + "," + updatedCustomer.getName() + "," + updatedCustomer.getEmail() + "," +
-                            updatedCustomer.getUsername() + "," + updatedCustomer.getPassword() + "," + updatedCustomer.getNic() + "," +
+                    writer.write(updatedCustomer.getId() + "," + updatedCustomer.getName() + ","
+                            + updatedCustomer.getEmail() + "," +
+                            updatedCustomer.getUsername() + "," + updatedCustomer.getPassword() + ","
+                            + updatedCustomer.getNic() + "," +
                             updatedCustomer.getLicenseNumber() + "," + updatedCustomer.getPhoneNumber());
                 } else {
                     writer.write(c.getId() + "," + c.getName() + "," + c.getEmail() + "," + c.getUsername() + "," +
