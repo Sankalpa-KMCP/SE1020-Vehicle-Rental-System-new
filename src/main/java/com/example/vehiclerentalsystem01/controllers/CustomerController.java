@@ -88,8 +88,7 @@ public class CustomerController {
             }
 
             if ("editSelf".equals(action)) {
-                boolean isCustomerLoggedIn = session != null && Boolean.TRUE.equals(session.getAttribute("customerLoggedIn"));
-                if (!isCustomerLoggedIn) {
+                if (session == null || !Boolean.TRUE.equals(session.getAttribute("customerLoggedIn"))) {
                     return "redirect:/login.jsp";
                 }
 
