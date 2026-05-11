@@ -2,6 +2,7 @@ package com.example.vehiclerentalsystem01.controllers;
 
 import com.example.vehiclerentalsystem01.dao.BookingDAO;
 import com.example.vehiclerentalsystem01.dao.ReviewDAO;
+import com.example.vehiclerentalsystem01.services.SessionManager;
 import com.example.vehiclerentalsystem01.models.Booking;
 import com.example.vehiclerentalsystem01.models.CustomerReview;
 import com.example.vehiclerentalsystem01.models.Feedback;
@@ -77,18 +78,30 @@ public class ReviewController {
             return "redirect:/reviews?action=list";
         }
 
-        String reviewerName = params.get("reviewerName");
-        int rating = Integer.parseInt(params.get("rating"));
-        String comments = params.get("comments");
-        String status = params.get("status");
+        String reviewerName = normalized(params.get("reviewerName"));
+        String rawRating = params.get("rating");
+        if (rawRating == null || rawRating.isBlank()) {
+            return "customer".equals(normalized(params.get("source")))
+                    ? "redirect:/customer-add-review.jsp?error=missing_fields"
+                    : "redirect:/reviews?action=list&error=missing_fields";
+        }
+        int rating = Integer.parseInt(rawRating.trim());
+        String comments = normalized(params.get("comments"));
+        String status = normalized(params.get("status"));
+        if (status.isEmpty()) {
+            status = "PUBLISHED";
+        }
         String source = params.get("source");
 
         if ("customer".equals(source)) {
             String username = "";
             if (session != null) {
-                username = normalized((String) session.getAttribute("username"));
+                username = normalized((String) session.getAttribute(SessionManager.CUSTOMER_USERNAME));
                 if (username.isEmpty()) {
-                    username = normalized((String) session.getAttribute("name"));
+                    username = normalized((String) session.getAttribute(SessionManager.USERNAME));
+                }
+                if (username.isEmpty()) {
+                    username = normalized((String) session.getAttribute(SessionManager.NAME));
                 }
             }
 
@@ -107,6 +120,12 @@ public class ReviewController {
                     return "redirect:/customer-add-review.jsp?error=invalid_booking";
                 }
             }
+        }
+
+        if (!"update".equals(action) && comments.isEmpty()) {
+            return "customer".equals(source)
+                    ? "redirect:/customer-add-review.jsp?error=missing_fields"
+                    : "redirect:/add-review.jsp?error=missing_fields";
         }
 
         if ("update".equals(action)) {

@@ -13,24 +13,21 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(FileStorageService.FileStorageException.class)
-    public String handleFileStorageException(FileStorageService.FileStorageException e, 
-                                            RedirectAttributes redirectAttributes) {
+    public String handleFileStorageException(FileStorageService.FileStorageException e, Model model) {
         logger.error("File storage error: {}", e.getMessage(), e);
-        redirectAttributes.addFlashAttribute("error", "System error occurred while accessing files. Please try again.");
-        return "redirect:/error";
+        model.addAttribute("error", "System error occurred while accessing files. Please try again.");
+        return "WEB-INF/jsp/error";
     }
 
     @ExceptionHandler(BusinessException.class)
-    public String handleBusinessException(BusinessException e, 
-                                        RedirectAttributes redirectAttributes) {
+    public String handleBusinessException(BusinessException e, Model model) {
         logger.warn("Business error: {}", e.getMessage());
-        redirectAttributes.addFlashAttribute("error", e.getMessage());
-        return "redirect:/error";
+        model.addAttribute("error", e.getMessage());
+        return "WEB-INF/jsp/error";
     }
 
     @ExceptionHandler(ValidationException.class)
-    public String handleValidationException(ValidationException e, 
-                                          Model model) {
+    public String handleValidationException(ValidationException e, Model model) {
         logger.warn("Validation error: {}", e.getMessage());
         model.addAttribute("error", e.getMessage());
         model.addAttribute("errorType", "validation");
@@ -38,16 +35,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public String handleAuthenticationException(AuthenticationException e, 
+    public String handleAuthenticationException(AuthenticationException e,
                                                RedirectAttributes redirectAttributes) {
         logger.warn("Authentication error: {}", e.getMessage());
         redirectAttributes.addFlashAttribute("error", e.getMessage());
-        return "redirect:/login?error=auth";
+        return "redirect:/login.jsp?error=auth";
     }
 
     @ExceptionHandler(Exception.class)
-    public String handleGenericException(Exception e, 
-                                       Model model) {
+    public String handleGenericException(Exception e, Model model) {
         logger.error("Unexpected error occurred", e);
         model.addAttribute("error", "An unexpected error occurred. Please try again later.");
         model.addAttribute("errorType", "system");
@@ -56,18 +52,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public String handleIllegalArgumentException(IllegalArgumentException e, 
-                                              RedirectAttributes redirectAttributes) {
+    public String handleIllegalArgumentException(IllegalArgumentException e, Model model) {
         logger.warn("Invalid argument: {}", e.getMessage());
-        redirectAttributes.addFlashAttribute("error", "Invalid input: " + e.getMessage());
-        return "redirect:/error";
+        model.addAttribute("error", "Invalid input: " + e.getMessage());
+        return "WEB-INF/jsp/error";
     }
 
     @ExceptionHandler(NumberFormatException.class)
-    public String handleNumberFormatException(NumberFormatException e, 
-                                            RedirectAttributes redirectAttributes) {
+    public String handleNumberFormatException(NumberFormatException e, Model model) {
         logger.warn("Number format error: {}", e.getMessage());
-        redirectAttributes.addFlashAttribute("error", "Invalid number format provided.");
-        return "redirect:/error";
+        model.addAttribute("error", "Invalid number format provided.");
+        return "WEB-INF/jsp/error";
     }
 }

@@ -32,6 +32,7 @@ public class SessionManager {
         session.setAttribute(CUSTOMER_LOGGED_IN, true);
         session.setAttribute(CUSTOMER_ID, customerId);
         session.setAttribute(CUSTOMER_USERNAME, username);
+        session.setAttribute(USERNAME, username);
         logger.info("Customer session created for user: {}", username);
     }
 
