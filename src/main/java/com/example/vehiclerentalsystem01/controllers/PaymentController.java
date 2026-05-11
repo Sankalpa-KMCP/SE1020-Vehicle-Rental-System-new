@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Controller
-@RequestMapping("/payme2222222nts")
+@RequestMapping("/payments")
 public class PaymentController {
     private final PaymentDAO paymentDAO = new PaymentDAO();
     private final BookingDAO bookingDAO = new BookingDAO();
