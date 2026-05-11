@@ -38,9 +38,12 @@ public class FileStorageService {
             ensureDirectoryExists("");
             Path filePath = Paths.get(basePath, filename);
             
-            try (BufferedWriter writer = Files.newBufferedWriter(filePath, 
-                    append ? StandardOpenOption.APPEND : StandardOpenOption.CREATE, 
-                    StandardOpenOption.TRUNCATE_EXISTING)) {
+            java.nio.file.OpenOption[] options = append
+                    ? new java.nio.file.OpenOption[] {
+                        StandardOpenOption.CREATE, StandardOpenOption.APPEND }
+                    : new java.nio.file.OpenOption[] {
+                        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING };
+            try (BufferedWriter writer = Files.newBufferedWriter(filePath, options)) {
                 for (String line : lines) {
                     writer.write(line);
                     writer.newLine();
