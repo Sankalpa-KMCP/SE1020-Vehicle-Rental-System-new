@@ -6,6 +6,7 @@ import com.example.vehiclerentalsystem01.models.Booking;
 import com.example.vehiclerentalsystem01.models.Customer;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,8 +21,14 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/customers")
 public class CustomerController {
-    private final CustomerDAO customerDAO = new CustomerDAO();
-    private final BookingDAO bookingDAO = new BookingDAO();
+    private final CustomerDAO customerDAO;
+    private final BookingDAO bookingDAO;
+
+    @Autowired
+    public CustomerController(CustomerDAO customerDAO, BookingDAO bookingDAO) {
+        this.customerDAO = customerDAO;
+        this.bookingDAO = bookingDAO;
+    }
 
     private String normalized(String value) {
         return value == null ? "" : value.trim();

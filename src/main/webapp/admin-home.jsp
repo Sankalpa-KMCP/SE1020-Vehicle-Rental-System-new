@@ -45,7 +45,7 @@
   <div class="flex items-center gap-6">
     <span class="text-gray-200 text-lg font-medium mr-2">Hello, <%= session.getAttribute("adminUser") != null ? session.getAttribute("adminUser") : "Admin" %></span>
 
-    <form action="auth" method="post" class="m-0">
+    <form action="/auth" method="post" class="m-0">
       <input type="hidden" name="action" value="logout">
       <button type="submit" class="bg-[#DC3545] hover:bg-[#c82333] text-white font-bold py-3 px-8 rounded-xl flex items-center gap-3 transition-colors border-2 border-[#DC3545] hover:border-[#c82333] text-lg shadow-sm">
         <i class="ph-bold ph-sign-out text-2xl"></i> Sign Out
@@ -62,7 +62,7 @@
     if (isMaster != null && isMaster) {
   %>
   <div class="mb-12">
-    <a href="master-console.jsp" class="bg-[#1A1A1A] text-white rounded-[24px] p-8 flex flex-col sm:flex-row items-center justify-between shadow-xl hover:shadow-2xl transition-all border-2 border-gray-800 group">
+    <a href="/master-console.jsp" class="bg-[#1A1A1A] text-white rounded-[24px] p-8 flex flex-col sm:flex-row items-center justify-between shadow-xl hover:shadow-2xl transition-all border-2 border-gray-800 group">
       <div class="flex items-center gap-6 mb-4 sm:mb-0">
         <div class="w-24 h-24 rounded-full bg-[#FFC107]/20 flex items-center justify-center">
           <i class="ph-fill ph-shield-check text-5xl text-[#FFC107]"></i>
@@ -81,7 +81,7 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 
-    <a href="customers?action=view_directory" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+    <a href="/customers?action=view_directory" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-blue-50 flex items-center justify-center mb-8">
         <i class="ph-fill ph-users text-[64px] text-[#0D6EFD]"></i>
       </div>
@@ -89,7 +89,7 @@
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Register customers, view profiles, and update contact details.</p>
     </a>
 
-    <a href="vehicles?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+    <a href="/vehicles?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-green-50 flex items-center justify-center mb-8">
         <i class="ph-fill ph-car text-[64px] text-[#28A745]"></i>
       </div>
@@ -97,7 +97,7 @@
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Add, search, and remove rental vehicles from the catalog.</p>
     </a>
 
-    <a href="bookings?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+    <a href="/bookings?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-[#EBF4FF] flex items-center justify-center mb-8">
         <i class="ph-fill ph-calendar-check text-[64px] text-[#0D6EFD]"></i>
       </div>
@@ -105,7 +105,7 @@
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Handle check-ins, check-outs, and booking cancellations.</p>
     </a>
 
-    <a href="payments?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+    <a href="/payments?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-yellow-50 flex items-center justify-center mb-8">
         <i class="ph-fill ph-receipt text-[64px] text-[#FFC107]"></i>
       </div>
@@ -113,7 +113,7 @@
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Generate invoices, track transactions, and update payment status.</p>
     </a>
 
-    <a href="staff?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+    <a href="/staff?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-red-50 flex items-center justify-center mb-8">
         <i class="ph-fill ph-identification-badge text-[64px] text-[#DC3545]"></i>
       </div>
@@ -121,7 +121,7 @@
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Manage rental employees, departments, and onboarding.</p>
     </a>
 
-    <a href="reviews?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+    <a href="/reviews?action=list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-slate-100 flex items-center justify-center mb-8">
         <i class="ph-fill ph-star text-[64px] text-[#475569]"></i>
       </div>
@@ -129,12 +129,12 @@
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Submit feedback, read testimonials, and moderate reviews.</p>
     </a>
 
-    <a href="support?action=staff_list" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+    <a href="/contact.jsp" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-rose-50 flex items-center justify-center mb-8">
         <i class="ph-fill ph-headset text-[64px] text-[#E11D48]"></i>
       </div>
-      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Support Tickets</h3>
-      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">View customer tickets and resolve support issues from one queue.</p>
+      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Support &amp; contact</h3>
+      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Public contact page and help information.</p>
     </a>
   </div>
 </main>

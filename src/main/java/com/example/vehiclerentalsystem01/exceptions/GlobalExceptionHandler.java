@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
         logger.warn("Validation error: {}", e.getMessage());
         model.addAttribute("error", e.getMessage());
         model.addAttribute("errorType", "validation");
-        return "error/validation-error";
+        return "WEB-INF/jsp/error/validation-error";
     }
 
     @ExceptionHandler(AuthenticationException.class)
@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
         model.addAttribute("error", "An unexpected error occurred. Please try again later.");
         model.addAttribute("errorType", "system");
         model.addAttribute("details", e.getMessage());
-        return "error/generic-error";
+        return "WEB-INF/jsp/error/generic-error";
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

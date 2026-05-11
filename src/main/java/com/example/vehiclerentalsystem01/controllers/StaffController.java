@@ -4,6 +4,7 @@ import com.example.vehiclerentalsystem01.dao.StaffDAO;
 import com.example.vehiclerentalsystem01.models.AdminStaff;
 import com.example.vehiclerentalsystem01.models.Staff;
 import com.example.vehiclerentalsystem01.models.SupportStaff;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,12 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/staff")
 public class StaffController {
-    private final StaffDAO staffDAO = new StaffDAO();
+    private final StaffDAO staffDAO;
+
+    @Autowired
+    public StaffController(StaffDAO staffDAO) {
+        this.staffDAO = staffDAO;
+    }
 
     @GetMapping
     public String handleGet(@RequestParam(required = false) String action,
