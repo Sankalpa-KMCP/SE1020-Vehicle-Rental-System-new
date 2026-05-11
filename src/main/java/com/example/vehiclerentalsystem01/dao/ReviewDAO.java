@@ -2,11 +2,13 @@ package com.example.vehiclerentalsystem01.dao;
 
 import com.example.vehiclerentalsystem01.models.CustomerReview;
 import com.example.vehiclerentalsystem01.models.Feedback;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class ReviewDAO {
     private static final String FOLDER_PATH = System.getProperty("user.home") + File.separator + "RentalData";
     private static final String FILE_PATH = FOLDER_PATH + File.separator + "reviews.txt";

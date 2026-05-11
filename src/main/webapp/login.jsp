@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -335,17 +336,26 @@
             <p class="text-gray-500 font-medium text-lg">Secure Employee & Customer Portal</p>
         </div>
 
-        <% if ("invalid".equals(request.getParameter("error"))) { %>
+        <c:if test="${not empty param.error and param.error == 'invalid'}">
         <div id="error-alert" class="bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-700 font-bold flex items-center gap-3 mb-8 shadow-sm">
             <i class="ph-fill ph-warning-circle text-2xl text-red-500"></i>
             Access Denied. Check credentials.
         </div>
-        <% } else if ("registered".equals(request.getParameter("success"))) { %>
+        </c:if>
+        
+        <c:if test="${not empty param.success and param.success == 'registered'}">
         <div class="bg-green-50 p-5 rounded-xl border border-green-200 text-base text-green-700 font-bold flex items-center gap-3 mb-8 shadow-sm">
             <i class="ph-fill ph-check-circle text-2xl text-green-500"></i>
             Account created! You can now sign in.
         </div>
-        <% } %>
+        </c:if>
+        
+        <c:if test="${not empty error}">
+        <div id="error-alert" class="bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-700 font-bold flex items-center gap-3 mb-8 shadow-sm">
+            <i class="ph-fill ph-warning-circle text-2xl text-red-500"></i>
+            ${error}
+        </div>
+        </c:if>
 
         <form action="auth" method="post" class="space-y-8">
             <input type="hidden" name="action" value="customer_login">

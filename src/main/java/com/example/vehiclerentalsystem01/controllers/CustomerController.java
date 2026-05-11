@@ -4,20 +4,22 @@ import com.example.vehiclerentalsystem01.dao.BookingDAO;
 import com.example.vehiclerentalsystem01.dao.CustomerDAO;
 import com.example.vehiclerentalsystem01.models.Booking;
 import com.example.vehiclerentalsystem01.models.Customer;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-@WebServlet("/customers")
-public class CustomerController extends HttpServlet {
+@Controller
+@RequestMapping("/customers")
+public class CustomerController {
     private final CustomerDAO customerDAO = new CustomerDAO();
     private final BookingDAO bookingDAO = new BookingDAO();
 
@@ -34,188 +36,152 @@ public class CustomerController extends HttpServlet {
         return value == null || value.trim().isEmpty();
     }
 
-    private void loadDashboard(HttpServletRequest request) {
+    private void loadDashboard(Model model) {
         List<Customer> allCustomers = customerDAO.getAllCustomers();
-        if (allCustomers == null) allCustomers = new ArrayList<>();
-
-        int totalGuests = allCustomers.size();
-        int verifiedGuests = 0;
-
-        for (Customer c : allCustomers) {
-            if (c.isVerified()) verifiedGuests++;
+        if (allCustomers == null) {
+            allCustomers = new ArrayList<>();
         }
 
-        request.setAttribute("customerList", allCustomers);
-        request.setAttribute("totalGuests", totalGuests);
-        request.setAttribute("verifiedGuests", verifiedGuests);
-        request.setAttribute("unverifiedGuests", totalGuests - verifiedGuests);
+        int verifiedGuests = 0;
+        for (Customer customer : allCustomers) {
+            if (customer.isVerified()) {
+                verifiedGuests++;
+            }
+        }
+
+        model.addAttribute("customerList", allCustomers);
+        model.addAttribute("totalGuests", allCustomers.size());
+        model.addAttribute("verifiedGuests", verifiedGuests);
+        model.addAttribute("unverifiedGuests", allCustomers.size() - verifiedGuests);
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        if (action == null || action.trim().isEmpty()) {
-            action = "view_directory";
-        }
-
+    @GetMapping
+    public String handleGet(@RequestParam(required = false, defaultValue = "view_directory") String action,
+                            @RequestParam(required = false) String id,
+                            @RequestParam(required = false) String searchUsername,
+                            HttpSession session,
+                            Model model) {
         try {
             if ("delete".equals(action)) {
-                String id = normalized(request.getParameter("id"));
-                if (!id.isEmpty()) {
-                    customerDAO.deleteCustomer(id);
+                String customerId = normalized(id);
+                if (!customerId.isEmpty()) {
+                    customerDAO.deleteCustomer(customerId);
                 }
-                response.sendRedirect("customers?action=view_directory&msg=deleted");
-                return;
+                return "redirect:/customers?action=view_directory&msg=deleted";
             }
 
             if ("edit".equals(action)) {
-                String id = normalized(request.getParameter("id"));
-                Customer existingCustomer = customerDAO.getCustomerById(id);
+                Customer existingCustomer = customerDAO.getCustomerById(normalized(id));
                 if (existingCustomer == null) {
-                    response.sendRedirect("customers?action=view_directory&error=not_found");
-                    return;
+                    return "redirect:/customers?action=view_directory&error=not_found";
                 }
-
-                request.setAttribute("customer", existingCustomer);
-                request.setAttribute("isCustomerMode", false);
-                request.getRequestDispatcher("/edit-customer.jsp").forward(request, response);
-                return;
+                model.addAttribute("customer", existingCustomer);
+                model.addAttribute("isCustomerMode", false);
+                return "edit-customer";
             }
 
             if ("editSelf".equals(action)) {
-                HttpSession session = request.getSession(false);
                 boolean isCustomerLoggedIn = session != null && Boolean.TRUE.equals(session.getAttribute("customerLoggedIn"));
                 if (!isCustomerLoggedIn) {
-                    response.sendRedirect("login.jsp");
-                    return;
+                    return "redirect:/login.jsp";
                 }
 
-                String username = normalized((String) session.getAttribute("username"));
-                Customer loggedInCustomer = customerDAO.getCustomerByUsername(username);
+                Customer loggedInCustomer = customerDAO.getCustomerByUsername(normalized((String) session.getAttribute("username")));
                 if (loggedInCustomer == null) {
-                    response.sendRedirect("login.jsp?error=profile_not_found");
-                    return;
+                    return "redirect:/login.jsp?error=profile_not_found";
                 }
 
-                request.setAttribute("customer", loggedInCustomer);
-                request.setAttribute("isCustomerMode", true);
-                request.getRequestDispatcher("/edit-customer.jsp").forward(request, response);
-                return;
+                model.addAttribute("customer", loggedInCustomer);
+                model.addAttribute("isCustomerMode", true);
+                return "edit-customer";
             }
 
-            loadDashboard(request);
+            loadDashboard(model);
 
             if ("search".equals(action)) {
-                String searchUsername = normalized(request.getParameter("searchUsername"));
-                if (!searchUsername.isEmpty()) {
-                    Customer foundCustomer = customerDAO.getCustomerByUsername(searchUsername);
+                String username = normalized(searchUsername);
+                if (!username.isEmpty()) {
+                    Customer foundCustomer = customerDAO.getCustomerByUsername(username);
                     if (foundCustomer != null) {
-                        request.setAttribute("foundCustomer", foundCustomer);
+                        model.addAttribute("foundCustomer", foundCustomer);
 
                         List<Booking> customerBookings = new ArrayList<>();
                         for (Booking booking : bookingDAO.getAllBookings()) {
                             String owner = normalized(booking.getCustomerName());
-                            if (!owner.isEmpty() && (
-                                    owner.equalsIgnoreCase(foundCustomer.getUsername()) ||
-                                            owner.equalsIgnoreCase(foundCustomer.getName())
-                            )) {
+                            if (!owner.isEmpty() && (owner.equalsIgnoreCase(foundCustomer.getUsername())
+                                    || owner.equalsIgnoreCase(foundCustomer.getName()))) {
                                 customerBookings.add(booking);
                             }
                         }
-                        request.setAttribute("customerBookings", customerBookings);
+                        model.addAttribute("customerBookings", customerBookings);
                     }
                 }
             }
 
-            request.getRequestDispatcher("/customer-dashboard.jsp").forward(request, response);
+            return "customer-dashboard";
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("admin-home.jsp");
+            return "redirect:/admin-home.jsp";
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        if (action == null || action.trim().isEmpty()) {
+    @PostMapping
+    public String handlePost(@RequestParam Map<String, String> params, HttpSession session) {
+        String action = normalized(params.get("action"));
+        if (action.isEmpty()) {
             action = "register";
         }
 
         if ("delete".equals(action)) {
-            String id = normalized(request.getParameter("id"));
+            String id = normalized(params.get("id"));
             if (!id.isEmpty()) {
                 customerDAO.deleteCustomer(id);
             }
-            response.sendRedirect("customers?action=view_directory&msg=deleted");
-            return;
+            return "redirect:/customers?action=view_directory&msg=deleted";
         }
 
-        String id = normalized(request.getParameter("id"));
-        String name = normalized(request.getParameter("name"));
-        String email = normalized(request.getParameter("email"));
-        String username = normalized(request.getParameter("username"));
-        String password = normalized(request.getParameter("password"));
-        String phone = normalized(request.getParameter("phone"));
-        String nic = normalizeOptionalDoc(request.getParameter("nic"));
-        String license = normalizeOptionalDoc(request.getParameter("license"));
+        String id = normalized(params.get("id"));
+        String name = normalized(params.get("name"));
+        String email = normalized(params.get("email"));
+        String username = normalized(params.get("username"));
+        String password = normalized(params.get("password"));
+        String phone = normalized(params.get("phone"));
+        String nic = normalizeOptionalDoc(params.get("nic"));
+        String license = normalizeOptionalDoc(params.get("license"));
 
         if (isBlank(name) || isBlank(email) || isBlank(username) || isBlank(password) || isBlank(phone)) {
             if ("update".equals(action)) {
-                HttpSession session = request.getSession(false);
                 boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute("adminLoggedIn"));
-                if (isAdmin) {
-                    response.sendRedirect("customers?action=edit&id=" + id + "&error=missing_fields");
-                } else {
-                    response.sendRedirect("customers?action=editSelf&error=missing_fields");
-                }
-            } else if ("create".equals(action)) {
-                response.sendRedirect("customers?action=view_directory&error=missing_fields");
-            } else {
-                response.sendRedirect("register.jsp?error=missing_fields");
+                return isAdmin
+                        ? "redirect:/customers?action=edit&id=" + id + "&error=missing_fields"
+                        : "redirect:/customers?action=editSelf&error=missing_fields";
             }
-            return;
+            if ("create".equals(action)) {
+                return "redirect:/customers?action=view_directory&error=missing_fields";
+            }
+            return "redirect:/register.jsp?error=missing_fields";
         }
 
-        if (!"update".equals(action)) {
-            Customer existingCustomer = customerDAO.getCustomerByUsername(username);
-            if (existingCustomer != null) {
-                if ("create".equals(action)) {
-                    response.sendRedirect("customers?action=view_directory&error=username_taken");
-                } else {
-                    response.sendRedirect("register.jsp?error=username_taken");
-                }
-                return;
-            }
+        if (!"update".equals(action) && customerDAO.getCustomerByUsername(username) != null) {
+            return "create".equals(action)
+                    ? "redirect:/customers?action=view_directory&error=username_taken"
+                    : "redirect:/register.jsp?error=username_taken";
         }
 
         if ("update".equals(action)) {
-            Customer updatedCustomer = new Customer(id, name, email, username, password, nic, license, phone);
-            customerDAO.updateCustomer(updatedCustomer);
-
-            HttpSession session = request.getSession(false);
+            customerDAO.updateCustomer(new Customer(id, name, email, username, password, nic, license, phone));
             boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute("adminLoggedIn"));
-            if (isAdmin) {
-                response.sendRedirect("customers?action=view_directory&msg=updated");
-            } else {
-                response.sendRedirect("customers?action=editSelf&msg=updated");
-            }
-        } else if ("create".equals(action)) {
-            String newId = "C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
-            Customer newCustomer = new Customer(newId, name, email, username, password, nic, license, phone);
-            customerDAO.saveCustomer(newCustomer);
-            response.sendRedirect("customers?action=view_directory&msg=created");
-        } else {
-            String newId = "C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
-            Customer newCustomer = new Customer(newId, name, email, username, password, nic, license, phone);
-            customerDAO.saveCustomer(newCustomer);
-
-            HttpSession session = request.getSession(false);
-            Boolean isAdmin = session != null ? (Boolean) session.getAttribute("adminLoggedIn") : null;
-            if (isAdmin != null && isAdmin) {
-                response.sendRedirect("customers?action=view_directory&msg=created");
-            } else {
-                response.sendRedirect("login.jsp?success=registered");
-            }
+            return isAdmin
+                    ? "redirect:/customers?action=view_directory&msg=updated"
+                    : "redirect:/customers?action=editSelf&msg=updated";
         }
+
+        String newId = "C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+        customerDAO.saveCustomer(new Customer(newId, name, email, username, password, nic, license, phone));
+
+        if ("create".equals(action) || (session != null && Boolean.TRUE.equals(session.getAttribute("adminLoggedIn")))) {
+            return "redirect:/customers?action=view_directory&msg=created";
+        }
+        return "redirect:/login.jsp?success=registered";
     }
 }

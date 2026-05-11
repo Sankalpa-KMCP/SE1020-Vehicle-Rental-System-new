@@ -4,113 +4,91 @@ import com.example.vehiclerentalsystem01.dao.CustomerDAO;
 import com.example.vehiclerentalsystem01.dao.StaffDAO;
 import com.example.vehiclerentalsystem01.models.Customer;
 import com.example.vehiclerentalsystem01.models.Staff;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.example.vehiclerentalsystem01.services.SessionManager;
+import com.example.vehiclerentalsystem01.services.FileStorageService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-@WebServlet("/auth")
-public class AuthController extends HttpServlet {
+@Controller
+@RequestMapping("/auth")
+public class AuthController {
 
-    private static final String FILE_PATH =
-            System.getProperty("user.home")
-                    + File.separator + "RentalData"
-                    + File.separator + "pending_admins.txt";
+    @Autowired
+    private StaffDAO staffDAO;
+    
+    @Autowired
+    private CustomerDAO customerDAO;
+    
+    @Autowired
+    private SessionManager sessionManager;
+    
+    @Autowired
+    private FileStorageService fileStorageService;
+    
+    private static final String PENDING_ADMINS_FILE = "pending_admins.txt";
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.sendRedirect(request.getContextPath() + "/admin-login.jsp");
+    @GetMapping
+    public String showLogin() {
+        return "redirect:/admin-login.jsp";
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String action = request.getParameter("action");
-        HttpSession session = request.getSession();
+    @PostMapping
+    public String handlePost(@RequestParam(required = false) String action,
+                             @RequestParam(required = false) String username,
+                             @RequestParam(required = false) String password,
+                             @RequestParam(required = false, name = "new_username") String newUsername,
+                             @RequestParam(required = false, name = "new_password") String newPassword,
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            if ("login".equals(action)) {
+                Staff loggedInStaff = staffDAO.validateStaffLogin(username, password);
+                if (loggedInStaff == null) {
+                    redirectAttributes.addFlashAttribute("error", "Invalid username or password");
+                    return "redirect:/admin-login.jsp?error=invalid";
+                }
 
-        // ==========================================
-        // 1. ADMIN/STAFF LOGIN
-        // ==========================================
-        if ("login".equals(action)) {
-            String user = request.getParameter("username");
-            String pass = request.getParameter("password");
-
-            StaffDAO staffDAO = new StaffDAO();
-            Staff loggedInStaff = staffDAO.validateStaffLogin(user, pass);
-
-            if (loggedInStaff != null) {
-                session.setAttribute("adminLoggedIn", true);
-                session.setAttribute("adminUser", loggedInStaff.getUsername());
-                session.setAttribute("username", loggedInStaff.getUsername());
-                session.setAttribute("name", loggedInStaff.getName());
-                session.setAttribute("isMasterAdmin", "Admin".equalsIgnoreCase(loggedInStaff.getRole()));
-
-                response.sendRedirect(request.getContextPath() + "/admin-home.jsp");
-            } else {
-                response.sendRedirect(request.getContextPath() + "/admin-login.jsp?error=invalid");
+                sessionManager.createAdminSession(session, loggedInStaff.getUsername(), 
+                    loggedInStaff.getName(), "Admin".equalsIgnoreCase(loggedInStaff.getRole()));
+                return "redirect:/admin-home.jsp";
             }
 
-            // ==========================================
-            // 2. CUSTOMER LOGIN
-            // ==========================================
-        } else if ("customer_login".equals(action)) {
-            String user = request.getParameter("username");
-            String pass = request.getParameter("password");
-
-            CustomerDAO customerDAO = new CustomerDAO();
-            Customer loggedInCustomer = customerDAO.validateCustomer(user, pass);
-
-            if (loggedInCustomer != null) {
-                session.setAttribute("customerLoggedIn", true);
-                session.setAttribute("customerUser", user);
-                session.setAttribute("username", loggedInCustomer.getUsername());
-                session.setAttribute("name", loggedInCustomer.getName());
-
-                response.sendRedirect(request.getContextPath() + "/customer-home.jsp");
-            } else {
-                // UPDATED: Now redirects to the new login.jsp on failure
-                response.sendRedirect(request.getContextPath() + "/login.jsp?error=invalid");
+        if ("customer_login".equals(action)) {
+            Customer loggedInCustomer = customerDAO.validateCustomer(username, password);
+            if (loggedInCustomer == null) {
+                redirectAttributes.addFlashAttribute("error", "Invalid username or password");
+                return "redirect:/login.jsp?error=invalid";
             }
 
-            // ==========================================
-            // 3. STAFF ACCESS REQUEST
-            // ==========================================
-        } else if ("request_access".equals(action)) {
-            String newUser = request.getParameter("new_username");
-            String newPass = request.getParameter("new_password");
+            sessionManager.createCustomerSession(session, loggedInCustomer.getId(), loggedInCustomer.getUsername());
+            return "redirect:/customer-home.jsp";
+        }
 
-            File folder = new File(System.getProperty("user.home") + File.separator + "RentalData");
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
+        if ("request_access".equals(action)) {
+            List<String> lines = new ArrayList<>();
+            lines.add(newUsername + "," + newPassword + ",PENDING");
+            fileStorageService.writeToFile(PENDING_ADMINS_FILE, lines, true);
+            return "redirect:/admin-login.jsp?success=requested";
+        }
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-                writer.write(newUser + "," + newPass + ",PENDING");
-                writer.newLine();
-            }
+        if ("logout".equals(action)) {
+            sessionManager.invalidateSession(session);
+            return "redirect:/login.jsp";
+        }
 
-            response.sendRedirect(request.getContextPath() + "/admin-login.jsp?success=requested");
-
-            // ==========================================
-            // 4. LOGOUT HANDLING
-            // ==========================================
-        } else if ("logout".equals(action)) {
-            if (session != null) {
-                session.invalidate(); // Destroy the session completely
-            }
-            // UPDATED: Now redirects to the new login.jsp upon logout
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
-
-            // ==========================================
-            // UNKNOWN ACTION FALLBACK
-            // ==========================================
-        } else {
-            response.sendRedirect(request.getContextPath() + "/admin-login.jsp?error=unknown_action");
+        return "redirect:/admin-login.jsp?error=unknown_action";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Authentication error: " + e.getMessage());
+            return "redirect:/error";
         }
     }
 }

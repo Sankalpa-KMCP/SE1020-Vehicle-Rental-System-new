@@ -3,19 +3,19 @@ package com.example.vehiclerentalsystem01.dao;
 import com.example.vehiclerentalsystem01.models.AdminStaff;
 import com.example.vehiclerentalsystem01.models.Staff;
 import com.example.vehiclerentalsystem01.models.SupportStaff;
+import com.example.vehiclerentalsystem01.services.FileStorageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class StaffDAO {
-    private static final String FOLDER_PATH = System.getProperty("user.home") + File.separator + "RentalData";
-    private static final String FILE_PATH = FOLDER_PATH + File.separator + "staff.txt";
-
-    public StaffDAO() {
-        File folder = new File(FOLDER_PATH);
-        if (!folder.exists()) folder.mkdirs();
-    }
+    private static final String FILENAME = "staff.txt";
+    
+    @Autowired
+    private FileStorageService fileStorageService;
 
     // ==========================================
     // AUTHENTICATION: Check Staff Login
@@ -33,54 +33,42 @@ public class StaffDAO {
 
     // CRUD: CREATE
     public void saveStaff(Staff staff) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            // Write 7 fields: ID, Name, Email, Phone, Username, Password, Role
-            writer.write(staff.getStaffId() + "," + staff.getName() + "," + staff.getEmail() + "," +
-                    staff.getPhone() + "," + staff.getUsername() + "," + staff.getPassword() + "," + staff.getRole());
-            writer.newLine();
-        } catch (IOException e) { e.printStackTrace(); }
+        List<String> lines = new ArrayList<>();
+        // Write 7 fields: ID, Name, Email, Phone, Username, Password, Role
+        lines.add(staff.getStaffId() + "," + staff.getName() + "," + staff.getEmail() + "," +
+                staff.getPhone() + "," + staff.getUsername() + "," + staff.getPassword() + "," + staff.getRole());
+        fileStorageService.writeToFile(FILENAME, lines, true);
     }
 
     // CRUD: READ
     public List<Staff> getAllStaff() {
         List<Staff> staffList = new ArrayList<>();
-        File file = new File(FILE_PATH);
-
-        // DEBUGGING: Prints to your IntelliJ terminal so you can see if it finds the file!
-        System.out.println("Checking file: " + file.getAbsolutePath());
-
-        if (!file.exists()) {
-            System.out.println("FILE NOT FOUND: staff.txt does not exist here!");
+        
+        if (!fileStorageService.fileExists(FILENAME)) {
             return staffList;
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println("Read line from file: " + line); // DEBUGGING
+        List<String> lines = fileStorageService.readAllLines(FILENAME);
+        for (String line : lines) {
+            String[] data = line.split(",");
+            // Expecting 7 fields now!
+            if (data.length >= 7) {
+                // ADDED .trim() to clean up any accidental spaces from Notepad
+                String id = data[0].trim();
+                String name = data[1].trim();
+                String email = data[2].trim();
+                String phone = data[3].trim();
+                String uname = data[4].trim();
+                String pass = data[5].trim();
+                String role = data[6].trim();
 
-                String[] data = line.split(",");
-                // Expecting 7 fields now!
-                if (data.length >= 7) {
-                    // ADDED .trim() to clean up any accidental spaces from Notepad
-                    String id = data[0].trim();
-                    String name = data[1].trim();
-                    String email = data[2].trim();
-                    String phone = data[3].trim();
-                    String uname = data[4].trim();
-                    String pass = data[5].trim();
-                    String role = data[6].trim();
-
-                    if (role.equalsIgnoreCase("Admin")) {
-                        staffList.add(new AdminStaff(id, name, email, phone, uname, pass));
-                    } else {
-                        staffList.add(new SupportStaff(id, name, email, phone, uname, pass));
-                    }
+                if (role.equalsIgnoreCase("Admin")) {
+                    staffList.add(new AdminStaff(id, name, email, phone, uname, pass));
                 } else {
-                    System.out.println("SKIPPED LINE: Does not have 7 columns. Only has " + data.length);
+                    staffList.add(new SupportStaff(id, name, email, phone, uname, pass));
                 }
             }
-        } catch (IOException e) { e.printStackTrace(); }
+        }
         return staffList;
     }
 
@@ -94,31 +82,29 @@ public class StaffDAO {
     // CRUD: UPDATE
     public void updateStaff(Staff updatedStaff) {
         List<Staff> staffList = getAllStaff();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
-            for (Staff s : staffList) {
-                if (s.getStaffId().equals(updatedStaff.getStaffId())) {
-                    writer.write(updatedStaff.getStaffId() + "," + updatedStaff.getName() + "," + updatedStaff.getEmail() + "," +
-                            updatedStaff.getPhone() + "," + updatedStaff.getUsername() + "," + updatedStaff.getPassword() + "," + updatedStaff.getRole());
-                } else {
-                    writer.write(s.getStaffId() + "," + s.getName() + "," + s.getEmail() + "," +
-                            s.getPhone() + "," + s.getUsername() + "," + s.getPassword() + "," + s.getRole());
-                }
-                writer.newLine();
+        List<String> lines = new ArrayList<>();
+        for (Staff s : staffList) {
+            if (s.getStaffId().equals(updatedStaff.getStaffId())) {
+                lines.add(updatedStaff.getStaffId() + "," + updatedStaff.getName() + "," + updatedStaff.getEmail() + "," +
+                        updatedStaff.getPhone() + "," + updatedStaff.getUsername() + "," + updatedStaff.getPassword() + "," + updatedStaff.getRole());
+            } else {
+                lines.add(s.getStaffId() + "," + s.getName() + "," + s.getEmail() + "," +
+                        s.getPhone() + "," + s.getUsername() + "," + s.getPassword() + "," + s.getRole());
             }
-        } catch (IOException e) { e.printStackTrace(); }
+        }
+        fileStorageService.writeToFile(FILENAME, lines, false);
     }
 
     // CRUD: DELETE
     public void deleteStaff(String id) {
         List<Staff> staffList = getAllStaff();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
-            for (Staff s : staffList) {
-                if (!s.getStaffId().equals(id)) {
-                    writer.write(s.getStaffId() + "," + s.getName() + "," + s.getEmail() + "," +
-                            s.getPhone() + "," + s.getUsername() + "," + s.getPassword() + "," + s.getRole());
-                    writer.newLine();
-                }
+        List<String> lines = new ArrayList<>();
+        for (Staff s : staffList) {
+            if (!s.getStaffId().equals(id)) {
+                lines.add(s.getStaffId() + "," + s.getName() + "," + s.getEmail() + "," +
+                        s.getPhone() + "," + s.getUsername() + "," + s.getPassword() + "," + s.getRole());
             }
-        } catch (IOException e) { e.printStackTrace(); }
+        }
+        fileStorageService.writeToFile(FILENAME, lines, false);
     }
 }

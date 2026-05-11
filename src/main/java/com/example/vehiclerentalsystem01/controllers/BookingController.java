@@ -6,23 +6,25 @@ import com.example.vehiclerentalsystem01.dao.VehicleDAO;
 import com.example.vehiclerentalsystem01.models.Booking;
 import com.example.vehiclerentalsystem01.models.CashPayment;
 import com.example.vehiclerentalsystem01.models.Vehicle;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-@WebServlet("/bookings")
-public class BookingController extends HttpServlet {
-    private BookingDAO bookingDAO = new BookingDAO();
-    private PaymentDAO paymentDAO = new PaymentDAO();
-    private VehicleDAO vehicleDAO = new VehicleDAO();
+@Controller
+@RequestMapping("/bookings")
+public class BookingController {
+    private final BookingDAO bookingDAO = new BookingDAO();
+    private final PaymentDAO paymentDAO = new PaymentDAO();
+    private final VehicleDAO vehicleDAO = new VehicleDAO();
 
     private String normalized(String value) {
         return value == null ? "" : value.trim();
@@ -37,7 +39,6 @@ public class BookingController extends HttpServlet {
         if (sessionUser.isEmpty()) {
             sessionUser = normalized((String) session.getAttribute("name"));
         }
-
         return !sessionUser.isEmpty() && sessionUser.equalsIgnoreCase(normalized(booking.getCustomerName()));
     }
 
@@ -60,87 +61,86 @@ public class BookingController extends HttpServlet {
         paymentDAO.savePayment(new CashPayment(paymentId, booking.getTransactionId(), resolveBookingAmount(booking), "PENDING"));
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-
+    @GetMapping
+    public String handleGet(@RequestParam(required = false) String action,
+                            @RequestParam(required = false) String id,
+                            Model model) {
         try {
             if ("search".equals(action)) {
-                String id = request.getParameter("id");
                 Booking found = null;
                 if (id != null && !id.trim().isEmpty()) {
                     found = bookingDAO.getBookingById(id.trim());
                 }
 
-                request.setAttribute("searchAttempted", true);
-                request.setAttribute("searchedBooking", found);
-                request.getRequestDispatcher("search-booking.jsp").forward(request, response);
-                return;
+                model.addAttribute("searchAttempted", true);
+                model.addAttribute("searchedBooking", found);
+                return "search-booking";
             }
 
             if ("list".equals(action) || action == null) {
                 List<Booking> allBookings = bookingDAO.getAllBookings();
-                if (allBookings == null) allBookings = new ArrayList<>();
-
-                int totalBookings = allBookings.size();
-                int confirmedBookings = 0;
-                int cancellationRequests = 0;
-                for (Booking b : allBookings) {
-                    if ("CONFIRMED".equalsIgnoreCase(b.getStatus())) confirmedBookings++;
-                    if ("CANCELLATION_REQUESTED".equalsIgnoreCase(b.getStatus())) cancellationRequests++;
+                if (allBookings == null) {
+                    allBookings = new ArrayList<>();
                 }
 
-                // Provide multiple names just in case different JSPs expect different variables
-                request.setAttribute("bookings", allBookings);
-                request.setAttribute("bookingList", allBookings);
-                request.setAttribute("allBookings", allBookings);
+                int confirmedBookings = 0;
+                int cancellationRequests = 0;
+                for (Booking booking : allBookings) {
+                    if ("CONFIRMED".equalsIgnoreCase(booking.getStatus())) {
+                        confirmedBookings++;
+                    }
+                    if ("CANCELLATION_REQUESTED".equalsIgnoreCase(booking.getStatus())) {
+                        cancellationRequests++;
+                    }
+                }
 
-                request.setAttribute("totalBookings", totalBookings);
-                request.setAttribute("confirmedBookings", confirmedBookings);
-                request.setAttribute("cancellationRequests", cancellationRequests);
-                request.getRequestDispatcher("booking-dashboard.jsp").forward(request, response);
-                return;
+                model.addAttribute("bookings", allBookings);
+                model.addAttribute("bookingList", allBookings);
+                model.addAttribute("allBookings", allBookings);
+                model.addAttribute("totalBookings", allBookings.size());
+                model.addAttribute("confirmedBookings", confirmedBookings);
+                model.addAttribute("cancellationRequests", cancellationRequests);
+                return "booking-dashboard";
             }
 
-            response.sendRedirect("bookings?action=list");
+            return "redirect:/bookings?action=list";
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("bookings?action=list");
+            return "redirect:/bookings?action=list";
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+    @PostMapping
+    public String handlePost(@RequestParam Map<String, String> params, HttpSession session) {
+        String action = params.get("action");
 
         try {
             if ("delete".equals(action)) {
-                bookingDAO.deleteBooking(request.getParameter("id"));
-                response.sendRedirect("bookings?action=list");
+                bookingDAO.deleteBooking(params.get("id"));
+                return "redirect:/bookings?action=list";
+            }
 
-            } else if ("update".equals(action)) {
-                String id = request.getParameter("id");
+            if ("update".equals(action)) {
+                String id = params.get("id");
                 Booking existingBooking = bookingDAO.getBookingById(id);
                 if (existingBooking != null) {
                     Booking updatedBooking = new Booking(
                             id,
                             existingBooking.getCustomerName(),
-                            request.getParameter("rentalDate"),
+                            params.get("rentalDate"),
                             existingBooking.getVehicleId(),
-                            Integer.parseInt(request.getParameter("days").trim()),
+                            Integer.parseInt(params.get("days").trim()),
                             existingBooking.getStatus(),
                             existingBooking.getStaffMessage()
                     );
                     bookingDAO.updateBooking(updatedBooking);
                 }
-                response.sendRedirect("my-bookings.jsp");
+                return "redirect:/my-bookings.jsp";
+            }
 
-                // --- THE NEW APPROVE / REJECT LOGIC ---
-            } else if ("approve".equals(action) || "accept".equals(action) || "reject".equals(action) || "decline".equals(action)) {
-                String id = request.getParameter("id");
-                String staffMessage = normalized(request.getParameter("staffMessage"));
-
-                // Read existing booking from storage to avoid relying on form-hidden values.
+            if ("approve".equals(action) || "accept".equals(action) || "reject".equals(action) || "decline".equals(action)) {
+                String id = params.get("id");
+                String staffMessage = normalized(params.get("staffMessage"));
                 Booking existingBooking = bookingDAO.getBookingById(id);
                 if (existingBooking != null) {
                     String newStatus = ("approve".equals(action) || "accept".equals(action)) ? "CONFIRMED" : "REJECTED";
@@ -158,19 +158,18 @@ public class BookingController extends HttpServlet {
                         ensurePendingInvoice(updatedBooking);
                     }
                 }
-                response.sendRedirect("bookings?action=list");
+                return "redirect:/bookings?action=list";
+            }
 
-            } else if ("request_cancel".equals(action)) {
-                String id = request.getParameter("id");
-                String reason = normalized(request.getParameter("cancelReason"));
+            if ("request_cancel".equals(action)) {
+                String id = params.get("id");
                 Booking existingBooking = bookingDAO.getBookingById(id);
-                HttpSession session = request.getSession(false);
-
                 if (existingBooking != null && isCustomerOwner(session, existingBooking)) {
                     String status = normalized(existingBooking.getStatus()).toUpperCase();
                     if (!"CANCELLED".equals(status) && !"REJECTED".equals(status)) {
+                        String reason = normalized(params.get("cancelReason"));
                         String note = reason.isEmpty() ? "Customer requested cancellation." : "Cancellation requested: " + reason;
-                        Booking updatedBooking = new Booking(
+                        bookingDAO.updateBooking(new Booking(
                                 existingBooking.getTransactionId(),
                                 existingBooking.getCustomerName(),
                                 existingBooking.getRentalDate(),
@@ -178,19 +177,18 @@ public class BookingController extends HttpServlet {
                                 existingBooking.getDurationDays(),
                                 "CANCELLATION_REQUESTED",
                                 note
-                        );
-                        bookingDAO.updateBooking(updatedBooking);
+                        ));
                     }
                 }
-                response.sendRedirect("my-bookings.jsp");
+                return "redirect:/my-bookings.jsp";
+            }
 
-            } else if ("approve_cancel".equals(action) || "reject_cancel".equals(action)) {
-                String id = request.getParameter("id");
-                String staffMessage = normalized(request.getParameter("staffMessage"));
+            if ("approve_cancel".equals(action) || "reject_cancel".equals(action)) {
+                String id = params.get("id");
                 Booking existingBooking = bookingDAO.getBookingById(id);
-
                 if (existingBooking != null && "CANCELLATION_REQUESTED".equalsIgnoreCase(existingBooking.getStatus())) {
                     String newStatus = "approve_cancel".equals(action) ? "CANCELLED" : "CONFIRMED";
+                    String staffMessage = normalized(params.get("staffMessage"));
                     String finalMessage = staffMessage.isEmpty()
                             ? ("approve_cancel".equals(action) ? "Cancellation approved." : "Cancellation request declined.")
                             : staffMessage;
@@ -209,43 +207,34 @@ public class BookingController extends HttpServlet {
                         ensurePendingInvoice(updatedBooking);
                     }
                 }
-                response.sendRedirect("bookings?action=list");
+                return "redirect:/bookings?action=list";
+            }
 
-                // --- THE CREATION LOGIC (NOW SAVES AS PENDING) ---
-            } else if ("create".equals(action)) {
+            if ("create".equals(action)) {
+                String vehicleId = normalized(params.get("vehicleId"));
+                if (!bookingDAO.isVehicleAvailable(vehicleId)) {
+                    return "redirect:/add-booking.jsp?vehicleId=" + vehicleId + "&error=vehicle_unavailable";
+                }
+
                 String newId = "BKG-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
-
-                String custName = request.getParameter("customerName");
-                String rentDate = request.getParameter("rentalDate");
-                String vehId = request.getParameter("vehicleId");
-                String daysParam = request.getParameter("days");
-
-                int days = (daysParam != null && !daysParam.trim().isEmpty()) ? Integer.parseInt(daysParam.trim()) : 1;
-                if (custName != null) custName = custName.replace(",", "");
-
-                if (!bookingDAO.isVehicleAvailable(vehId)) {
-                    response.sendRedirect("add-booking.jsp?vehicleId=" + normalized(vehId) + "&error=vehicle_unavailable");
-                    return;
+                String customerName = params.get("customerName");
+                if (customerName != null) {
+                    customerName = customerName.replace(",", "");
                 }
 
-                // SAVES AS PENDING INSTEAD OF CONFIRMED
-                Booking newBooking = new Booking(newId, custName, rentDate, vehId, days, "PENDING", "");
-                bookingDAO.saveBooking(newBooking);
+                String daysParam = params.get("days");
+                int days = daysParam != null && !daysParam.trim().isEmpty() ? Integer.parseInt(daysParam.trim()) : 1;
+                bookingDAO.saveBooking(new Booking(newId, customerName, params.get("rentalDate"), vehicleId, days, "PENDING", ""));
 
-                // Smart Redirect
-                HttpSession session = request.getSession();
-                Boolean customerLoggedIn = (Boolean) session.getAttribute("customerLoggedIn");
-
-                if (customerLoggedIn != null && customerLoggedIn) {
-                    response.sendRedirect("my-bookings.jsp");
-                } else {
-                    response.sendRedirect("bookings?action=list");
-                }
+                return Boolean.TRUE.equals(session.getAttribute("customerLoggedIn"))
+                        ? "redirect:/my-bookings.jsp"
+                        : "redirect:/bookings?action=list";
             }
         } catch (Exception e) {
             System.out.println("CRITICAL ERROR IN CONTROLLER: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("my-bookings.jsp"); // Safe fallback
         }
+
+        return "redirect:/my-bookings.jsp";
     }
 }

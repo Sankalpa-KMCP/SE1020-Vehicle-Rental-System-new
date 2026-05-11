@@ -1,6 +1,7 @@
 package com.example.vehiclerentalsystem01.dao;
 
 import com.example.vehiclerentalsystem01.models.Booking;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import java.util.Set;
  * Data Access Object for Bookings.
  * Handles all File I/O operations for the bookings.txt file.
  */
+@Repository
 public class BookingDAO {
     private static final String FOLDER_PATH = System.getProperty("user.home") + File.separator + "RentalData";
     private static final String FILE_PATH = FOLDER_PATH + File.separator + "bookings.txt";

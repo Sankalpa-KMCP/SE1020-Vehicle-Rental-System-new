@@ -1,18 +1,19 @@
 package com.example.vehiclerentalsystem01.dao;
 
 import com.example.vehiclerentalsystem01.models.Customer;
-import java.io.*;
+import com.example.vehiclerentalsystem01.services.FileStorageService;
+import com.example.vehiclerentalsystem01.exceptions.BusinessException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class CustomerDAO {
-    private static final String FOLDER_PATH = System.getProperty("user.home") + File.separator + "RentalData";
-    private static final String FILE_PATH = FOLDER_PATH + File.separator + "customers.txt";
-
-    public CustomerDAO() {
-        File folder = new File(FOLDER_PATH);
-        if (!folder.exists()) folder.mkdirs();
-    }
+    private static final String FILENAME = "customers.txt";
+    
+    @Autowired
+    private FileStorageService fileStorageService;
 
     private String normalize(String value) {
         return value == null ? "" : value.trim();
@@ -23,16 +24,11 @@ public class CustomerDAO {
     }
 
     private boolean writeAllCustomers(List<Customer> customers) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
-            for (Customer c : customers) {
-                writer.write(c.toCSV());
-                writer.newLine();
-            }
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+        List<String> lines = new ArrayList<>();
+        for (Customer c : customers) {
+            lines.add(c.toCSV());
         }
+        return fileStorageService.writeToFile(FILENAME, lines, false);
     }
 
     // ==========================================
@@ -40,26 +36,23 @@ public class CustomerDAO {
     // ==========================================
     // FIXED: Now returns a Customer object instead of a boolean
     public Customer validateCustomer(String username, String password) {
-        File file = new File(FILE_PATH);
-        if (!file.exists()) return null; // No customers registered yet! Return null.
+        if (!fileStorageService.fileExists(FILENAME)) {
+            return null;
+        }
 
         String normalizedUsername = normalize(username);
         String normalizedPassword = normalize(password);
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Customer customer = Customer.fromCSV(line);
-                if (customer != null &&
-                        isSameValue(customer.getUsername(), normalizedUsername) &&
-                        customer.getPassword().equals(normalizedPassword)) {
-                    return customer;
-                }
+        List<String> lines = fileStorageService.readAllLines(FILENAME);
+        for (String line : lines) {
+            Customer customer = Customer.fromCSV(line);
+            if (customer != null &&
+                    isSameValue(customer.getUsername(), normalizedUsername) &&
+                    customer.getPassword().equals(normalizedPassword)) {
+                return customer;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        return null; // No match found, return null
+        return null;
     }
 
     // ==========================================
@@ -72,17 +65,12 @@ public class CustomerDAO {
      */
     public boolean saveCustomer(Customer c) {
         if (c == null || getCustomerByUsername(c.getUsername()) != null) {
-            return false;
+            throw new BusinessException("Customer already exists or invalid data");
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            writer.write(c.toCSV());
-            writer.newLine();
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+        List<String> lines = new ArrayList<>();
+        lines.add(c.toCSV());
+        return fileStorageService.writeToFile(FILENAME, lines, true);
     }
 
     /**
@@ -91,18 +79,17 @@ public class CustomerDAO {
      */
     public List<Customer> getAllCustomers() {
         List<Customer> customers = new ArrayList<>();
-        File file = new File(FILE_PATH);
-        if (!file.exists()) return customers;
+        if (!fileStorageService.fileExists(FILENAME)) {
+            return customers;
+        }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Customer customer = Customer.fromCSV(line);
-                if (customer != null) {
-                    customers.add(customer);
-                }
+        List<String> lines = fileStorageService.readAllLines(FILENAME);
+        for (String line : lines) {
+            Customer customer = Customer.fromCSV(line);
+            if (customer != null) {
+                customers.add(customer);
             }
-        } catch (IOException e) { e.printStackTrace(); }
+        }
         return customers;
     }
 

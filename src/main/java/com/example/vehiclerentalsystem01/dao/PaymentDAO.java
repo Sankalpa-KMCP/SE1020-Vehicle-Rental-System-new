@@ -3,12 +3,14 @@ package com.example.vehiclerentalsystem01.dao;
 import com.example.vehiclerentalsystem01.models.CardPayment;
 import com.example.vehiclerentalsystem01.models.CashPayment;
 import com.example.vehiclerentalsystem01.models.Payment;
+import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 
+@Repository
 public class PaymentDAO {
     private static final String FOLDER_PATH = System.getProperty("user.home") + File.separator + "RentalData";
     private static final String FILE_PATH = FOLDER_PATH + File.separator + "payments.txt";

@@ -3,6 +3,7 @@ package com.example.vehiclerentalsystem01.dao;
 import com.example.vehiclerentalsystem01.models.Car;
 import com.example.vehiclerentalsystem01.models.Motorcycle;
 import com.example.vehiclerentalsystem01.models.Vehicle;
+import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * Data Access Object for handling File Read/Write operations for Vehicles.
  */
+@Repository
 public class VehicleDAO {
     private static final String FOLDER_PATH = System.getProperty("user.home") + File.separator + "RentalData";
     private static final String FILE_PATH = FOLDER_PATH + File.separator + "vehicles.txt";
