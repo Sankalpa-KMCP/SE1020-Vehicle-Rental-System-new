@@ -423,7 +423,48 @@
         .intro-staggered.visible { opacity: 1; transform: translateY(0) scale(1); transition: opacity 0.8s ease, transform 0.9s cubic-bezier(.16,.84,.24,1); }
 
         /* ==========================================
-           LOAD ANIMATION & PAGE INTRO (UPDATED)
+           WELCOME OVERLAY FIX
+           ========================================== */
+        #welcome-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            overflow: hidden;
+        }
+
+        #welcome-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .welcome-text {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #ffffff 0%, #0D6EFD 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            z-index: 10;
+            letter-spacing: -0.02em;
+        }
+
+        .welcome-bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(13, 110, 253, 0.15) 0%, transparent 70%);
+            width: 400px;
+            height: 400px;
+        }
+
+        /* ==========================================
+           LOAD ANIMATION & PAGE INTRO
            ========================================== */
         #page-loader {
             position: fixed;
@@ -443,10 +484,10 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: 
-                linear-gradient(45deg, transparent 30%, rgba(13, 110, 253, 0.08) 50%, transparent 70%),
-                linear-gradient(-45deg, transparent 30%, rgba(74, 18, 218, 0.06) 50%, transparent 70%),
-                linear-gradient(135deg, transparent 30%, rgba(0, 242, 254, 0.05) 50%, transparent 70%);
+            background:
+                    linear-gradient(45deg, transparent 30%, rgba(13, 110, 253, 0.08) 50%, transparent 70%),
+                    linear-gradient(-45deg, transparent 30%, rgba(74, 18, 218, 0.06) 50%, transparent 70%),
+                    linear-gradient(135deg, transparent 30%, rgba(0, 242, 254, 0.05) 50%, transparent 70%);
             background-size: 200% 200%;
             animation: auroraShift 8s ease-in-out infinite;
             mix-blend-mode: screen;
@@ -784,7 +825,7 @@
 
 <header id="cinematic-hero" class="cinematic-hero pt-32 pb-20 bg-[#F8FAFF] relative overflow-hidden min-h-[90vh] flex items-center border-b border-gray-200">
     <div class="hero-video-shell" aria-hidden="true">
-        <video id="hero-scroll-video" class="hero-video" muted loop playsinline preload="metadata" poster="https://placehold.co/1920x1080/0f172a/ffffff?text=DriveAway+Cinematic+Hero">
+        <video id="hero-scroll-video" class="hero-video" muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1920&auto=format&fit=crop">
             <source src="<%= request.getContextPath() %>/assets/videos/hero-car.mp4" type="video/mp4">
         </video>
         <div class="hero-video-overlay"></div>
@@ -862,7 +903,7 @@
 
         <div class="w-full lg:w-1/2 flex justify-center lg:justify-end reveal-right" style="transition-delay: 0.2s;">
             <div class="relative w-full max-w-lg lg:max-w-full perspective-[1000px]">
-                <img src="https://placehold.co/800x600/0D6EFD/ffffff?text=DriveAway+Premium+Fleet" alt="Luxury Car" class="rounded-[3rem] shadow-2xl object-cover h-[600px] w-full border-[8px] border-white transform lg:rotate-3 transition-transform hover:rotate-0 duration-700 ease-out">
+                <img src="https://www.autocar.co.uk/sites/autocar.co.uk/files/images/car-reviews/first-drives/legacy/rolls_royce_phantom_top_10.jpg?q=80&w=800&auto=format&fit=crop" alt="Luxury Car" class="rounded-[3rem] shadow-2xl object-cover h-[600px] w-full border-[8px] border-white transform lg:rotate-3 transition-transform hover:rotate-0 duration-700 ease-out">
 
                 <div class="absolute -bottom-8 -left-8 bg-white p-6 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] hidden lg:flex items-center gap-4 animate-bounce" style="animation-duration: 3s;">
                     <div class="bg-yellow-50 p-3 rounded-2xl"><i class="ph-fill ph-star text-yellow-400 text-3xl"></i></div>
@@ -930,32 +971,32 @@
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             <div class="category-card bg-white p-6 rounded-3xl text-center border border-gray-100 shadow-sm cursor-pointer reveal">
-                <img src="https://cdn-icons-png.flaticon.com/512/3204/3204934.png" alt="Economy" class="w-20 mx-auto mb-4 opacity-80">
+                <i class="ph-fill ph-car text-[4.5rem] text-gray-300 mb-2 inline-block"></i>
                 <h3 class="font-black text-lg text-gray-900">Economy</h3>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">From Rs.4,000</p>
             </div>
             <div class="category-card bg-white p-6 rounded-3xl text-center border border-gray-100 shadow-sm cursor-pointer reveal" style="transition-delay: 0.1s;">
-                <img src="https://cdn-icons-png.flaticon.com/512/3097/3097180.png" alt="Sedan" class="w-20 mx-auto mb-4 opacity-80">
+                <i class="ph-fill ph-car-profile text-[4.5rem] text-gray-300 mb-2 inline-block"></i>
                 <h3 class="font-black text-lg text-gray-900">Sedan</h3>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">From Rs.8,000</p>
             </div>
             <div class="category-card bg-[#0D6EFD] text-white p-6 rounded-3xl text-center shadow-lg cursor-pointer transform scale-105 reveal" style="transition-delay: 0.2s;">
-                <img src="https://cdn-icons-png.flaticon.com/512/3757/3757342.png" alt="SUV" class="w-20 mx-auto mb-4 filter invert">
+                <i class="ph-fill ph-jeep text-[4.5rem] text-white mb-2 inline-block opacity-90"></i>
                 <h3 class="font-black text-lg">Premium SUV</h3>
                 <p class="text-xs font-bold text-blue-200 uppercase tracking-widest mt-1">Most Popular</p>
             </div>
             <div class="category-card bg-white p-6 rounded-3xl text-center border border-gray-100 shadow-sm cursor-pointer reveal" style="transition-delay: 0.3s;">
-                <img src="https://cdn-icons-png.flaticon.com/512/2554/2554982.png" alt="Van" class="w-20 mx-auto mb-4 opacity-80">
+                <i class="ph-fill ph-van text-[4.5rem] text-gray-300 mb-2 inline-block"></i>
                 <h3 class="font-black text-lg text-gray-900">Family Van</h3>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">From Rs.6,000</p>
             </div>
             <div class="category-card bg-white p-6 rounded-3xl text-center border border-gray-100 shadow-sm cursor-pointer reveal" style="transition-delay: 0.4s;">
-                <img src="https://cdn-icons-png.flaticon.com/512/2962/2962303.png" alt="4x4" class="w-20 mx-auto mb-4 opacity-80">
+                <i class="ph-fill ph-mountains text-[4.5rem] text-gray-300 mb-2 inline-block"></i>
                 <h3 class="font-black text-lg text-gray-900">4x4 Off-Road</h3>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">From Rs.15,000</p>
             </div>
             <div class="category-card bg-white p-6 rounded-3xl text-center border border-gray-100 shadow-sm cursor-pointer reveal" style="transition-delay: 0.5s;">
-                <img src="https://cdn-icons-png.flaticon.com/512/2830/2830305.png" alt="EV" class="w-20 mx-auto mb-4 opacity-80">
+                <i class="ph-fill ph-charging-station text-[4.5rem] text-gray-300 mb-2 inline-block"></i>
                 <h3 class="font-black text-lg text-gray-900">Electric</h3>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Eco Friendly</p>
             </div>
@@ -1038,10 +1079,12 @@
                         String category = "sedan";
                         if (vehicleType.contains("suv") || vehicleType.contains("4x4")) category = "suv";
                         else if (vehicleType.contains("luxury")) category = "luxury";
-                        String imageUrl = "https://placehold.co/600x400/0D6EFD/ffffff?text=Sedan+" + v.getBrand();
-                        if (vehicleType.contains("suv")) imageUrl = "https://placehold.co/600x400/10B981/ffffff?text=SUV+" + v.getBrand();
-                        else if (vehicleType.contains("luxury")) imageUrl = "https://placehold.co/600x400/7C3AED/ffffff?text=Luxury+" + v.getBrand();
-                        else if (vehicleType.contains("hatchback")) imageUrl = "https://placehold.co/600x400/F59E0B/ffffff?text=Hatchback+" + v.getBrand();
+
+                        // Updated to Unsplash placeholders so they don't break either
+                        String imageUrl = "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=600&auto=format&fit=crop";
+                        if (vehicleType.contains("suv")) imageUrl = "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=80&w=600&auto=format&fit=crop";
+                        else if (vehicleType.contains("luxury")) imageUrl = "https://images.unsplash.com/photo-1503376760367-1b6121f1cd9a?q=80&w=600&auto=format&fit=crop";
+                        else if (vehicleType.contains("hatchback")) imageUrl = "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=600&auto=format&fit=crop";
             %>
             <div class="car-item premium-card bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden reveal shadow-[0_10px_30px_rgba(0,0,0,0.03)]" data-category="<%= category %>">
                 <div class="h-64 overflow-hidden relative bg-gray-100 group">
@@ -1529,7 +1572,7 @@
                     textIndex = (textIndex + 1) % textMessages.length;
                     loaderText.textContent = textMessages[textIndex];
                 }, 400);
-                
+
                 // Clear interval when loader finishes
                 window.setTimeout(function () {
                     clearInterval(textInterval);
@@ -1593,14 +1636,14 @@
         // 1. PAGE TRANSITION LOGIC
         document.body.classList.add('page-loaded');
         const welcomeOverlay = document.getElementById('welcome-overlay');
-        
+
         document.querySelectorAll('.transition-link').forEach(link => {
             link.addEventListener('click', function(e) {
                 if (this.href.includes('#')) return;
                 if (this.origin === window.location.origin && this.pathname === window.location.pathname) return;
                 e.preventDefault();
                 const targetUrl = this.href;
-                
+
                 // Special animation for login navigation
                 if (targetUrl.includes('login.jsp')) {
                     document.body.classList.add('page-exit');
