@@ -1,164 +1,124 @@
 package com.example.vehiclerentalsystem01.dao;
 
 import com.example.vehiclerentalsystem01.models.Customer;
-import com.example.vehiclerentalsystem01.services.FileStorageService;
-import com.example.vehiclerentalsystem01.exceptions.BusinessException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository
 public class CustomerDAO {
-    private static final String FILENAME = "customers.txt";
-    
-    @Autowired
-    private FileStorageService fileStorageService;
+    private static final String FOLDER_PATH = System.getProperty("user.home") + File.separator + "RentalData";
+    private static final String FILE_PATH = FOLDER_PATH + File.separator + "customers.txt";
 
-    private String normalize(String value) {
-        return value == null ? "" : value.trim();
+    public CustomerDAO() {
+        File folder = new File(FOLDER_PATH);
+        if (!folder.exists()) folder.mkdirs();
     }
 
-    private boolean isSameValue(String left, String right) {
-        return normalize(left).equalsIgnoreCase(normalize(right));
-    }
-
-    private boolean writeAllCustomers(List<Customer> customers) {
-        List<String> lines = new ArrayList<>();
-        for (Customer c : customers) {
-            lines.add(c.toCSV());
-        }
-        return fileStorageService.writeToFile(FILENAME, lines, false);
-    }
-
-    // ==========================================
-    // AUTHENTICATION: Check if Customer exists
-    // ==========================================
-    // FIXED: Now returns a Customer object instead of a boolean
     public Customer validateCustomer(String username, String password) {
-        if (!fileStorageService.fileExists(FILENAME)) {
-            return null;
-        }
+        File file = new File(FILE_PATH);
+        if (!file.exists()) return null;
 
-        String normalizedUsername = normalize(username);
-        String normalizedPassword = normalize(password);
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
 
-        List<String> lines = fileStorageService.readAllLines(FILENAME);
-        for (String line : lines) {
-            Customer customer = Customer.fromCSV(line);
-            if (customer != null &&
-                    isSameValue(customer.getUsername(), normalizedUsername) &&
-                    customer.getPassword().equals(normalizedPassword)) {
-                return customer;
+                if (data.length == 8) {
+                    String savedUser = data[3].trim();
+                    String savedPass = data[4].trim();
+
+                    if (savedUser.equals(username) && savedPass.equals(password)) {
+                        return new Customer(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+                    }
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
         return null;
     }
 
-    // ==========================================
-    // CRUD OPERATIONS
-    // ==========================================
-
-    /**
-     * CREATE: Save a new customer to the file
-     * OOP: Uses polymorphism - delegates serialization to Customer.toCSV()
-     */
-    public boolean saveCustomer(Customer c) {
-        if (c == null || getCustomerByUsername(c.getUsername()) != null) {
-            throw new BusinessException("Customer already exists or invalid data");
+    public void saveCustomer(Customer c) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+            writer.write(c.getId() + "," + c.getName() + "," + c.getEmail() + "," + c.getUsername() + "," +
+                    c.getPassword() + "," + c.getNic() + "," + c.getLicenseNumber() + "," + c.getPhoneNumber());
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        List<String> lines = new ArrayList<>();
-        lines.add(c.toCSV());
-        return fileStorageService.writeToFile(FILENAME, lines, true);
     }
 
-    /**
-     * READ: Retrieve all customers from file
-     * OOP: Uses Customer.fromCSV() for deserialization
-     */
     public List<Customer> getAllCustomers() {
         List<Customer> customers = new ArrayList<>();
-        if (!fileStorageService.fileExists(FILENAME)) {
-            return customers;
+        File file = new File(FILE_PATH);
+        if (!file.exists()) return customers;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length == 8) {
+                    customers.add(new Customer(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        List<String> lines = fileStorageService.readAllLines(FILENAME);
-        for (String line : lines) {
-            Customer customer = Customer.fromCSV(line);
-            if (customer != null) {
-                customers.add(customer);
-            }
-        }
         return customers;
     }
 
-    /**
-     * READ: Retrieve a single customer by ID
-     */
     public Customer getCustomerById(String id) {
         for (Customer c : getAllCustomers()) {
-            if (isSameValue(c.getId(), id)) return c;
+            if (c.getId().equals(id)) return c;
         }
         return null;
     }
 
-    /**
-     * READ: Retrieve a single customer by username
-     * OOP: Extracted from controller logic into DAO layer (better encapsulation)
-     */
     public Customer getCustomerByUsername(String username) {
         for (Customer c : getAllCustomers()) {
-            if (isSameValue(c.getUsername(), username)) return c;
+            if (c.getUsername().equals(username)) {
+                return c;
+            }
         }
         return null;
     }
 
-    /**
-     * UPDATE: Modify an existing customer
-     * OOP: Uses Customer.toCSV() for consistent serialization
-     */
-    public boolean updateCustomer(Customer updatedCustomer) {
-        if (updatedCustomer == null || normalize(updatedCustomer.getId()).isEmpty()) {
-            return false;
-        }
-
+    public void updateCustomer(Customer updatedCustomer) {
         List<Customer> customers = getAllCustomers();
-        boolean updated = false;
 
-        for (int i = 0; i < customers.size(); i++) {
-            Customer c = customers.get(i);
-            if (isSameValue(c.getId(), updatedCustomer.getId())) {
-                customers.set(i, updatedCustomer);
-                updated = true;
-                break;
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
+            for (Customer c : customers) {
+                if (c.getId().equals(updatedCustomer.getId())) {
+                    writer.write(updatedCustomer.getId() + "," + updatedCustomer.getName() + "," + updatedCustomer.getEmail() + "," +
+                            updatedCustomer.getUsername() + "," + updatedCustomer.getPassword() + "," + updatedCustomer.getNic() + "," +
+                            updatedCustomer.getLicenseNumber() + "," + updatedCustomer.getPhoneNumber());
+                } else {
+                    writer.write(c.getId() + "," + c.getName() + "," + c.getEmail() + "," + c.getUsername() + "," +
+                            c.getPassword() + "," + c.getNic() + "," + c.getLicenseNumber() + "," + c.getPhoneNumber());
+                }
+                writer.newLine();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        return updated && writeAllCustomers(customers);
     }
 
-    /**
-     * DELETE: Remove a customer by ID
-     * OOP: Uses Customer.toCSV() for consistent serialization
-     */
-    public boolean deleteCustomer(String id) {
-        if (normalize(id).isEmpty()) {
-            return false;
-        }
-
+    public void deleteCustomer(String id) {
         List<Customer> customers = getAllCustomers();
-        boolean removed = false;
 
-        List<Customer> filtered = new ArrayList<>();
-        for (Customer c : customers) {
-            if (isSameValue(c.getId(), id)) {
-                removed = true;
-                continue;
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
+            for (Customer c : customers) {
+                if (!c.getId().equals(id)) {
+                    writer.write(c.getId() + "," + c.getName() + "," + c.getEmail() + "," + c.getUsername() + "," +
+                            c.getPassword() + "," + c.getNic() + "," + c.getLicenseNumber() + "," + c.getPhoneNumber());
+                    writer.newLine();
+                }
             }
-            filtered.add(c);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        return removed && writeAllCustomers(filtered);
     }
 }
+S
