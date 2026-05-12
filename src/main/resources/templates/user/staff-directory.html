@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Staff Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>body { font-family: 'Inter', sans-serif; background-color: #f5f5f5; }</style>
+</head>
+<body class="p-6">
+<div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex gap-3">
+            <button type="button" onclick="history.back()" class="bg-gray-100 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200">← Back</button>
+            <a th:href="@{/user/admin-dashboard}" class="bg-black text-white px-4 py-2 rounded-lg font-semibold">Dashboard Home</a>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-6 w-64 mb-6">
+        <p class="text-gray-500 font-semibold">TOTAL STAFF</p>
+        <h1 class="text-4xl font-bold mt-2" th:text="${staffCount}">0</h1>
+    </div>
+    <div class="mb-6">
+        <h2 class="text-3xl font-bold">Staff Directory</h2>
+        <p class="text-gray-500">Manage and onboard employees in the system.</p>
+    </div>
+    <div class="bg-white rounded-xl shadow p-6 mb-8">
+        <form th:action="@{/staff}" method="post" class="grid grid-cols-2 gap-4">
+            <input type="text" name="manualId" placeholder="Employee ID (EMP-01)" class="border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none" required/>
+            <input type="text" name="name" placeholder="Full Name" class="border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none" required/>
+            <input type="email" name="email" placeholder="Email Address" class="border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none" required/>
+            <input type="text" name="phone" placeholder="Phone Number" class="border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none" required/>
+            <input type="text" name="username" placeholder="Username" class="border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none" required/>
+            <input type="password" name="password" placeholder="Password" class="border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none" required/>
+            <select name="role" class="border border-gray-200 rounded-lg px-4 py-3 col-span-2 focus:ring-2 focus:ring-red-400 outline-none">
+                <option value="Support">Support Staff</option>
+                <option value="Admin">Admin</option>
+            </select>
+            <button type="submit" name="action" value="create" class="col-span-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg transition flex justify-center items-center gap-2">
+                <i class="ph-bold ph-user-plus"></i> Add Employee
+            </button>
+        </form>
+    </div>
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+        <div class="p-4 border-b"><h3 class="text-xl font-semibold">Employee List</h3></div>
+        <table class="w-full text-left">
+            <thead class="bg-gray-100 text-gray-600">
+            <tr>
+                <th class="p-4">EMP ID</th>
+                <th class="p-4">NAME</th>
+                <th class="p-4">EMAIL</th>
+                <th class="p-4">PHONE</th>
+                <th class="p-4">ROLE</th>
+                <th class="p-4">ACTIONS</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${staffList}" class="border-t">
+                <td class="p-4" th:text="${s.staffId}">id</td>
+                <td class="p-4" th:text="${s.name}">n</td>
+                <td class="p-4" th:text="${s.email}">e</td>
+                <td class="p-4" th:text="${s.phone}">p</td>
+                <td class="p-4" th:text="${s.role}">r</td>
+                <td class="p-4">
+                    <a th:href="@{/staff(action=edit,id=${s.staffId})}" class="text-blue-500 font-semibold">Edit</a>
+                    <a th:href="@{/staff(action=delete,id=${s.staffId})}" onclick="return confirm('Are you sure?')" class="text-red-500 font-semibold ml-3">Delete</a>
+                </td>
+            </tr>
+            <tr th:if="${staffList == null or staffList.isEmpty()}">
+                <td colspan="6" class="text-center p-6 text-gray-500">No staff found in the system.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
