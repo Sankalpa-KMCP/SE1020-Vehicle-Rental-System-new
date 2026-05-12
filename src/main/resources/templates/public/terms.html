@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DriveAway | Terms of Service</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #ffffff; overflow-x: hidden; padding-top: 5rem; }
+    .gradient-text {
+      background: linear-gradient(135deg, #0D6EFD 0%, #4A12DA 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  </style>
+</head>
+<body class="text-gray-900 antialiased">
+<div th:replace="~{fragments/layout :: publicNav}"></div>
+<main class="max-w-3xl mx-auto px-6 lg:px-8 pb-20">
+  <header class="mb-10 pt-8">
+    <h1 class="text-4xl font-extrabold mb-3">Terms of <span class="gradient-text">Service</span></h1>
+    <p class="text-gray-500">Last updated: May 12, 2026. By using DriveAway you agree to the following terms.</p>
+  </header>
+  <section class="prose prose-slate max-w-none space-y-8 text-gray-700 leading-relaxed">
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">1. Use of the service</h2>
+      <p>You must provide accurate information when registering and booking. You are responsible for maintaining the confidentiality of your account credentials and for all activity under your account.</p>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">2. Rentals and payments</h2>
+      <p>Rates, deposits, and availability are shown at the time of booking. Confirmed reservations are subject to vehicle inspection and valid identification or license requirements under Sri Lankan law and our internal policies.</p>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">3. Cancellations and changes</h2>
+      <p>Cancellation and modification rules depend on the booking status and staff approval. Fees may apply where stated at checkout or in your booking confirmation.</p>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">4. Liability</h2>
+      <p>DriveAway provides vehicles “as available.” To the extent permitted by law, we are not liable for indirect or consequential damages arising from delays, maintenance, or third-party events beyond our reasonable control.</p>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">5. Contact</h2>
+      <p>Questions about these terms: <a th:href="@{/public/contact}" class="text-[#0D6EFD] font-semibold hover:underline">contact us</a>.</p>
+    </div>
+  </section>
+</main>
+<div th:replace="~{fragments/layout :: publicFooter}"></div>
+</body>
+</html>

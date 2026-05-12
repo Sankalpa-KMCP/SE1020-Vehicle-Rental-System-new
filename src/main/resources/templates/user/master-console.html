@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Master console - DriveAway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+    <style>body { font-family: 'Inter', sans-serif; background: #0f172a; }</style>
+</head>
+<body class="min-h-screen text-slate-100">
+<header class="border-b border-white/10 bg-slate-900/80 backdrop-blur">
+    <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+        <span class="font-extrabold tracking-tight flex items-center gap-2">
+            <i class="ph-fill ph-terminal text-amber-400 text-xl"></i> Master console
+        </span>
+        <a th:href="@{/user/admin-dashboard}" class="text-sm font-semibold text-cyan-300 hover:text-white">Admin hub</a>
+    </div>
+</header>
+<main class="max-w-5xl mx-auto px-6 py-10">
+    <p class="text-slate-400 mb-6 max-w-2xl">
+        Pending administrator requests are read from <code class="text-amber-200 bg-slate-800 px-1 rounded">~/RentalData/pending_admins.txt</code>
+        (one non-empty, non-comment line per entry). Approve/deny actions can be wired when persistence is available.
+    </p>
+    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+            <h1 class="text-lg font-bold">Pending requests</h1>
+            <span class="text-xs text-slate-500"><span th:text="${pendingLines != null ? #lists.size(pendingLines) : 0}">0</span> row(s)</span>
+        </div>
+        <ul class="divide-y divide-white/5" th:if="${pendingLines != null and !pendingLines.isEmpty()}">
+            <li th:each="line : ${pendingLines}" class="px-6 py-4 font-mono text-sm text-cyan-100 break-all" th:text="${line}">line</li>
+        </ul>
+        <p th:if="${pendingLines == null or pendingLines.isEmpty()}" class="px-6 py-12 text-center text-slate-500">
+            No pending lines found (file missing or empty).
+        </p>
+    </div>
+    <p class="mt-8 text-xs text-slate-500">Master access is granted only for the primary admin account in this demo build.</p>
+</main>
+</body>
+</html>

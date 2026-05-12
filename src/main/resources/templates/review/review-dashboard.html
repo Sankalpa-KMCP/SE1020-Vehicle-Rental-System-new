@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Reviews</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/review.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Reviews</h1>
+    <p><a class="btn btn-primary" th:href="@{/reviews/new}">Add review</a></p>
+    <div class="stack">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Summary</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${reviews}">
+                <td th:text="${r.id}">id</td>
+                <td th:text="${r.reviewType}">CUSTOMER</td>
+                <td th:text="${r.status}">t</td>
+                <td>
+                    <span th:if="${r instanceof T(com.sliit.vehiclerentalsystem01.review.model.CustomerReview)}"
+                          th:text="'★ ' + ${r.rating} + ' — ' + ${r.comments}">c</span>
+                </td>
+                <td class="actions">
+                    <a class="btn btn-ghost" th:href="@{/reviews/{id}(id=${r.id})}">View</a>
+                    <a class="btn btn-ghost" th:href="@{/reviews/{id}/edit(id=${r.id})}">Edit</a>
+                    <form th:action="@{/reviews/{id}/delete(id=${r.id})}" method="post" style="display:inline">
+                        <button class="btn btn-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

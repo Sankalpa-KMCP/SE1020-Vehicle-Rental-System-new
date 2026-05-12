@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DriveAway | Privacy Policy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #ffffff; overflow-x: hidden; padding-top: 5rem; }
+    .gradient-text {
+      background: linear-gradient(135deg, #0D6EFD 0%, #4A12DA 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  </style>
+</head>
+<body class="text-gray-900 antialiased">
+<div th:replace="~{fragments/layout :: publicNav}"></div>
+<main class="max-w-3xl mx-auto px-6 lg:px-8 pb-20">
+  <header class="mb-10 pt-8">
+    <h1 class="text-4xl font-extrabold mb-3">Privacy <span class="gradient-text">Policy</span></h1>
+    <p class="text-gray-500">Last updated: May 12, 2026. This policy describes how DriveAway handles personal data for this application.</p>
+  </header>
+  <section class="prose prose-slate max-w-none space-y-8 text-gray-700 leading-relaxed">
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">1. Data we collect</h2>
+      <p>We collect account details you provide (name, email, phone, username) and booking-related information (vehicle choice, dates, payment references where applicable) needed to operate the rental service.</p>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">2. How we use data</h2>
+      <p>Data is used to authenticate users, fulfil reservations, communicate about bookings, and improve our service. Administrative staff may access booking and customer records for support and compliance.</p>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">3. Storage</h2>
+      <p>In this deployment, records may be stored in local data files under configured application paths. Protect your device and credentials; do not share passwords.</p>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">4. Your choices</h2>
+      <p>You may request corrections to your profile through customer support. You can stop using the service and delete local sessions by signing out or clearing browser data.</p>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">5. Contact</h2>
+      <p>Privacy questions: <a th:href="@{/public/contact}" class="text-[#0D6EFD] font-semibold hover:underline">contact us</a>.</p>
+    </div>
+  </section>
+</main>
+<div th:replace="~{fragments/layout :: publicFooter}"></div>
+</body>
+</html>
