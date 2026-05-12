@@ -1,0 +1,342 @@
+/* DriveAway auth portal — shared login/register mascot UI */
+
+body.auth-portal-body {
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  opacity: 0;
+  transition: opacity 0.18s ease-out;
+}
+
+body.auth-portal-body.page-loaded {
+  opacity: 1;
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+}
+
+#art-container {
+  transition: background-color 0.45s ease;
+}
+
+#art-container.alert-mode {
+  background-color: #FFE5E5;
+}
+
+.mascot-body {
+  position: absolute;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.mascot-eyes {
+  position: relative;
+  transform: translateZ(40px);
+  will-change: transform;
+  z-index: 2;
+}
+
+.mascot-prop {
+  position: absolute;
+  opacity: 0;
+  transform: translateY(20px) translateZ(50px) scale(0.5);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.show-prop {
+  opacity: 1;
+  transform: translateY(0) translateZ(60px) scale(1);
+}
+
+@keyframes blink {
+  0%, 92%, 98%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+.eye-dot {
+  animation: blink 5s infinite;
+  transform-origin: center;
+  transition: transform 0.2s ease;
+}
+
+/* --- THE 4 GUYS --- */
+.shape-boss {
+  background: linear-gradient(135deg, #EF4444, #B91C1C);
+  box-shadow: inset 4px 4px 15px rgba(255, 255, 255, 0.3), inset -4px -4px 15px rgba(0, 0, 0, 0.3), 10px 20px 30px rgba(239, 68, 68, 0.3);
+  width: 8rem;
+  height: 16rem;
+  border-radius: 1rem 1rem 0 0;
+  left: -1rem;
+  bottom: 0;
+  z-index: 10;
+}
+
+.shape-guard-cyan {
+  background: linear-gradient(135deg, #00F2FE, #0088FF);
+  box-shadow: inset 4px 4px 15px rgba(255, 255, 255, 0.4), inset -4px -4px 15px rgba(0, 0, 0, 0.3), 10px 20px 30px rgba(0, 136, 255, 0.3);
+  width: 6rem;
+  height: 12rem;
+  border-radius: 1rem 1rem 0 0;
+  left: 8rem;
+  bottom: 0;
+  z-index: 20;
+}
+
+.shape-rookie {
+  background: linear-gradient(135deg, #FB923C, #C2410C);
+  box-shadow: inset 4px 4px 15px rgba(255, 255, 255, 0.6), inset -4px -4px 15px rgba(0, 0, 0, 0.2), 10px 20px 30px rgba(251, 146, 60, 0.3);
+  width: 7rem;
+  height: 8rem;
+  border-radius: 3rem 3rem 0 1rem;
+  left: 14rem;
+  bottom: 0;
+  z-index: 30;
+}
+
+.shape-tall-black {
+  background: linear-gradient(135deg, #2A2D35, #0D0F16);
+  box-shadow: inset 4px 4px 15px rgba(255, 255, 255, 0.1), inset -4px -4px 15px rgba(0, 0, 0, 0.6), 10px 20px 30px rgba(0, 0, 0, 0.4);
+  width: 6rem;
+  height: 21rem;
+  border-radius: 2rem 2rem 0 0;
+  left: 3.5rem;
+  bottom: 0;
+  z-index: 5;
+}
+
+.shape-hijab {
+  background: linear-gradient(135deg, #7A52FA, #4A12DA);
+  box-shadow: inset 4px 4px 15px rgba(255, 255, 255, 0.4), inset -4px -4px 15px rgba(0, 0, 0, 0.5), 10px 20px 30px rgba(90, 50, 250, 0.4);
+  width: 5.5rem;
+  height: 11.5rem;
+  border-radius: 3rem 3rem 0 0;
+  left: 4.5rem;
+  bottom: 0;
+  z-index: 25;
+}
+
+.hijab-face {
+  background: linear-gradient(135deg, #FFEDD5, #FDBA74);
+  box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.2), 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 3.5rem;
+  height: 5rem;
+  border-radius: 2rem 2rem 1.5rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.shape-yellow-girl {
+  background: linear-gradient(135deg, #FBBF24, #B45309);
+  box-shadow: inset 3px 3px 10px rgba(255, 255, 255, 0.6), inset -3px -3px 10px rgba(0, 0, 0, 0.2), 10px 20px 30px rgba(251, 191, 36, 0.3);
+  width: 4.5rem;
+  height: 5.5rem;
+  border-radius: 4rem 4rem 0 0;
+  left: 12.5rem;
+  bottom: 0;
+  z-index: 35;
+}
+
+.glasses-wrapper {
+  display: flex;
+  gap: 0.1rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.glasses-frame {
+  border: 3px solid #1F2937;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.glasses-lg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.glasses-sm {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-width: 2px;
+}
+
+.glasses-bridge {
+  position: absolute;
+  width: 0.4rem;
+  height: 3px;
+  background-color: #1F2937;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 50%;
+  z-index: 10;
+}
+
+/* --- Success overlay (login) --- */
+#success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.98);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+#success-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.success-checkmark {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #10B981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0.8);
+  opacity: 0;
+  transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.08s;
+}
+
+#success-overlay.active .success-checkmark {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.checkmark-icon {
+  width: 40px;
+  height: 40px;
+  stroke: white;
+  stroke-width: 3;
+  fill: none;
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+  transition: stroke-dashoffset 0.45s ease;
+  transition-delay: 0.35s;
+}
+
+#success-overlay.active .checkmark-icon {
+  stroke-dashoffset: 0;
+}
+
+.success-text {
+  color: #1F2937;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.35s ease;
+  transition-delay: 0.5s;
+}
+
+#success-overlay.active .success-text {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.success-subtext {
+  color: #6B7280;
+  font-size: 0.95rem;
+  font-weight: 400;
+  margin-top: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  transition-delay: 0.65s;
+}
+
+#success-overlay.active .success-subtext {
+  opacity: 1;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 1.5rem;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  transition-delay: 0.8s;
+}
+
+#success-overlay.active .loading-dots {
+  opacity: 1;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  background: #10B981;
+  border-radius: 50%;
+  animation: authPulse 1.4s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes authPulse {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.auth-portal-body {
+    transition: none;
+    opacity: 1;
+  }
+
+  .eye-dot {
+    animation: none;
+  }
+
+  .mascot-prop {
+    transition: none;
+  }
+
+  #art-container {
+    transition: none;
+  }
+
+  #success-overlay,
+  .success-checkmark,
+  .checkmark-icon,
+  .success-text,
+  .success-subtext,
+  .loading-dots {
+    transition: none;
+  }
+
+  .loading-dots span {
+    animation: none;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  #success-overlay.active .checkmark-icon {
+    stroke-dashoffset: 0;
+  }
+}
