@@ -6,6 +6,7 @@ import com.sliit.vehiclerentalsystem01.user.model.Staff;
 import com.sliit.vehiclerentalsystem01.user.model.User;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,13 +14,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.Instant;
 import java.util.UUID;
 
 @Controller
 @RequestMapping("/auth")
 public class UserAuthController {
 
+    private static final String STAFF_REQUESTS_FILE = "staff_access_requests.txt";
+
     private final UserService userService;
+
+    @Value("${app.data.directory:data}")
+    private String dataDirectory;
 
     public UserAuthController(UserService userService) {
         this.userService = userService;
@@ -28,6 +41,11 @@ public class UserAuthController {
     @GetMapping("/login")
     public String showLoginPage() {
         return "user/login";
+    }
+
+    @GetMapping("/staff-login")
+    public String showStaffLoginPage() {
+        return "user/staff-login";
     }
 
     @GetMapping("/register")
@@ -43,22 +61,7 @@ public class UserAuthController {
             RedirectAttributes redirectAttributes) {
         return userService.authenticate(username, password)
                 .map(u -> {
-                    clearAuthFlags(session);
-                    session.setAttribute(UserSessionKeys.USERNAME, sessionUsername(u));
-                    if (u instanceof Customer) {
-                        session.setAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN, Boolean.TRUE);
-                        session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_CUSTOMER");
-                    } else if (u instanceof Staff s) {
-                        if (s.isAdminRole()) {
-                            session.setAttribute(UserSessionKeys.ADMIN_LOGGED_IN, Boolean.TRUE);
-                            session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_ADMIN");
-                            session.setAttribute(UserSessionKeys.IS_MASTER_ADMIN,
-                                    "admin".equalsIgnoreCase(s.getUsername()));
-                        } else {
-                            session.setAttribute(UserSessionKeys.STAFF_LOGGED_IN, Boolean.TRUE);
-                            session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_STAFF");
-                        }
-                    }
+                    establishAuthenticatedSession(session, u);
                     redirectAttributes.addFlashAttribute("message", "Welcome, " + sessionUsername(u));
                     return "redirect:/dashboard";
                 })
@@ -66,6 +69,85 @@ public class UserAuthController {
                     redirectAttributes.addFlashAttribute("error", "Invalid username or password");
                     return "redirect:/auth/login?error=1";
                 });
+    }
+
+    /**
+     * Staff portal sign-in: same credentials as main login, but only {@link Staff} accounts may complete here.
+     */
+    @PostMapping("/staff-login")
+    public String staffLogin(
+            @RequestParam String username,
+            @RequestParam String password,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        return userService.authenticate(username, password)
+                .map(u -> {
+                    if (u instanceof Customer) {
+                        redirectAttributes.addFlashAttribute("error",
+                                "This portal is for staff only. Please use the customer sign-in.");
+                        return "redirect:/auth/staff-login?error=invalid";
+                    }
+                    establishAuthenticatedSession(session, u);
+                    redirectAttributes.addFlashAttribute("message", "Welcome, " + sessionUsername(u));
+                    return "redirect:/dashboard";
+                })
+                .orElseGet(() -> {
+                    redirectAttributes.addFlashAttribute("error", "Invalid username or password");
+                    return "redirect:/auth/staff-login?error=invalid";
+                });
+    }
+
+    /**
+     * Records a pending staff access request (username only; password is never persisted).
+     */
+    @PostMapping("/staff-access-request")
+    public String staffAccessRequest(
+            @RequestParam("new_username") String newUsername,
+            @RequestParam("new_password") String newPassword,
+            RedirectAttributes redirectAttributes) {
+        if (newUsername == null || newUsername.isBlank() || newPassword == null || newPassword.isBlank()) {
+            return "redirect:/auth/staff-login?error=unknown_action";
+        }
+        String user = newUsername.trim();
+        if (userService.findByUsername(user).isPresent()) {
+            redirectAttributes.addFlashAttribute("error", "That username is already taken.");
+            return "redirect:/auth/staff-login?error=username_taken";
+        }
+        try {
+            appendStaffAccessRequestLine(user);
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("error", "Could not save your request. Try again later.");
+            return "redirect:/auth/staff-login?error=invalid";
+        }
+        redirectAttributes.addFlashAttribute("message", "Request recorded for Master Admin review.");
+        return "redirect:/auth/staff-login?success=requested";
+    }
+
+    private void appendStaffAccessRequestLine(String username) throws IOException {
+        Path dir = Paths.get(dataDirectory).toAbsolutePath().normalize();
+        Files.createDirectories(dir);
+        Path file = dir.resolve(STAFF_REQUESTS_FILE);
+        String line = Instant.now().toString() + "," + username + System.lineSeparator();
+        Files.writeString(file, line, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+    }
+
+    private void establishAuthenticatedSession(HttpSession session, User u) {
+        clearAuthFlags(session);
+        session.setAttribute(UserSessionKeys.USERNAME, sessionUsername(u));
+        if (u instanceof Customer) {
+            session.setAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN, Boolean.TRUE);
+            session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_CUSTOMER");
+        } else if (u instanceof Staff s) {
+            if (s.isAdminRole()) {
+                session.setAttribute(UserSessionKeys.ADMIN_LOGGED_IN, Boolean.TRUE);
+                session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_ADMIN");
+                session.setAttribute(UserSessionKeys.IS_MASTER_ADMIN,
+                        "admin".equalsIgnoreCase(s.getUsername()));
+            } else {
+                session.setAttribute(UserSessionKeys.STAFF_LOGGED_IN, Boolean.TRUE);
+                session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_STAFF");
+            }
+        }
     }
 
     private static String sessionUsername(User u) {

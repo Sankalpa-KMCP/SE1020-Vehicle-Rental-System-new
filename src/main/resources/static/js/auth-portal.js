@@ -67,7 +67,7 @@
     document.querySelectorAll('a.transition-link').forEach(function (link) {
       link.addEventListener('click', function (e) {
         var href = link.getAttribute('href') || '';
-        if (href.indexOf('auth/login') >= 0 || href.indexOf('auth/register') >= 0 || href === '/' || href.endsWith('/') || href.indexOf('admin-dashboard') >= 0 || href.indexOf('admin-home') >= 0) {
+        if (href.indexOf('auth/login') >= 0 || href.indexOf('auth/register') >= 0 || href.indexOf('auth/staff-login') >= 0 || href === '/' || href.endsWith('/') || href.indexOf('admin-dashboard') >= 0 || href.indexOf('admin-home') >= 0) {
           e.preventDefault();
           document.body.classList.remove('page-loaded');
           setTimeout(function () {
@@ -84,7 +84,7 @@
     });
     try {
       var ref = document.referrer || '';
-      if (ref.indexOf('auth/login') >= 0 || ref.indexOf('auth/register') >= 0) {
+      if (ref.indexOf('auth/login') >= 0 || ref.indexOf('auth/register') >= 0 || ref.indexOf('auth/staff-login') >= 0) {
         document.body.classList.remove('page-loaded');
         requestAnimationFrame(function () {
           document.body.classList.add('page-loaded');

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Secure Staff Portal | DriveAway</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body class="bg-[#111111] min-h-screen flex items-center justify-center p-4">
+
+<div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+
+  <div class="pt-10 pb-6 px-8 text-center">
+    <div class="relative inline-block mb-4">
+      <i class="ph-fill ph-shield text-[#FFC107] text-6xl drop-shadow-sm"></i>
+      <i class="ph-fill ph-keyhole text-white text-2xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mt-0.5"></i>
+    </div>
+    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Secure Staff Portal</h2>
+    <p class="text-gray-500 text-sm mt-2">Authorized Personnel Only</p>
+  </div>
+
+  <div th:if="${param.error != null and param.error[0] == 'invalid'}"
+       class="mx-8 mb-4 bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 text-center font-semibold">
+    Invalid Username or Password. Access Denied.
+  </div>
+  <div th:if="${param.error != null and param.error[0] == 'username_taken'}"
+       class="mx-8 mb-4 bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 text-center font-semibold">
+    That username is already registered. Choose another.
+  </div>
+  <div th:if="${param.success != null and param.success[0] == 'requested'}"
+       class="mx-8 mb-4 bg-green-50 text-green-700 text-sm p-3 rounded-lg border border-green-100 text-center font-semibold">
+    Request sent to Master Admin successfully.
+  </div>
+  <div th:if="${param.error != null and param.error[0] == 'unknown_action'}"
+       class="mx-8 mb-4 bg-yellow-50 text-yellow-700 text-sm p-3 rounded-lg border border-yellow-100 text-center font-semibold">
+    Invalid request action.
+  </div>
+  <div th:if="${error}" class="mx-8 mb-4 bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 text-center font-semibold" th:text="${error}">Error</div>
+
+  <div class="flex border-b border-gray-200">
+    <button type="button" id="btnLoginTab" class="w-1/2 py-4 text-center font-bold text-gray-900 border-b-[3px] border-[#FFC107] bg-white transition-colors">
+      Staff Login
+    </button>
+    <button type="button" id="btnRequestTab" class="w-1/2 py-4 text-center font-bold text-gray-500 border-b-[3px] border-transparent hover:text-gray-700 bg-gray-50 hover:bg-white transition-colors">
+      Request Access
+    </button>
+  </div>
+
+  <div class="p-8">
+    <form id="loginForm" th:action="@{/auth/staff-login}" method="post" class="space-y-5 block">
+      <div>
+        <label class="block text-sm font-bold text-slate-500 mb-1.5" for="staff-username">Admin Username</label>
+        <input id="staff-username" type="text" name="username" required autocomplete="username"
+               class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-[#FFC107] focus:border-[#FFC107] outline-none transition-all"/>
+      </div>
+      <div>
+        <label class="block text-sm font-bold text-slate-500 mb-1.5" for="staff-password">Password</label>
+        <input id="staff-password" type="password" name="password" required autocomplete="current-password"
+               class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-[#FFC107] focus:border-[#FFC107] outline-none transition-all"/>
+      </div>
+      <button type="submit" class="w-full bg-[#1A202C] text-white font-bold py-3.5 rounded-lg hover:bg-black transition-colors flex items-center justify-center gap-2 mt-2">
+        Secure Login <i class="ph-bold ph-sign-in text-lg"></i>
+      </button>
+    </form>
+
+    <form id="requestForm" th:action="@{/auth/staff-access-request}" method="post" class="space-y-5 hidden">
+      <div class="bg-[#FFF8E1] border border-[#FFE082] rounded-lg p-3 flex gap-2 text-[#8D6E18] text-sm font-medium">
+        <i class="ph-fill ph-info text-lg mt-0.5 shrink-0"></i>
+        <p>New accounts require Master Admin approval.</p>
+      </div>
+      <div>
+        <label class="block text-sm font-bold text-slate-500 mb-1.5" for="new-username">Choose Username</label>
+        <input id="new-username" type="text" name="new_username" required autocomplete="off"
+               class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-[#FFC107] focus:border-[#FFC107] outline-none transition-all"/>
+      </div>
+      <div>
+        <label class="block text-sm font-bold text-slate-500 mb-1.5" for="new-password">Create Password</label>
+        <input id="new-password" type="password" name="new_password" required autocomplete="new-password"
+               class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-[#FFC107] focus:border-[#FFC107] outline-none transition-all"/>
+      </div>
+      <button type="submit" class="w-full bg-[#FFC107] text-gray-900 font-extrabold py-3.5 rounded-lg hover:bg-[#FFB300] transition-colors mt-2">
+        Submit Request
+      </button>
+    </form>
+  </div>
+
+  <div class="bg-gray-50 p-5 text-center border-t border-gray-100">
+    <a th:href="@{/}" class="text-slate-500 hover:text-slate-800 text-sm font-medium inline-flex items-center justify-center gap-1 transition-colors">
+      <i class="ph ph-arrow-left"></i> Return to Public Site
+    </a>
+  </div>
+</div>
+
+<script>
+  (function () {
+    function switchTab(tabName) {
+      var loginForm = document.getElementById('loginForm');
+      var requestForm = document.getElementById('requestForm');
+      var btnLoginTab = document.getElementById('btnLoginTab');
+      var btnRequestTab = document.getElementById('btnRequestTab');
+      var activeLogin = 'w-1/2 py-4 text-center font-bold text-gray-900 border-b-[3px] border-[#FFC107] bg-white transition-colors';
+      var inactiveTab = 'w-1/2 py-4 text-center font-bold text-gray-500 border-b-[3px] border-transparent hover:text-gray-700 bg-gray-50 hover:bg-white transition-colors';
+      if (tabName === 'login') {
+        loginForm.classList.remove('hidden');
+        requestForm.classList.add('hidden');
+        btnLoginTab.className = activeLogin;
+        btnRequestTab.className = inactiveTab;
+      } else {
+        loginForm.classList.add('hidden');
+        requestForm.classList.remove('hidden');
+        btnRequestTab.className = activeLogin;
+        btnLoginTab.className = inactiveTab;
+      }
+    }
+    document.getElementById('btnLoginTab').addEventListener('click', function () { switchTab('login'); });
+    document.getElementById('btnRequestTab').addEventListener('click', function () { switchTab('request'); });
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'requested' || params.get('error') === 'username_taken' || params.get('error') === 'unknown_action') {
+      switchTab('request');
+    }
+  })();
+</script>
+</body>
+</html>
