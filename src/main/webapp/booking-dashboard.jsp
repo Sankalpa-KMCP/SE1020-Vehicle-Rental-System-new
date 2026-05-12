@@ -4,12 +4,12 @@
 <%@ page import="com.example.vehiclerentalsystem01.models.Booking" %>
 
 <%
-  // SECURITY BOUNCER
-  Boolean isLoggedIn = (Boolean) session.getAttribute("adminLoggedIn");
-  if (isLoggedIn == null || !isLoggedIn) {
-    response.sendRedirect("admin-login.jsp");
-    return;
-  }
+  // Allow access to booking dashboard without admin login
+  // Boolean isLoggedIn = (Boolean) session.getAttribute("adminLoggedIn");
+  // if (isLoggedIn == null || !isLoggedIn) {
+  //   response.sendRedirect("admin-login.jsp");
+  //   return;
+  // }
 
   List<Booking> bookingList = (List<Booking>) request.getAttribute("bookingList");
 

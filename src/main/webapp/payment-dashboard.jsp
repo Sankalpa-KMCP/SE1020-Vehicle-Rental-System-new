@@ -2,10 +2,11 @@
 <%@ page import="com.example.vehiclerentalsystem01.models.Payment" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%
-    if (session.getAttribute("adminLoggedIn") == null || !(Boolean) session.getAttribute("adminLoggedIn")) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
+    // Allow access to payment dashboard without admin login
+    // if (session.getAttribute("adminLoggedIn") == null || !(Boolean) session.getAttribute("adminLoggedIn")) {
+    //     response.sendRedirect("login.jsp");
+    //     return;
+    // }
 
     java.util.List paymentList = (java.util.List) request.getAttribute("paymentList");
     if (paymentList == null) {

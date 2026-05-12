@@ -2,10 +2,11 @@
 <%@ page import="com.example.vehiclerentalsystem01.models.Staff" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%
-    if (session.getAttribute("adminLoggedIn") == null || !(Boolean) session.getAttribute("adminLoggedIn")) {
-        response.sendRedirect("/admin-login.jsp");
-        return;
-    }
+    // Allow access to staff dashboard without admin login
+    // if (session.getAttribute("adminLoggedIn") == null || !(Boolean) session.getAttribute("adminLoggedIn")) {
+    //     response.sendRedirect("/admin-login.jsp");
+    //     return;
+    // }
     List<Staff> staffList = (List<Staff>) request.getAttribute("staffList");
     if (staffList == null) {
         staffList = new java.util.ArrayList<>();

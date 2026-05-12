@@ -127,7 +127,8 @@ public class CustomerController {
             return "customer-dashboard";
         } catch (Exception e) {
             e.printStackTrace();
-            return "redirect:/admin-home.jsp";
+            model.addAttribute("error", "Error loading customer data: " + e.getMessage());
+            return "error";
         }
     }
 

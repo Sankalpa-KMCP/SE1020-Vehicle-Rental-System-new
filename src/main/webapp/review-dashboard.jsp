@@ -3,9 +3,10 @@
 <%@ page import="com.example.vehiclerentalsystem01.models.CustomerReview" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%
-    if (session.getAttribute("adminLoggedIn") == null || !(Boolean)session.getAttribute("adminLoggedIn")) {
-        response.sendRedirect("login.jsp"); return;
-    }
+    // Allow access to review dashboard without admin login
+    // if (session.getAttribute("adminLoggedIn") == null || !(Boolean)session.getAttribute("adminLoggedIn")) {
+    //     response.sendRedirect("login.jsp"); return;
+    // }
 
     List<Feedback> reviewList = (List<Feedback>) request.getAttribute("reviewList");
     int totalReviews = reviewList != null ? reviewList.size() : 0;
