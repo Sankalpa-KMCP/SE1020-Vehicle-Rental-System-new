@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Customer directory (admin)</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Customer directory</h1>
+    <p><a class="btn btn-ghost" th:href="@{/dashboard}">Dashboard</a>
+        <a class="btn btn-ghost" th:href="@{/customers(action=editSelf)}">My profile</a></p>
+    <p th:if="${param.msg}" th:text="'Notice: ' + ${param.msg[0]}">msg</p>
+    <p th:if="${param.error}" th:text="'Error: ' + ${param.error[0]}">err</p>
+    <section class="stack">
+        <h2>Summary</h2>
+        <p>Total: <span th:text="${totalGuests}">0</span> |
+            Verified: <span th:text="${verifiedGuests}">0</span> |
+            Unverified: <span th:text="${unverifiedGuests}">0</span></p>
+    </section>
+    <section class="stack">
+        <h2>Search by username</h2>
+        <form method="get" th:action="@{/customers}">
+            <input type="hidden" name="action" value="search"/>
+            <label>Username <input type="text" name="searchUsername" required/></label>
+            <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+        <div th:if="${foundCustomer != null}">
+            <h3>Found</h3>
+            <p th:text="${foundCustomer.username + ' — ' + foundCustomer.email}">u</p>
+            <h4>Bookings</h4>
+            <table>
+                <tr th:each="b : ${customerBookings}">
+                    <td th:text="${b.id}">id</td>
+                    <td th:text="${b.bookingType}">t</td>
+                    <td th:text="${b.vehicleId}">v</td>
+                    <td th:text="${b.status}">s</td>
+                </tr>
+            </table>
+        </div>
+    </section>
+    <section class="stack">
+        <h2>All customers</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Verified</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${customerList}">
+                <td th:text="${c.id}">id</td>
+                <td th:text="${c.fullName}">n</td>
+                <td th:text="${c.username}">u</td>
+                <td th:text="${c.email}">e</td>
+                <td th:text="${c.verified}">v</td>
+                <td class="actions">
+                    <a class="btn btn-ghost" th:href="@{/customers(action=edit,id=${c.id})}">Edit</a>
+                    <a class="btn btn-ghost" th:href="@{/customers(action=delete,id=${c.id})}">Delete</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

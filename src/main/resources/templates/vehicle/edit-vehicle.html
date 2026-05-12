@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Edit vehicle</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Edit vehicle</h1>
+    <form class="form-grid" method="post" th:action="@{/vehicles}">
+        <input type="hidden" name="action" value="update"/>
+        <input type="hidden" name="id" th:value="${vehicle.id}"/>
+        <label>Brand <input type="text" name="brand" th:value="${vehicle.brand}" required/></label>
+        <label>Model <input type="text" name="model" th:value="${vehicle.model}" required/></label>
+        <label>Daily rate <input type="number" step="0.01" name="rate" th:value="${vehicle.dailyRate}" required/></label>
+        <label>Type
+            <select name="vehicleType">
+                <option value="Car" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Car)}">Car</option>
+                <option value="Motorcycle" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Motorcycle)}">Motorcycle</option>
+            </select>
+        </label>
+        <th:block th:if="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Car)}">
+            <label>Seating capacity <input type="number" name="capacity" th:value="${vehicle.seatingCapacity}"/></label>
+            <input type="hidden" name="helmetIncluded" value="false"/>
+        </th:block>
+        <th:block th:if="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Motorcycle)}">
+            <input type="hidden" name="capacity" value="4"/>
+            <label><input type="checkbox" name="helmetIncluded" th:checked="${vehicle.helmetIncluded}"/> Helmet included</label>
+        </th:block>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a class="btn btn-ghost" th:href="@{/vehicles}">Cancel</a>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>User detail</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/user.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>User</h1>
+    <dl>
+        <dt>ID</dt>
+        <dd th:text="${user.id}">-</dd>
+        <dt>Username</dt>
+        <dd th:text="${user.username}">-</dd>
+        <dt>Email</dt>
+        <dd th:text="${user.email}">-</dd>
+        <dt>Type</dt>
+        <dd th:text="${user.userRole}">-</dd>
+        <th:block th:if="${user instanceof T(com.sliit.vehiclerentalsystem01.user.model.Customer)}">
+            <dt>Name</dt>
+            <dd th:text="${user.name}">-</dd>
+            <dt>Phone</dt>
+            <dd th:text="${user.phone}">-</dd>
+            <dt>Driver license</dt>
+            <dd th:text="${user.driverLicense}">-</dd>
+        </th:block>
+        <th:block th:if="${user instanceof T(com.sliit.vehiclerentalsystem01.user.model.Staff)}">
+            <dt>Name</dt>
+            <dd th:text="${user.name}">-</dd>
+            <dt>Phone</dt>
+            <dd th:text="${user.phone}">-</dd>
+            <dt>Role</dt>
+            <dd th:text="${user.role}">-</dd>
+            <dt>Access</dt>
+            <dd th:text="${user.accessLevel}">-</dd>
+        </th:block>
+    </dl>
+    <p class="actions">
+        <a class="btn btn-ghost" th:href="@{/users}">Back</a>
+        <a class="btn btn-primary" th:href="@{/users/{id}/edit(id=${user.id})}">Edit</a>
+    </p>
+</main>
+</body>
+</html>

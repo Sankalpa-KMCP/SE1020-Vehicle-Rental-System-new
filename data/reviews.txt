@@ -1,0 +1,2 @@
+# reviewId,reviewerName,rating,comments,status,bookingId,vehicleId,staffReply,repliedBy,repliedAt
+REV-001,ada,5,Great car,PUBLISHED,BK-001,V-001,Thanks for renting!,admin,2026-05-11T10:00:00

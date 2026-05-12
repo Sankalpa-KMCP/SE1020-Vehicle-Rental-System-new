@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Fleet</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/vehicle.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Fleet</h1>
+    <p class="actions">
+        <a class="btn btn-primary" th:href="@{/vehicles/add}">Add vehicle (legacy form)</a>
+        <a class="btn btn-primary" th:href="@{/vehicles/new}">Add vehicle (modern form)</a>
+    </p>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Rate</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="v : ${vehicleList}">
+            <td th:text="${v.id}">id</td>
+            <td th:text="${v.vehicleType}">t</td>
+            <td th:text="${v.brand}">b</td>
+            <td th:text="${v.model}">m</td>
+            <td th:text="${v.dailyRate}">r</td>
+            <td class="actions">
+                <a class="btn btn-ghost" th:href="@{/vehicles(action=edit,id=${v.id})}">Edit</a>
+                <a class="btn btn-danger" th:href="@{/vehicles(action=delete,id=${v.id})}">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

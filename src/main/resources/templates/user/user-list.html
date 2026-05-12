@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Users</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/user.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Users</h1>
+    <p><a class="btn btn-primary" th:href="@{/users/new}">Add user</a></p>
+    <div class="stack">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Type</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${users}">
+                <td th:text="${u.id}">id</td>
+                <td th:text="${u.username}">user</td>
+                <td th:text="${u.email}">email</td>
+                <td th:text="${u.userRole}">TYPE</td>
+                <td class="actions">
+                    <a class="btn btn-ghost" th:href="@{/users/{id}(id=${u.id})}">View</a>
+                    <a class="btn btn-ghost" th:href="@{/users/{id}/edit(id=${u.id})}">Edit</a>
+                    <form th:action="@{/users/{id}/delete(id=${u.id})}" method="post" style="display:inline">
+                        <button class="btn btn-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

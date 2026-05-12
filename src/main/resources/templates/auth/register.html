@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Register</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Register</h1>
+    <p class="lead" th:if="${error}" th:text="${error}">Error</p>
+    <form class="form-grid" method="post" th:action="@{/auth/register}">
+        <label>Full name <input type="text" name="name" required/></label>
+        <label>Email <input type="email" name="email" required/></label>
+        <label>Username <input type="text" name="username" required/></label>
+        <label>Password <input type="password" name="password" required/></label>
+        <label>Phone <input type="text" name="phone" required/></label>
+        <label>NIC (optional) <input type="text" name="nic"/></label>
+        <label>License (optional) <input type="text" name="license"/></label>
+        <button class="btn btn-primary" type="submit">Register</button>
+        <a class="btn btn-ghost" th:href="@{/auth/login}">Back to login</a>
+    </form>
+</main>
+</body>
+</html>

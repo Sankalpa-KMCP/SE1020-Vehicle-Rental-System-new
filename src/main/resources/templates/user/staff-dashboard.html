@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Staff</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Staff</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Username</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="s : ${staffList}">
+            <td th:text="${s.id}">id</td>
+            <td th:text="${s.fullName}">n</td>
+            <td th:text="${s.staffRole}">r</td>
+            <td th:text="${s.username}">u</td>
+            <td>
+                <a class="btn btn-ghost" th:href="@{/staff(action=edit,id=${s.id})}">Edit</a>
+                <a class="btn btn-danger" th:href="@{/staff(action=delete,id=${s.id})}">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <h2 class="stack">Add staff</h2>
+    <form class="form-grid" method="post" th:action="@{/staff}">
+        <input type="hidden" name="action" value="create"/>
+        <label>Manual ID (optional) <input type="text" name="manualId"/></label>
+        <label>Name <input type="text" name="name" required/></label>
+        <label>Email <input type="email" name="email" required/></label>
+        <label>Phone <input type="text" name="phone"/></label>
+        <label>Username <input type="text" name="username" required/></label>
+        <label>Password <input type="password" name="password" required/></label>
+        <label>Role
+            <select name="role">
+                <option value="Admin">Admin</option>
+                <option value="Support">Support</option>
+            </select>
+        </label>
+        <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+</main>
+</body>
+</html>

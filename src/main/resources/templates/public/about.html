@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DriveAway | About Us</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #ffffff; overflow-x: hidden; padding-top: 5rem; }
+    .gradient-text {
+      background: linear-gradient(135deg, #0D6EFD 0%, #4A12DA 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2,0.8,0.2,1); }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body class="text-gray-900 antialiased">
+<div th:replace="~{fragments/layout :: publicNav}"></div>
+<main>
+  <section class="pt-24 pb-20 bg-gradient-to-br from-[#F8FAFF] to-white">
+    <div class="max-w-[1400px] mx-auto px-6 lg:px-8 text-center">
+      <div class="reveal">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-4">About <span class="gradient-text">DriveAway</span></h1>
+        <p class="text-xl text-gray-500 max-w-2xl mx-auto">We’re redefining car rentals in Sri Lanka – making it seamless, transparent, and enjoyable.</p>
+      </div>
+    </div>
+  </section>
+  <section class="py-20">
+    <div class="max-w-[1400px] mx-auto px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
+      <div class="reveal order-2 md:order-1">
+        <div class="inline-block bg-gray-100 px-4 py-2 rounded-full text-sm font-bold text-[#0D6EFD] mb-6">Our Mission</div>
+        <h2 class="text-3xl font-bold mb-6">Empowering journeys, one drive at a time.</h2>
+        <p class="text-gray-600 text-lg mb-6">At DriveAway, we believe renting a car should be as exciting as the journey itself.</p>
+      </div>
+      <div class="reveal order-1 md:order-2">
+        <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&amp;w=800&amp;auto=format" alt="Road trip" class="rounded-2xl shadow-xl w-full"/>
+      </div>
+    </div>
+  </section>
+</main>
+<div th:replace="~{fragments/layout :: publicFooter}"></div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  });
+</script>
+</body>
+</html>

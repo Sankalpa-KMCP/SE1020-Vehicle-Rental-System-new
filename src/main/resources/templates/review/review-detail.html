@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Review</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/review.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Review</h1>
+    <dl>
+        <dt>ID</dt>
+        <dd th:text="${review.id}">-</dd>
+        <dt>Type</dt>
+        <dd th:text="${review.reviewType}">-</dd>
+        <th:block th:if="${review instanceof T(com.sliit.vehiclerentalsystem01.review.model.CustomerReview)}">
+            <dt>Status</dt>
+            <dd th:text="${review.status}">-</dd>
+            <dt>Reviewer</dt>
+            <dd th:text="${review.reviewerName}">-</dd>
+            <dt>Booking</dt>
+            <dd th:text="${review.bookingId}">-</dd>
+            <dt>Vehicle</dt>
+            <dd th:text="${review.vehicleId}">-</dd>
+            <dt>Rating</dt>
+            <dd th:text="${review.rating}">-</dd>
+            <dt>Comment</dt>
+            <dd th:text="${review.comments}">-</dd>
+            <dt>Staff reply</dt>
+            <dd th:text="${review.staffReply}">-</dd>
+            <dt>Replied by</dt>
+            <dd th:text="${review.repliedBy}">-</dd>
+            <dt>Replied at</dt>
+            <dd th:text="${review.repliedAt}">-</dd>
+        </th:block>
+    </dl>
+    <p class="actions">
+        <a class="btn btn-ghost" th:href="@{/reviews}">Back</a>
+        <a class="btn btn-primary" th:href="@{/reviews/{id}/edit(id=${review.id})}">Edit</a>
+    </p>
+</main>
+</body>
+</html>

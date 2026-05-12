@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Review form</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/review.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1 th:text="${mode == 'edit'} ? 'Edit review' : 'New review'">Review</h1>
+    <form class="form-grid" method="post"
+          th:action="${entityId != null} ? @{/reviews/{id}(id=${entityId})} : @{/reviews}">
+        <fieldset>
+            <legend>Review type</legend>
+            <label><input type="radio" name="reviewType" value="CUSTOMER" th:checked="${reviewType == 'CUSTOMER'}"/> Customer review</label>
+            <label><input type="radio" name="reviewType" value="STAFF_REPLY" th:checked="${reviewType == 'STAFF_REPLY'}"/> Staff reply</label>
+        </fieldset>
+        <div id="customerReviewBlock" th:object="${customerReview}">
+            <h2>Customer review</h2>
+            <label>Customer (username)
+                <select th:field="*{customerId}" required>
+                    <option value="">—</option>
+                    <option th:each="c : ${customers}" th:value="${c.username}"
+                            th:text="${c.username + ' (' + c.id + ')'}">c</option>
+                </select>
+            </label>
+            <label>Vehicle (optional)
+                <select th:field="*{vehicleId}">
+                    <option value="">—</option>
+                    <option th:each="v : ${vehicles}" th:value="${v.id}"
+                            th:text="${v.brand + ' ' + v.model + ' (' + v.id + ')'}">v</option>
+                </select>
+            </label>
+            <label>Rating (1–5) <input type="number" min="1" max="5" th:field="*{rating}" required/></label>
+            <label>Comment <textarea th:field="*{comment}"></textarea></label>
+        </div>
+        <div id="staffReplyBlock">
+            <h2>Staff reply</h2>
+            <label>Parent review
+                <select name="parentReviewId" required>
+                    <option value="">—</option>
+                    <option th:each="pr : ${parentReviews}" th:value="${pr.reviewId}"
+                            th:text="${pr.reviewId}">p</option>
+                </select>
+            </label>
+            <label>Staff user
+                <select name="repliedBy" required>
+                    <option value="">—</option>
+                    <option th:each="s : ${staffUsers}" th:value="${s.username}"
+                            th:text="${s.username + ' (' + s.id + ')'}">s</option>
+                </select>
+            </label>
+            <label>Message <textarea name="staffReply" required></textarea></label>
+        </div>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a class="btn btn-ghost" th:href="@{/reviews}">Cancel</a>
+    </form>
+</main>
+<script th:src="@{/js/review.js}"></script>
+</body>
+</html>

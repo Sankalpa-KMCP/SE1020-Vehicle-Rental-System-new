@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Edit staff</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Edit staff</h1>
+    <form class="form-grid" method="post" th:action="@{/staff}">
+        <input type="hidden" name="action" value="update"/>
+        <input type="hidden" name="id" th:value="${staff.id}"/>
+        <label>Name <input type="text" name="name" th:value="${staff.fullName}" required/></label>
+        <label>Email <input type="email" name="email" th:value="${staff.email}" required/></label>
+        <label>Phone <input type="text" name="phone" th:value="${staff.phone}"/></label>
+        <label>Username <input type="text" name="username" th:value="${staff.username}" required/></label>
+        <label>Password <input type="password" name="password" th:value="${staff.password}" required/></label>
+        <label>Role
+            <select name="role">
+                <option value="Admin" th:selected="${#strings.equalsIgnoreCase(staff.staffRole, 'ADMIN')}">Admin</option>
+                <option value="Support" th:selected="${!#strings.equalsIgnoreCase(staff.staffRole, 'ADMIN')}">Support</option>
+            </select>
+        </label>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a class="btn btn-ghost" th:href="@{/staff}">Cancel</a>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Booking form</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/booking.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1 th:text="${mode == 'edit'} ? 'Edit booking' : 'New booking'">Booking</h1>
+    <form class="form-grid" method="post"
+          th:action="${entityId != null} ? @{/bookings/{id}(id=${entityId})} : @{/bookings}"
+          th:object="${booking}">
+        <h2>Reservation</h2>
+        <label>Customer (username)
+            <select th:field="*{customerName}" required>
+                <option value="">—</option>
+                <option th:each="c : ${customers}" th:value="${c.username}"
+                        th:text="${c.username + ' (' + c.id + ')'}">c</option>
+            </select>
+        </label>
+        <label>Vehicle
+            <select th:field="*{vehicleId}" required>
+                <option value="">—</option>
+                <option th:each="v : ${vehicles}" th:value="${v.id}"
+                        th:text="${v.brand + ' ' + v.model + ' (' + v.id + ')'}">v</option>
+            </select>
+        </label>
+        <label>Rental start <input type="date" th:field="*{rentalDate}" required/></label>
+        <label>Duration (days) <input type="number" min="1" th:field="*{durationDays}" required/></label>
+        <label>Status <input type="text" th:field="*{status}" placeholder="CONFIRMED"/></label>
+        <label>Staff message <textarea th:field="*{staffMessage}"></textarea></label>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a class="btn btn-ghost" th:href="@{/bookings}">Cancel</a>
+    </form>
+</main>
+</body>
+</html>

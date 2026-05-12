@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Booking</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/booking.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Booking</h1>
+    <dl>
+        <dt>ID</dt>
+        <dd th:text="${booking.id}">-</dd>
+        <dt>Type</dt>
+        <dd th:text="${booking.bookingType}">-</dd>
+        <dt>Customer</dt>
+        <dd th:text="${booking.customerName}">-</dd>
+        <dt>Vehicle</dt>
+        <dd th:text="${booking.vehicleId}">-</dd>
+        <dt>Rental start</dt>
+        <dd th:text="${booking.rentalDate}">-</dd>
+        <dt>Duration (days)</dt>
+        <dd th:text="${booking.durationDays}">-</dd>
+        <dt>Status</dt>
+        <dd th:text="${booking.status}">-</dd>
+        <dt>Staff message</dt>
+        <dd th:text="${booking.staffMessage}">-</dd>
+    </dl>
+    <p class="actions">
+        <a class="btn btn-ghost" th:href="@{/bookings}">Back</a>
+        <a class="btn btn-primary" th:href="@{/bookings/{id}/edit(id=${booking.id})}">Edit</a>
+    </p>
+</main>
+</body>
+</html>

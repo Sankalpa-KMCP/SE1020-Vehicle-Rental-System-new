@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Vehicle Rental System</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Vehicle Rental System</h1>
+    <p class="lead">SLIIT package-by-feature demo: users, fleet, bookings, payments, and reviews — backed by plain text files.</p>
+    <ul class="tiles">
+        <li><a th:href="@{/auth/login}">Login</a> / <a th:href="@{/auth/register}">Register</a></li>
+        <li><a th:href="@{/dashboard}">Role dashboard</a></li>
+        <li><a th:href="@{/customers}">Customer directory</a></li>
+        <li><a th:href="@{/staff}">Staff admin</a></li>
+        <li><a th:href="@{/users}">Manage users (CRUD)</a></li>
+        <li><a th:href="@{/vehicles}">Manage vehicles</a></li>
+        <li><a th:href="@{/bookings}">Manage bookings</a></li>
+        <li><a th:href="@{/payments}">Manage payments</a></li>
+        <li><a th:href="@{/reviews}">Manage reviews</a></li>
+    </ul>
+</main>
+</body>
+</html>

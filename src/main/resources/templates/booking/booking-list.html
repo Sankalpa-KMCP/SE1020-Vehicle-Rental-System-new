@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Bookings</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/booking.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Bookings</h1>
+    <p><a class="btn btn-primary" th:href="@{/bookings/new}">New booking</a></p>
+    <div class="stack">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Customer</th>
+                <th>Vehicle</th>
+                <th>Start</th>
+                <th>Days</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="b : ${bookings}">
+                <td th:text="${b.id}">id</td>
+                <td th:text="${b.bookingType}">type</td>
+                <td th:text="${b.customerName}">c</td>
+                <td th:text="${b.vehicleId}">v</td>
+                <td th:text="${b.rentalDate}">s</td>
+                <td th:text="${b.durationDays}">d</td>
+                <td th:text="${b.status}">st</td>
+                <td class="actions">
+                    <a class="btn btn-ghost" th:href="@{/bookings/{id}(id=${b.id})}">View</a>
+                    <a class="btn btn-ghost" th:href="@{/bookings/{id}/edit(id=${b.id})}">Edit</a>
+                    <form th:action="@{/bookings/{id}/delete(id=${b.id})}" method="post" style="display:inline">
+                        <button class="btn btn-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

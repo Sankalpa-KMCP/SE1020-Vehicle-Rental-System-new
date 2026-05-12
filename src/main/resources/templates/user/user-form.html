@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${mode == 'edit'} ? 'Edit user' : 'New user'">User form</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/user.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1 th:text="${mode == 'edit'} ? 'Edit user' : 'New user'">User</h1>
+    <form class="form-grid user-form" method="post"
+          th:action="${entityId != null} ? @{/users/{id}(id=${entityId})} : @{/users}">
+        <fieldset>
+            <legend>Account type</legend>
+            <label><input type="radio" name="userType" value="CUSTOMER" th:checked="${userType == 'CUSTOMER'}"/> Customer</label>
+            <label><input type="radio" name="userType" value="STAFF" th:checked="${userType == 'STAFF'}"/> Staff</label>
+        </fieldset>
+        <div id="customerFields" th:object="${customer}">
+            <h2>Customer</h2>
+            <label>Full name <input type="text" th:field="*{fullName}" required/></label>
+            <label>Username <input type="text" th:field="*{username}" required/></label>
+            <label>Password <input type="password" th:field="*{password}" required/></label>
+            <label>Email <input type="email" th:field="*{email}" required/></label>
+            <label>Phone <input type="text" th:field="*{phone}"/></label>
+            <label>Driver license <input type="text" th:field="*{driverLicense}"/></label>
+        </div>
+        <div id="staffFields" th:object="${staff}">
+            <h2>Staff</h2>
+            <label>Name <input type="text" th:field="*{name}" required/></label>
+            <label>Username <input type="text" th:field="*{username}" required/></label>
+            <label>Password <input type="password" th:field="*{password}" required/></label>
+            <label>Email <input type="email" th:field="*{email}" required/></label>
+            <label>Phone <input type="text" th:field="*{phone}"/></label>
+        </div>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a class="btn btn-ghost" th:href="@{/users}">Cancel</a>
+    </form>
+</main>
+<script th:src="@{/js/user.js}"></script>
+</body>
+</html>
