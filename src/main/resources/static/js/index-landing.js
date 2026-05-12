@@ -1,56 +1,116 @@
 (function () {
-  var hasRun = false;
-  function qs(sel) { return document.querySelector(sel); }
-  function finishLoader(force) {
-    document.body.classList.add('page-loaded');
-    var loader = qs('#page-loader');
-    if (!loader) return;
-    if (loader.dataset.closed === '1' && !force) return;
-    loader.dataset.closed = '1';
-    loader.classList.add('hide');
-    window.setTimeout(function () {
-      if (loader.parentNode) loader.parentNode.removeChild(loader);
-    }, 1300);
+  var qs = function (sel) { return document.querySelector(sel); };
+  var closed = false;
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var tDom = 0;
+  var minShowMs = 300;
+  var maxWaitMs = 900;
+  var pollHandle = null;
+  var ultimateHandle = null;
+  var textHandle = null;
+
+  function removeLoaderEl(loader) {
+    if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
   }
-  function showLoaderSequence() {
-    if (hasRun) return;
-    hasRun = true;
+
+  function finishLoader() {
+    if (closed) return;
+    closed = true;
+    if (pollHandle) {
+      window.clearInterval(pollHandle);
+      pollHandle = null;
+    }
+    if (ultimateHandle) {
+      window.clearTimeout(ultimateHandle);
+      ultimateHandle = null;
+    }
+    if (textHandle) {
+      window.clearInterval(textHandle);
+      textHandle = null;
+    }
     var loader = qs('#page-loader');
-    var loaderText = qs('.loader-text');
-    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!loader) {
-      finishLoader(true);
+      document.body.classList.add('page-loaded');
       return;
     }
-    var textMessages = ['Igniting Engine', 'Loading Fleet', 'Ready to Drive'];
-    var textIndex = 0;
-    var textInterval;
-    if (loaderText && !prefersReducedMotion) {
-      textInterval = window.setInterval(function () {
-        textIndex = (textIndex + 1) % textMessages.length;
-        loaderText.textContent = textMessages[textIndex];
-      }, 400);
-      window.setTimeout(function () {
-        if (textInterval) clearInterval(textInterval);
-      }, 1200);
+    if (prefersReducedMotion) {
+      loader.classList.add('hide');
+      document.body.classList.add('page-loaded');
+      removeLoaderEl(loader);
+      return;
     }
-    window.setTimeout(function () { finishLoader(false); }, prefersReducedMotion ? 0 : 800);
-    window.setTimeout(function () { finishLoader(true); }, 1500);
-  }
-  if (document.readyState === 'complete') {
-    requestAnimationFrame(showLoaderSequence);
-  } else {
-    window.addEventListener('load', function onLoad() {
-      window.removeEventListener('load', onLoad);
-      requestAnimationFrame(showLoaderSequence);
+    loader.classList.add('hide');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        document.body.classList.add('page-loaded');
+      });
     });
-    window.setTimeout(function () { if (!hasRun) showLoaderSequence(); }, 1800);
+    var fallbackMs = 560;
+    var didCleanup = false;
+    function cleanup() {
+      if (didCleanup) return;
+      didCleanup = true;
+      removeLoaderEl(loader);
+    }
+    function onEnd(e) {
+      if (e.target !== loader || e.propertyName !== 'opacity') return;
+      loader.removeEventListener('transitionend', onEnd);
+      cleanup();
+    }
+    loader.addEventListener('transitionend', onEnd);
+    window.setTimeout(function () {
+      loader.removeEventListener('transitionend', onEnd);
+      cleanup();
+    }, fallbackMs);
+  }
+
+  function maybeFinish() {
+    if (closed) return;
+    var elapsed = performance.now() - tDom;
+    var loadComplete = document.readyState === 'complete';
+    if ((loadComplete && elapsed >= minShowMs) || elapsed >= maxWaitMs) {
+      finishLoader();
+    }
+  }
+
+  function boot() {
+    if (closed) return;
+    if (prefersReducedMotion) {
+      finishLoader();
+      return;
+    }
+    tDom = performance.now();
+    var loaderText = qs('.loader-text');
+    var messages = ['Igniting engine', 'Syncing fleet', 'Ready'];
+    var i = 0;
+    if (loaderText) {
+      textHandle = window.setInterval(function () {
+        i = (i + 1) % messages.length;
+        loaderText.textContent = messages[i];
+      }, 520);
+    }
+    pollHandle = window.setInterval(function () {
+      maybeFinish();
+    }, 48);
+    window.addEventListener('load', function () { maybeFinish(); });
+    ultimateHandle = window.setTimeout(function () {
+      finishLoader();
+    }, 960);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
   }
 })();
 
 document.addEventListener('DOMContentLoaded', function () {
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  document.body.classList.add('page-loaded');
+
+  document.addEventListener('visibilitychange', function () {
+    document.body.classList.toggle('index-tab-paused', document.hidden);
+  });
 
   var parallaxBg = document.getElementById('parallax-bg');
   function updateParallax() {
