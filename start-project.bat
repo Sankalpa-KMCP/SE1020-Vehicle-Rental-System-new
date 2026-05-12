@@ -1,6 +1,0 @@
-@echo off
-echo Starting Vehicle Rental System...
-cd /d "C:\Users\chamidu\Desktop\new oop\VehicleRentalSystem01"
-echo Running on port 8080...
-./mvnw spring-boot:run
-pause
