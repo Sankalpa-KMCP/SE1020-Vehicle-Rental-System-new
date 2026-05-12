@@ -361,4 +361,44 @@ public class CustomerPortalController {
         reviewService.save(cr);
         return "redirect:/customer/home";
     }
+
+    @GetMapping("/bookings/{id}/edit")
+    public String editBookingForm(HttpSession session, @PathVariable String id, Model model) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        String un = username(session);
+        Optional<Booking> ob = bookingService.findById(id);
+        if (ob.isEmpty()) {
+            return "redirect:/customer/home";
+        }
+        Booking b = ob.get();
+        if (b.getCustomerName() == null || !un.equalsIgnoreCase(b.getCustomerName().trim())) {
+            return "redirect:/customer/home";
+        }
+        model.addAttribute("booking", b);
+        return "booking/edit-booking";
+    }
+
+    @PostMapping("/bookings/{id}/edit")
+    public String editBookingSubmit(HttpSession session, @PathVariable String id,
+                                    @RequestParam String rentalDate,
+                                    @RequestParam int days) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        String un = username(session);
+        Optional<Booking> ob = bookingService.findById(id);
+        if (ob.isEmpty()) {
+            return "redirect:/customer/bookings";
+        }
+        Booking b = ob.get();
+        if (b.getCustomerName() == null || !un.equalsIgnoreCase(b.getCustomerName().trim())) {
+            return "redirect:/customer/bookings";
+        }
+        b.setRentalDate(rentalDate == null ? b.getRentalDate() : rentalDate.trim());
+        b.setDurationDays(Math.max(1, days));
+        bookingService.save(b);
+        return "redirect:/customer/bookings";
+    }
 }

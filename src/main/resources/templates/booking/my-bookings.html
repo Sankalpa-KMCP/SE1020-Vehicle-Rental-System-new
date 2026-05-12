@@ -34,6 +34,7 @@
                 <td class="p-4" th:text="${b.days}">1</td>
                 <td class="p-4"><span class="text-sm font-semibold text-gray-700" th:text="${b.status}">S</span></td>
                 <td class="p-4 text-right space-x-2">
+                    <a th:href="@{/customer/bookings/{id}/edit(id=${b.id})}" class="text-blue-600 font-bold text-sm">Edit</a>
                     <a th:if="${payAllowed != null and payAllowed.get(b.id)}" th:href="@{/customer/pay(bookingId=${b.id})}" class="text-green-600 font-bold text-sm">Pay</a>
                     <a th:href="@{/customer/bookings/{bid}/cancel(bid=${b.id})}" class="text-red-600 font-bold text-sm">Cancel</a>
                 </td>

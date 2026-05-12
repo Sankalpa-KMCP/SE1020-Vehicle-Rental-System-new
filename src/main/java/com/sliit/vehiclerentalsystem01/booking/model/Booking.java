@@ -1,22 +1,23 @@
 package com.sliit.vehiclerentalsystem01.booking.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 /**
  * Vehicle reservation transaction. {@link #getId()} aliases {@link #getTransactionId()}.
  * Bookings store {@code customerName} as the customer's login username when created via the app.
  */
-@Getter
-@Setter
-@NoArgsConstructor
 public class Booking extends Transaction {
 
     private String vehicleId;
     private int durationDays;
     private String status;
     private String staffMessage;
+
+    public Booking() {
+        super();
+        this.vehicleId = "";
+        this.durationDays = 0;
+        this.status = "";
+        this.staffMessage = "";
+    }
 
     public Booking(String transactionId, String customerName, String rentalDate, String vehicleId,
                    int durationDays, String status) {
@@ -29,7 +30,40 @@ public class Booking extends Transaction {
         this.vehicleId = vehicleId;
         this.durationDays = durationDays;
         this.status = status;
-        this.staffMessage = staffMessage == null ? "" : staffMessage;
+        this.staffMessage = staffMessage;
+    }
+
+    // Getters and Setters
+    public String getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    public int getDurationDays() {
+        return durationDays;
+    }
+
+    public void setDurationDays(int durationDays) {
+        this.durationDays = durationDays;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStaffMessage() {
+        return staffMessage;
+    }
+
+    public void setStaffMessage(String staffMessage) {
+        this.staffMessage = staffMessage;
     }
 
     /** Same as transaction id (legacy JSP compatibility). */

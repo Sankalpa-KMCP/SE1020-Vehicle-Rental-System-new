@@ -3,8 +3,10 @@ package com.sliit.vehiclerentalsystem01.review.controller;
 import com.sliit.vehiclerentalsystem01.review.model.CustomerReview;
 import com.sliit.vehiclerentalsystem01.review.model.Feedback;
 import com.sliit.vehiclerentalsystem01.review.service.ReviewService;
+import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.model.Customer;
 import com.sliit.vehiclerentalsystem01.user.model.Staff;
+import com.sliit.vehiclerentalsystem01.user.model.User;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
@@ -59,7 +61,7 @@ public class ReviewController {
     @GetMapping
     public String list(Model model) {
         model.addAttribute("reviews", reviewService.findAll());
-        return "review/review-list";
+        return "review/review-dashboard";
     }
 
     @GetMapping("/new")
@@ -92,22 +94,9 @@ public class ReviewController {
     public String edit(@PathVariable String id, Model model) {
         return reviewService.findById(id)
                 .map(r -> {
-                    model.addAttribute("mode", "edit");
-                    model.addAttribute("entityId", id);
-                    model.addAttribute("reviewType", "CUSTOMER");
-                    if (r instanceof CustomerReview c) {
-                        model.addAttribute("customerReview", c);
-                    } else {
-                        model.addAttribute("customerReview", new CustomerReview());
-                    }
-                    model.addAttribute("customers", userService.findAll().stream()
-                            .filter(u -> u instanceof Customer)
-                            .toList());
-                    model.addAttribute("vehicles", vehicleService.findAll());
-                    model.addAttribute("reviews", reviewService.findAll());
-                    model.addAttribute("parentReviews", customerReviewsOnly());
-                    model.addAttribute("staffUsers", staffUsersOnly());
-                    return "review/review-form";
+                    CustomerReview c = (CustomerReview) r;
+                    model.addAttribute("customerReview", c);
+                    return "review/edit-review";
                 })
                 .orElse("redirect:/reviews");
     }

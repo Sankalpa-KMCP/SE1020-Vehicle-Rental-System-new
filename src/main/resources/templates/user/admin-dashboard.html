@@ -97,6 +97,14 @@
       <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Support &amp; contact</h3>
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Public contact page and help information.</p>
     </a>
+    <a th:if="${session.isMasterAdmin}"
+       th:href="@{/user/master-console}" class="dashboard-card p-12 relative flex flex-col items-center text-center border-2 border-amber-200/60">
+      <div class="w-28 h-28 rounded-full bg-amber-50 flex items-center justify-center mb-8">
+        <i class="ph-fill ph-terminal-window text-[64px] text-amber-600"></i>
+      </div>
+      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Master console</h3>
+      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Review pending master-admin requests (read-only).</p>
+    </a>
   </div>
 </main>
 </body>

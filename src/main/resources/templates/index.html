@@ -2,26 +2,69 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Vehicle Rental System</title>
-    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DriveAway | Premium Vehicle Rentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link rel="stylesheet" th:href="@{/css/index-landing.css}"/>
 </head>
-<body>
-<div th:replace="~{layout :: navbar}"></div>
-<main class="container">
-    <h1>Vehicle Rental System</h1>
-    <p class="lead">SLIIT package-by-feature demo: users, fleet, bookings, payments, and reviews — backed by plain text files.</p>
-    <ul class="tiles">
-        <li><a th:href="@{/auth/login}">Login</a> / <a th:href="@{/auth/register}">Register</a></li>
-        <li><a th:href="@{/dashboard}">Role dashboard</a></li>
-        <li><a th:href="@{/customers}">Customer directory</a></li>
-        <li><a th:href="@{/staff}">Staff admin</a></li>
-        <li><a th:href="@{/users}">Manage users (CRUD)</a></li>
-        <li><a th:href="@{/vehicles}">Manage vehicles</a></li>
-        <li><a th:href="@{/bookings}">Manage bookings</a></li>
-        <li><a th:href="@{/payments}">Manage payments</a></li>
-        <li><a th:href="@{/reviews}">Manage reviews</a></li>
-    </ul>
-</main>
+<body class="index-landing text-gray-900 antialiased selection:bg-[#0D6EFD] selection:text-white">
+
+<div id="welcome-overlay">
+    <div class="welcome-bg-circle"></div>
+    <div class="welcome-bg-circle"></div>
+    <div class="welcome-bg-circle"></div>
+    <div class="welcome-particles">
+        <div class="welcome-particle"></div>
+        <div class="welcome-particle"></div>
+        <div class="welcome-particle"></div>
+        <div class="welcome-particle"></div>
+        <div class="welcome-particle"></div>
+        <div class="welcome-particle"></div>
+    </div>
+    <div class="welcome-text">Welcome</div>
+</div>
+
+<div id="page-loader" aria-hidden="true">
+    <div class="loader-logo">DriveAway</div>
+    <div class="loader-ring">
+        <div class="loader-particles">
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+        </div>
+        <div class="loader-icon">
+            <i class="ph-fill ph-steering-wheel"></i>
+        </div>
+    </div>
+    <div class="loader-track">
+        <div class="loader-bar"></div>
+    </div>
+    <div class="loader-text">Igniting Engine</div>
+    <div class="loader-car">
+        <svg viewBox="0 0 60 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 20 L5 15 L10 10 L20 8 L40 8 L50 10 L55 15 L55 20 L50 25 L10 25 L5 20 Z" fill="currentColor"/>
+            <circle cx="12" cy="25" r="4" fill="#0f172a"/>
+            <circle cx="48" cy="25" r="4" fill="#0f172a"/>
+        </svg>
+    </div>
+</div>
+
+<div th:replace="~{fragments/index-landing-nav :: indexNav}"></div>
+
+<div class="parallax-bg" id="parallax-bg" aria-hidden="true"></div>
+
+<th:block th:replace="~{fragments/index-main :: landingMain}"></th:block>
+
+<div th:replace="~{fragments/index-landing-footer :: indexFooter}"></div>
+
+<script th:src="@{/js/index-landing.js}"></script>
 </body>
 </html>

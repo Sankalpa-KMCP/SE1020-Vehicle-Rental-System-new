@@ -1,18 +1,25 @@
 package com.sliit.vehiclerentalsystem01.vehicle.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Getter
-@Setter
-@NoArgsConstructor
 public class Car extends Vehicle {
 
     private int seatingCapacity;
 
+    public Car() {
+        super();
+        this.seatingCapacity = 0;
+    }
+
     public Car(String id, String brand, String model, double dailyRate, int seatingCapacity) {
         super(id, brand, model, dailyRate);
+        this.seatingCapacity = seatingCapacity;
+    }
+
+    // Getters and Setters
+    public int getSeatingCapacity() {
+        return seatingCapacity;
+    }
+
+    public void setSeatingCapacity(int seatingCapacity) {
         this.seatingCapacity = seatingCapacity;
     }
 

@@ -10,6 +10,8 @@ public final class UserSessionKeys {
     public static final String ADMIN_LOGGED_IN = "adminLoggedIn";
     public static final String STAFF_LOGGED_IN = "staffLoggedIn";
     public static final String AUTH_ROLE = "authRole";
+    /** Optional elevated session for master admin console. */
+    public static final String IS_MASTER_ADMIN = "isMasterAdmin";
 
     private UserSessionKeys() {
     }

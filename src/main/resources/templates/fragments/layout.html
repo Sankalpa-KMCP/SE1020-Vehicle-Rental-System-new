@@ -2,46 +2,104 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
 <header th:fragment="publicNav">
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
-    <div class="max-w-[1400px] mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
-      <a th:href="@{/}" class="flex items-center gap-2 text-gray-900 font-extrabold text-xl tracking-tight">
-        <i class="ph-fill ph-car-profile text-3xl text-[#0D6EFD]"></i>
-        DriveAway
+  <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-5 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div class="max-w-[1400px] mx-auto px-6 lg:px-8 flex justify-between items-center">
+      <a th:href="@{/}" class="flex items-center gap-3 group">
+        <div class="bg-gray-100 p-2.5 rounded-xl group-hover:bg-[#0D6EFD] transition-colors duration-300">
+          <i class="ph-fill ph-car-profile text-2xl text-[#0D6EFD] group-hover:text-white transition-colors duration-300"></i>
+        </div>
+        <span class="text-2xl font-extrabold tracking-tight text-gray-900">DriveAway</span>
       </a>
-      <div class="flex items-center gap-6 text-sm font-bold">
-        <a th:href="@{/public/about}" class="text-gray-600 hover:text-[#0D6EFD] transition-colors">About</a>
-        <a th:href="@{/public/contact}" class="text-gray-600 hover:text-[#0D6EFD] transition-colors">Contact</a>
-        <a th:href="@{/auth/login}" class="text-gray-600 hover:text-[#0D6EFD] transition-colors">Login</a>
-        <a th:href="@{/auth/register}" class="bg-[#0D6EFD] text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors">Register</a>
+      <div class="hidden md:flex items-center gap-8">
+        <a th:href="|/#fleet|" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">Our Fleet</a>
+        <a th:href="|/#how-it-works|" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">How it Works</a>
+        <a th:href="|/#testimonials|" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">Reviews</a>
+        <a th:href="@{/public/about}" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">About</a>
+        <a th:href="@{/public/contact}" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">Contact</a>
+      </div>
+      <div class="hidden md:flex items-center gap-4" th:if="${session.customerLoggedIn == true}">
+        <div class="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100">
+          <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+            <i class="ph-bold ph-user text-lg text-white"></i>
+          </div>
+          <span class="font-bold text-gray-900 text-sm" th:text="${displayName != null ? displayName : (session.username != null ? session.username : 'Customer')}">name</span>
+        </div>
+        <a th:href="@{/customer/home}" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold py-3 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/30">
+          Dashboard
+        </a>
+      </div>
+      <div class="hidden md:flex items-center gap-4" th:if="${(session.staffLoggedIn == true) or (session.adminLoggedIn == true)}">
+        <div class="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100">
+          <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+            <i class="ph-bold ph-user text-lg text-white"></i>
+          </div>
+          <span class="font-bold text-gray-900 text-sm" th:text="${session.username != null ? session.username : 'Staff'}">staff</span>
+        </div>
+        <a th:href="@{/dashboard}" class="bg-gradient-to-r from-rose-500 to-pink-600 text-white font-extrabold py-3 px-6 rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-lg shadow-rose-500/30">
+          Staff Portal
+        </a>
+      </div>
+      <div class="hidden md:flex items-center gap-5" th:unless="${session.customerLoggedIn == true or session.staffLoggedIn == true or session.adminLoggedIn == true}">
+        <a th:href="@{/auth/login}" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">Sign In</a>
+        <a th:href="@{/auth/register}" class="bg-[#0D6EFD] text-white font-bold py-3 px-8 rounded-2xl hover:bg-blue-700 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-[#0D6EFD]/30 tracking-wide">
+          Register
+        </a>
+      </div>
+      <button id="mobile-menu-btn" type="button" class="md:hidden text-gray-600 focus:outline-none">
+        <i class="ph-bold ph-list text-2xl"></i>
+      </button>
+    </div>
+    <div id="mobile-menu" class="md:hidden hidden bg-white/95 backdrop-blur-md absolute top-full left-0 w-full border-b border-gray-100 shadow-lg">
+      <div class="flex flex-col p-6 space-y-4">
+        <a th:href="|/#fleet|" class="text-base font-semibold text-gray-600 hover:text-black py-2">Our Fleet</a>
+        <a th:href="|/#how-it-works|" class="text-base font-semibold text-gray-600 hover:text-black py-2">How it Works</a>
+        <a th:href="|/#testimonials|" class="text-base font-semibold text-gray-600 hover:text-black py-2">Reviews</a>
+        <a th:href="@{/public/about}" class="text-base font-semibold text-gray-600 hover:text-black py-2">About</a>
+        <a th:href="@{/public/contact}" class="text-base font-semibold text-gray-600 hover:text-black py-2">Contact</a>
+        <hr class="my-2 border-gray-200">
+        <th:block th:if="${session.customerLoggedIn == true}">
+          <div class="bg-blue-50 text-gray-900 font-bold py-3 rounded-xl text-center px-4 flex items-center justify-center gap-2">
+            <i class="ph-bold ph-user"></i>
+            <span th:text="${displayName != null ? displayName : (session.username != null ? session.username : 'Customer')}">name</span>
+          </div>
+          <a th:href="@{/customer/home}" class="bg-[#0D6EFD] text-white font-bold py-3 rounded-2xl text-center">Go to Dashboard</a>
+        </th:block>
+        <th:block th:if="${(session.staffLoggedIn == true) or (session.adminLoggedIn == true)}">
+          <div class="bg-blue-50 text-gray-900 font-bold py-3 rounded-xl text-center px-4 flex items-center justify-center gap-2">
+            <i class="ph-bold ph-user"></i>
+            <span th:text="${session.username != null ? session.username : 'Staff'}">staff</span>
+          </div>
+          <a th:href="@{/dashboard}" class="bg-rose-500 text-white font-bold py-3 rounded-2xl text-center">Staff Portal</a>
+        </th:block>
+        <th:block th:unless="${session.customerLoggedIn == true or session.staffLoggedIn == true or session.adminLoggedIn == true}">
+          <a th:href="@{/auth/login}" class="text-base font-semibold text-gray-600 py-2">Sign In</a>
+          <a th:href="@{/auth/register}" class="bg-[#0D6EFD] text-white font-bold py-3 rounded-2xl text-center">Register</a>
+        </th:block>
       </div>
     </div>
   </nav>
+  <script>
+    document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
+      document.getElementById('mobile-menu')?.classList.toggle('hidden');
+    });
+  </script>
 </header>
 
-<footer th:fragment="publicFooter" class="bg-gray-900 text-gray-300 py-16 mt-20">
-  <div class="max-w-[1400px] mx-auto px-6 lg:px-8 grid md:grid-cols-3 gap-12">
-    <div>
-      <div class="flex items-center gap-2 text-white font-extrabold text-lg mb-4">
-        <i class="ph-fill ph-car-profile text-2xl text-[#0D6EFD]"></i> DriveAway
+<footer th:fragment="publicFooter" class="bg-[#1A1C23] py-12 border-t border-[#2A2D35]">
+  <div class="max-w-[1400px] mx-auto px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="flex items-center gap-3">
+        <div class="bg-[#0D6EFD] p-2 rounded-lg"><i class="ph-fill ph-car-profile text-xl text-white"></i></div>
+        <span class="text-xl font-extrabold tracking-tight text-white">DriveAway</span>
       </div>
-      <p class="text-sm leading-relaxed">Premium vehicle rentals across Sri Lanka.</p>
+      <div class="flex gap-8 text-gray-400 text-sm">
+        <a th:href="@{/public/about}" class="hover:text-white transition">About</a>
+        <a th:href="@{/public/contact}" class="hover:text-white transition">Contact</a>
+        <a th:href="@{/public/terms}" class="hover:text-white transition">Terms</a>
+        <a th:href="@{/public/privacy}" class="hover:text-white transition">Privacy</a>
+      </div>
+      <div class="text-gray-400 font-medium text-sm">&copy; 2026 DriveAway Rentals. All rights reserved.</div>
     </div>
-    <div>
-      <h4 class="text-white font-bold mb-4">Explore</h4>
-      <ul class="space-y-2 text-sm">
-        <li><a th:href="@{/public/about}" class="hover:text-white transition-colors">About Us</a></li>
-        <li><a th:href="@{/public/contact}" class="hover:text-white transition-colors">Contact</a></li>
-        <li><a th:href="@{/auth/login}" class="hover:text-white transition-colors">Login</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4 class="text-white font-bold mb-4">Contact</h4>
-      <p class="text-sm">hello@driveaway.lk</p>
-      <p class="text-sm">+94 11 234 5678</p>
-    </div>
-  </div>
-  <div class="max-w-[1400px] mx-auto px-6 lg:px-8 mt-12 pt-8 border-t border-gray-800 text-center text-xs text-gray-500">
-    &copy; DriveAway. All rights reserved.
   </div>
 </footer>
 

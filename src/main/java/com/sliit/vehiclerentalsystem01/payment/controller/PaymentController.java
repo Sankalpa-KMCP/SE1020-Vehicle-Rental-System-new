@@ -29,7 +29,7 @@ public class PaymentController {
     @GetMapping
     public String list(Model model) {
         model.addAttribute("payments", paymentService.findAll());
-        return "payment/payment-list";
+        return "payment/payment-dashboard";
     }
 
     @GetMapping("/new")
@@ -40,7 +40,7 @@ public class PaymentController {
         model.addAttribute("cardPayment", new CardPayment());
         model.addAttribute("cashPayment", new CashPayment());
         model.addAttribute("bookings", bookingService.findAll());
-        return "payment/payment-form";
+        return "payment/process-payment";
     }
 
     @GetMapping("/{id}")
@@ -68,7 +68,7 @@ public class PaymentController {
                         model.addAttribute("cashPayment", (CashPayment) p);
                     }
                     model.addAttribute("bookings", bookingService.findAll());
-                    return "payment/payment-form";
+                    return "payment/edit-payment";
                 })
                 .orElse("redirect:/payments");
     }

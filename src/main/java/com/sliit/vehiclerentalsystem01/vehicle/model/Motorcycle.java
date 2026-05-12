@@ -1,18 +1,25 @@
 package com.sliit.vehiclerentalsystem01.vehicle.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Getter
-@Setter
-@NoArgsConstructor
 public class Motorcycle extends Vehicle {
 
     private boolean helmetIncluded;
 
+    public Motorcycle() {
+        super();
+        this.helmetIncluded = false;
+    }
+
     public Motorcycle(String id, String brand, String model, double dailyRate, boolean helmetIncluded) {
         super(id, brand, model, dailyRate);
+        this.helmetIncluded = helmetIncluded;
+    }
+
+    // Getters and Setters
+    public boolean isHelmetIncluded() {
+        return helmetIncluded;
+    }
+
+    public void setHelmetIncluded(boolean helmetIncluded) {
         this.helmetIncluded = helmetIncluded;
     }
 

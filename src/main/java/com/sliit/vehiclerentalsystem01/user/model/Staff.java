@@ -1,15 +1,8 @@
 package com.sliit.vehiclerentalsystem01.user.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 /**
  * Abstract staff member; {@code staffId} is stored as {@link User#getId()}.
  */
-@Getter
-@Setter
-@NoArgsConstructor(callSuper = true)
 public abstract class Staff extends User {
 
     private String phone;
@@ -17,12 +10,49 @@ public abstract class Staff extends User {
     private String password;
     private String role;
 
+    public Staff() {
+        super();
+    }
+
     public Staff(String staffId, String name, String email, String phone,
                  String username, String password, String role) {
         super(staffId, name, email);
         this.phone = phone == null ? "" : phone.trim();
         this.username = normalize(username);
         this.password = normalize(password);
+        this.role = role == null ? "" : role.trim();
+    }
+
+    // Getters and Setters
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone == null ? "" : phone.trim();
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = normalize(username);
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = normalize(password);
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
         this.role = role == null ? "" : role.trim();
     }
 

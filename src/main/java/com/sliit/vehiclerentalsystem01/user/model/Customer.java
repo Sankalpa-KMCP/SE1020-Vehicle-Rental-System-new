@@ -1,15 +1,8 @@
 package com.sliit.vehiclerentalsystem01.user.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 /**
  * Customer IS-A {@link User} with rental-specific fields.
  */
-@Getter
-@Setter
-@NoArgsConstructor(callSuper = true)
 public class Customer extends User {
 
     private String username;
@@ -18,6 +11,10 @@ public class Customer extends User {
     private String licenseNumber;
     private String phoneNumber;
 
+    public Customer() {
+        super();
+    }
+
     public Customer(String id, String name, String email, String username, String password,
                     String nic, String licenseNumber, String phoneNumber) {
         super(id, name, email);
@@ -25,6 +22,47 @@ public class Customer extends User {
         this.password = normalize(password);
         this.nic = normalizeDocument(nic);
         this.licenseNumber = normalizeDocument(licenseNumber);
+        this.phoneNumber = normalize(phoneNumber);
+    }
+
+    // Getters and Setters
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = normalize(username);
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = normalize(password);
+    }
+
+    public String getNic() {
+        return nic;
+    }
+
+    public void setNic(String nic) {
+        this.nic = normalizeDocument(nic);
+    }
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = normalizeDocument(licenseNumber);
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = normalize(phoneNumber);
     }
 

@@ -1,16 +1,9 @@
 package com.sliit.vehiclerentalsystem01.review.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 /**
  * Customer-submitted review. Optional {@code vehicleId} supports counts when tied to a vehicle;
  * blank {@code vehicleId} counts as an account-only review for {@code countAccountReviewsByCustomer}.
  */
-@Getter
-@Setter
-@NoArgsConstructor(callSuper = true)
 public class CustomerReview extends Feedback {
 
     private String reviewerName;
@@ -20,6 +13,16 @@ public class CustomerReview extends Feedback {
     private String staffReply;
     private String repliedBy;
     private String repliedAt;
+
+    public CustomerReview() {
+        super();
+        this.reviewerName = "";
+        this.bookingId = "";
+        this.vehicleId = "";
+        this.staffReply = "";
+        this.repliedBy = "";
+        this.repliedAt = "";
+    }
 
     public CustomerReview(String reviewId, String reviewerName, int rating, String comments, String status) {
         this(reviewId, reviewerName, rating, comments, status, "", "", "", "", "");
@@ -44,6 +47,55 @@ public class CustomerReview extends Feedback {
         this.staffReply = staffReply == null ? "" : staffReply;
         this.repliedBy = repliedBy == null ? "" : repliedBy;
         this.repliedAt = repliedAt == null ? "" : repliedAt;
+    }
+
+    // Getters and Setters
+    public String getReviewerName() {
+        return reviewerName;
+    }
+
+    public void setReviewerName(String reviewerName) {
+        this.reviewerName = reviewerName;
+    }
+
+    public String getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public String getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    public String getStaffReply() {
+        return staffReply;
+    }
+
+    public void setStaffReply(String staffReply) {
+        this.staffReply = staffReply;
+    }
+
+    public String getRepliedBy() {
+        return repliedBy;
+    }
+
+    public void setRepliedBy(String repliedBy) {
+        this.repliedBy = repliedBy;
+    }
+
+    public String getRepliedAt() {
+        return repliedAt;
+    }
+
+    public void setRepliedAt(String repliedAt) {
+        this.repliedAt = repliedAt;
     }
 
     @Override

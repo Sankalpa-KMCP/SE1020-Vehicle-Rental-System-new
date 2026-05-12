@@ -52,6 +52,8 @@ public class UserAuthController {
                         if (s.isAdminRole()) {
                             session.setAttribute(UserSessionKeys.ADMIN_LOGGED_IN, Boolean.TRUE);
                             session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_ADMIN");
+                            session.setAttribute(UserSessionKeys.IS_MASTER_ADMIN,
+                                    "admin".equalsIgnoreCase(s.getUsername()));
                         } else {
                             session.setAttribute(UserSessionKeys.STAFF_LOGGED_IN, Boolean.TRUE);
                             session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_STAFF");
@@ -127,6 +129,7 @@ public class UserAuthController {
         session.removeAttribute(UserSessionKeys.ADMIN_LOGGED_IN);
         session.removeAttribute(UserSessionKeys.STAFF_LOGGED_IN);
         session.removeAttribute(UserSessionKeys.AUTH_ROLE);
+        session.removeAttribute(UserSessionKeys.IS_MASTER_ADMIN);
     }
 
     private static String blankToNa(String v) {
