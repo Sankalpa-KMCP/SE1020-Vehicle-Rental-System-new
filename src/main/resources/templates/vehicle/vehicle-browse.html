@@ -53,7 +53,7 @@
             </ul>
         </div>
         <div class="p-4 bg-gray-50 border-t border-gray-100">
-            <a th:href="@{/customer/bookings/new(vehicleId=${v.id})}" class="w-full block text-center bg-[#0D6EFD] text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-colors shadow-md text-lg">
+            <a th:href="@{/customer/bookings/new(vehicleId=${v.id},rate=${v.calculateRentalRate()})}" class="w-full block text-center bg-[#0D6EFD] text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-colors shadow-md text-lg">
                 Book This Vehicle
             </a>
         </div>
@@ -61,6 +61,7 @@
     <div th:if="${vehicles == null or vehicles.isEmpty()}" class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-200 border-dashed">
         <i class="ph-fill ph-car-profile text-6xl text-gray-300 mb-4"></i>
         <h3 class="text-2xl font-bold text-gray-700">No Vehicles Available</h3>
+        <p class="text-gray-500 mt-2">No vehicles are currently open for booking decisions.</p>
     </div>
 </div>
 </body>

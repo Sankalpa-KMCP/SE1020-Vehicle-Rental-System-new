@@ -1,9 +1,11 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
+import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.model.AdminStaff;
 import com.sliit.vehiclerentalsystem01.user.model.Staff;
 import com.sliit.vehiclerentalsystem01.user.model.SupportStaff;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,9 +31,13 @@ public class StaffAdminController {
 
     @GetMapping
     public String handleGet(
+            HttpSession session,
             @RequestParam(required = false) String action,
             @RequestParam(required = false) String id,
             Model model) {
+        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+            return "redirect:/auth/login";
+        }
         if ("delete".equals(action) && id != null && !id.isBlank()) {
             userService.deleteById(id.trim());
             return "redirect:/staff?action=list";
@@ -56,7 +62,10 @@ public class StaffAdminController {
     }
 
     @PostMapping
-    public String handlePost(@RequestParam Map<String, String> params) {
+    public String handlePost(HttpSession session, @RequestParam Map<String, String> params) {
+        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+            return "redirect:/auth/login";
+        }
         String action = params.get("action");
         String role = params.get("role");
         String id = params.get("id");

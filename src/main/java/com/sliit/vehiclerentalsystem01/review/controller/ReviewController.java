@@ -58,6 +58,17 @@ public class ReviewController {
                 .toList();
     }
 
+    @GetMapping(params = {"action=delete", "id"})
+    public String deleteLegacyQuery(HttpSession session, @RequestParam String id) {
+        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+            return "redirect:/auth/login";
+        }
+        if (id != null && !id.isBlank()) {
+            reviewService.deleteById(id.trim());
+        }
+        return "redirect:/reviews";
+    }
+
     @GetMapping
     public String list(Model model) {
         model.addAttribute("reviews", reviewService.findAll());

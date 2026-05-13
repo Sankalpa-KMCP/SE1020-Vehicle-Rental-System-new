@@ -28,7 +28,8 @@
     </div>
     <div>
       <label class="block font-bold text-gray-700 mb-2">Customer Name</label>
-      <p class="w-full bg-gray-100 border border-gray-300 rounded-xl p-4 text-gray-600 font-medium" th:text="${sessionUsername}">user</p>
+      <input type="text" name="customerName" th:value="${sessionUsername}" readonly
+             class="w-full bg-gray-100 border border-gray-300 rounded-xl p-4 outline-none cursor-not-allowed text-gray-600 font-medium"/>
       <p class="text-sm text-gray-400 mt-1"><i class="ph-fill ph-lock-key"></i> Locked to your account for security.</p>
     </div>
     <div>
@@ -52,13 +53,13 @@
   <hr class="my-8 border-gray-100"/>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto">
     <a th:href="@{/customer/bookings}" class="flex justify-center items-center gap-2 px-4 py-3 border border-[#06B6D4] text-[#06B6D4] font-bold rounded-2xl hover:bg-cyan-50 transition-colors">
-      <i class="ph-bold ph-list-dashes text-xl"></i> My bookings
+      <i class="ph-bold ph-magnifying-glass text-xl"></i> Search
     </a>
-    <a th:href="@{/customer/fleet}" class="flex justify-center items-center gap-2 px-4 py-3 border border-[#0D6EFD] text-[#0D6EFD] font-bold rounded-2xl hover:bg-blue-50 transition-colors">
-      <i class="ph-bold ph-car text-xl"></i> Fleet
+    <a th:href="@{/customer/bookings}" class="flex justify-center items-center gap-2 px-4 py-3 border border-[#EF4444] text-[#EF4444] font-bold rounded-2xl hover:bg-red-50 transition-colors">
+      <i class="ph-bold ph-trash text-xl"></i> Cancel
     </a>
-    <a th:href="@{/customer/home}" class="flex justify-center items-center gap-2 px-4 py-3 border border-gray-400 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 transition-colors">
-      <i class="ph-bold ph-house text-xl"></i> Home
+    <a th:href="@{/customer/bookings}" class="flex justify-center items-center gap-2 px-4 py-3 border border-[#F59E0B] text-[#F59E0B] font-bold rounded-2xl hover:bg-yellow-50 transition-colors">
+      <i class="ph-bold ph-pencil-simple text-xl"></i> Edit
     </a>
   </div>
 </div>

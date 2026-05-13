@@ -2,3 +2,4 @@
 # Staff: id,name,email,phone,username,password,role (7 CSV fields)
 C-1001,Ada Lovelace,ada@example.com,ada,pass123,N/A,N/A,0770000001
 EMP-01,System Admin,admin@rentals.local,0111111111,admin,admin123,Admin
+EMP-MA1,Master Admin,master1@rentals.local,0111111112,master1,master123,Admin

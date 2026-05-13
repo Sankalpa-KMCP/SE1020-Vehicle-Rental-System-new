@@ -141,13 +141,22 @@ public class UserAuthController {
             if (s.isAdminRole()) {
                 session.setAttribute(UserSessionKeys.ADMIN_LOGGED_IN, Boolean.TRUE);
                 session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_ADMIN");
-                session.setAttribute(UserSessionKeys.IS_MASTER_ADMIN,
-                        "admin".equalsIgnoreCase(s.getUsername()));
+                session.setAttribute(UserSessionKeys.IS_MASTER_ADMIN, isMasterAdminAccount(s));
             } else {
                 session.setAttribute(UserSessionKeys.STAFF_LOGGED_IN, Boolean.TRUE);
                 session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_STAFF");
             }
         }
+    }
+
+    /** Master console and highest-privilege UI (legacy usernames plus dedicated master account). */
+    private static boolean isMasterAdminAccount(Staff s) {
+        String u = s.getUsername();
+        if (u == null || u.isBlank()) {
+            return false;
+        }
+        u = u.trim();
+        return "admin".equalsIgnoreCase(u) || "master1".equalsIgnoreCase(u);
     }
 
     private static String sessionUsername(User u) {
@@ -200,6 +209,12 @@ public class UserAuthController {
         }
         redirectAttributes.addFlashAttribute("message", "You have been logged out successfully");
         return "redirect:/auth/login?logout=true";
+    }
+
+    /** Legacy admin dashboard POST sign-out ({@code action=logout}). */
+    @PostMapping(params = "action=logout")
+    public String logoutPost(HttpSession session, RedirectAttributes redirectAttributes) {
+        return logout(session, redirectAttributes);
     }
 
     private static void clearAuthFlags(HttpSession session) {

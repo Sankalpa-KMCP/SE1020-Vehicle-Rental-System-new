@@ -14,17 +14,17 @@
   <div class="pt-10 pb-6 px-8 text-center">
     <div class="relative inline-block mb-4">
       <i class="ph-fill ph-shield text-[#FFC107] text-6xl drop-shadow-sm"></i>
-      <i class="ph-fill ph-keyhole text-white text-2xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mt-0.5"></i>
+      <i class="ph-fill ph-keyhole text-white text-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-[2px]"></i>
     </div>
     <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Secure Staff Portal</h2>
     <p class="text-gray-500 text-sm mt-2">Authorized Personnel Only</p>
   </div>
 
-  <div th:if="${param.error != null and param.error[0] == 'invalid'}"
+  <div th:if="${error == null and param.error != null and param.error[0] == 'invalid'}"
        class="mx-8 mb-4 bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 text-center font-semibold">
     Invalid Username or Password. Access Denied.
   </div>
-  <div th:if="${param.error != null and param.error[0] == 'username_taken'}"
+  <div th:if="${error == null and param.error != null and param.error[0] == 'username_taken'}"
        class="mx-8 mb-4 bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 text-center font-semibold">
     That username is already registered. Choose another.
   </div>
@@ -39,10 +39,10 @@
   <div th:if="${error}" class="mx-8 mb-4 bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 text-center font-semibold" th:text="${error}">Error</div>
 
   <div class="flex border-b border-gray-200">
-    <button type="button" id="btnLoginTab" class="w-1/2 py-4 text-center font-bold text-gray-900 border-b-[3px] border-[#FFC107] bg-white transition-colors">
+    <button id="btnLoginTab" onclick="switchTab('login')" class="w-1/2 py-4 text-center font-bold text-gray-900 border-b-[3px] border-[#FFC107] bg-white transition-colors">
       Staff Login
     </button>
-    <button type="button" id="btnRequestTab" class="w-1/2 py-4 text-center font-bold text-gray-500 border-b-[3px] border-transparent hover:text-gray-700 bg-gray-50 hover:bg-white transition-colors">
+    <button id="btnRequestTab" onclick="switchTab('request')" class="w-1/2 py-4 text-center font-bold text-gray-500 border-b-[3px] border-transparent hover:text-gray-700 bg-gray-50 hover:bg-white transition-colors">
       Request Access
     </button>
   </div>
@@ -93,33 +93,32 @@
 </div>
 
 <script>
-  (function () {
-    function switchTab(tabName) {
-      var loginForm = document.getElementById('loginForm');
-      var requestForm = document.getElementById('requestForm');
-      var btnLoginTab = document.getElementById('btnLoginTab');
-      var btnRequestTab = document.getElementById('btnRequestTab');
-      var activeLogin = 'w-1/2 py-4 text-center font-bold text-gray-900 border-b-[3px] border-[#FFC107] bg-white transition-colors';
-      var inactiveTab = 'w-1/2 py-4 text-center font-bold text-gray-500 border-b-[3px] border-transparent hover:text-gray-700 bg-gray-50 hover:bg-white transition-colors';
-      if (tabName === 'login') {
-        loginForm.classList.remove('hidden');
-        requestForm.classList.add('hidden');
-        btnLoginTab.className = activeLogin;
-        btnRequestTab.className = inactiveTab;
-      } else {
-        loginForm.classList.add('hidden');
-        requestForm.classList.remove('hidden');
-        btnRequestTab.className = activeLogin;
-        btnLoginTab.className = inactiveTab;
-      }
+  function switchTab(tabName) {
+    const loginForm = document.getElementById('loginForm');
+    const requestForm = document.getElementById('requestForm');
+    const btnLoginTab = document.getElementById('btnLoginTab');
+    const btnRequestTab = document.getElementById('btnRequestTab');
+
+    if (tabName === 'login') {
+      loginForm.classList.remove('hidden');
+      requestForm.classList.add('hidden');
+
+      btnLoginTab.className = "w-1/2 py-4 text-center font-bold text-gray-900 border-b-[3px] border-[#FFC107] bg-white transition-colors";
+      btnRequestTab.className = "w-1/2 py-4 text-center font-bold text-gray-500 border-b-[3px] border-transparent hover:text-gray-700 bg-gray-50 hover:bg-white transition-colors";
+    } else {
+      loginForm.classList.add('hidden');
+      requestForm.classList.remove('hidden');
+
+      btnRequestTab.className = "w-1/2 py-4 text-center font-bold text-gray-900 border-b-[3px] border-[#FFC107] bg-white transition-colors";
+      btnLoginTab.className = "w-1/2 py-4 text-center font-bold text-gray-500 border-b-[3px] border-transparent hover:text-gray-700 bg-gray-50 hover:bg-white transition-colors";
     }
-    document.getElementById('btnLoginTab').addEventListener('click', function () { switchTab('login'); });
-    document.getElementById('btnRequestTab').addEventListener('click', function () { switchTab('request'); });
+  }
+  document.addEventListener('DOMContentLoaded', function () {
     var params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'requested' || params.get('error') === 'username_taken' || params.get('error') === 'unknown_action') {
       switchTab('request');
     }
-  })();
+  });
 </script>
 </body>
 </html>

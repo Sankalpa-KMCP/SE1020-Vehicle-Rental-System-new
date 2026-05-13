@@ -27,20 +27,46 @@
   </style>
 </head>
 <body class="min-h-screen text-gray-800 pb-16 relative">
+
 <header class="top-bar h-24 w-full flex items-center justify-between px-12 shadow-lg">
   <div class="text-white text-3xl font-bold flex items-center gap-4 tracking-wide">
     <i class="ph-bold ph-car-profile text-[#0D6EFD] text-5xl"></i>
     DriveAway Hub
   </div>
   <div class="flex items-center gap-6">
-    <span class="text-gray-200 text-lg font-medium mr-2" th:text="${session.username != null ? session.username : 'Admin'}">Admin</span>
-    <a th:href="@{/auth/logout}" class="bg-[#DC3545] hover:bg-[#c82333] text-white font-bold py-3 px-8 rounded-xl flex items-center gap-3 transition-colors border-2 border-[#DC3545] text-lg shadow-sm">
-      <i class="ph-bold ph-sign-out text-2xl"></i> Sign Out
-    </a>
+    <span class="text-gray-200 text-lg font-medium mr-2">Hello, <span th:text="${#session.getAttribute('username') != null ? #session.getAttribute('username') : 'Admin'}">Admin</span></span>
+
+    <form th:action="@{/auth}" method="post" class="m-0">
+      <input type="hidden" name="action" value="logout"/>
+      <button type="submit" class="bg-[#DC3545] hover:bg-[#c82333] text-white font-bold py-3 px-8 rounded-xl flex items-center gap-3 transition-colors border-2 border-[#DC3545] hover:border-[#c82333] text-lg shadow-sm">
+        <i class="ph-bold ph-sign-out text-2xl"></i> Sign Out
+      </button>
+    </form>
+
   </div>
 </header>
+
 <main class="max-w-[100rem] mx-auto mt-12 px-10">
+
+  <div th:if="${#session.getAttribute('isMasterAdmin') != null and #session.getAttribute('isMasterAdmin')}" class="mb-12">
+    <a th:href="@{/user/master-console}" class="bg-[#1A1A1A] text-white rounded-[24px] p-8 flex flex-col sm:flex-row items-center justify-between shadow-xl hover:shadow-2xl transition-all border-2 border-gray-800 group">
+      <div class="flex items-center gap-6 mb-4 sm:mb-0">
+        <div class="w-24 h-24 rounded-full bg-[#FFC107]/20 flex items-center justify-center">
+          <i class="ph-fill ph-shield-check text-5xl text-[#FFC107]"></i>
+        </div>
+        <div>
+          <h3 class="text-3xl font-bold text-white mb-2 tracking-wide">Master Admin Console</h3>
+          <p class="text-gray-400 text-lg">Review pending staff access requests and manage security.</p>
+        </div>
+      </div>
+      <div class="bg-[#FFC107] text-gray-900 font-extrabold text-xl px-8 py-4 rounded-xl flex items-center gap-3 group-hover:bg-[#e0a800] transition-colors">
+        View Requests <i class="ph-bold ph-arrow-right text-2xl"></i>
+      </div>
+    </a>
+  </div>
+
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+
     <a th:href="@{/customers(action=view_directory)}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-blue-50 flex items-center justify-center mb-8">
         <i class="ph-fill ph-users text-[64px] text-[#0D6EFD]"></i>
@@ -48,27 +74,31 @@
       <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Customer Management</h3>
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Register customers, view profiles, and update contact details.</p>
     </a>
-    <a th:href="@{/vehicles}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+
+    <a th:href="@{/vehicles(action=list)}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-green-50 flex items-center justify-center mb-8">
         <i class="ph-fill ph-car text-[64px] text-[#28A745]"></i>
       </div>
       <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Vehicle Inventory</h3>
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Add, search, and remove rental vehicles from the catalog.</p>
     </a>
-    <a th:href="@{/admin/reservations}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+
+    <a th:href="@{/bookings(action=list)}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-[#EBF4FF] flex items-center justify-center mb-8">
         <i class="ph-fill ph-calendar-check text-[64px] text-[#0D6EFD]"></i>
       </div>
       <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Reservations &amp; Bookings</h3>
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Handle check-ins, check-outs, and booking cancellations.</p>
     </a>
-    <a th:href="@{/payments}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+
+    <a th:href="@{/payments(action=list)}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-yellow-50 flex items-center justify-center mb-8">
         <i class="ph-fill ph-receipt text-[64px] text-[#FFC107]"></i>
       </div>
       <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Payments &amp; Billing</h3>
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Generate invoices, track transactions, and update payment status.</p>
     </a>
+
     <a th:href="@{/staff(action=list)}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-red-50 flex items-center justify-center mb-8">
         <i class="ph-fill ph-identification-badge text-[64px] text-[#DC3545]"></i>
@@ -76,34 +106,21 @@
       <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Staff Directory</h3>
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Manage rental employees, departments, and onboarding.</p>
     </a>
-    <a th:href="@{/reviews}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
+
+    <a th:href="@{/reviews(action=list)}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-slate-100 flex items-center justify-center mb-8">
         <i class="ph-fill ph-star text-[64px] text-[#475569]"></i>
       </div>
       <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Customer Reviews</h3>
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Submit feedback, read testimonials, and moderate reviews.</p>
     </a>
-    <a th:href="@{/reviews/form/admin}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
-      <div class="w-28 h-28 rounded-full bg-slate-100 flex items-center justify-center mb-8">
-        <i class="ph-fill ph-chat-circle-text text-[64px] text-[#475569]"></i>
-      </div>
-      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Log review</h3>
-      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Quick admin entry for a customer review.</p>
-    </a>
+
     <a th:href="@{/public/contact}" class="dashboard-card p-12 relative flex flex-col items-center text-center">
       <div class="w-28 h-28 rounded-full bg-rose-50 flex items-center justify-center mb-8">
         <i class="ph-fill ph-headset text-[64px] text-[#E11D48]"></i>
       </div>
       <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Support &amp; contact</h3>
       <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Public contact page and help information.</p>
-    </a>
-    <a th:if="${session.isMasterAdmin}"
-       th:href="@{/user/master-console}" class="dashboard-card p-12 relative flex flex-col items-center text-center border-2 border-amber-200/60">
-      <div class="w-28 h-28 rounded-full bg-amber-50 flex items-center justify-center mb-8">
-        <i class="ph-fill ph-terminal-window text-[64px] text-amber-600"></i>
-      </div>
-      <h3 class="text-3xl font-extrabold text-gray-900 mb-4 tracking-tight">Master console</h3>
-      <p class="text-lg text-gray-500 font-medium leading-relaxed px-4">Review pending master-admin requests (read-only).</p>
     </a>
   </div>
 </main>

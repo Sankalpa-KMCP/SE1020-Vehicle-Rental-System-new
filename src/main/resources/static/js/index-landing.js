@@ -113,9 +113,8 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   var parallaxBg = document.getElementById('parallax-bg');
-  function updateParallax() {
-    var scrollY = window.scrollY;
-    var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  function updateParallax(scrollY, docEl) {
+    var maxScroll = docEl.scrollHeight - window.innerHeight;
     var scrollPercent = maxScroll > 0 ? scrollY / maxScroll : 0;
     if (parallaxBg) {
       if (prefersReducedMotion) {
@@ -165,70 +164,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var navBar = document.getElementById('navbar');
   var progressBar = document.getElementById('scroll-progress');
+  var progressFill = progressBar ? progressBar.querySelector('.scroll-progress-fill') : null;
   var backToTopBtn = document.getElementById('back-to-top');
-  var cinematicHero = document.getElementById('cinematic-hero');
-  var heroScrollVideo = document.getElementById('hero-scroll-video');
-  var heroScrubDuration = 22;
-
-  var heroLastSeekMs = 0;
-  var heroSeekMinIntervalMs = 140;
-  var lastHeroPaintProgress = -1;
-
-  if (heroScrollVideo && !prefersReducedMotion) {
-    heroScrollVideo.addEventListener('loadedmetadata', function () {
-      if (!Number.isNaN(heroScrollVideo.duration) && Number.isFinite(heroScrollVideo.duration)) {
-        heroScrubDuration = heroScrollVideo.duration * 1.7;
-      }
-      heroScrollVideo.currentTime = 0;
-      heroScrollVideo.pause();
-    });
-  }
-
-  function syncCinematicHero() {
-    if (!cinematicHero || !heroScrollVideo || prefersReducedMotion) return;
-    var viewportHeight = window.innerHeight;
-    var rect = cinematicHero.getBoundingClientRect();
-    if (rect.bottom < -100 || rect.top > viewportHeight + 100) return;
-
-    var fullTravel = rect.height + viewportHeight;
-    var progress = Math.min(Math.max((viewportHeight - rect.top) / fullTravel, 0), 1);
-    var scale = 1 + (progress * 0.06);
-    var opacity = 1.0 - (progress * 0.05);
-    if (lastHeroPaintProgress < 0 || Math.abs(progress - lastHeroPaintProgress) > 0.003) {
-      heroScrollVideo.style.transform = 'translate3d(0,0,0) scale(' + scale + ')';
-      heroScrollVideo.style.opacity = String(opacity);
-      lastHeroPaintProgress = progress;
-    }
-
-    if (heroScrollVideo.readyState < 2) return;
-    var targetTime = heroScrubDuration * progress;
-    var drift = Math.abs(heroScrollVideo.currentTime - targetTime);
-    var now = performance.now();
-    if (drift > 0.52 && (now - heroLastSeekMs) > heroSeekMinIntervalMs) {
-      heroScrollVideo.currentTime = targetTime;
-      heroLastSeekMs = now;
-    }
-  }
 
   var ticking = false;
-  function runScrollFrame() {
-    updateParallax();
+  function updateScrollChrome() {
+    var docEl = document.documentElement;
     var scrollTop = window.scrollY;
-    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-    if (progressBar) progressBar.style.width = progress + '%';
+    var docHeight = docEl.scrollHeight - window.innerHeight;
+    var progress = docHeight > 0 ? scrollTop / docHeight : 0;
+
+    updateParallax(scrollTop, docEl);
+
+    if (progressFill) {
+      progressFill.style.transform = 'translate3d(0, 0, 0) scaleX(' + progress + ')';
+    }
     if (navBar) navBar.classList.toggle('nav-scrolled', scrollTop > 24);
     if (backToTopBtn) backToTopBtn.classList.toggle('visible', scrollTop > 500);
-    syncCinematicHero();
+
     ticking = false;
   }
   function scheduleScrollFrame() {
     if (!ticking) {
-      requestAnimationFrame(runScrollFrame);
       ticking = true;
+      requestAnimationFrame(updateScrollChrome);
     }
   }
-  runScrollFrame();
+  updateScrollChrome();
   window.addEventListener('scroll', scheduleScrollFrame, { passive: true });
   var resizeRafPending = false;
   window.addEventListener('resize', function () {
@@ -371,6 +333,10 @@ document.addEventListener('DOMContentLoaded', function () {
     this.targetX = x;
     this.targetY = y;
   };
+  Mascot.prototype.isSettled = function () {
+    if (!this.body || !this.eyes) return true;
+    return Math.abs(this.targetX - this.currentX) < 0.004 && Math.abs(this.targetY - this.currentY) < 0.004;
+  };
   Mascot.prototype.update = function () {
     if (!this.body || !this.eyes) return;
     this.currentX += (this.targetX - this.currentX) * this.weight;
@@ -380,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var rotX = this.currentY * -this.maxRotation;
     var rotY = this.currentX * this.maxRotation;
     this.body.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px, 0) rotateX(' + rotX + 'deg) rotateY(' + rotY + 'deg)';
-    this.eyes.style.transform = 'translateZ(40px) translate(' + (this.currentX * 25) + 'px, ' + (this.currentY * 25) + 'px)';
+    this.eyes.style.transform = 'translate3d(' + (this.currentX * 25) + 'px, ' + (this.currentY * 25) + 'px, 40px)';
   };
 
   var mascots = [
@@ -397,24 +363,43 @@ document.addEventListener('DOMContentLoaded', function () {
   var pendingMouseX = 0;
   var pendingMouseY = 0;
   var mouseDirty = false;
+  var mouseFlushRaf = null;
+  var pendingClientX = 0;
+  var pendingClientY = 0;
+
+  function mascotsAllSettled() {
+    for (var i = 0; i < mascots.length; i++) {
+      if (!mascots[i].isSettled()) return false;
+    }
+    return true;
+  }
+
+  function ensureMascotLoop() {
+    if (!mascotsActive || mascots.length === 0) return;
+    if (mascotRafId == null) {
+      mascotRafId = window.requestAnimationFrame(mascotFrame);
+    }
+  }
 
   function mascotFrame() {
-    if (!mascotsActive || mascots.length === 0) {
-      mascotRafId = null;
-      return;
-    }
+    mascotRafId = null;
+    if (!mascotsActive || mascots.length === 0) return;
+
     if (mouseDirty) {
       mascots.forEach(function (m) { m.lookAt(pendingMouseX, pendingMouseY); });
       mouseDirty = false;
     }
     mascots.forEach(function (m) { m.update(); });
-    mascotRafId = window.requestAnimationFrame(mascotFrame);
+
+    if (!mascotsAllSettled()) {
+      mascotRafId = window.requestAnimationFrame(mascotFrame);
+    }
   }
 
   function startMascots() {
     if (mascots.length === 0 || mascotsActive) return;
     mascotsActive = true;
-    mascotRafId = window.requestAnimationFrame(mascotFrame);
+    ensureMascotLoop();
   }
 
   function stopMascots() {
@@ -422,6 +407,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (mascotRafId != null) {
       window.cancelAnimationFrame(mascotRafId);
       mascotRafId = null;
+    }
+    if (mouseFlushRaf != null) {
+      window.cancelAnimationFrame(mouseFlushRaf);
+      mouseFlushRaf = null;
     }
   }
 
@@ -438,8 +427,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.addEventListener('mousemove', function (e) {
     if (!mascotsActive || mascots.length === 0) return;
-    pendingMouseX = (e.clientX / window.innerWidth) * 2 - 1;
-    pendingMouseY = (e.clientY / window.innerHeight) * 2 - 1;
-    mouseDirty = true;
+    pendingClientX = e.clientX;
+    pendingClientY = e.clientY;
+    if (mouseFlushRaf != null) return;
+    mouseFlushRaf = window.requestAnimationFrame(function () {
+      mouseFlushRaf = null;
+      pendingMouseX = (pendingClientX / window.innerWidth) * 2 - 1;
+      pendingMouseY = (pendingClientY / window.innerHeight) * 2 - 1;
+      mouseDirty = true;
+      ensureMascotLoop();
+    });
   }, { passive: true });
 });

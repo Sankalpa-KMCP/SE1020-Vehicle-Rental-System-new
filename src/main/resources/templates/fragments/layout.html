@@ -1,85 +1,197 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
+<!-- Global page preloader: include once per page via th:replace="~{fragments/layout :: globalPreloader}" immediately after <body> -->
+<th:block th:fragment="globalPreloader">
+  <div id="app-global-loader" class="app-global-loader" aria-busy="true" aria-live="polite">
+    <div class="app-global-loader__inner">
+      <div class="app-global-loader__ring" aria-hidden="true">
+        <svg class="app-global-loader__svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="20" stroke="rgba(13,110,253,0.45)" stroke-width="2"/>
+          <circle cx="24" cy="24" r="6" stroke="#0D6EFD" stroke-width="2"/>
+          <path d="M24 4v8M24 36v8M4 24h8M36 24h8" stroke="#0D6EFD" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="app-global-loader__text">
+        <p class="app-global-loader__brand">DriveAway</p>
+        <p class="app-global-loader__tag">Loading experience</p>
+      </div>
+    </div>
+  </div>
+  <style>
+    .app-global-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #020617;
+      background-image: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(13, 110, 253, 0.35), transparent);
+      transition: opacity 1.5s ease;
+    }
+    .app-global-loader.is-leaving { opacity: 0; pointer-events: none; }
+    .app-global-loader__inner {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      padding: 0 1.5rem;
+    }
+    .app-global-loader__ring {
+      position: relative;
+      display: flex;
+      height: 6rem;
+      width: 6rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      border: 1px solid rgba(13, 110, 253, 0.35);
+      background: rgba(15, 23, 42, 0.75);
+      box-shadow: 0 0 40px rgba(13, 110, 253, 0.35);
+    }
+    .app-global-loader__svg {
+      width: 2.75rem;
+      height: 2.75rem;
+      animation: appLoaderWheelSpin 1.1s linear infinite;
+      transform-origin: center;
+    }
+    .app-global-loader__text { text-align: center; }
+    .app-global-loader__brand {
+      margin: 0;
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #fff;
+      text-shadow: 0 0 24px rgba(13, 110, 253, 0.55), 0 0 48px rgba(13, 110, 253, 0.25);
+      animation: appLoaderLogoPulse 2.2s ease-in-out infinite;
+    }
+    .app-global-loader__tag {
+      margin: 0.5rem 0 0;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.35em;
+      color: #94a3b8;
+    }
+    @keyframes appLoaderLogoPulse {
+      0%, 100% { opacity: 0.88; filter: brightness(1); }
+      50% { opacity: 1; filter: brightness(1.12); }
+    }
+    @keyframes appLoaderWheelSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+  <script>
+    (function () {
+      var el = document.getElementById('app-global-loader');
+      if (!el) return;
+      var done = false;
+      function dismiss() {
+        if (done) return;
+        done = true;
+        el.classList.add('is-leaving');
+        function remove() {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }
+        el.addEventListener('transitionend', function te(ev) {
+          if (ev.propertyName === 'opacity') {
+            el.removeEventListener('transitionend', te);
+            remove();
+          }
+        });
+        window.setTimeout(remove, 1800);
+      }
+      window.addEventListener('load', dismiss);
+      window.setTimeout(dismiss, 2500);
+    })();
+  </script>
+</th:block>
+
 <header th:fragment="publicNav">
-  <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-5 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+  <nav id="navbar" class="fixed w-full z-50 border-b border-white/10 bg-slate-950/95 py-4 shadow-[0_8px_30px_rgba(0,0,0,0.45)] backdrop-blur-md transition-all duration-300">
     <div class="max-w-[1400px] mx-auto px-6 lg:px-8 flex justify-between items-center">
       <a th:href="@{/}" class="flex items-center gap-3 group">
-        <div class="bg-gray-100 p-2.5 rounded-xl group-hover:bg-[#0D6EFD] transition-colors duration-300">
-          <i class="ph-fill ph-car-profile text-2xl text-[#0D6EFD] group-hover:text-white transition-colors duration-300"></i>
+        <div class="rounded-xl bg-gradient-to-br from-[#0D6EFD] to-indigo-600 p-2.5 shadow-lg shadow-[#0D6EFD]/30 ring-1 ring-white/10 transition-transform duration-300 group-hover:scale-[1.03]">
+          <i class="ph-fill ph-car-profile text-2xl text-white"></i>
         </div>
-        <span class="text-2xl font-extrabold tracking-tight text-gray-900">DriveAway</span>
+        <span class="text-2xl font-black tracking-tight text-white drop-shadow-[0_0_12px_rgba(13,110,253,0.45)]">DriveAway</span>
       </a>
       <div class="hidden md:flex items-center gap-8">
-        <a th:href="|/#fleet|" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">Our Fleet</a>
-        <a th:href="|/#how-it-works|" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">How it Works</a>
-        <a th:href="|/#testimonials|" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">Reviews</a>
-        <a th:href="@{/public/about}" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">About</a>
-        <a th:href="@{/public/contact}" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">Contact</a>
+        <a th:href="|/#fleet|" class="text-xs font-bold uppercase tracking-[0.2em] text-slate-300 transition-colors hover:text-white">Our Fleet</a>
+        <a th:href="|/#how-it-works|" class="text-xs font-bold uppercase tracking-[0.2em] text-slate-300 transition-colors hover:text-white">Process</a>
+        <a th:href="|/#team|" class="text-xs font-bold uppercase tracking-[0.2em] text-slate-300 transition-colors hover:text-white">Team</a>
+        <a th:href="|/#testimonials|" class="text-xs font-bold uppercase tracking-[0.2em] text-slate-300 transition-colors hover:text-white">Reviews</a>
+        <a th:href="@{/public/about}" class="text-xs font-bold uppercase tracking-[0.2em] text-slate-300 transition-colors hover:text-white">About</a>
+        <a th:href="@{/public/contact}" class="text-xs font-bold uppercase tracking-[0.2em] text-slate-300 transition-colors hover:text-white">Contact</a>
       </div>
       <div class="hidden md:flex items-center gap-4" th:if="${session.customerLoggedIn == true}">
-        <div class="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100">
-          <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+        <div class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm">
+          <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#0D6EFD] to-indigo-600">
             <i class="ph-bold ph-user text-lg text-white"></i>
           </div>
-          <span class="font-bold text-gray-900 text-sm" th:text="${displayName != null ? displayName : (session.username != null ? session.username : 'Customer')}">name</span>
+          <span class="text-sm font-bold text-slate-100" th:text="${displayName != null ? displayName : (session.username != null ? session.username : 'Customer')}">name</span>
         </div>
-        <a th:href="@{/customer/home}" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold py-3 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/30">
+        <a th:href="@{/customer/home}" class="rounded-xl bg-gradient-to-r from-[#0D6EFD] to-indigo-600 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-[#0D6EFD]/35 transition-all hover:from-blue-600 hover:to-indigo-500">
           Dashboard
         </a>
       </div>
       <div class="hidden md:flex items-center gap-4" th:if="${(session.staffLoggedIn == true) or (session.adminLoggedIn == true)}">
-        <div class="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100">
-          <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+        <div class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm">
+          <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-rose-500 to-pink-600">
             <i class="ph-bold ph-user text-lg text-white"></i>
           </div>
-          <span class="font-bold text-gray-900 text-sm" th:text="${session.username != null ? session.username : 'Staff'}">staff</span>
+          <span class="text-sm font-bold text-slate-100" th:text="${session.username != null ? session.username : 'Staff'}">staff</span>
         </div>
-        <a th:href="@{/dashboard}" class="bg-gradient-to-r from-rose-500 to-pink-600 text-white font-extrabold py-3 px-6 rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-lg shadow-rose-500/30">
+        <a th:href="@{/dashboard}" class="rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-rose-500/30 transition-all hover:from-rose-600 hover:to-pink-500">
           Staff Portal
         </a>
       </div>
       <div class="hidden md:flex items-center gap-5" th:unless="${session.customerLoggedIn == true or session.staffLoggedIn == true or session.adminLoggedIn == true}">
-        <a th:href="@{/auth/login}" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">Sign In</a>
-        <a th:href="@{/auth/register}" class="bg-[#0D6EFD] text-white font-bold py-3 px-8 rounded-2xl hover:bg-blue-700 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-[#0D6EFD]/30 tracking-wide">
-          Register
+        <a th:href="@{/auth/login}" class="text-sm font-bold text-slate-300 transition-colors hover:text-white">Sign In</a>
+        <a th:href="@{/auth/register}" class="rounded-full bg-gradient-to-r from-[#0D6EFD] to-indigo-600 px-8 py-3 text-sm font-extrabold text-white shadow-[0_0_24px_rgba(13,110,253,0.45)] transition-all hover:from-blue-600 hover:to-indigo-500">
+          Join Network
         </a>
       </div>
-      <button id="mobile-menu-btn" type="button" class="md:hidden text-gray-600 focus:outline-none">
+      <button id="mobile-menu-btn" type="button" class="rounded-lg border border-white/10 bg-white/5 p-2 text-slate-200 md:hidden focus:outline-none focus:ring-2 focus:ring-[#0D6EFD]/50" aria-label="Open menu">
         <i class="ph-bold ph-list text-2xl"></i>
       </button>
     </div>
-    <div id="mobile-menu" class="md:hidden hidden bg-white/95 backdrop-blur-md absolute top-full left-0 w-full border-b border-gray-100 shadow-lg">
-      <div class="flex flex-col p-6 space-y-4">
-        <a th:href="|/#fleet|" class="text-base font-semibold text-gray-600 hover:text-black py-2">Our Fleet</a>
-        <a th:href="|/#how-it-works|" class="text-base font-semibold text-gray-600 hover:text-black py-2">How it Works</a>
-        <a th:href="|/#testimonials|" class="text-base font-semibold text-gray-600 hover:text-black py-2">Reviews</a>
-        <a th:href="@{/public/about}" class="text-base font-semibold text-gray-600 hover:text-black py-2">About</a>
-        <a th:href="@{/public/contact}" class="text-base font-semibold text-gray-600 hover:text-black py-2">Contact</a>
-        <hr class="my-2 border-gray-200">
+    <div id="mobile-menu" class="absolute left-0 top-full hidden w-full border-b border-white/10 bg-slate-950/98 shadow-2xl backdrop-blur-lg md:hidden">
+      <div class="flex flex-col space-y-1 p-6">
+        <a th:href="|/#fleet|" class="py-3 text-sm font-bold uppercase tracking-widest text-slate-300 hover:text-white">Our Fleet</a>
+        <a th:href="|/#how-it-works|" class="py-3 text-sm font-bold uppercase tracking-widest text-slate-300 hover:text-white">Process</a>
+        <a th:href="|/#team|" class="py-3 text-sm font-bold uppercase tracking-widest text-slate-300 hover:text-white">Team</a>
+        <a th:href="|/#testimonials|" class="py-3 text-sm font-bold uppercase tracking-widest text-slate-300 hover:text-white">Reviews</a>
+        <a th:href="@{/public/about}" class="py-3 text-sm font-bold uppercase tracking-widest text-slate-300 hover:text-white">About</a>
+        <a th:href="@{/public/contact}" class="py-3 text-sm font-bold uppercase tracking-widest text-slate-300 hover:text-white">Contact</a>
+        <hr class="my-2 border-white/10">
         <th:block th:if="${session.customerLoggedIn == true}">
-          <div class="bg-blue-50 text-gray-900 font-bold py-3 rounded-xl text-center px-4 flex items-center justify-center gap-2">
+          <div class="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 font-bold text-slate-100">
             <i class="ph-bold ph-user"></i>
             <span th:text="${displayName != null ? displayName : (session.username != null ? session.username : 'Customer')}">name</span>
           </div>
-          <a th:href="@{/customer/home}" class="bg-[#0D6EFD] text-white font-bold py-3 rounded-2xl text-center">Go to Dashboard</a>
+          <a th:href="@{/customer/home}" class="rounded-2xl bg-gradient-to-r from-[#0D6EFD] to-indigo-600 py-3 text-center font-bold text-white">Go to Dashboard</a>
         </th:block>
         <th:block th:if="${(session.staffLoggedIn == true) or (session.adminLoggedIn == true)}">
-          <div class="bg-blue-50 text-gray-900 font-bold py-3 rounded-xl text-center px-4 flex items-center justify-center gap-2">
+          <div class="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 font-bold text-slate-100">
             <i class="ph-bold ph-user"></i>
             <span th:text="${session.username != null ? session.username : 'Staff'}">staff</span>
           </div>
-          <a th:href="@{/dashboard}" class="bg-rose-500 text-white font-bold py-3 rounded-2xl text-center">Staff Portal</a>
+          <a th:href="@{/dashboard}" class="rounded-2xl bg-rose-500 py-3 text-center font-bold text-white">Staff Portal</a>
         </th:block>
         <th:block th:unless="${session.customerLoggedIn == true or session.staffLoggedIn == true or session.adminLoggedIn == true}">
-          <a th:href="@{/auth/login}" class="text-base font-semibold text-gray-600 py-2">Sign In</a>
-          <a th:href="@{/auth/register}" class="bg-[#0D6EFD] text-white font-bold py-3 rounded-2xl text-center">Register</a>
+          <a th:href="@{/auth/login}" class="py-3 text-sm font-bold text-slate-300 hover:text-white">Sign In</a>
+          <a th:href="@{/auth/register}" class="rounded-2xl bg-gradient-to-r from-[#0D6EFD] to-indigo-600 py-3 text-center font-bold text-white">Join Network</a>
         </th:block>
       </div>
     </div>
   </nav>
   <script>
-    document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
+    document.getElementById('mobile-menu-btn')?.addEventListener('click', function () {
       document.getElementById('mobile-menu')?.classList.toggle('hidden');
     });
   </script>
