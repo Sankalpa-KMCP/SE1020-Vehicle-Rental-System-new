@@ -8,8 +8,8 @@ import com.sliit.vehiclerentalsystem01.user.model.Customer;
 import com.sliit.vehiclerentalsystem01.user.model.Staff;
 import com.sliit.vehiclerentalsystem01.user.model.User;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
-import jakarta.servlet.http.HttpSession;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/reviews")
@@ -70,8 +71,32 @@ public class ReviewController {
     }
 
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("reviews", reviewService.findAll());
+    public String list(Model model, HttpSession session) {
+        List<Feedback> all = reviewService.findAll();
+        model.addAttribute("reviews", all);
+        List<CustomerReview> customerReviews = all.stream()
+                .filter(r -> r instanceof CustomerReview)
+                .map(r -> (CustomerReview) r)
+                .toList();
+        model.addAttribute("customerReviews", customerReviews);
+        model.addAttribute("totalReviews", customerReviews.size());
+        long publishedCount = customerReviews.stream()
+                .filter(r -> "PUBLISHED".equalsIgnoreCase(Objects.toString(r.getStatus(), "")))
+                .count();
+        long flaggedCount = customerReviews.stream()
+                .filter(r -> "FLAGGED".equalsIgnoreCase(Objects.toString(r.getStatus(), "")))
+                .count();
+        model.addAttribute("publishedCount", publishedCount);
+        model.addAttribute("flaggedCount", flaggedCount);
+        double avgRating = customerReviews.stream().mapToInt(CustomerReview::getRating).average().orElse(0.0);
+        model.addAttribute("avgRating", avgRating);
+
+        String staffUser = "";
+        if (session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+            Object u = session.getAttribute(UserSessionKeys.USERNAME);
+            staffUser = u == null ? "" : u.toString().trim();
+        }
+        model.addAttribute("currentStaffUsername", staffUser);
         return "review/review-dashboard";
     }
 

@@ -58,7 +58,7 @@ public class StaffAdminController {
         java.util.List<Staff> staffList = userService.findAllStaff();
         model.addAttribute("staffList", staffList);
         model.addAttribute("staffCount", staffList.size());
-        return "user/staff-directory";
+        return "user/staff-dashboard";
     }
 
     @PostMapping

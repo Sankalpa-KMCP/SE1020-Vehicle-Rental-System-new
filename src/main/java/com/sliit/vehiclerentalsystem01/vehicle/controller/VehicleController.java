@@ -50,6 +50,13 @@ public class VehicleController {
         List<Vehicle> all = vehicleService.findAll();
         model.addAttribute("vehicleList", all);
         model.addAttribute("vehicles", all);
+        long carCount = all.stream().filter(v -> v instanceof Car).count();
+        long motorcycleCount = all.stream().filter(v -> v instanceof Motorcycle).count();
+        double avgRate = all.stream().mapToDouble(Vehicle::calculateRentalRate).average().orElse(0.0);
+        model.addAttribute("totalVehicles", all.size());
+        model.addAttribute("carCount", carCount);
+        model.addAttribute("motorcycleCount", motorcycleCount);
+        model.addAttribute("avgRate", avgRate);
         return "vehicle/vehicle-dashboard";
     }
 

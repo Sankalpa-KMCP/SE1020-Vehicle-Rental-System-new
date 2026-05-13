@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -90,7 +91,9 @@ public class CustomerPortalController {
             }
         }
         int from = Math.max(0, notices.size() - 3);
-        model.addAttribute("bookingNotices", notices.subList(from, notices.size()));
+        List<String> noticeSlice = new ArrayList<>(notices.subList(from, notices.size()));
+        Collections.reverse(noticeSlice);
+        model.addAttribute("bookingNotices", noticeSlice);
         return "user/customer-dashboard";
     }
 
@@ -312,6 +315,18 @@ public class CustomerPortalController {
         if (!customer(session)) {
             return "redirect:/auth/login";
         }
+        Object customerUsername = session.getAttribute("customerUsername");
+        Object un = session.getAttribute(UserSessionKeys.USERNAME);
+        Object name = session.getAttribute("name");
+        String reviewerName = "Customer";
+        if (customerUsername != null && !customerUsername.toString().isBlank()) {
+            reviewerName = customerUsername.toString();
+        } else if (un != null && !un.toString().isBlank()) {
+            reviewerName = un.toString();
+        } else if (name != null && !name.toString().isBlank()) {
+            reviewerName = name.toString();
+        }
+        model.addAttribute("reviewerName", reviewerName);
         return "review/customer-review-form";
     }
 

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/bookings")
@@ -45,6 +46,22 @@ public class BookingController {
                 .toList());
         model.addAttribute("vehicles", vehicleService.findAll());
         return "booking/booking-admin-form";
+    }
+
+    @GetMapping("/search")
+    public String searchBooking(@RequestParam(required = false) String id, Model model) {
+        boolean attempted = id != null && !id.isBlank();
+        model.addAttribute("searchAttempted", attempted);
+        model.addAttribute("searchedBooking", attempted
+                ? bookingService.findById(id.trim()).orElse(null)
+                : null);
+        return "booking/search-booking";
+    }
+
+    @GetMapping("/view-all")
+    public String viewAllBookings(Model model) {
+        model.addAttribute("bookingList", bookingService.findAll());
+        return "booking/view-all-bookings";
     }
 
     @GetMapping("/{id}")

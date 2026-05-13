@@ -6,65 +6,102 @@
     <title>DriveAway | Billing &amp; Payments</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <style>body { font-family: 'Inter', sans-serif; background-color: #F4F7F6; }</style>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F4F7F6; }
+        .fade-in { animation: fadeIn 0.35s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 <body class="min-h-screen text-gray-800">
+
 <nav class="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
     <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
         <a th:href="@{/customer/home}" class="flex items-center gap-2 text-gray-900">
             <i class="ph-bold ph-car-profile text-3xl text-blue-600"></i>
             <span class="text-2xl font-extrabold tracking-tight">DriveAway</span>
         </a>
-        <a th:href="@{/auth/logout}" class="text-gray-600 hover:text-red-700 font-bold border border-gray-200 bg-white px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-sm">
-            Logout <i class="ph-bold ph-sign-out text-lg"></i>
-        </a>
+
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-50 text-blue-600 p-2 rounded-full border border-blue-100">
+                    <i class="ph-bold ph-receipt text-xl"></i>
+                </div>
+                <div class="hidden sm:block">
+                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">Billing Account</p>
+                    <p class="font-bold text-gray-900 leading-tight" th:text="${displayName}">Customer</p>
+                </div>
+            </div>
+            <div class="w-px h-8 bg-gray-200 hidden sm:block"></div>
+            <form th:action="@{/auth}" method="post" class="m-0">
+                <input type="hidden" name="action" value="logout"/>
+                <button type="submit" class="text-gray-600 hover:text-red-700 font-bold border border-gray-200 bg-white hover:bg-red-50 hover:border-red-200 px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-sm">
+                    Logout <i class="ph-bold ph-sign-out text-lg"></i>
+                </button>
+            </form>
+        </div>
     </div>
 </nav>
-<main class="max-w-screen-xl mx-auto w-full px-8 py-10">
+
+<main class="max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
     <div class="bg-gradient-to-br from-[#0D6EFD] to-[#0a58ca] rounded-3xl p-10 sm:p-12 text-white shadow-lg mb-10 relative overflow-hidden">
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
                 <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Billing &amp; Payments</h1>
-                <p class="text-blue-100 text-lg font-medium max-w-2xl leading-relaxed">Track invoices linked to your bookings.</p>
+                <p class="text-blue-100 text-lg font-medium max-w-2xl leading-relaxed">Track the invoices linked to your bookings, review payment status, and keep an eye on any pending balances from your DriveAway reservations.</p>
             </div>
-            <div class="flex gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20 text-center">
-                <div class="px-4 border-r border-white/20">
-                    <p class="text-blue-100 text-xs font-bold uppercase mb-1">Bookings</p>
+
+            <div class="flex gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-blue-100 text-xs font-bold uppercase tracking-wider mb-1">Bookings</p>
                     <p class="text-white font-extrabold" th:text="${#lists.size(myBookings)}">0</p>
                 </div>
-                <div class="px-4">
-                    <p class="text-blue-100 text-xs font-bold uppercase mb-1">Invoices</p>
+                <div class="text-center px-4">
+                    <p class="text-blue-100 text-xs font-bold uppercase tracking-wider mb-1">Invoices</p>
                     <p class="text-white font-extrabold" th:text="${#lists.size(myPayments)}">0</p>
                 </div>
             </div>
         </div>
+        <i class="ph-fill ph-receipt absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
+        <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
     </div>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
         <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Total Invoices</p>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${#lists.size(myPayments)}">0</p>
+            <p class="text-sm text-gray-500 mt-2">All billing records linked to your bookings.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Paid Total</p>
-            <p class="text-3xl font-extrabold text-green-600">$<span th:text="${#numbers.formatDecimal(paidTotal, 1, 2)}">0</span></p>
+            <p class="text-3xl font-extrabold text-green-600">$<span th:text="${#numbers.formatDecimal(paidTotal, 1, 2)}">0.00</span></p>
+            <p class="text-sm text-gray-500 mt-2">Completed transactions.</p>
         </div>
         <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Pending Total</p>
-            <p class="text-3xl font-extrabold text-yellow-600">$<span th:text="${#numbers.formatDecimal(pendingTotal, 1, 2)}">0</span></p>
+            <p class="text-3xl font-extrabold text-yellow-600">$<span th:text="${#numbers.formatDecimal(pendingTotal, 1, 2)}">0.00</span></p>
+            <p class="text-sm text-gray-500 mt-2">Waiting to be settled.</p>
         </div>
         <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Total Billed</p>
-            <p class="text-3xl font-extrabold text-gray-900">$<span th:text="${#numbers.formatDecimal(totalBilled, 1, 2)}">0</span></p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Refunded</p>
-            <p class="text-3xl font-extrabold text-gray-700">$<span th:text="${#numbers.formatDecimal(refundedTotal, 1, 2)}">0</span></p>
+            <p class="text-3xl font-extrabold text-gray-900">$<span th:text="${#numbers.formatDecimal(totalBilled, 1, 2)}">0.00</span></p>
+            <p class="text-sm text-gray-500 mt-2">All invoices linked to your account. Refunds total $<span th:text="${#numbers.formatDecimal(refundedTotal, 1, 2)}">0.00</span>.</p>
         </div>
     </div>
+
     <div class="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <h2 class="text-2xl font-bold text-gray-900">Your Invoice Ledger</h2>
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Your Invoice Ledger</h2>
+            <p class="text-gray-500 mt-1">Invoices are matched using the bookings on your account.</p>
+        </div>
         <div class="flex gap-3">
             <a th:href="@{/customer/bookings}" class="bg-white border border-gray-200 text-gray-700 font-bold px-5 py-3 rounded-xl hover:bg-gray-50 transition shadow-sm">My Bookings</a>
             <a th:href="@{/customer/fleet}" class="bg-[#0D6EFD] text-white font-bold px-5 py-3 rounded-xl hover:bg-blue-700 transition shadow-sm">Browse Fleet</a>
         </div>
     </div>
+
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
@@ -80,7 +117,7 @@
             <tr th:each="p : ${myPayments}" class="hover:bg-blue-50/30 transition-colors border-b border-gray-50 last:border-none">
                 <td class="py-5 px-8 whitespace-nowrap font-bold text-gray-900" th:text="'#' + ${p.paymentId}">#</td>
                 <td class="py-5 px-8 whitespace-nowrap text-gray-600 font-medium" th:text="${p.bookingId}">b</td>
-                <td class="py-5 px-8 whitespace-nowrap font-bold text-green-600">$<span th:text="${#numbers.formatDecimal(p.amount, 1, 2)}">0</span></td>
+                <td class="py-5 px-8 whitespace-nowrap font-bold text-green-600">$<span th:text="${#numbers.formatDecimal(p.amount, 1, 2)}">0.00</span></td>
                 <td class="py-5 px-8 whitespace-nowrap text-gray-700" th:text="${p.paymentMethod}">m</td>
                 <td class="py-5 px-8 whitespace-nowrap font-bold">
                     <span th:if="${#strings.equalsIgnoreCase(p.status,'PAID')}" class="text-green-700 bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg">PAID</span>
@@ -90,11 +127,22 @@
                 </td>
             </tr>
             <tr th:if="${myPayments == null or myPayments.isEmpty()}">
-                <td colspan="5" class="py-20 text-center text-gray-500">No invoices yet.</td>
+                <td colspan="5" class="py-20 text-center">
+                    <div class="flex flex-col items-center justify-center">
+                        <i class="ph-fill ph-receipt-x text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-2xl font-bold text-gray-900 mb-2 tracking-tight">No Invoices Yet</p>
+                        <p class="text-sm text-gray-500 font-medium max-w-md">Your payment records will appear here once an admin creates a transaction for one of your bookings.</p>
+                        <div class="mt-6 flex gap-3">
+                            <a th:href="@{/customer/bookings}" class="bg-[#0D6EFD] text-white font-bold px-5 py-3 rounded-xl hover:bg-blue-700 transition">Check My Bookings</a>
+                            <a th:href="@{/customer/home}" class="bg-gray-100 text-gray-700 font-bold px-5 py-3 rounded-xl hover:bg-gray-200 transition">Back to Portal</a>
+                        </div>
+                    </div>
+                </td>
             </tr>
             </tbody>
         </table>
     </div>
 </main>
+
 </body>
 </html>

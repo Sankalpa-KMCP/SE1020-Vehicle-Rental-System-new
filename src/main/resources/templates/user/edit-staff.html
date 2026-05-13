@@ -2,30 +2,58 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <title>Edit staff</title>
-    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Edit Staff - DriveAway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>body { font-family: 'Inter', sans-serif; background: #f1f5f9; }</style>
 </head>
-<body>
-<div th:replace="~{layout :: navbar}"></div>
-<main class="container">
-    <h1>Edit staff</h1>
-    <form class="form-grid" method="post" th:action="@{/staff}">
+<body class="min-h-screen flex items-center justify-center p-6">
+<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
+<div class="max-w-lg w-full bg-white rounded-3xl shadow-2xl border-[3px] border-red-500 p-10">
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-red-50 text-red-600 mb-3">
+            <i class="ph-fill ph-user-gear text-3xl"></i>
+        </div>
+        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Edit staff</h1>
+        <p class="text-gray-500 text-sm mt-1">Update credentials and access role.</p>
+    </div>
+    <form method="post" th:action="@{/staff}" class="space-y-5">
         <input type="hidden" name="action" value="update"/>
         <input type="hidden" name="id" th:value="${staff.id}"/>
-        <label>Name <input type="text" name="name" th:value="${staff.fullName}" required/></label>
-        <label>Email <input type="email" name="email" th:value="${staff.email}" required/></label>
-        <label>Phone <input type="text" name="phone" th:value="${staff.phone}"/></label>
-        <label>Username <input type="text" name="username" th:value="${staff.username}" required/></label>
-        <label>Password <input type="password" name="password" th:value="${staff.password}" required/></label>
-        <label>Role
-            <select name="role">
-                <option value="Admin" th:selected="${#strings.equalsIgnoreCase(staff.staffRole, 'ADMIN')}">Admin</option>
-                <option value="Support" th:selected="${!#strings.equalsIgnoreCase(staff.staffRole, 'ADMIN')}">Support</option>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Full name</span>
+            <input type="text" name="name" th:value="${staff.name}" required class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-semibold focus:border-red-400 focus:ring-0 outline-none transition"/>
+        </label>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Email</span>
+            <input type="email" name="email" th:value="${staff.email}" required class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-semibold focus:border-red-400 outline-none"/>
+        </label>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Phone</span>
+            <input type="text" name="phone" th:value="${staff.phone}" class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-semibold focus:border-red-400 outline-none"/>
+        </label>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Username</span>
+            <input type="text" name="username" th:value="${staff.username}" required class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-semibold focus:border-red-400 outline-none"/>
+        </label>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Password</span>
+            <input type="text" name="password" th:value="${staff.password}" class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-mono text-sm focus:border-red-400 outline-none"/>
+        </label>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Role</span>
+            <select name="role" class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-bold bg-white focus:border-red-400 outline-none">
+                <option value="Admin" th:selected="${#strings.equalsIgnoreCase(staff.role, 'Admin')}">Admin</option>
+                <option value="Support" th:selected="${#strings.equalsIgnoreCase(staff.role, 'Support')}">Support</option>
             </select>
         </label>
-        <button class="btn btn-primary" type="submit">Save</button>
-        <a class="btn btn-ghost" th:href="@{/staff}">Cancel</a>
+        <div class="flex gap-3 pt-4">
+            <a th:href="@{/staff}" class="flex-1 text-center bg-gray-100 text-gray-800 font-bold py-3 rounded-xl hover:bg-gray-200 transition">Cancel</a>
+            <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-red-600/25 transition">Save</button>
+        </div>
     </form>
-</main>
+</div>
 </body>
 </html>

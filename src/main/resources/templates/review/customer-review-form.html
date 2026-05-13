@@ -16,20 +16,30 @@
             <i class="ph-bold ph-arrow-left"></i> Back to home
         </a>
     </div>
+
     <p th:if="${param.error != null and param.error[0] == 'missing_fields'}" class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm">Please choose a rating and enter comments before submitting.</p>
     <p th:if="${param.error != null and param.error[0] == 'account_limit'}" class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 text-sm">You already submitted a general review. Add a booking ID to review a specific trip.</p>
     <p th:if="${param.error != null and param.error[0] == 'booking_limit'}" class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 text-sm">You already left two reviews for that booking.</p>
     <p th:if="${param.error != null and param.error[0] == 'invalid_booking'}" class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm">Booking not found or it does not belong to your account.</p>
+
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
         <h1 class="text-2xl font-bold mb-2 flex items-center gap-2">
             <i class="ph-fill ph-star text-amber-500"></i> Write a review
         </h1>
-        <p class="text-slate-600 text-sm mb-6">Share feedback on a rental. Optionally tie this review to a booking ID.</p>
+        <p class="text-slate-600 text-sm mb-6">Share feedback on a rental. Optionally tie this review to a booking ID from My Bookings.</p>
+
         <form th:action="@{/customer/reviews}" method="post" class="space-y-5">
+            <input type="hidden" name="source" value="customer"/>
+            <input type="hidden" name="action" value="create"/>
+            <input type="hidden" name="status" value="PUBLISHED"/>
+            <input type="hidden" name="reviewerName" th:value="${reviewerName}"/>
+
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Booking ID (optional)</label>
-                <input type="text" name="bookingId" placeholder="e.g. BKG-AB12" class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"/>
+                <input type="text" name="bookingId" placeholder="e.g. BKG-AB12"
+                       class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"/>
             </div>
+
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Rating</label>
                 <select name="rating" required class="w-full rounded-xl border border-slate-200 px-4 py-3 bg-white">
@@ -40,11 +50,17 @@
                     <option value="1">1 — Very poor</option>
                 </select>
             </div>
+
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Comments</label>
-                <textarea name="comments" rows="4" required maxlength="2000" class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Tell us about your experience"></textarea>
+                <textarea name="comments" rows="4" required maxlength="2000"
+                          class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                          placeholder="Tell us about your experience"></textarea>
             </div>
-            <button type="submit" class="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 shadow-sm transition">Submit review</button>
+
+            <button type="submit" class="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 shadow-sm transition">
+                Submit review
+            </button>
         </form>
     </div>
 </div>

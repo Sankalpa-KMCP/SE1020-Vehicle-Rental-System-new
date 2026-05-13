@@ -15,39 +15,142 @@
       background-clip: text;
       color: transparent;
     }
+    #spy-nav-terms .spy-link-t.active { color: #0D6EFD; border-left-color: #0D6EFD; background: rgba(13, 110, 253, 0.06); }
+    .mascot-body {
+      position: absolute; bottom: 0; left: 0; right: 0; margin: 0 auto; transform-style: preserve-3d;
+      width: 4rem; height: 5rem;
+    }
+    .mascot-eyes { position: absolute; transform: translateZ(20px); z-index: 2; }
+    @keyframes blink { 0%, 92%, 98%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+    .eye-dot { animation: blink 5s infinite; transform-origin: center; }
+    .shape-tall-black { background: linear-gradient(135deg, #2A2D35, #0D0F16); border-radius: 2rem 2rem 0 0; }
+    .shape-guard-cyan { background: linear-gradient(135deg, #00F2FE, #0088FF); border-radius: 0.75rem 0.75rem 0 0; }
+    .shape-hijab { background: linear-gradient(135deg, #7A52FA, #4A12DA); border-radius: 2rem 2rem 0 0; }
+    .hijab-face { background: linear-gradient(135deg, #FFEDD5, #FDBA74); width: 2.5rem; height: 3rem; border-radius: 1rem 1rem 0.75rem 0.75rem; margin-top: 0.5rem; }
+    .shape-yellow-girl { background: linear-gradient(135deg, #FFE044, #D6A200); border-radius: 2rem 2rem 0 0; }
+    .shape-boss { background: linear-gradient(135deg, #EF4444, #B91C1C); border-radius: 0.75rem 0.75rem 0 0; }
+    .shape-rookie { background: linear-gradient(135deg, #FF9A44, #D65A00); border-radius: 2rem 2rem 0 0.75rem; }
+    .glasses-wrapper { display: flex; gap: 0.05rem; position: relative; align-items: center; justify-content: center; }
+    .glasses-frame { border: 2px solid #1F2937; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.2); }
+    .glasses-lg { width: 0.9rem; height: 0.9rem; }
+    .glasses-sm { width: 0.65rem; height: 0.65rem; border-width: 1px; }
+    .glasses-bridge { position: absolute; width: 0.25rem; height: 2px; background: #1F2937; left: 50%; transform: translateX(-50%); top: 50%; z-index: 10; }
   </style>
 </head>
 <body class="text-gray-900 antialiased">
 <th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
-<div th:replace="~{fragments/layout :: publicNav}"></div>
-<main class="max-w-3xl mx-auto px-6 lg:px-8 pb-20">
-  <header class="mb-10 pt-8">
-    <h1 class="text-4xl font-extrabold mb-3">Terms of <span class="gradient-text">Service</span></h1>
-    <p class="text-gray-500">Last updated: May 12, 2026. By using DriveAway you agree to the following terms.</p>
-  </header>
-  <section class="prose prose-slate max-w-none space-y-8 text-gray-700 leading-relaxed">
-    <div>
-      <h2 class="text-xl font-bold text-gray-900 mb-2">1. Use of the service</h2>
-      <p>You must provide accurate information when registering and booking. You are responsible for maintaining the confidentiality of your account credentials and for all activity under your account.</p>
-    </div>
-    <div>
-      <h2 class="text-xl font-bold text-gray-900 mb-2">2. Rentals and payments</h2>
-      <p>Rates, deposits, and availability are shown at the time of booking. Confirmed reservations are subject to vehicle inspection and valid identification or license requirements under Sri Lankan law and our internal policies.</p>
-    </div>
-    <div>
-      <h2 class="text-xl font-bold text-gray-900 mb-2">3. Cancellations and changes</h2>
-      <p>Cancellation and modification rules depend on the booking status and staff approval. Fees may apply where stated at checkout or in your booking confirmation.</p>
-    </div>
-    <div>
-      <h2 class="text-xl font-bold text-gray-900 mb-2">4. Liability</h2>
-      <p>DriveAway provides vehicles “as available.” To the extent permitted by law, we are not liable for indirect or consequential damages arising from delays, maintenance, or third-party events beyond our reasonable control.</p>
-    </div>
-    <div>
-      <h2 class="text-xl font-bold text-gray-900 mb-2">5. Contact</h2>
-      <p>Questions about these terms: <a th:href="@{/public/contact}" class="text-[#0D6EFD] font-semibold hover:underline">contact us</a>.</p>
+<div th:replace="~{fragments/navbar :: siteNavbar}"></div>
+
+<aside id="spy-nav-terms" class="hidden xl:block fixed left-6 top-28 w-48 z-30">
+  <nav class="bg-white/90 backdrop-blur border border-gray-100 rounded-2xl shadow-sm p-3 text-sm font-semibold space-y-1">
+    <a href="#terms-intro" class="spy-link-t block pl-3 py-2 border-l-2 border-transparent rounded-r-lg text-gray-600 hover:text-[#0D6EFD]">Overview</a>
+    <a href="#terms-use" class="spy-link-t block pl-3 py-2 border-l-2 border-transparent rounded-r-lg text-gray-600 hover:text-[#0D6EFD]">Use of service</a>
+    <a href="#terms-rentals" class="spy-link-t block pl-3 py-2 border-l-2 border-transparent rounded-r-lg text-gray-600 hover:text-[#0D6EFD]">Rentals &amp; payments</a>
+    <a href="#terms-cancel" class="spy-link-t block pl-3 py-2 border-l-2 border-transparent rounded-r-lg text-gray-600 hover:text-[#0D6EFD]">Cancellations</a>
+    <a href="#terms-liability" class="spy-link-t block pl-3 py-2 border-l-2 border-transparent rounded-r-lg text-gray-600 hover:text-[#0D6EFD]">Liability</a>
+    <a href="#terms-contact" class="spy-link-t block pl-3 py-2 border-l-2 border-transparent rounded-r-lg text-gray-600 hover:text-[#0D6EFD]">Contact</a>
+  </nav>
+</aside>
+
+<main class="max-w-3xl mx-auto px-6 lg:px-8 pb-20 xl:ml-56">
+  <section id="terms-intro" class="scroll-mt-28 mb-12 pt-8">
+    <div class="flex flex-col md:flex-row md:items-end gap-8 mb-8">
+      <div class="flex-1">
+        <h1 class="text-4xl font-extrabold mb-3">Terms of <span class="gradient-text">Service</span></h1>
+        <p class="text-gray-500">Last updated: May 12, 2026. By using DriveAway you agree to the following terms.</p>
+      </div>
+      <div class="flex gap-2 justify-center md:justify-end shrink-0">
+        <div class="relative w-14 h-20 rounded-t-2xl bg-gray-50 border border-gray-100 overflow-hidden">
+          <div class="mascot-body shape-tall-black">
+            <div class="mascot-eyes flex gap-1.5 absolute inset-x-0 mx-auto w-fit top-5">
+              <div class="w-1.5 h-1.5 rounded-full bg-white eye-dot"></div><div class="w-1.5 h-1.5 rounded-full bg-white eye-dot"></div>
+            </div>
+          </div>
+        </div>
+        <div class="relative w-14 h-20 rounded-t-2xl bg-gray-50 border border-gray-100 overflow-hidden">
+          <div class="mascot-body shape-guard-cyan">
+            <div class="mascot-eyes flex gap-1.5 absolute inset-x-0 mx-auto w-fit top-5">
+              <div class="w-1.5 h-1.5 rounded-full bg-black eye-dot"></div><div class="w-1.5 h-1.5 rounded-full bg-black eye-dot"></div>
+            </div>
+          </div>
+        </div>
+        <div class="relative w-14 h-20 rounded-t-2xl bg-gray-50 border border-gray-100 overflow-hidden flex justify-center">
+          <div class="mascot-body shape-hijab flex flex-col items-center">
+            <div class="hijab-face relative z-10 flex justify-center">
+              <div class="mascot-eyes glasses-wrapper absolute inset-x-0 mx-auto top-2">
+                <div class="glasses-bridge"></div>
+                <div class="glasses-frame glasses-lg relative z-20"><div class="w-1 h-1 rounded-full bg-black eye-dot"></div></div>
+                <div class="glasses-frame glasses-lg relative z-20"><div class="w-1 h-1 rounded-full bg-black eye-dot"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="relative w-14 h-20 rounded-t-2xl bg-gray-50 border border-gray-100 overflow-hidden">
+          <div class="mascot-body shape-yellow-girl">
+            <div class="mascot-eyes glasses-wrapper absolute inset-x-0 mx-auto w-fit top-5">
+              <div class="glasses-bridge"></div>
+              <div class="glasses-frame glasses-sm relative z-20"><div class="w-1 h-1 rounded-full bg-black eye-dot"></div></div>
+              <div class="glasses-frame glasses-sm relative z-20"><div class="w-1 h-1 rounded-full bg-black eye-dot"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="relative w-14 h-20 rounded-t-2xl bg-gray-50 border border-gray-100 overflow-hidden">
+          <div class="mascot-body shape-boss">
+            <div class="mascot-eyes flex gap-2 absolute inset-x-0 mx-auto w-fit top-5">
+              <div class="w-1.5 h-1.5 rounded-full bg-white eye-dot"></div><div class="w-1.5 h-1.5 rounded-full bg-white eye-dot"></div>
+            </div>
+          </div>
+        </div>
+        <div class="relative w-14 h-20 rounded-t-2xl bg-gray-50 border border-gray-100 overflow-hidden">
+          <div class="mascot-body shape-rookie">
+            <div class="mascot-eyes flex gap-1 absolute inset-x-0 mx-auto w-fit top-5">
+              <div class="w-1 h-1 rounded-full bg-black eye-dot"></div><div class="w-1 h-1 rounded-full bg-black eye-dot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
+
+  <section id="terms-use" class="scroll-mt-28 prose prose-slate max-w-none space-y-4 text-gray-700 leading-relaxed mb-12">
+    <h2 class="text-xl font-bold text-gray-900 mb-2 not-prose">1. Use of the service</h2>
+    <p>You must provide accurate information when registering and booking. You are responsible for maintaining the confidentiality of your account credentials and for all activity under your account.</p>
+  </section>
+  <section id="terms-rentals" class="scroll-mt-28 prose prose-slate max-w-none space-y-4 text-gray-700 leading-relaxed mb-12">
+    <h2 class="text-xl font-bold text-gray-900 mb-2 not-prose">2. Rentals and payments</h2>
+    <p>Rates, deposits, and availability are shown at the time of booking. Confirmed reservations are subject to vehicle inspection and valid identification or license requirements under Sri Lankan law and our internal policies.</p>
+  </section>
+  <section id="terms-cancel" class="scroll-mt-28 prose prose-slate max-w-none space-y-4 text-gray-700 leading-relaxed mb-12">
+    <h2 class="text-xl font-bold text-gray-900 mb-2 not-prose">3. Cancellations and changes</h2>
+    <p>Cancellation and modification rules depend on the booking status and staff approval. Fees may apply where stated at checkout or in your booking confirmation.</p>
+  </section>
+  <section id="terms-liability" class="scroll-mt-28 prose prose-slate max-w-none space-y-4 text-gray-700 leading-relaxed mb-12">
+    <h2 class="text-xl font-bold text-gray-900 mb-2 not-prose">4. Liability</h2>
+    <p>DriveAway provides vehicles “as available.” To the extent permitted by law, we are not liable for indirect or consequential damages arising from delays, maintenance, or third-party events beyond our reasonable control.</p>
+  </section>
+  <section id="terms-contact" class="scroll-mt-28 prose prose-slate max-w-none space-y-4 text-gray-700 leading-relaxed">
+    <h2 class="text-xl font-bold text-gray-900 mb-2 not-prose">5. Contact</h2>
+    <p>Questions about these terms: <a th:href="@{/public/contact}" class="text-[#0D6EFD] font-semibold hover:underline">contact us</a>.</p>
+  </section>
 </main>
-<div th:replace="~{fragments/layout :: publicFooter}"></div>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+<script>
+(function () {
+  var links = document.querySelectorAll('#spy-nav-terms .spy-link-t');
+  var ids = Array.prototype.map.call(links, function (a) { return a.getAttribute('href').slice(1); });
+  var sections = ids.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+  if (!sections.length || !links.length) return;
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (!en.isIntersecting) return;
+      var id = en.target.id;
+      links.forEach(function (l) {
+        l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+      });
+    });
+  }, { rootMargin: '-40% 0px -45% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+})();
+</script>
 </body>
 </html>

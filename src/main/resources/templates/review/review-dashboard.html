@@ -2,45 +2,131 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <title>Reviews</title>
-    <link rel="stylesheet" th:href="@{/css/common.css}"/>
-    <link rel="stylesheet" th:href="@{/css/review.css}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Reviews - DriveAway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at 20% 20%, #fef3c7 0%, #f8fafc 40%, #eef2ff 100%); }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .soft-card { box-shadow: 0 10px 35px rgba(15, 23, 42, 0.07); }
+    </style>
 </head>
-<body>
-<div th:replace="~{layout :: navbar}"></div>
-<main class="container">
-    <h1>Reviews</h1>
-    <p><a class="btn btn-primary" th:href="@{/reviews/new}">Add review</a></p>
-    <div class="stack">
-        <table>
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Summary</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="r : ${reviews}">
-                <td th:text="${r.id}">id</td>
-                <td th:text="${r.reviewType}">CUSTOMER</td>
-                <td th:text="${r.status}">t</td>
-                <td>
-                    <span th:if="${r instanceof T(com.sliit.vehiclerentalsystem01.review.model.CustomerReview)}"
-                          th:text="'★ ' + ${r.rating} + ' — ' + ${r.comments}">c</span>
-                </td>
-                <td class="actions">
-                    <a class="btn btn-ghost" th:href="@{/reviews/{id}(id=${r.id})}">View</a>
-                    <a class="btn btn-ghost" th:href="@{/reviews/{id}/edit(id=${r.id})}">Edit</a>
-                    <form th:action="@{/reviews/{id}/delete(id=${r.id})}" method="post" style="display:inline">
-                        <button class="btn btn-danger" type="submit">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+<body class="min-h-screen text-gray-800 flex flex-col">
+<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
+<nav class="bg-gradient-to-r from-amber-900 via-orange-900 to-rose-900 border-b border-white/10 sticky top-0 z-20 shadow-lg backdrop-blur">
+    <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
+        <a th:href="@{/reviews}" class="flex items-center gap-2 text-white">
+            <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm">
+                <i class="ph-fill ph-star text-2xl text-amber-300"></i>
+            </div>
+            <span class="text-2xl font-extrabold tracking-tight">Reviews</span>
+        </a>
+        <div class="flex items-center gap-4 flex-wrap justify-end">
+            <a th:href="@{/reviews/form/admin}" class="text-amber-100 hover:text-white text-sm font-semibold flex items-center gap-1">
+                <i class="ph-bold ph-note-pencil"></i> Log Review
+            </a>
+            <a th:href="@{/reviews/new}" class="text-amber-100 hover:text-white text-sm font-semibold">Add review</a>
+            <a th:href="@{/user/admin-dashboard}" class="text-amber-100 hover:text-white font-semibold text-sm flex items-center gap-2">
+                <i class="ph-bold ph-house"></i> Admin Hub
+            </a>
+            <form th:action="@{/auth}" method="post" class="inline">
+                <input type="hidden" name="action" value="logout"/>
+                <button type="submit" class="text-white hover:text-amber-100 font-bold border border-white/20 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl transition-all text-sm flex items-center gap-2">
+                    Logout <i class="ph-bold ph-sign-out text-lg"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+<main class="flex-grow max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
+    <div class="bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 rounded-3xl p-10 text-white shadow-xl mb-10 relative overflow-hidden">
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Review moderation</h1>
+                <p class="text-amber-50 text-lg font-medium max-w-2xl">Verified customer feedback and staff replies.</p>
+            </div>
+            <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-amber-100 text-xs font-bold uppercase mb-1">Total</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${totalReviews}">0</p>
+                </div>
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-amber-100 text-xs font-bold uppercase mb-1">Published</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${publishedCount}">0</p>
+                </div>
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-amber-100 text-xs font-bold uppercase mb-1">Flagged</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${flaggedCount}">0</p>
+                </div>
+                <div class="text-center px-4">
+                    <p class="text-amber-100 text-xs font-bold uppercase mb-1">Avg rating</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${#numbers.formatDecimal(avgRating, 1, 2)}">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-3xl p-8 soft-card shadow-lg space-y-8">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                <tr class="bg-slate-50 text-gray-500 text-xs uppercase tracking-widest border-b border-slate-200">
+                    <th class="py-4 px-4 font-bold">ID</th>
+                    <th class="py-4 px-4 font-bold">Customer</th>
+                    <th class="py-4 px-4 font-bold">Rating</th>
+                    <th class="py-4 px-4 font-bold">Status</th>
+                    <th class="py-4 px-4 font-bold">Comment</th>
+                    <th class="py-4 px-4 font-bold text-right">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                <tr th:each="r : ${customerReviews}" class="border-b border-slate-100 align-top hover:bg-slate-50/80">
+                    <td class="py-4 px-4 font-mono text-xs font-bold text-gray-900" th:text="${r.id}">id</td>
+                    <td class="py-4 px-4 font-semibold" th:text="${r.reviewerName}">u</td>
+                    <td class="py-4 px-4 text-amber-500 font-bold" th:text="${r.rating}">5</td>
+                    <td class="py-4 px-4">
+                        <span class="bg-slate-100 text-slate-800 font-bold px-2 py-1 rounded-lg text-xs" th:text="${r.status}">s</span>
+                    </td>
+                    <td class="py-4 px-4 max-w-md text-sm text-gray-600" th:text="${r.comments}">c</td>
+                    <td class="py-4 px-4 text-right space-x-2 whitespace-nowrap">
+                        <a th:href="@{/reviews/{id}(id=${r.id})}" class="text-gray-400 hover:text-gray-700 font-bold text-sm"><i class="ph-bold ph-eye"></i></a>
+                        <a th:href="@{/reviews/{id}/edit(id=${r.id})}" class="text-indigo-600 hover:text-indigo-800 font-bold text-sm"><i class="ph-bold ph-pencil-simple"></i></a>
+                        <a th:href="@{/reviews(action=delete,id=${r.id})}" onclick="return confirm('Delete this review?');" class="text-red-500 hover:text-red-700 font-bold text-sm"><i class="ph-bold ph-trash"></i></a>
+                    </td>
+                </tr>
+                <tr th:if="${customerReviews == null or customerReviews.isEmpty()}">
+                    <td colspan="6" class="py-12 text-center text-gray-500 font-medium">No customer reviews yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <th:block th:if="${currentStaffUsername != null and !#strings.isEmpty(currentStaffUsername)}">
+            <th:block th:each="r : ${customerReviews}">
+                <div class="border border-slate-100 rounded-2xl p-5 bg-slate-50/80 mb-4">
+                    <div class="flex flex-col md:flex-row md:items-start gap-4 justify-between">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-bold text-gray-500 uppercase mb-1">Reply to <span th:text="${r.id}" class="font-mono text-gray-800">id</span></p>
+                            <p th:if="${r.staffReply != null and !#strings.isEmpty(r.staffReply)}" class="text-sm text-slate-700 bg-white border border-slate-200 rounded-xl p-3">
+                                <span class="font-bold text-indigo-700" th:text="${r.repliedBy}">staff</span>:
+                                <span th:text="${r.staffReply}">reply</span>
+                            </p>
+                            <p th:if="${r.staffReply == null or #strings.isEmpty(r.staffReply)}" class="text-xs text-gray-400 italic">No staff reply yet.</p>
+                        </div>
+                        <form th:action="@{/reviews}" method="post" class="w-full md:w-80 shrink-0 space-y-2">
+                            <input type="hidden" name="reviewType" value="STAFF_REPLY"/>
+                            <input type="hidden" name="parentReviewId" th:value="${r.id}"/>
+                            <input type="hidden" name="repliedBy" th:value="${currentStaffUsername}"/>
+                            <label class="block text-xs font-bold text-gray-500 uppercase">Staff reply</label>
+                            <textarea name="staffReply" rows="2" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Type a professional response…"></textarea>
+                            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold py-2 rounded-xl transition">Post reply</button>
+                        </form>
+                    </div>
+                </div>
+            </th:block>
+        </th:block>
     </div>
 </main>
 </body>

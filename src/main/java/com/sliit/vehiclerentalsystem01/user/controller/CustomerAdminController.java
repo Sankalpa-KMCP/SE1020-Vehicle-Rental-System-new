@@ -4,6 +4,7 @@ import com.sliit.vehiclerentalsystem01.booking.service.BookingService;
 import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.model.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,6 +46,10 @@ public class CustomerAdminController {
         return value == null || value.trim().isEmpty();
     }
 
+    private static boolean adminSession(HttpSession session) {
+        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
+    }
+
     private void loadDashboard(Model model) {
         List<Customer> allCustomers = userService.findAllCustomers();
         if (allCustomers == null) {
@@ -67,9 +72,30 @@ public class CustomerAdminController {
             @RequestParam(required = false, defaultValue = "view_directory") String action,
             @RequestParam(required = false) String id,
             @RequestParam(required = false) String searchUsername,
+            HttpServletRequest request,
             HttpSession session,
             Model model) {
         try {
+            if ("editSelf".equals(action)) {
+                if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN))) {
+                    return "redirect:/auth/login";
+                }
+                Customer loggedIn = userService.findByUsername(normalized((String) session.getAttribute(UserSessionKeys.USERNAME)))
+                        .filter(u -> u instanceof Customer)
+                        .map(u -> (Customer) u)
+                        .orElse(null);
+                if (loggedIn == null) {
+                    return "redirect:/auth/login?error=profile_not_found";
+                }
+                model.addAttribute("customer", loggedIn);
+                model.addAttribute("isCustomerMode", true);
+                return "user/edit-customer";
+            }
+
+            if (!adminSession(session)) {
+                return "redirect:/auth/staff-login";
+            }
+
             if ("delete".equals(action)) {
                 String customerId = normalized(id);
                 if (!customerId.isEmpty()) {
@@ -91,22 +117,6 @@ public class CustomerAdminController {
                 return "user/edit-customer";
             }
 
-            if ("editSelf".equals(action)) {
-                if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN))) {
-                    return "redirect:/auth/login";
-                }
-                Customer loggedIn = userService.findByUsername(normalized((String) session.getAttribute(UserSessionKeys.USERNAME)))
-                        .filter(u -> u instanceof Customer)
-                        .map(u -> (Customer) u)
-                        .orElse(null);
-                if (loggedIn == null) {
-                    return "redirect:/auth/login?error=profile_not_found";
-                }
-                model.addAttribute("customer", loggedIn);
-                model.addAttribute("isCustomerMode", true);
-                return "user/edit-customer";
-            }
-
             loadDashboard(model);
             model.addAttribute("customerBookings", java.util.Collections.emptyList());
 
@@ -124,6 +134,12 @@ public class CustomerAdminController {
                 }
             }
 
+            boolean jspOpenCreate = "missing_fields".equals(request.getParameter("error"))
+                    || "username_taken".equals(request.getParameter("error"));
+            boolean jspInitialSearch = model.containsAttribute("foundCustomer") || "search".equals(action);
+            model.addAttribute("jspOpenCreateForm", jspOpenCreate);
+            model.addAttribute("jspInitialSearchView", jspInitialSearch);
+
             return "user/customer-directory";
         } catch (Exception e) {
             model.addAttribute("error", "Error loading customer data: " + e.getMessage());
@@ -139,11 +155,18 @@ public class CustomerAdminController {
         }
 
         if ("delete".equals(action)) {
+            if (!adminSession(session)) {
+                return "redirect:/auth/staff-login";
+            }
             String id = normalized(params.get("id"));
             if (!id.isEmpty()) {
                 userService.deleteById(id);
             }
             return "redirect:/customers?action=view_directory&msg=deleted";
+        }
+
+        if ("create".equals(action) && !adminSession(session)) {
+            return "redirect:/auth/staff-login";
         }
 
         String id = normalized(params.get("id"));
