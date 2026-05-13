@@ -339,26 +339,36 @@
         method: 'POST',
         body: new FormData(form),
         credentials: 'same-origin',
-        redirect: 'manual',
+        redirect: 'follow',
       })
         .then(function (res) {
-          var locHeader = res.headers.get('Location');
-          if (locHeader && res.status >= 300 && res.status < 400) {
-            var nextUrl = new URL(locHeader, window.location.origin);
-            var path = nextUrl.pathname;
-            if (path === '/dashboard' || path.indexOf('/dashboard/') === 0) {
-              successNavScheduled = true;
-              successOverlay.classList.add('active');
-              var dest = nextUrl.pathname + nextUrl.search + nextUrl.hash;
-              setTimeout(function () {
-                window.location.assign(dest);
-              }, 750);
-              return;
-            }
-            window.location.assign(nextUrl.pathname + nextUrl.search + nextUrl.hash);
+          var finalUrl = res.url || '';
+          var nextUrl;
+          try {
+            nextUrl = new URL(finalUrl, window.location.origin);
+          } catch (err) {
+            window.location.assign('/auth/login?error=1');
             return;
           }
-          window.location.assign('/auth/login?error=1');
+          var path = nextUrl.pathname || '';
+          var dest = nextUrl.pathname + nextUrl.search + nextUrl.hash;
+          if (path.indexOf('/auth/login') === 0 && nextUrl.search.indexOf('error=1') >= 0) {
+            window.location.assign(dest);
+            return;
+          }
+          if (path.indexOf('/auth/login') === 0) {
+            window.location.assign(dest);
+            return;
+          }
+          if (path === '/dashboard' || path.indexOf('/dashboard/') === 0) {
+            successNavScheduled = true;
+            successOverlay.classList.add('active');
+            setTimeout(function () {
+              window.location.assign(dest);
+            }, 750);
+            return;
+          }
+          window.location.assign(dest);
         })
         .catch(function () {
           window.location.assign('/auth/login?error=1');

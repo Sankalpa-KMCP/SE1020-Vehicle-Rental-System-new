@@ -6,6 +6,9 @@ import com.sliit.vehiclerentalsystem01.user.model.Customer;
 import com.sliit.vehiclerentalsystem01.user.model.Staff;
 import com.sliit.vehiclerentalsystem01.user.model.SupportStaff;
 import com.sliit.vehiclerentalsystem01.user.model.User;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,8 @@ public class UserFileServiceImpl implements UserService {
 
     private static final String FILE_NAME = "users.txt";
 
+    private static final Logger log = LoggerFactory.getLogger(UserFileServiceImpl.class);
+
     private final BookingService bookingService;
 
     @Value("${app.data.directory:data}")
@@ -38,6 +43,11 @@ public class UserFileServiceImpl implements UserService {
      */
     public UserFileServiceImpl(@Lazy BookingService bookingService) {
         this.bookingService = bookingService;
+    }
+
+    @PostConstruct
+    void logUserStoreLocation() {
+        log.info("User store file ({}): {}", FILE_NAME, usersPath());
     }
 
     /** Absolute path to {@value #FILE_NAME} (under {@code app.data.directory}); used as the user store for every read/write. */
@@ -125,8 +135,9 @@ public class UserFileServiceImpl implements UserService {
     }
 
     /**
-     * Validates username/password against the latest contents of {@value #FILE_NAME} on disk.
-     * Each call re-reads the file (no cached user list), so edits to the file apply on the next login attempt.
+     * Validates credentials against the latest contents of {@value #FILE_NAME} on disk.
+     * Customers may sign in with username or email (case-insensitive); staff match username only.
+     * Each call re-reads the file (no cached user list), so edits apply on the next login attempt.
      */
     @Override
     public Optional<User> authenticate(String username, String password) {
@@ -144,7 +155,10 @@ public class UserFileServiceImpl implements UserService {
                     String storedPass = "";
                     if (user instanceof Customer c) {
                         storedUser = c.getUsername() == null ? "" : c.getUsername().trim();
+                        String storedEmail = c.getEmail() == null ? "" : c.getEmail().trim();
                         storedPass = c.getPassword() == null ? "" : c.getPassword().trim();
+                        boolean idMatches = u.equalsIgnoreCase(storedUser) || u.equalsIgnoreCase(storedEmail);
+                        return idMatches && p.equals(storedPass);
                     } else if (user instanceof Staff s) {
                         storedUser = s.getUsername() == null ? "" : s.getUsername().trim();
                         storedPass = s.getPassword() == null ? "" : s.getPassword().trim();
