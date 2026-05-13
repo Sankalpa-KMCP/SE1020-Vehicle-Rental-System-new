@@ -61,7 +61,7 @@ public class UserAuthController {
             RedirectAttributes redirectAttributes) {
         return userService.authenticate(username, password)
                 .map(u -> {
-                    if (u instanceof Staff) {
+                    if (u instanceof Staff s && !isMasterAdminAccount(s)) {
                         return "redirect:/auth/login?error=staff_portal";
                     }
                     establishAuthenticatedSession(session, u);

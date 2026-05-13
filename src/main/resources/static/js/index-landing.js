@@ -3,11 +3,11 @@
   var closed = false;
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var tDom = 0;
-  var minShowMs = 300;
-  var maxWaitMs = 900;
+  var minShowMs = 4000;
+  var maxWaitMs = 5600;
+  var shellRevealDelayMs = 420;
   var pollHandle = null;
   var ultimateHandle = null;
-  var textHandle = null;
 
   function removeLoaderEl(loader) {
     if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
@@ -24,10 +24,6 @@
       window.clearTimeout(ultimateHandle);
       ultimateHandle = null;
     }
-    if (textHandle) {
-      window.clearInterval(textHandle);
-      textHandle = null;
-    }
     var loader = qs('#page-loader');
     if (!loader) {
       document.body.classList.add('page-loaded');
@@ -40,12 +36,10 @@
       return;
     }
     loader.classList.add('hide');
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () {
-        document.body.classList.add('page-loaded');
-      });
-    });
-    var fallbackMs = 560;
+    window.setTimeout(function () {
+      document.body.classList.add('page-loaded');
+    }, shellRevealDelayMs);
+    var fallbackMs = 2600;
     var didCleanup = false;
     function cleanup() {
       if (didCleanup) return;
@@ -80,22 +74,13 @@
       return;
     }
     tDom = performance.now();
-    var loaderText = qs('.loader-text');
-    var messages = ['Igniting engine', 'Syncing fleet', 'Ready'];
-    var i = 0;
-    if (loaderText) {
-      textHandle = window.setInterval(function () {
-        i = (i + 1) % messages.length;
-        loaderText.textContent = messages[i];
-      }, 520);
-    }
     pollHandle = window.setInterval(function () {
       maybeFinish();
     }, 48);
     window.addEventListener('load', function () { maybeFinish(); });
     ultimateHandle = window.setTimeout(function () {
       finishLoader();
-    }, 960);
+    }, 6000);
   }
 
   if (document.readyState === 'loading') {

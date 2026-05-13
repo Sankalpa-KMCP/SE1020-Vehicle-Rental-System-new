@@ -25,32 +25,22 @@
     <div class="welcome-text">Welcome</div>
 </div>
 
-<div id="page-loader" aria-hidden="true">
-    <div class="loader-logo">DriveAway</div>
-    <div class="loader-ring">
-        <div class="loader-particles">
-            <div class="loader-particle"></div>
-            <div class="loader-particle"></div>
-            <div class="loader-particle"></div>
-            <div class="loader-particle"></div>
-        </div>
-        <div class="loader-icon">
-            <i class="ph-fill ph-steering-wheel"></i>
-        </div>
-    </div>
-    <div class="loader-track">
-        <div class="loader-bar"></div>
-    </div>
-    <div class="loader-text">Igniting Engine</div>
-    <div class="loader-car">
-        <svg viewBox="0 0 60 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 20 L5 15 L10 10 L20 8 L40 8 L50 10 L55 15 L55 20 L50 25 L10 25 L5 20 Z" fill="currentColor"/>
-            <circle cx="12" cy="25" r="4" fill="#0f172a"/>
-            <circle cx="48" cy="25" r="4" fill="#0f172a"/>
-        </svg>
+<div id="page-loader" role="status" aria-live="polite" aria-busy="true">
+    <div class="loader-aurora" aria-hidden="true"></div>
+    <div class="loader-bokeh loader-bokeh--1" aria-hidden="true"></div>
+    <div class="loader-bokeh loader-bokeh--2" aria-hidden="true"></div>
+    <div class="loader-bokeh loader-bokeh--3" aria-hidden="true"></div>
+    <div class="loader-vignette" aria-hidden="true"></div>
+    <div class="loader-content">
+        <p class="loader-wordmark">
+            <span class="loader-char">D</span><span class="loader-char">r</span><span class="loader-char">i</span><span class="loader-char">v</span><span class="loader-char">e</span><span class="loader-char">A</span><span class="loader-char">w</span><span class="loader-char">a</span><span class="loader-char">y</span>
+        </p>
+        <p class="loader-tagline">Premium vehicle rentals</p>
+        <div class="loader-progress" aria-hidden="true"><span class="loader-progress-inner"></span></div>
     </div>
 </div>
 
+<div class="index-landing-shell">
 <div th:replace="~{fragments/index-landing-nav :: indexNav}"></div>
 
 <div class="parallax-bg" id="parallax-bg" aria-hidden="true"></div>
@@ -58,6 +48,7 @@
 <th:block th:replace="~{fragments/index-main :: landingMain}"></th:block>
 
 <div th:replace="~{fragments/index-landing-footer :: indexFooter}"></div>
+</div>
 
 <script th:src="@{/js/index-landing.js}"></script>
 </body>
