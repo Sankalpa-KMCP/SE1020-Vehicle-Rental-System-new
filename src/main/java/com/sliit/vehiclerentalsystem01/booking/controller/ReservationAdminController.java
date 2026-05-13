@@ -87,7 +87,30 @@ public class ReservationAdminController {
         }
         model.addAttribute("bookingList", all);
         model.addAttribute("searchQuery", q == null ? "" : q.trim());
+        model.addAttribute("useAdminReservationBase", true);
+        addViewAllStats(model, all);
         return "booking/view-all-bookings";
+    }
+
+    private static void addViewAllStats(Model model, List<Booking> bookingList) {
+        int totalBookings = bookingList.size();
+        int cancellationRequests = 0;
+        int pendingBookings = 0;
+        int updateRequests = 0;
+        for (Booking b : bookingList) {
+            String s = norm(b.getStatus());
+            if ("CANCELLATION_REQUESTED".equalsIgnoreCase(s)) {
+                cancellationRequests++;
+            } else if ("PENDING".equalsIgnoreCase(s)) {
+                pendingBookings++;
+            } else if ("UPDATE_REQUESTED".equalsIgnoreCase(s)) {
+                updateRequests++;
+            }
+        }
+        model.addAttribute("totalBookings", totalBookings);
+        model.addAttribute("cancellationRequests", cancellationRequests);
+        model.addAttribute("pendingBookings", pendingBookings);
+        model.addAttribute("updateRequests", updateRequests);
     }
 
     private static boolean containsIgnoreCase(String value, String needle) {

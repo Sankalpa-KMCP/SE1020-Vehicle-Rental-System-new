@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+import java.util.Locale;
+
 /**
  * Admin booking management. Every endpoint requires an {@code ADMIN_LOGGED_IN} session.
  */
@@ -40,12 +43,35 @@ public class BookingController {
         return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
     }
 
+    private static void addBookingStats(Model model, List<Booking> bookingList) {
+        int totalBookings = bookingList.size();
+        int cancellationRequests = 0;
+        int pendingBookings = 0;
+        int updateRequests = 0;
+        for (Booking b : bookingList) {
+            String s = b.getStatus() == null ? "" : b.getStatus().trim();
+            if ("CANCELLATION_REQUESTED".equalsIgnoreCase(s)) {
+                cancellationRequests++;
+            } else if ("PENDING".equalsIgnoreCase(s)) {
+                pendingBookings++;
+            } else if ("UPDATE_REQUESTED".equalsIgnoreCase(s)) {
+                updateRequests++;
+            }
+        }
+        model.addAttribute("totalBookings", totalBookings);
+        model.addAttribute("cancellationRequests", cancellationRequests);
+        model.addAttribute("pendingBookings", pendingBookings);
+        model.addAttribute("updateRequests", updateRequests);
+    }
+
     @GetMapping
     public String list(HttpSession session, Model model) {
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
-        model.addAttribute("bookings", bookingService.findAll());
+        List<Booking> all = bookingService.findAll();
+        model.addAttribute("bookings", all);
+        addBookingStats(model, all);
         return "booking/booking-list";
     }
 
@@ -80,12 +106,30 @@ public class BookingController {
     }
 
     @GetMapping("/view-all")
-    public String viewAllBookings(HttpSession session, Model model) {
+    public String viewAllBookings(HttpSession session, Model model,
+                                  @RequestParam(required = false) String q) {
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
-        model.addAttribute("bookingList", bookingService.findAll());
+        List<Booking> all = bookingService.findAll();
+        if (q != null && !q.isBlank()) {
+            String needle = q.trim().toLowerCase(Locale.ROOT);
+            all = all.stream()
+                    .filter(b -> containsIgnoreCase(b.getId(), needle)
+                            || containsIgnoreCase(b.getCustomerName(), needle)
+                            || containsIgnoreCase(b.getVehicleId(), needle)
+                            || containsIgnoreCase(b.getStatus(), needle))
+                    .toList();
+        }
+        model.addAttribute("bookingList", all);
+        model.addAttribute("searchQuery", q == null ? "" : q.trim());
+        model.addAttribute("useAdminReservationBase", false);
+        addBookingStats(model, all);
         return "booking/view-all-bookings";
+    }
+
+    private static boolean containsIgnoreCase(String value, String needle) {
+        return value != null && !value.isBlank() && value.toLowerCase(Locale.ROOT).contains(needle);
     }
 
     @GetMapping("/{id}")
