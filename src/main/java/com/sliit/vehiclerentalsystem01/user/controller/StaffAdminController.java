@@ -67,6 +67,13 @@ public class StaffAdminController {
             return "redirect:/auth/staff-login";
         }
         String action = params.get("action");
+        if ("delete".equals(action)) {
+            String deleteId = params.get("id");
+            if (deleteId != null && !deleteId.isBlank()) {
+                userService.deleteById(deleteId.trim());
+            }
+            return "redirect:/staff?action=list";
+        }
         String role = params.get("role");
         String id = params.get("id");
         String name = params.get("name");

@@ -87,7 +87,8 @@ public class PaymentFileServiceImpl implements PaymentService {
     }
 
     /**
-     * Paid when {@code status} equals {@code PAID} (case-insensitive) or amount is positive with empty/pending treated as unpaid.
+     * Paid when the linked payment has {@code status == PAID} (case-insensitive). Amount alone
+     * does NOT imply paid -- pending invoices typically carry a positive amount.
      */
     @Override
     public boolean hasPaidPaymentForBooking(String bookingId) {
@@ -97,7 +98,7 @@ public class PaymentFileServiceImpl implements PaymentService {
         String key = bookingId.trim();
         return readAll().stream()
                 .filter(p -> key.equals(p.getBookingId()))
-                .anyMatch(p -> "PAID".equalsIgnoreCase(nullSafe(p.getStatus())) || p.getAmount() > 0);
+                .anyMatch(p -> "PAID".equalsIgnoreCase(nullSafe(p.getStatus())));
     }
 
     private static String nullSafe(String s) {

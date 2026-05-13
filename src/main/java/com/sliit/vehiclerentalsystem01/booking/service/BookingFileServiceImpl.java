@@ -1,9 +1,11 @@
 package com.sliit.vehiclerentalsystem01.booking.service;
 
 import com.sliit.vehiclerentalsystem01.booking.model.Booking;
+import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
 import com.sliit.vehiclerentalsystem01.user.model.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -28,12 +30,14 @@ public class BookingFileServiceImpl implements BookingService {
     private static final String FILE_NAME = "bookings.txt";
 
     private final UserService userService;
+    private final PaymentService paymentService;
 
     @Value("${app.data.directory:data}")
     private String dataDirectory;
 
-    public BookingFileServiceImpl(UserService userService) {
+    public BookingFileServiceImpl(UserService userService, @Lazy PaymentService paymentService) {
         this.userService = userService;
+        this.paymentService = paymentService;
     }
 
     private Path path() {
@@ -89,8 +93,16 @@ public class BookingFileServiceImpl implements BookingService {
         writeAll(list);
     }
 
+    /**
+     * Refuses to delete a booking that has any associated payment row. Throws
+     * {@link IllegalStateException} with code {@code booking_in_use} so controllers can surface
+     * a friendly error.
+     */
     @Override
     public void deleteById(String id) {
+        if (id != null && !id.isBlank() && paymentService.hasAnyPaymentForBooking(id)) {
+            throw new IllegalStateException("booking_in_use");
+        }
         List<Booking> list = readAll().stream()
                 .filter(b -> !id.equals(b.getId()))
                 .collect(Collectors.toCollection(ArrayList::new));

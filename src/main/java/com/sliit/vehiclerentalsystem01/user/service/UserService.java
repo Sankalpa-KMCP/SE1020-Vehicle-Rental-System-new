@@ -25,6 +25,7 @@ public interface UserService {
 
     /**
      * Password match after trim on both inputs and stored credentials (username match is case-insensitive).
+     * File-backed implementations should read the persistent user store (e.g. {@code users.txt}) on each call.
      */
     Optional<User> authenticate(String username, String password);
 }

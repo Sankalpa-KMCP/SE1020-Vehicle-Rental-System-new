@@ -20,22 +20,48 @@
 </header>
 <main class="max-w-5xl mx-auto px-6 py-10">
     <p class="text-slate-400 mb-6 max-w-2xl">
-        Pending administrator requests are read from <code class="text-amber-200 bg-slate-800 px-1 rounded">~/RentalData/pending_admins.txt</code>
-        (one non-empty, non-comment line per entry). Approve/deny actions can be wired when persistence is available.
+        Pending staff/administrator requests. Primary source:
+        <code class="text-amber-200 bg-slate-800 px-1 rounded">data/staff_access_requests.txt</code>
+        (the legacy <code class="text-amber-200 bg-slate-800 px-1 rounded">~/RentalData/pending_admins.txt</code>
+        is also read but never modified).
     </p>
+    <div th:if="${message != null}" class="mb-4 bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
+        <i class="ph-bold ph-check-circle text-lg"></i><span th:text="${message}">ok</span>
+    </div>
+    <div th:if="${error != null}" class="mb-4 bg-rose-500/10 border border-rose-400/30 text-rose-200 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
+        <i class="ph-bold ph-warning-circle text-lg"></i><span th:text="${error}">err</span>
+    </div>
     <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden">
         <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between">
             <h1 class="text-lg font-bold">Pending requests</h1>
             <span class="text-xs text-slate-500"><span th:text="${pendingLines != null ? #lists.size(pendingLines) : 0}">0</span> row(s)</span>
         </div>
         <ul class="divide-y divide-white/5" th:if="${pendingLines != null and !pendingLines.isEmpty()}">
-            <li th:each="line : ${pendingLines}" class="px-6 py-4 font-mono text-sm text-cyan-100 break-all" th:text="${line}">line</li>
+            <li th:each="line : ${pendingLines}" class="px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <span class="font-mono text-sm text-cyan-100 break-all flex-1" th:text="${line}">line</span>
+                <div class="flex gap-2 shrink-0">
+                    <form th:action="@{/user/master-console}" method="post" class="inline m-0">
+                        <input type="hidden" name="action" value="approve"/>
+                        <input type="hidden" name="request" th:value="${line}"/>
+                        <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                            <i class="ph-bold ph-check"></i> Approve
+                        </button>
+                    </form>
+                    <form th:action="@{/user/master-console}" method="post" class="inline m-0" onsubmit="return confirm('Reject this request?');">
+                        <input type="hidden" name="action" value="reject"/>
+                        <input type="hidden" name="request" th:value="${line}"/>
+                        <button type="submit" class="bg-rose-500/80 hover:bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                            <i class="ph-bold ph-x"></i> Reject
+                        </button>
+                    </form>
+                </div>
+            </li>
         </ul>
         <p th:if="${pendingLines == null or pendingLines.isEmpty()}" class="px-6 py-12 text-center text-slate-500">
-            No pending lines found (file missing or empty).
+            No pending requests.
         </p>
     </div>
-    <p class="mt-8 text-xs text-slate-500">Master access is granted only for the primary admin account in this demo build.</p>
+    <p class="mt-8 text-xs text-slate-500">Approve creates a support-staff account with a generated temporary password.</p>
 </main>
 </body>
 </html>

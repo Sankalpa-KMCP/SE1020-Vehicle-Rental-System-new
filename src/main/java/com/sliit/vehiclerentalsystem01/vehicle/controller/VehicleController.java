@@ -1,9 +1,11 @@
 package com.sliit.vehiclerentalsystem01.vehicle.controller;
 
+import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.vehicle.model.Car;
 import com.sliit.vehiclerentalsystem01.vehicle.model.Motorcycle;
 import com.sliit.vehiclerentalsystem01.vehicle.model.Vehicle;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Map;
@@ -27,16 +30,30 @@ public class VehicleController {
         this.vehicleService = vehicleService;
     }
 
+    private static boolean admin(HttpSession session) {
+        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
+    }
+
     /**
      * Legacy query-param flow ({@code action=delete|edit|list}) and dashboard, plus default fleet view.
+     * Admin-only: redirects to the staff login if no admin session is present.
      */
     @GetMapping
     public String vehiclesEntry(
             @RequestParam(required = false) String action,
             @RequestParam(required = false) String id,
+            HttpSession session,
+            RedirectAttributes ra,
             Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         if ("delete".equals(action) && id != null && !id.isBlank()) {
-            vehicleService.deleteById(id.trim());
+            try {
+                vehicleService.deleteById(id.trim());
+            } catch (IllegalStateException ex) {
+                ra.addAttribute("error", ex.getMessage());
+            }
             return "redirect:/vehicles?action=list";
         }
         if ("edit".equals(action) && id != null && !id.isBlank()) {
@@ -61,12 +78,18 @@ public class VehicleController {
     }
 
     @GetMapping("/add")
-    public String addLegacyForm() {
+    public String addLegacyForm(HttpSession session) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         return "vehicle/vehicle-form";
     }
 
     @GetMapping("/new")
-    public String newForm(Model model) {
+    public String newForm(HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         model.addAttribute("mode", "create");
         model.addAttribute("entityId", null);
         model.addAttribute("vehicleType", "CAR");
@@ -75,6 +98,7 @@ public class VehicleController {
         return "vehicle/vehicle-entity-form";
     }
 
+    /** Public detail view: used by both staff dashboard and customer fleet browse. */
     @GetMapping("/{id}")
     public String detail(@PathVariable String id, Model model) {
         return vehicleService.findById(id)
@@ -86,7 +110,10 @@ public class VehicleController {
     }
 
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable String id, Model model) {
+    public String edit(@PathVariable String id, HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         return vehicleService.findById(id)
                 .map(v -> {
                     model.addAttribute("mode", "edit");
@@ -106,10 +133,26 @@ public class VehicleController {
 
     @PostMapping
     public String postRoot(
+            HttpSession session,
             @RequestParam Map<String, String> params,
             @RequestParam(required = false) String vehicleType,
             @ModelAttribute Car car,
-            @ModelAttribute Motorcycle motorcycle) {
+            @ModelAttribute Motorcycle motorcycle,
+            RedirectAttributes ra) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        if ("delete".equals(params.get("action"))) {
+            String id = params.get("id");
+            if (id != null && !id.isBlank()) {
+                try {
+                    vehicleService.deleteById(id.trim());
+                } catch (IllegalStateException ex) {
+                    ra.addAttribute("error", ex.getMessage());
+                }
+            }
+            return "redirect:/vehicles?action=list";
+        }
         if (isModernVehicleType(vehicleType)) {
             createModern(vehicleType, car, motorcycle);
             return "redirect:/vehicles";
@@ -161,9 +204,13 @@ public class VehicleController {
     @PostMapping("/{id}")
     public String update(
             @PathVariable String id,
+            HttpSession session,
             @RequestParam String vehicleType,
             @ModelAttribute Car car,
             @ModelAttribute Motorcycle motorcycle) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         Vehicle toSave = "MOTORCYCLE".equalsIgnoreCase(vehicleType) ? motorcycle : car;
         toSave.setId(id);
         vehicleService.save(toSave);
@@ -176,8 +223,15 @@ public class VehicleController {
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable String id) {
-        vehicleService.deleteById(id);
+    public String delete(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        try {
+            vehicleService.deleteById(id);
+        } catch (IllegalStateException ex) {
+            ra.addAttribute("error", ex.getMessage());
+        }
         return "redirect:/vehicles";
     }
 }

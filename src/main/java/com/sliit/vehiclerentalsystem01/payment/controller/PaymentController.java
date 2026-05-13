@@ -5,6 +5,8 @@ import com.sliit.vehiclerentalsystem01.payment.model.CardPayment;
 import com.sliit.vehiclerentalsystem01.payment.model.CashPayment;
 import com.sliit.vehiclerentalsystem01.payment.model.Payment;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
+import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Admin payment management. Every endpoint requires an {@code ADMIN_LOGGED_IN} session;
+ * customer-facing payment flows live under {@code /customer/*}.
+ */
 @Controller
 @RequestMapping("/payments")
 public class PaymentController {
@@ -31,8 +37,15 @@ public class PaymentController {
         this.bookingService = bookingService;
     }
 
+    private static boolean admin(HttpSession session) {
+        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
+    }
+
     @GetMapping
-    public String list(Model model) {
+    public String list(HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         List<Payment> payments = paymentService.findAll();
         model.addAttribute("payments", payments);
         model.addAttribute("totalTransactions", payments.size());
@@ -67,7 +80,10 @@ public class PaymentController {
     }
 
     @GetMapping("/new")
-    public String newForm(Model model, @RequestParam(required = false) String error) {
+    public String newForm(HttpSession session, Model model, @RequestParam(required = false) String error) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         model.addAttribute("mode", "create");
         model.addAttribute("entityId", null);
         model.addAttribute("paymentType", "CARD");
@@ -79,7 +95,10 @@ public class PaymentController {
     }
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable String id, Model model) {
+    public String detail(@PathVariable String id, HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         return paymentService.findById(id)
                 .map(p -> {
                     model.addAttribute("payment", p);
@@ -89,7 +108,10 @@ public class PaymentController {
     }
 
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable String id, Model model) {
+    public String edit(@PathVariable String id, HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         return paymentService.findById(id)
                 .map(p -> {
                     model.addAttribute("mode", "edit");
@@ -115,11 +137,15 @@ public class PaymentController {
      */
     @PostMapping(params = "action=update")
     public String legacyJspUpdate(
+            HttpSession session,
             @RequestParam String id,
             @RequestParam String bookingId,
             @RequestParam double amount,
             @RequestParam String method,
             @RequestParam String status) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         Optional<Payment> opt = paymentService.findById(id);
         if (opt.isEmpty()) {
             return "redirect:/payments";
@@ -146,12 +172,16 @@ public class PaymentController {
      */
     @PostMapping(params = "action=create")
     public String legacyJspCreate(
+            HttpSession session,
             @RequestParam String bookingId,
             @RequestParam double amount,
             @RequestParam String method,
             @RequestParam String status,
             @RequestParam(required = false) String manualId,
             RedirectAttributes ra) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         String bid = bookingId == null ? "" : bookingId.trim();
         if (bid.isEmpty()) {
             ra.addAttribute("error", "booking_required");
@@ -176,12 +206,34 @@ public class PaymentController {
         return "redirect:/payments";
     }
 
+    /**
+     * Modern create POST. Mirrors the booking-validity checks from {@link #legacyJspCreate}:
+     * the linked booking must exist and must be CONFIRMED before a payment row can be added.
+     */
     @PostMapping
     public String create(
+            HttpSession session,
             @RequestParam String paymentType,
             @ModelAttribute CardPayment cardPayment,
-            @ModelAttribute CashPayment cashPayment) {
+            @ModelAttribute CashPayment cashPayment,
+            RedirectAttributes ra) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         Payment toSave = "CASH".equalsIgnoreCase(paymentType) ? cashPayment : cardPayment;
+        String bookingId = toSave.getBookingId() == null ? "" : toSave.getBookingId().trim();
+        if (bookingId.isEmpty()) {
+            ra.addAttribute("error", "booking_required");
+            return "redirect:/payments/new";
+        }
+        if (bookingService.findById(bookingId).isEmpty()) {
+            ra.addAttribute("error", "booking_not_found");
+            return "redirect:/payments/new";
+        }
+        if (!bookingService.isPaymentAllowed(bookingId)) {
+            ra.addAttribute("error", "booking_not_confirmed");
+            return "redirect:/payments/new";
+        }
         paymentService.save(toSave);
         return "redirect:/payments";
     }
@@ -189,9 +241,13 @@ public class PaymentController {
     @PostMapping("/{id}")
     public String update(
             @PathVariable String id,
+            HttpSession session,
             @RequestParam String paymentType,
             @ModelAttribute CardPayment cardPayment,
             @ModelAttribute CashPayment cashPayment) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         Payment toSave = "CASH".equalsIgnoreCase(paymentType) ? cashPayment : cardPayment;
         toSave.setId(id);
         paymentService.save(toSave);
@@ -199,7 +255,10 @@ public class PaymentController {
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable String id) {
+    public String delete(@PathVariable String id, HttpSession session) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         paymentService.deleteById(id);
         return "redirect:/payments";
     }

@@ -1,9 +1,11 @@
 package com.sliit.vehiclerentalsystem01.vehicle.service;
 
+import com.sliit.vehiclerentalsystem01.booking.service.BookingService;
 import com.sliit.vehiclerentalsystem01.vehicle.model.Car;
 import com.sliit.vehiclerentalsystem01.vehicle.model.Motorcycle;
 import com.sliit.vehiclerentalsystem01.vehicle.model.Vehicle;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -23,8 +25,18 @@ public class VehicleFileServiceImpl implements VehicleService {
 
     private static final String FILE_NAME = "vehicles.txt";
 
+    private final BookingService bookingService;
+
     @Value("${app.data.directory:data}")
     private String dataDirectory;
+
+    /**
+     * Booking service is {@link Lazy} because BookingService also depends on UserService and on
+     * the bean-resolution path Spring instantiates Vehicle service early.
+     */
+    public VehicleFileServiceImpl(@Lazy BookingService bookingService) {
+        this.bookingService = bookingService;
+    }
 
     private Path vehiclesPath() {
         return Paths.get(dataDirectory).toAbsolutePath().normalize().resolve(FILE_NAME);
@@ -51,8 +63,16 @@ public class VehicleFileServiceImpl implements VehicleService {
         writeAll(list);
     }
 
+    /**
+     * Refuses to delete a vehicle that an active booking still references. Throws
+     * {@link IllegalStateException} with code {@code vehicle_in_use} so controllers can surface
+     * a friendly error.
+     */
     @Override
     public void deleteById(String id) {
+        if (id != null && bookingService.findUnavailableVehicleIds().contains(id.trim())) {
+            throw new IllegalStateException("vehicle_in_use");
+        }
         List<Vehicle> list = readAll().stream()
                 .filter(v -> !id.equals(v.getId()))
                 .collect(Collectors.toCollection(ArrayList::new));

@@ -99,7 +99,11 @@ public class CustomerAdminController {
             if ("delete".equals(action)) {
                 String customerId = normalized(id);
                 if (!customerId.isEmpty()) {
-                    userService.deleteById(customerId);
+                    try {
+                        userService.deleteById(customerId);
+                    } catch (IllegalStateException ex) {
+                        return "redirect:/customers?action=view_directory&error=" + ex.getMessage();
+                    }
                 }
                 return "redirect:/customers?action=view_directory&msg=deleted";
             }
@@ -160,7 +164,11 @@ public class CustomerAdminController {
             }
             String id = normalized(params.get("id"));
             if (!id.isEmpty()) {
-                userService.deleteById(id);
+                try {
+                    userService.deleteById(id);
+                } catch (IllegalStateException ex) {
+                    return "redirect:/customers?action=view_directory&error=" + ex.getMessage();
+                }
             }
             return "redirect:/customers?action=view_directory&msg=deleted";
         }
@@ -202,6 +210,18 @@ public class CustomerAdminController {
                     .filter(u -> u instanceof Customer)
                     .map(u -> (Customer) u)
                     .orElseThrow();
+            String currentUsername = existing.getUsername() == null ? "" : existing.getUsername().trim();
+            if (!currentUsername.equalsIgnoreCase(username)) {
+                boolean collision = userService.findByUsername(username)
+                        .filter(u -> !id.equalsIgnoreCase(u.getId()))
+                        .isPresent();
+                if (collision) {
+                    boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
+                    return isAdmin
+                            ? "redirect:/customers?action=edit&id=" + id + "&error=username_taken"
+                            : "redirect:/customers?action=editSelf&error=username_taken";
+                }
+            }
             existing.setUsername(username);
             existing.setPassword(password);
             existing.setEmail(email);

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Locale;
@@ -97,7 +98,8 @@ public class ReservationAdminController {
     public String post(
             HttpSession session,
             @RequestParam String action,
-            @RequestParam String id) {
+            @RequestParam String id,
+            RedirectAttributes ra) {
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
@@ -128,7 +130,13 @@ public class ReservationAdminController {
                 b.setStaffMessage("");
                 bookingService.save(b);
             }
-            case "delete" -> bookingService.deleteById(id);
+            case "delete" -> {
+                try {
+                    bookingService.deleteById(id);
+                } catch (IllegalStateException ex) {
+                    ra.addAttribute("error", ex.getMessage());
+                }
+            }
             default -> {
             }
         }

@@ -61,17 +61,14 @@ public class UserAuthController {
             RedirectAttributes redirectAttributes) {
         return userService.authenticate(username, password)
                 .map(u -> {
-                    if (u instanceof Staff s && !isMasterAdminAccount(s)) {
-                        return "redirect:/auth/login?error=staff_portal";
+                    if (u instanceof Staff) {
+                        return "redirect:/auth/login?error=1";
                     }
                     establishAuthenticatedSession(session, u);
                     redirectAttributes.addFlashAttribute("message", "Welcome, " + sessionUsername(u));
                     return "redirect:/dashboard";
                 })
-                .orElseGet(() -> {
-                    redirectAttributes.addFlashAttribute("error", "Invalid username or password");
-                    return "redirect:/auth/login?error=1";
-                });
+                .orElseGet(() -> "redirect:/auth/login?error=1");
     }
 
     /**

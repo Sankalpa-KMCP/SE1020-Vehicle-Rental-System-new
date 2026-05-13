@@ -73,7 +73,11 @@
                     <td class="p-4"><span class="bg-slate-100 px-2 py-1 rounded-lg text-xs font-bold" th:text="${s.role}">r</span></td>
                     <td class="p-4">
                         <a th:href="@{/staff(action=edit,id=${s.staffId})}" class="text-blue-600 font-bold text-sm hover:underline">Edit</a>
-                        <a th:href="@{/staff(action=delete,id=${s.staffId})}" onclick="return confirm('Are you sure?')" class="text-red-600 font-bold text-sm ml-3 hover:underline">Delete</a>
+                        <form th:action="@{/staff}" method="post" class="inline m-0" onsubmit="return confirm('Are you sure?')">
+                            <input type="hidden" name="action" value="delete"/>
+                            <input type="hidden" name="id" th:value="${s.staffId}"/>
+                            <button type="submit" class="text-red-600 font-bold text-sm ml-3 hover:underline">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 <tr th:if="${staffList == null or staffList.isEmpty()}">

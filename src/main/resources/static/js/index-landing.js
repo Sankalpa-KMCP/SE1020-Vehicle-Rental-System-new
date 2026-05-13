@@ -74,6 +74,28 @@
       return;
     }
     tDom = performance.now();
+    
+    // Add interactive skip functionality
+    var loader = qs('#page-loader');
+    if (loader) {
+      var skipTimeout = null;
+      
+      function enableSkip() {
+        loader.style.cursor = 'pointer';
+        loader.addEventListener('click', forceFinish);
+      }
+      
+      function forceFinish(e) {
+        e.preventDefault();
+        var elapsed = performance.now() - tDom;
+        if (elapsed >= minShowMs) {
+          finishLoader();
+        }
+      }
+      
+      skipTimeout = window.setTimeout(enableSkip, minShowMs);
+    }
+    
     pollHandle = window.setInterval(function () {
       maybeFinish();
     }, 48);
@@ -96,6 +118,37 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('visibilitychange', function () {
     document.body.classList.toggle('index-tab-paused', document.hidden);
   });
+
+  // Enhanced loading animation interactions
+  var loader = document.getElementById('page-loader');
+  var particles = document.querySelectorAll('.loader-particle');
+  var mouseX = 0, mouseY = 0;
+  var currentX = 0, currentY = 0;
+  
+  if (loader && particles.length > 0 && !prefersReducedMotion) {
+    function updateParticles() {
+      currentX += (mouseX - currentX) * 0.1;
+      currentY += (mouseY - currentY) * 0.1;
+      
+      particles.forEach(function(particle, index) {
+        var speed = (index + 1) * 0.02;
+        var offsetX = Math.sin(currentX * speed) * 20;
+        var offsetY = Math.cos(currentY * speed) * 20;
+        particle.style.transform = 'translate3d(' + offsetX + 'px, ' + offsetY + 'px, 0)';
+      });
+      
+      requestAnimationFrame(updateParticles);
+    }
+    
+    document.addEventListener('mousemove', function(e) {
+      if (!closed) {
+        mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+        mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+      }
+    });
+    
+    updateParticles();
+  }
 
   var parallaxBg = document.getElementById('parallax-bg');
   function updateParallax(scrollY, docEl) {

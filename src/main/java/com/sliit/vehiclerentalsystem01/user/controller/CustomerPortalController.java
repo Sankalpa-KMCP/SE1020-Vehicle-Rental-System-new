@@ -395,10 +395,15 @@ public class CustomerPortalController {
         return "booking/edit-booking";
     }
 
+    /**
+     * Customer-side booking edit. Only PENDING / UPDATE_REQUESTED bookings can be edited;
+     * confirmed or cancelled bookings must go through admin reservation actions instead.
+     */
     @PostMapping("/bookings/{id}/edit")
     public String editBookingSubmit(HttpSession session, @PathVariable String id,
                                     @RequestParam String rentalDate,
-                                    @RequestParam int days) {
+                                    @RequestParam int days,
+                                    RedirectAttributes ra) {
         if (!customer(session)) {
             return "redirect:/auth/login";
         }
@@ -409,6 +414,14 @@ public class CustomerPortalController {
         }
         Booking b = ob.get();
         if (b.getCustomerName() == null || !un.equalsIgnoreCase(b.getCustomerName().trim())) {
+            return "redirect:/customer/bookings";
+        }
+        String status = b.getStatus() == null ? "" : b.getStatus().trim().toUpperCase();
+        boolean editable = status.isEmpty()
+                || "PENDING".equals(status)
+                || "UPDATE_REQUESTED".equals(status);
+        if (!editable) {
+            ra.addFlashAttribute("editError", "Only pending bookings can be edited directly.");
             return "redirect:/customer/bookings";
         }
         b.setRentalDate(rentalDate == null ? b.getRentalDate() : rentalDate.trim());

@@ -37,13 +37,7 @@
     <div th:if="${param.error != null and param.error[0] == '1'}"
          class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-700 font-bold flex items-center gap-3 mb-8 shadow-sm">
       <i class="ph-fill ph-warning-circle text-2xl text-red-500"></i>
-      Access Denied. Check credentials.
-    </div>
-
-    <div th:if="${param.error != null and param.error[0] == 'staff_portal'}"
-         class="auth-error-alert bg-amber-50 p-5 rounded-xl border border-amber-200 text-base text-amber-900 font-bold flex items-center gap-3 mb-8 shadow-sm">
-      <i class="ph-fill ph-info text-2xl text-amber-600"></i>
-      This page is for customers only. Staff and admins should use the Staff Portal.
+      Invalid Credentials
     </div>
 
     <div th:if="${param.success != null and param.success[0] == 'registered'}"

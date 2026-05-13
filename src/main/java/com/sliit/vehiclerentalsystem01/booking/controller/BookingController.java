@@ -2,9 +2,11 @@ package com.sliit.vehiclerentalsystem01.booking.controller;
 
 import com.sliit.vehiclerentalsystem01.booking.model.Booking;
 import com.sliit.vehiclerentalsystem01.booking.service.BookingService;
+import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.model.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +15,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/**
+ * Admin booking management. Every endpoint requires an {@code ADMIN_LOGGED_IN} session.
+ */
 @Controller
 @RequestMapping("/bookings")
 public class BookingController {
@@ -30,14 +36,24 @@ public class BookingController {
         this.vehicleService = vehicleService;
     }
 
+    private static boolean admin(HttpSession session) {
+        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
+    }
+
     @GetMapping
-    public String list(Model model) {
+    public String list(HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         model.addAttribute("bookings", bookingService.findAll());
         return "booking/booking-list";
     }
 
     @GetMapping("/new")
-    public String newForm(Model model) {
+    public String newForm(HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         model.addAttribute("mode", "create");
         model.addAttribute("entityId", null);
         model.addAttribute("booking", new Booking());
@@ -49,7 +65,12 @@ public class BookingController {
     }
 
     @GetMapping("/search")
-    public String searchBooking(@RequestParam(required = false) String id, Model model) {
+    public String searchBooking(HttpSession session,
+                                @RequestParam(required = false) String id,
+                                Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         boolean attempted = id != null && !id.isBlank();
         model.addAttribute("searchAttempted", attempted);
         model.addAttribute("searchedBooking", attempted
@@ -59,13 +80,19 @@ public class BookingController {
     }
 
     @GetMapping("/view-all")
-    public String viewAllBookings(Model model) {
+    public String viewAllBookings(HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         model.addAttribute("bookingList", bookingService.findAll());
         return "booking/view-all-bookings";
     }
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable String id, Model model) {
+    public String detail(@PathVariable String id, HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         return bookingService.findById(id)
                 .map(b -> {
                     model.addAttribute("booking", b);
@@ -75,7 +102,10 @@ public class BookingController {
     }
 
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable String id, Model model) {
+    public String edit(@PathVariable String id, HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         return bookingService.findById(id)
                 .map(b -> {
                     model.addAttribute("mode", "edit");
@@ -91,21 +121,34 @@ public class BookingController {
     }
 
     @PostMapping
-    public String create(@ModelAttribute Booking booking) {
+    public String create(HttpSession session, @ModelAttribute Booking booking) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         bookingService.save(booking);
         return "redirect:/bookings";
     }
 
     @PostMapping("/{id}")
-    public String update(@PathVariable String id, @ModelAttribute Booking booking) {
+    public String update(@PathVariable String id, HttpSession session, @ModelAttribute Booking booking) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         booking.setId(id);
         bookingService.save(booking);
         return "redirect:/bookings";
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable String id) {
-        bookingService.deleteById(id);
+    public String delete(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        try {
+            bookingService.deleteById(id);
+        } catch (IllegalStateException ex) {
+            ra.addAttribute("error", ex.getMessage());
+        }
         return "redirect:/bookings";
     }
 }

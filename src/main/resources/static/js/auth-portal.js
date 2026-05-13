@@ -329,15 +329,43 @@
       if (!form.checkValidity()) return;
       if (prefersReducedMotion()) return;
       e.preventDefault();
-      successOverlay.classList.add('active');
-      setTimeout(function () {
-        successOverlay.classList.remove('active');
-        if (typeof HTMLFormElement === 'function' && HTMLFormElement.prototype.submit) {
-          HTMLFormElement.prototype.submit.call(form);
-        } else {
-          form.submit();
-        }
-      }, 1400);
+
+      var submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      var successNavScheduled = false;
+
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        credentials: 'same-origin',
+        redirect: 'manual',
+      })
+        .then(function (res) {
+          var locHeader = res.headers.get('Location');
+          if (locHeader && res.status >= 300 && res.status < 400) {
+            var nextUrl = new URL(locHeader, window.location.origin);
+            var path = nextUrl.pathname;
+            if (path === '/dashboard' || path.indexOf('/dashboard/') === 0) {
+              successNavScheduled = true;
+              successOverlay.classList.add('active');
+              var dest = nextUrl.pathname + nextUrl.search + nextUrl.hash;
+              setTimeout(function () {
+                window.location.assign(dest);
+              }, 750);
+              return;
+            }
+            window.location.assign(nextUrl.pathname + nextUrl.search + nextUrl.hash);
+            return;
+          }
+          window.location.assign('/auth/login?error=1');
+        })
+        .catch(function () {
+          window.location.assign('/auth/login?error=1');
+        })
+        .finally(function () {
+          if (!successNavScheduled && submitBtn) submitBtn.disabled = false;
+        });
     });
   }
 

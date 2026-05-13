@@ -1,11 +1,13 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
+import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.model.AdminStaff;
 import com.sliit.vehiclerentalsystem01.user.model.Customer;
 import com.sliit.vehiclerentalsystem01.user.model.Staff;
 import com.sliit.vehiclerentalsystem01.user.model.SupportStaff;
 import com.sliit.vehiclerentalsystem01.user.model.User;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +16,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/**
+ * Generic /users CRUD. All endpoints require an {@code ADMIN_LOGGED_IN} session.
+ */
 @Controller
 @RequestMapping("/users")
 public class UserController {
@@ -25,14 +31,24 @@ public class UserController {
         this.userService = userService;
     }
 
+    private static boolean admin(HttpSession session) {
+        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
+    }
+
     @GetMapping
-    public String list(Model model) {
+    public String list(HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         model.addAttribute("users", userService.findAll());
         return "user/user-list";
     }
 
     @GetMapping("/new")
-    public String newUserForm(Model model) {
+    public String newUserForm(HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         model.addAttribute("mode", "create");
         model.addAttribute("entityId", null);
         model.addAttribute("userType", "CUSTOMER");
@@ -42,7 +58,10 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable String id, Model model) {
+    public String detail(@PathVariable String id, HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         return userService.findById(id)
                 .map(u -> {
                     model.addAttribute("user", u);
@@ -52,7 +71,10 @@ public class UserController {
     }
 
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable String id, Model model) {
+    public String edit(@PathVariable String id, HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         return userService.findById(id)
                 .map(u -> {
                     model.addAttribute("mode", "edit");
@@ -75,9 +97,13 @@ public class UserController {
 
     @PostMapping
     public String create(
+            HttpSession session,
             @RequestParam String userType,
             @ModelAttribute Customer customer,
             @ModelAttribute SupportStaff staff) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         User toSave = "STAFF".equalsIgnoreCase(userType) ? staff : customer;
         userService.save(toSave);
         return "redirect:/users";
@@ -86,9 +112,13 @@ public class UserController {
     @PostMapping("/{id}")
     public String update(
             @PathVariable String id,
+            HttpSession session,
             @RequestParam String userType,
             @ModelAttribute Customer customer,
             @ModelAttribute SupportStaff staff) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
         if ("STAFF".equalsIgnoreCase(userType)) {
             User existing = userService.findById(id).orElseThrow();
             Staff replacement = existing instanceof AdminStaff
@@ -105,8 +135,15 @@ public class UserController {
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable String id) {
-        userService.deleteById(id);
+    public String delete(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        try {
+            userService.deleteById(id);
+        } catch (IllegalStateException ex) {
+            ra.addAttribute("error", ex.getMessage());
+        }
         return "redirect:/users";
     }
 }

@@ -1,11 +1,13 @@
 package com.sliit.vehiclerentalsystem01.user.service;
 
+import com.sliit.vehiclerentalsystem01.booking.service.BookingService;
 import com.sliit.vehiclerentalsystem01.user.model.AdminStaff;
 import com.sliit.vehiclerentalsystem01.user.model.Customer;
 import com.sliit.vehiclerentalsystem01.user.model.Staff;
 import com.sliit.vehiclerentalsystem01.user.model.SupportStaff;
 import com.sliit.vehiclerentalsystem01.user.model.User;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -25,9 +27,20 @@ public class UserFileServiceImpl implements UserService {
 
     private static final String FILE_NAME = "users.txt";
 
+    private final BookingService bookingService;
+
     @Value("${app.data.directory:data}")
     private String dataDirectory;
 
+    /**
+     * BookingService is {@link Lazy} to break the cycle: BookingFileServiceImpl itself depends
+     * on UserService.
+     */
+    public UserFileServiceImpl(@Lazy BookingService bookingService) {
+        this.bookingService = bookingService;
+    }
+
+    /** Absolute path to {@value #FILE_NAME} (under {@code app.data.directory}); used as the user store for every read/write. */
     private Path usersPath() {
         return Paths.get(dataDirectory).toAbsolutePath().normalize().resolve(FILE_NAME);
     }
@@ -88,14 +101,33 @@ public class UserFileServiceImpl implements UserService {
         writeAll(users);
     }
 
+    /**
+     * Refuses to delete a customer whose username still has linked bookings. Throws
+     * {@link IllegalStateException} with code {@code customer_in_use} so controllers can surface
+     * a friendly error. Staff deletions are unaffected.
+     */
     @Override
     public void deleteById(String id) {
+        if (id != null && !id.isBlank()) {
+            findById(id)
+                    .filter(u -> u instanceof Customer)
+                    .map(u -> (Customer) u)
+                    .ifPresent(c -> {
+                        if (!bookingService.findBookingsLinkedToCustomer(c).isEmpty()) {
+                            throw new IllegalStateException("customer_in_use");
+                        }
+                    });
+        }
         List<User> users = readAllUsers().stream()
                 .filter(u -> !id.equals(u.getId()))
                 .collect(Collectors.toCollection(ArrayList::new));
         writeAll(users);
     }
 
+    /**
+     * Validates username/password against the latest contents of {@value #FILE_NAME} on disk.
+     * Each call re-reads the file (no cached user list), so edits to the file apply on the next login attempt.
+     */
     @Override
     public Optional<User> authenticate(String username, String password) {
         if (username == null || password == null) {
@@ -122,6 +154,7 @@ public class UserFileServiceImpl implements UserService {
                 .findFirst();
     }
 
+    /** Reads all customer and staff rows from {@link #usersPath()} (full reload every time). */
     private List<User> readAllUsers() {
         Path path = usersPath();
         if (!Files.exists(path)) {

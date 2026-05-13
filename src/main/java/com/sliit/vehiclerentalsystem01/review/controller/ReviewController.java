@@ -40,10 +40,16 @@ public class ReviewController {
     }
 
     @GetMapping("/form/admin")
-    public String adminReviewForm(HttpSession session) {
+    public String adminReviewForm(HttpSession session, Model model) {
         if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
             return "redirect:/auth/staff-login";
         }
+        model.addAttribute("customers", userService.findAll().stream()
+                .filter(u -> u instanceof Customer)
+                .toList());
+        model.addAttribute("vehicles", vehicleService.findAll());
+        model.addAttribute("parentReviews", customerReviewsOnly());
+        model.addAttribute("staffUsers", staffUsersOnly());
         return "review/admin-review-form";
     }
 
@@ -72,6 +78,9 @@ public class ReviewController {
 
     @GetMapping
     public String list(Model model, HttpSession session) {
+        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+            return "redirect:/auth/staff-login";
+        }
         List<Feedback> all = reviewService.findAll();
         model.addAttribute("reviews", all);
         List<CustomerReview> customerReviews = all.stream()
@@ -101,7 +110,10 @@ public class ReviewController {
     }
 
     @GetMapping("/new")
-    public String newForm(Model model) {
+    public String newForm(HttpSession session, Model model) {
+        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+            return "redirect:/auth/staff-login";
+        }
         model.addAttribute("mode", "create");
         model.addAttribute("entityId", null);
         model.addAttribute("reviewType", "CUSTOMER");
@@ -117,7 +129,10 @@ public class ReviewController {
     }
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable String id, Model model) {
+    public String detail(@PathVariable String id, HttpSession session, Model model) {
+        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+            return "redirect:/auth/staff-login";
+        }
         return reviewService.findById(id)
                 .map(r -> {
                     model.addAttribute("review", r);
@@ -127,11 +142,14 @@ public class ReviewController {
     }
 
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable String id, Model model) {
+    public String edit(@PathVariable String id, HttpSession session, Model model) {
+        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+            return "redirect:/auth/staff-login";
+        }
         return reviewService.findById(id)
+                .filter(r -> r instanceof CustomerReview)
                 .map(r -> {
-                    CustomerReview c = (CustomerReview) r;
-                    model.addAttribute("customerReview", c);
+                    model.addAttribute("customerReview", (CustomerReview) r);
                     return "review/edit-review";
                 })
                 .orElse("redirect:/reviews");
@@ -139,12 +157,16 @@ public class ReviewController {
 
     @PostMapping
     public String create(
+            HttpSession session,
             @RequestParam String reviewType,
             @ModelAttribute CustomerReview customerReview,
             @RequestParam(required = false) String manualId,
             @RequestParam(required = false) String parentReviewId,
             @RequestParam(required = false) String repliedBy,
             @RequestParam(required = false) String staffReply) {
+        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+            return "redirect:/auth/staff-login";
+        }
         if ("STAFF_REPLY".equalsIgnoreCase(reviewType)) {
             return reviewService.findById(parentReviewId)
                     .filter(f -> f instanceof CustomerReview)
@@ -171,11 +193,15 @@ public class ReviewController {
     @PostMapping("/{id}")
     public String update(
             @PathVariable String id,
+            HttpSession session,
             @RequestParam String reviewType,
             @ModelAttribute CustomerReview customerReview,
             @RequestParam(required = false) String parentReviewId,
             @RequestParam(required = false) String repliedBy,
             @RequestParam(required = false) String staffReply) {
+        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+            return "redirect:/auth/staff-login";
+        }
         if ("STAFF_REPLY".equalsIgnoreCase(reviewType)) {
             return reviewService.findById(parentReviewId != null && !parentReviewId.isBlank() ? parentReviewId : id)
                     .filter(f -> f instanceof CustomerReview)
@@ -195,7 +221,10 @@ public class ReviewController {
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable String id) {
+    public String delete(@PathVariable String id, HttpSession session) {
+        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+            return "redirect:/auth/staff-login";
+        }
         reviewService.deleteById(id);
         return "redirect:/reviews";
     }

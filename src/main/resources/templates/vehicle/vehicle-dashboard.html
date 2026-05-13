@@ -25,8 +25,7 @@
             <span class="text-2xl font-extrabold tracking-tight">Fleet</span>
         </a>
         <div class="flex items-center gap-3 flex-wrap justify-end">
-            <a th:href="@{/vehicles/add}" class="text-indigo-200 hover:text-white text-sm font-semibold">Legacy add</a>
-            <a th:href="@{/vehicles/new}" class="text-indigo-200 hover:text-white text-sm font-semibold">Modern add</a>
+            <a th:href="@{/vehicles/add}" class="text-indigo-200 hover:text-white text-sm font-semibold">Add</a>
             <a th:href="@{/user/admin-dashboard}" class="text-indigo-200 hover:text-white font-semibold text-sm flex items-center gap-2">
                 <i class="ph-bold ph-house"></i> Admin Hub
             </a>
@@ -66,6 +65,9 @@
             </div>
         </div>
     </div>
+    <div th:if="${param.error != null and param.error[0] == 'vehicle_in_use'}" class="mb-6 bg-red-50 text-red-700 p-4 rounded-2xl border border-red-200 font-semibold flex items-center gap-2">
+        <i class="ph-bold ph-warning-circle text-xl"></i> Cannot delete this vehicle: it is linked to an active booking.
+    </div>
     <div class="bg-white border border-slate-200 rounded-3xl p-8 soft-card shadow-lg">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -92,9 +94,11 @@
                         <a th:href="@{/vehicles(action=edit,id=${v.id})}" class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-bold text-sm">
                             <i class="ph-bold ph-pencil-simple"></i> Edit
                         </a>
-                        <a th:href="@{/vehicles(action=delete,id=${v.id})}" onclick="return confirm('Delete this vehicle?');" class="inline-flex items-center gap-1 text-red-500 hover:text-red-700 font-bold text-sm ml-2">
-                            <i class="ph-bold ph-trash"></i> Delete
-                        </a>
+                        <form th:action="@{/vehicles/{id}/delete(id=${v.id})}" method="post" class="inline m-0" onsubmit="return confirm('Delete this vehicle?');">
+                            <button type="submit" class="inline-flex items-center gap-1 text-red-500 hover:text-red-700 font-bold text-sm ml-2">
+                                <i class="ph-bold ph-trash"></i> Delete
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 <tr th:if="${vehicleList == null or vehicleList.isEmpty()}">
