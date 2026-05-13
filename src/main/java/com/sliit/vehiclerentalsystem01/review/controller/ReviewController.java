@@ -4,11 +4,6 @@ import com.sliit.vehiclerentalsystem01.review.model.CustomerReview;
 import com.sliit.vehiclerentalsystem01.review.model.Feedback;
 import com.sliit.vehiclerentalsystem01.review.service.ReviewService;
 import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
-import com.sliit.vehiclerentalsystem01.user.model.Customer;
-import com.sliit.vehiclerentalsystem01.user.model.Staff;
-import com.sliit.vehiclerentalsystem01.user.model.User;
-import com.sliit.vehiclerentalsystem01.user.service.UserService;
-import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,41 +24,21 @@ import java.util.Objects;
 public class ReviewController {
 
     private final ReviewService reviewService;
-    private final UserService userService;
-    private final VehicleService vehicleService;
 
-    public ReviewController(ReviewService reviewService,
-                            UserService userService,
-                            VehicleService vehicleService) {
+    public ReviewController(ReviewService reviewService) {
         this.reviewService = reviewService;
-        this.userService = userService;
-        this.vehicleService = vehicleService;
     }
 
+    private static final String REVIEW_CUSTOMER_ONLY_MSG =
+            "Reviews can only be submitted by customers from their account.";
+
     @GetMapping("/form/admin")
-    public String adminReviewForm(HttpSession session, Model model) {
+    public String adminReviewForm(HttpSession session, RedirectAttributes redirectAttributes) {
         if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
             return "redirect:/auth/staff-login";
         }
-        model.addAttribute("customers", userService.findAll().stream()
-                .filter(u -> u instanceof Customer)
-                .toList());
-        model.addAttribute("vehicles", vehicleService.findAll());
-        model.addAttribute("parentReviews", customerReviewsOnly());
-        model.addAttribute("staffUsers", staffUsersOnly());
-        return "review/admin-review-form";
-    }
-
-    private List<Feedback> customerReviewsOnly() {
-        return reviewService.findAll().stream()
-                .filter(r -> r instanceof CustomerReview)
-                .toList();
-    }
-
-    private List<User> staffUsersOnly() {
-        return userService.findAll().stream()
-                .filter(u -> u instanceof Staff)
-                .toList();
+        redirectAttributes.addFlashAttribute("reviewNotice", REVIEW_CUSTOMER_ONLY_MSG);
+        return "redirect:/reviews";
     }
 
     @GetMapping(params = {"action=delete", "id"})
@@ -110,22 +86,12 @@ public class ReviewController {
     }
 
     @GetMapping("/new")
-    public String newForm(HttpSession session, Model model) {
+    public String newForm(HttpSession session, RedirectAttributes redirectAttributes) {
         if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
             return "redirect:/auth/staff-login";
         }
-        model.addAttribute("mode", "create");
-        model.addAttribute("entityId", null);
-        model.addAttribute("reviewType", "CUSTOMER");
-        model.addAttribute("customerReview", new CustomerReview());
-        model.addAttribute("customers", userService.findAll().stream()
-                .filter(u -> u instanceof Customer)
-                .toList());
-        model.addAttribute("vehicles", vehicleService.findAll());
-        model.addAttribute("reviews", reviewService.findAll());
-        model.addAttribute("parentReviews", customerReviewsOnly());
-        model.addAttribute("staffUsers", staffUsersOnly());
-        return "review/review-form";
+        redirectAttributes.addFlashAttribute("reviewNotice", REVIEW_CUSTOMER_ONLY_MSG);
+        return "redirect:/reviews";
     }
 
     @GetMapping("/{id}")
@@ -158,36 +124,29 @@ public class ReviewController {
     @PostMapping
     public String create(
             HttpSession session,
-            @RequestParam String reviewType,
-            @ModelAttribute CustomerReview customerReview,
-            @RequestParam(required = false) String manualId,
+            @RequestParam(required = false) String reviewType,
             @RequestParam(required = false) String parentReviewId,
             @RequestParam(required = false) String repliedBy,
-            @RequestParam(required = false) String staffReply) {
+            @RequestParam(required = false) String staffReply,
+            RedirectAttributes redirectAttributes) {
         if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
             return "redirect:/auth/staff-login";
         }
-        if ("STAFF_REPLY".equalsIgnoreCase(reviewType)) {
-            return reviewService.findById(parentReviewId)
-                    .filter(f -> f instanceof CustomerReview)
-                    .map(f -> {
-                        CustomerReview cr = (CustomerReview) f;
-                        cr.setStaffReply(staffReply != null ? staffReply : "");
-                        cr.setRepliedBy(repliedBy != null ? repliedBy : "");
-                        cr.setRepliedAt(LocalDateTime.now().toString());
-                        reviewService.save(cr);
-                        return "redirect:/reviews";
-                    })
-                    .orElse("redirect:/reviews");
+        if (!"STAFF_REPLY".equalsIgnoreCase(reviewType)) {
+            redirectAttributes.addFlashAttribute("reviewNotice", REVIEW_CUSTOMER_ONLY_MSG);
+            return "redirect:/reviews";
         }
-        if (customerReview.getStatus() == null || customerReview.getStatus().isBlank()) {
-            customerReview.setStatus("PUBLISHED");
-        }
-        if (manualId != null && !manualId.isBlank()) {
-            customerReview.setReviewId(manualId.trim());
-        }
-        reviewService.save(customerReview);
-        return "redirect:/reviews";
+        return reviewService.findById(parentReviewId)
+                .filter(f -> f instanceof CustomerReview)
+                .map(f -> {
+                    CustomerReview cr = (CustomerReview) f;
+                    cr.setStaffReply(staffReply != null ? staffReply : "");
+                    cr.setRepliedBy(repliedBy != null ? repliedBy : "");
+                    cr.setRepliedAt(LocalDateTime.now().toString());
+                    reviewService.save(cr);
+                    return "redirect:/reviews";
+                })
+                .orElse("redirect:/reviews");
     }
 
     @PostMapping("/{id}")
