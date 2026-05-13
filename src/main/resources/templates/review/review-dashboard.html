@@ -6,16 +6,12 @@
     <title>Reviews - DriveAway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <th:block th:replace="~{fragments/admin-directory-head :: fontAndUtilities}"></th:block>
     <style>
-        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at 20% 20%, #fef3c7 0%, #f8fafc 40%, #eef2ff 100%); }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .soft-card { box-shadow: 0 10px 35px rgba(15, 23, 42, 0.07); }
+        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at 20% 20%, #fef3c7 0%, #f8fafc 40%, #fff7ed 100%); }
     </style>
 </head>
 <body class="min-h-screen text-gray-800 flex flex-col">
-<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
 <nav class="bg-gradient-to-r from-amber-900 via-orange-900 to-rose-900 border-b border-white/10 sticky top-0 z-20 shadow-lg backdrop-blur">
     <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
         <a th:href="@{/reviews}" class="flex items-center gap-2 text-white">
@@ -32,9 +28,9 @@
             <a th:href="@{/user/admin-dashboard}" class="text-amber-100 hover:text-white font-semibold text-sm flex items-center gap-2">
                 <i class="ph-bold ph-house"></i> Admin Hub
             </a>
-            <form th:action="@{/auth}" method="post" class="inline">
+            <form th:action="@{/auth}" method="post" class="m-0 inline">
                 <input type="hidden" name="action" value="logout"/>
-                <button type="submit" class="text-white hover:text-amber-100 font-bold border border-white/20 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl transition-all text-sm flex items-center gap-2">
+                <button type="submit" class="text-white hover:text-amber-100 font-bold border border-white/20 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl transition-all text-sm flex items-center gap-2 shadow-sm">
                     Logout <i class="ph-bold ph-sign-out text-lg"></i>
                 </button>
             </form>
@@ -42,37 +38,83 @@
     </div>
 </nav>
 <main class="flex-grow max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
-    <div class="bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 rounded-3xl p-10 text-white shadow-xl mb-10 relative overflow-hidden">
+    <div class="bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 rounded-3xl p-10 sm:p-12 text-white shadow-xl mb-10 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-                <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Review moderation</h1>
-                <p class="text-amber-50 text-lg font-medium max-w-2xl">Verified customer feedback and staff replies.</p>
+                <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Review moderation</h1>
+                <p class="text-amber-50 text-lg font-medium max-w-2xl leading-relaxed">Verified customer feedback and staff replies.</p>
             </div>
             <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
                 <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-amber-100 text-xs font-bold uppercase mb-1">Total</p>
+                    <p class="text-amber-100 text-xs font-bold uppercase tracking-wider mb-1">Total</p>
                     <p class="text-white font-extrabold text-xl" th:text="${totalReviews}">0</p>
                 </div>
                 <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-amber-100 text-xs font-bold uppercase mb-1">Published</p>
+                    <p class="text-amber-100 text-xs font-bold uppercase tracking-wider mb-1">Published</p>
                     <p class="text-white font-extrabold text-xl" th:text="${publishedCount}">0</p>
                 </div>
                 <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-amber-100 text-xs font-bold uppercase mb-1">Flagged</p>
+                    <p class="text-amber-100 text-xs font-bold uppercase tracking-wider mb-1">Flagged</p>
                     <p class="text-white font-extrabold text-xl" th:text="${flaggedCount}">0</p>
                 </div>
                 <div class="text-center px-4">
-                    <p class="text-amber-100 text-xs font-bold uppercase mb-1">Avg rating</p>
+                    <p class="text-amber-100 text-xs font-bold uppercase tracking-wider mb-1">Avg rating</p>
                     <p class="text-white font-extrabold text-xl" th:text="${#numbers.formatDecimal(avgRating, 1, 2)}">0</p>
                 </div>
             </div>
         </div>
+        <i class="ph-fill ph-star absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
     </div>
-    <div class="bg-white border border-slate-200 rounded-3xl p-8 soft-card shadow-lg space-y-8">
-        <div class="overflow-x-auto">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-amber-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-chats-circle text-2xl text-amber-600"></i>
+                </div>
+                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">TOTAL</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${totalReviews}">0</p>
+            <p class="text-sm text-gray-500 mt-2">All reviews</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-green-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-check-fat text-2xl text-green-600"></i>
+                </div>
+                <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg">LIVE</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${publishedCount}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Published</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-orange-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-flag text-2xl text-orange-600"></i>
+                </div>
+                <span class="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-lg">FLAGGED</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${flaggedCount}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Needs attention</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-rose-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-star-half text-2xl text-rose-600"></i>
+                </div>
+                <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">AVG</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${#numbers.formatDecimal(avgRating, 1, 2)}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Average rating</p>
+        </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-3xl p-10 soft-card shadow-lg space-y-10">
+        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white soft-card">
             <table class="w-full text-left border-collapse">
                 <thead>
-                <tr class="bg-slate-50 text-gray-500 text-xs uppercase tracking-widest border-b border-slate-200">
+                <tr class="bg-slate-50 text-gray-500 text-sm uppercase tracking-wider border-b border-slate-200">
                     <th class="py-4 px-4 font-bold">ID</th>
                     <th class="py-4 px-4 font-bold">Customer</th>
                     <th class="py-4 px-4 font-bold">Rating</th>
@@ -82,7 +124,7 @@
                 </tr>
                 </thead>
                 <tbody class="text-gray-700">
-                <tr th:each="r : ${customerReviews}" class="border-b border-slate-100 align-top hover:bg-slate-50/80">
+                <tr th:each="r : ${customerReviews}" class="border-b border-slate-100 align-top hover:bg-amber-50/50 transition-colors">
                     <td class="py-4 px-4 font-mono text-xs font-bold text-gray-900" th:text="${r.id}">id</td>
                     <td class="py-4 px-4 font-semibold" th:text="${r.reviewerName}">u</td>
                     <td class="py-4 px-4 text-amber-500 font-bold" th:text="${r.rating}">5</td>
@@ -92,7 +134,7 @@
                     <td class="py-4 px-4 max-w-md text-sm text-gray-600" th:text="${r.comments}">c</td>
                     <td class="py-4 px-4 text-right space-x-2 whitespace-nowrap">
                         <a th:href="@{/reviews/{id}(id=${r.id})}" class="text-gray-400 hover:text-gray-700 font-bold text-sm"><i class="ph-bold ph-eye"></i></a>
-                        <a th:href="@{/reviews/{id}/edit(id=${r.id})}" class="text-indigo-600 hover:text-indigo-800 font-bold text-sm"><i class="ph-bold ph-pencil-simple"></i></a>
+                        <a th:href="@{/reviews/{id}/edit(id=${r.id})}" class="text-amber-600 hover:text-amber-800 font-bold text-sm"><i class="ph-bold ph-pencil-simple"></i></a>
                         <form th:action="@{/reviews/{id}/delete(id=${r.id})}" method="post" class="inline m-0" onsubmit="return confirm('Delete this review?');">
                             <button type="submit" class="text-red-500 hover:text-red-700 font-bold text-sm"><i class="ph-bold ph-trash"></i></button>
                         </form>
@@ -106,13 +148,14 @@
         </div>
 
         <th:block th:if="${currentStaffUsername != null and !#strings.isEmpty(currentStaffUsername)}">
+            <h2 class="text-xl font-extrabold text-gray-900 mb-4">Staff replies</h2>
             <th:block th:each="r : ${customerReviews}">
                 <div class="border border-slate-100 rounded-2xl p-5 bg-slate-50/80 mb-4">
                     <div class="flex flex-col md:flex-row md:items-start gap-4 justify-between">
                         <div class="flex-1 min-w-0">
                             <p class="text-xs font-bold text-gray-500 uppercase mb-1">Reply to <span th:text="${r.id}" class="font-mono text-gray-800">id</span></p>
                             <p th:if="${r.staffReply != null and !#strings.isEmpty(r.staffReply)}" class="text-sm text-slate-700 bg-white border border-slate-200 rounded-xl p-3">
-                                <span class="font-bold text-indigo-700" th:text="${r.repliedBy}">staff</span>:
+                                <span class="font-bold text-amber-700" th:text="${r.repliedBy}">staff</span>:
                                 <span th:text="${r.staffReply}">reply</span>
                             </p>
                             <p th:if="${r.staffReply == null or #strings.isEmpty(r.staffReply)}" class="text-xs text-gray-400 italic">No staff reply yet.</p>

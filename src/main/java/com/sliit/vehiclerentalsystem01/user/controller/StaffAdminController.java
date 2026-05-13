@@ -58,6 +58,9 @@ public class StaffAdminController {
         java.util.List<Staff> staffList = userService.findAllStaff();
         model.addAttribute("staffList", staffList);
         model.addAttribute("staffCount", staffList.size());
+        long adminStaffCount = staffList.stream().filter(Staff::isAdmin).count();
+        model.addAttribute("adminStaffCount", adminStaffCount);
+        model.addAttribute("supportStaffCount", staffList.size() - adminStaffCount);
         return "user/staff-dashboard";
     }
 

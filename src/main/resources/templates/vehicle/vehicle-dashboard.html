@@ -6,32 +6,28 @@
     <title>Fleet Management - DriveAway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <th:block th:replace="~{fragments/admin-directory-head :: fontAndUtilities}"></th:block>
     <style>
-        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at top left, #e0e7ff 0%, #f8fafc 40%, #f1f5f9 100%); }
-        .fade-in { animation: fadeIn 0.45s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-        .soft-card { box-shadow: 0 10px 35px rgba(15, 23, 42, 0.07); }
+        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at top left, #ede9fe 0%, #f8fafc 40%, #f1f5f9 100%); }
     </style>
 </head>
 <body class="min-h-screen text-gray-800 flex flex-col">
-<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
-<nav class="bg-gradient-to-r from-indigo-900 via-slate-900 to-slate-800 border-b border-white/10 sticky top-0 z-20 shadow-lg backdrop-blur">
+<nav class="bg-gradient-to-r from-violet-900 via-fuchsia-900 to-slate-900 border-b border-white/10 sticky top-0 z-20 shadow-lg backdrop-blur">
     <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
         <a th:href="@{/vehicles}" class="flex items-center gap-2 text-white">
             <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm">
-                <i class="ph-fill ph-car-profile text-2xl text-indigo-300"></i>
+                <i class="ph-fill ph-car-profile text-2xl text-violet-300"></i>
             </div>
             <span class="text-2xl font-extrabold tracking-tight">Fleet</span>
         </a>
-        <div class="flex items-center gap-3 flex-wrap justify-end">
-            <a th:href="@{/vehicles/add}" class="text-indigo-200 hover:text-white text-sm font-semibold">Add</a>
-            <a th:href="@{/user/admin-dashboard}" class="text-indigo-200 hover:text-white font-semibold text-sm flex items-center gap-2">
+        <div class="flex items-center gap-4 flex-wrap justify-end">
+            <a th:href="@{/vehicles/add}" class="text-violet-200 hover:text-white text-sm font-semibold">Add</a>
+            <a th:href="@{/user/admin-dashboard}" class="text-violet-200 hover:text-white font-semibold text-sm flex items-center gap-2">
                 <i class="ph-bold ph-house"></i> Admin Hub
             </a>
-            <form th:action="@{/auth}" method="post" class="inline">
+            <form th:action="@{/auth}" method="post" class="m-0 inline">
                 <input type="hidden" name="action" value="logout"/>
-                <button type="submit" class="text-white hover:text-indigo-200 font-bold border border-white/20 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-sm transition-all flex items-center gap-2">
+                <button type="submit" class="text-white hover:text-violet-200 font-bold border border-white/20 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2 shadow-sm">
                     Logout <i class="ph-bold ph-sign-out text-lg"></i>
                 </button>
             </form>
@@ -39,40 +35,89 @@
     </div>
 </nav>
 <main class="flex-grow max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
-    <div class="bg-gradient-to-br from-indigo-600 via-blue-600 to-sky-600 rounded-3xl p-10 text-white shadow-xl mb-10 relative overflow-hidden">
+    <div class="bg-gradient-to-br from-violet-600 via-fuchsia-600 to-slate-700 rounded-3xl p-10 sm:p-12 text-white shadow-xl mb-10 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-                <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Vehicle Directory</h1>
-                <p class="text-indigo-100 text-lg font-medium max-w-2xl">Manage cars and motorcycles available for rental.</p>
+                <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Vehicle Directory</h1>
+                <p class="text-violet-100 text-lg font-medium max-w-2xl leading-relaxed">Manage cars and motorcycles available for rental.</p>
             </div>
-            <div class="flex gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
+            <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
                 <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-indigo-100 text-xs font-bold uppercase mb-1">Total</p>
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Total</p>
                     <p class="text-white font-extrabold text-xl" th:text="${totalVehicles}">0</p>
                 </div>
                 <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-indigo-100 text-xs font-bold uppercase mb-1">Cars</p>
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Cars</p>
                     <p class="text-white font-extrabold text-xl" th:text="${carCount}">0</p>
                 </div>
                 <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-indigo-100 text-xs font-bold uppercase mb-1">Bikes</p>
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Bikes</p>
                     <p class="text-white font-extrabold text-xl" th:text="${motorcycleCount}">0</p>
                 </div>
                 <div class="text-center px-4">
-                    <p class="text-indigo-100 text-xs font-bold uppercase mb-1">Avg rate</p>
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Avg rate</p>
                     <p class="text-white font-extrabold text-xl" th:text="${#numbers.formatDecimal(avgRate, 1, 2)}">0</p>
                 </div>
             </div>
         </div>
+        <i class="ph-fill ph-car-profile absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
     </div>
-    <div th:if="${param.error != null and param.error[0] == 'vehicle_in_use'}" class="mb-6 bg-red-50 text-red-700 p-4 rounded-2xl border border-red-200 font-semibold flex items-center gap-2">
-        <i class="ph-bold ph-warning-circle text-xl"></i> Cannot delete this vehicle: it is linked to an active booking.
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-violet-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-car-profile text-2xl text-violet-600"></i>
+                </div>
+                <span class="text-xs font-bold text-violet-600 bg-violet-50 px-2 py-1 rounded-lg">TOTAL</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${totalVehicles}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Vehicles in fleet</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-fuchsia-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-car text-2xl text-fuchsia-600"></i>
+                </div>
+                <span class="text-xs font-bold text-fuchsia-600 bg-fuchsia-50 px-2 py-1 rounded-lg">CARS</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${carCount}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Car listings</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-slate-100 p-3 rounded-xl">
+                    <i class="ph-fill ph-motorcycle text-2xl text-slate-600"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-lg">BIKES</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${motorcycleCount}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Motorcycle listings</p>
+        </div>
+        <div class="bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-2xl p-6 text-white shadow-lg card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                    <i class="ph-fill ph-plus-circle text-2xl text-white"></i>
+                </div>
+                <span class="text-xs font-bold text-white bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">ACTION</span>
+            </div>
+            <p class="text-lg font-extrabold mb-2">Add vehicle</p>
+            <p class="text-sm text-violet-100 mb-4">Register a new fleet unit</p>
+            <a th:href="@{/vehicles/add}" class="inline-flex items-center gap-2 bg-white text-violet-600 font-bold px-4 py-2 rounded-xl hover:bg-violet-50 transition-colors text-sm">
+                <i class="ph-bold ph-plus"></i> Add vehicle
+            </a>
+        </div>
     </div>
-    <div class="bg-white border border-slate-200 rounded-3xl p-8 soft-card shadow-lg">
-        <div class="overflow-x-auto">
+
+    <div class="bg-white border border-slate-200 rounded-3xl p-10 soft-card shadow-lg">
+        <div th:if="${param.error != null and param.error[0] == 'vehicle_in_use'}" class="mb-8 bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 font-semibold flex items-center gap-2">
+            <i class="ph-bold ph-warning-circle text-xl"></i> Cannot delete this vehicle: it is linked to an active booking.
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white soft-card">
             <table class="w-full text-left border-collapse">
                 <thead>
-                <tr class="bg-slate-50 text-gray-500 text-xs uppercase tracking-widest border-b border-slate-200">
+                <tr class="bg-slate-50 text-gray-500 text-sm uppercase tracking-wider border-b border-slate-200">
                     <th class="py-4 px-6 font-bold">ID</th>
                     <th class="py-4 px-6 font-bold">Type</th>
                     <th class="py-4 px-6 font-bold">Brand</th>
@@ -83,15 +128,15 @@
                 </tr>
                 </thead>
                 <tbody class="text-gray-700">
-                <tr th:each="v : ${vehicleList}" class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <tr th:each="v : ${vehicleList}" class="border-b border-slate-100 hover:bg-violet-50/50 transition-colors group">
                     <td class="py-5 px-6 font-mono font-bold text-gray-900" th:text="${v.id}">id</td>
                     <td class="py-5 px-6 font-semibold" th:text="${v.vehicleType}">t</td>
                     <td class="py-5 px-6" th:text="${v.brand}">b</td>
                     <td class="py-5 px-6" th:text="${v.model}">m</td>
-                    <td class="py-5 px-6 font-bold text-indigo-700" th:text="${#numbers.formatDecimal(v.dailyRate, 1, 2)}">r</td>
+                    <td class="py-5 px-6 font-bold text-violet-700" th:text="${#numbers.formatDecimal(v.dailyRate, 1, 2)}">r</td>
                     <td class="py-5 px-6 text-sm text-gray-500" th:text="${v.specificDetail}">d</td>
                     <td class="py-5 px-6 text-right space-x-2">
-                        <a th:href="@{/vehicles(action=edit,id=${v.id})}" class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-bold text-sm">
+                        <a th:href="@{/vehicles(action=edit,id=${v.id})}" class="inline-flex items-center gap-1 text-violet-600 hover:text-violet-800 font-bold text-sm">
                             <i class="ph-bold ph-pencil-simple"></i> Edit
                         </a>
                         <form th:action="@{/vehicles/{id}/delete(id=${v.id})}" method="post" class="inline m-0" onsubmit="return confirm('Delete this vehicle?');">

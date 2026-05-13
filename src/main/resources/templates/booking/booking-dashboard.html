@@ -6,12 +6,9 @@
     <title>Reservation Management - DriveAway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <th:block th:replace="~{fragments/admin-directory-head :: fontAndUtilities}"></th:block>
     <style>
         body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at top right, #e0f2fe 0%, #f8fafc 45%, #f1f5f9 100%); }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .soft-card { box-shadow: 0 10px 35px rgba(15, 23, 42, 0.06); }
     </style>
 </head>
 <body class="min-h-screen text-gray-800 flex flex-col">
@@ -23,54 +20,103 @@
             </div>
             <span class="text-2xl font-extrabold tracking-tight">Reservations</span>
         </a>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 flex-wrap justify-end">
             <a th:href="@{/admin/reservations/search}" class="text-cyan-200 hover:text-white text-sm font-semibold flex items-center gap-1">
                 <i class="ph-bold ph-magnifying-glass"></i> Search
             </a>
             <a th:href="@{/admin/reservations/view-all}" class="text-cyan-200 hover:text-white text-sm font-semibold flex items-center gap-1">
                 <i class="ph-bold ph-list"></i> View all
             </a>
-            <a th:href="@{/user/admin-dashboard}" class="text-cyan-200 hover:text-white font-semibold transition-colors flex items-center gap-2">
+            <a th:href="@{/user/admin-dashboard}" class="text-cyan-200 hover:text-white font-semibold text-sm flex items-center gap-2">
                 <i class="ph-bold ph-house"></i> Admin Hub
             </a>
-            <a th:href="@{/auth/logout}" class="text-white hover:text-cyan-200 font-bold border border-white/20 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-sm">
-                Logout <i class="ph-bold ph-sign-out text-lg"></i>
-            </a>
+            <form th:action="@{/auth}" method="post" class="m-0 inline">
+                <input type="hidden" name="action" value="logout"/>
+                <button type="submit" class="text-white hover:text-cyan-200 font-bold border border-white/20 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2 shadow-sm">
+                    Logout <i class="ph-bold ph-sign-out text-lg"></i>
+                </button>
+            </form>
         </div>
     </div>
 </nav>
 <main class="flex-grow max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
-    <div class="bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-600 rounded-3xl p-10 text-white shadow-xl mb-10 relative overflow-hidden">
+    <div class="bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-600 rounded-3xl p-10 sm:p-12 text-white shadow-xl mb-10 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-                <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Reservation Directory</h1>
-                <p class="text-cyan-100 text-lg font-medium max-w-2xl">Monitor and manage all customer rental requests.</p>
+                <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Reservation Directory</h1>
+                <p class="text-cyan-100 text-lg font-medium max-w-2xl leading-relaxed">Monitor and manage all customer rental requests.</p>
             </div>
-            <div class="flex gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
+            <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
                 <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-cyan-100 text-xs font-bold uppercase mb-1">Total</p>
+                    <p class="text-cyan-100 text-xs font-bold uppercase tracking-wider mb-1">Total</p>
                     <p class="text-white font-extrabold text-xl" th:text="${totalBookings}">0</p>
                 </div>
                 <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-cyan-100 text-xs font-bold uppercase mb-1">Pending</p>
+                    <p class="text-cyan-100 text-xs font-bold uppercase tracking-wider mb-1">Pending</p>
                     <p class="text-white font-extrabold text-xl" th:text="${pendingBookings}">0</p>
                 </div>
                 <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-cyan-100 text-xs font-bold uppercase mb-1">Edit Req</p>
+                    <p class="text-cyan-100 text-xs font-bold uppercase tracking-wider mb-1">Edit Req</p>
                     <p class="text-white font-extrabold text-xl" th:text="${updateRequests}">0</p>
                 </div>
                 <div class="text-center px-4">
-                    <p class="text-cyan-100 text-xs font-bold uppercase mb-1">Cancel Req</p>
+                    <p class="text-cyan-100 text-xs font-bold uppercase tracking-wider mb-1">Cancel Req</p>
                     <p class="text-white font-extrabold text-xl" th:text="${cancellationRequests}">0</p>
                 </div>
             </div>
         </div>
+        <i class="ph-fill ph-calendar-check absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
     </div>
-    <div class="bg-white border border-slate-200 rounded-3xl p-8 soft-card shadow-lg">
-        <div class="overflow-x-auto">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-cyan-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-calendar-blank text-2xl text-cyan-600"></i>
+                </div>
+                <span class="text-xs font-bold text-cyan-600 bg-cyan-50 px-2 py-1 rounded-lg">TOTAL</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${totalBookings}">0</p>
+            <p class="text-sm text-gray-500 mt-2">All reservations</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-amber-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-clock text-2xl text-amber-600"></i>
+                </div>
+                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">PENDING</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${pendingBookings}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Awaiting action</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-teal-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-pencil-line text-2xl text-teal-600"></i>
+                </div>
+                <span class="text-xs font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded-lg">EDIT REQ</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${updateRequests}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Change requests</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-red-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-x-circle text-2xl text-red-600"></i>
+                </div>
+                <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-lg">CANCEL</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${cancellationRequests}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Cancellation requests</p>
+        </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-3xl p-10 soft-card shadow-lg">
+        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white soft-card">
             <table class="w-full text-left border-collapse">
                 <thead>
-                <tr class="bg-slate-50 text-gray-500 text-xs uppercase tracking-widest border-b border-slate-200">
+                <tr class="bg-slate-50 text-gray-500 text-sm uppercase tracking-wider border-b border-slate-200">
                     <th class="py-4 px-6 font-bold">Booking ID</th>
                     <th class="py-4 px-6 font-bold">Customer</th>
                     <th class="py-4 px-6 font-bold">Vehicle</th>
@@ -80,7 +126,7 @@
                 </tr>
                 </thead>
                 <tbody class="text-gray-700">
-                <tr th:each="b : ${bookingList}" class="border-b border-slate-100 hover:bg-slate-50 transition-colors group">
+                <tr th:each="b : ${bookingList}" class="border-b border-slate-100 hover:bg-cyan-50/50 transition-colors group">
                     <td class="py-5 px-6 font-bold text-gray-900" th:text="'#' + ${b.id}">#</td>
                     <td class="py-5 px-6 font-semibold" th:text="${b.customerName}">c</td>
                     <td class="py-5 px-6"><span class="bg-gray-100 px-2 py-1 rounded text-sm font-mono" th:text="${b.vehicleId}">v</span></td>
