@@ -35,7 +35,7 @@ public class ReservationAdminController {
     @GetMapping
     public String panel(HttpSession session, Model model) {
         if (!admin(session)) {
-            return "redirect:/auth/login";
+            return "redirect:/auth/staff-login";
         }
         List<Booking> bookingList = bookingService.findAll();
         int totalBookings = bookingList.size();
@@ -63,7 +63,7 @@ public class ReservationAdminController {
     @GetMapping("/search")
     public String searchBooking(HttpSession session) {
         if (!admin(session)) {
-            return "redirect:/auth/login";
+            return "redirect:/auth/staff-login";
         }
         return "booking/search-booking";
     }
@@ -72,7 +72,7 @@ public class ReservationAdminController {
     public String viewAllBookings(HttpSession session, Model model,
                                   @RequestParam(required = false) String q) {
         if (!admin(session)) {
-            return "redirect:/auth/login";
+            return "redirect:/auth/staff-login";
         }
         List<Booking> all = bookingService.findAll();
         if (q != null && !q.isBlank()) {
@@ -99,7 +99,7 @@ public class ReservationAdminController {
             @RequestParam String action,
             @RequestParam String id) {
         if (!admin(session)) {
-            return "redirect:/auth/login";
+            return "redirect:/auth/staff-login";
         }
         Booking b = bookingService.findById(id).orElse(null);
         if (b == null) {

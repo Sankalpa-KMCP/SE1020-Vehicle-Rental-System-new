@@ -21,7 +21,7 @@ public class UserAdminHomeController {
     @GetMapping("/admin-dashboard")
     public String adminDashboard(HttpSession session) {
         if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/login";
+            return "redirect:/auth/staff-login";
         }
         return "user/admin-dashboard";
     }

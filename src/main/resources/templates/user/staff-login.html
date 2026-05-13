@@ -17,7 +17,18 @@
       <i class="ph-fill ph-keyhole text-white text-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-[2px]"></i>
     </div>
     <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Secure Staff Portal</h2>
-    <p class="text-gray-500 text-sm mt-2">Authorized Personnel Only</p>
+    <p class="text-gray-500 text-sm mt-2">Employees and administrators only</p>
+  </div>
+
+  <div th:if="${param.logout != null}"
+       class="mx-8 mb-4 bg-sky-50 text-sky-800 text-sm p-3 rounded-lg border border-sky-200 text-center font-semibold flex items-center justify-center gap-2">
+    <i class="ph-fill ph-sign-out text-lg"></i>
+    You have been signed out.
+  </div>
+
+  <div th:if="${error == null and param.error != null and param.error[0] == 'customer_portal'}"
+       class="mx-8 mb-4 bg-amber-50 text-amber-900 text-sm p-3 rounded-lg border border-amber-200 text-center font-semibold">
+    This portal is for staff only. Please use customer sign-in on the main site.
   </div>
 
   <div th:if="${error == null and param.error != null and param.error[0] == 'invalid'}"
@@ -50,7 +61,7 @@
   <div class="p-8">
     <form id="loginForm" th:action="@{/auth/staff-login}" method="post" class="space-y-5 block">
       <div>
-        <label class="block text-sm font-bold text-slate-500 mb-1.5" for="staff-username">Admin Username</label>
+        <label class="block text-sm font-bold text-slate-500 mb-1.5" for="staff-username">Staff username</label>
         <input id="staff-username" type="text" name="username" required autocomplete="username"
                class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 focus:ring-2 focus:ring-[#FFC107] focus:border-[#FFC107] outline-none transition-all"/>
       </div>
@@ -85,10 +96,15 @@
     </form>
   </div>
 
-  <div class="bg-gray-50 p-5 text-center border-t border-gray-100">
-    <a th:href="@{/}" class="text-slate-500 hover:text-slate-800 text-sm font-medium inline-flex items-center justify-center gap-1 transition-colors">
-      <i class="ph ph-arrow-left"></i> Return to Public Site
+  <div class="bg-gray-50 p-5 text-center border-t border-gray-100 space-y-3">
+    <a th:href="@{/auth/login}" class="text-[#0D6EFD] hover:text-blue-800 text-sm font-bold inline-flex items-center justify-center gap-1 transition-colors">
+      <i class="ph ph-user"></i> Customer sign in
     </a>
+    <div>
+      <a th:href="@{/}" class="text-slate-500 hover:text-slate-800 text-sm font-medium inline-flex items-center justify-center gap-1 transition-colors">
+        <i class="ph ph-arrow-left"></i> Return to public site
+      </a>
+    </div>
   </div>
 </div>
 

@@ -36,7 +36,7 @@ public class StaffAdminController {
             @RequestParam(required = false) String id,
             Model model) {
         if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/login";
+            return "redirect:/auth/staff-login";
         }
         if ("delete".equals(action) && id != null && !id.isBlank()) {
             userService.deleteById(id.trim());
@@ -64,7 +64,7 @@ public class StaffAdminController {
     @PostMapping
     public String handlePost(HttpSession session, @RequestParam Map<String, String> params) {
         if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/login";
+            return "redirect:/auth/staff-login";
         }
         String action = params.get("action");
         String role = params.get("role");

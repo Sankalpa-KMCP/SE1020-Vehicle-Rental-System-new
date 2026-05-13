@@ -61,6 +61,9 @@ public class UserAuthController {
             RedirectAttributes redirectAttributes) {
         return userService.authenticate(username, password)
                 .map(u -> {
+                    if (u instanceof Staff) {
+                        return "redirect:/auth/login?error=staff_portal";
+                    }
                     establishAuthenticatedSession(session, u);
                     redirectAttributes.addFlashAttribute("message", "Welcome, " + sessionUsername(u));
                     return "redirect:/dashboard";
@@ -72,7 +75,7 @@ public class UserAuthController {
     }
 
     /**
-     * Staff portal sign-in: same credentials as main login, but only {@link Staff} accounts may complete here.
+     * Staff portal sign-in: only {@link Staff} accounts may complete here; customers use {@code POST /auth/login}.
      */
     @PostMapping("/staff-login")
     public String staffLogin(
@@ -83,9 +86,7 @@ public class UserAuthController {
         return userService.authenticate(username, password)
                 .map(u -> {
                     if (u instanceof Customer) {
-                        redirectAttributes.addFlashAttribute("error",
-                                "This portal is for staff only. Please use the customer sign-in.");
-                        return "redirect:/auth/staff-login?error=invalid";
+                        return "redirect:/auth/staff-login?error=customer_portal";
                     }
                     establishAuthenticatedSession(session, u);
                     redirectAttributes.addFlashAttribute("message", "Welcome, " + sessionUsername(u));
@@ -204,11 +205,17 @@ public class UserAuthController {
 
     @GetMapping("/logout")
     public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
+        String target = "/auth/login?logout=true";
         if (session != null) {
+            boolean staffSession = Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))
+                    || Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.STAFF_LOGGED_IN));
+            if (staffSession) {
+                target = "/auth/staff-login?logout=true";
+            }
             session.invalidate();
         }
         redirectAttributes.addFlashAttribute("message", "You have been logged out successfully");
-        return "redirect:/auth/login?logout=true";
+        return "redirect:" + target;
     }
 
     /** Legacy admin dashboard POST sign-out ({@code action=logout}). */

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DriveAway | Secure Login</title>
+  <title>DriveAway | Customer Sign In</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -31,13 +31,19 @@
         </div>
       </div>
       <h2 class="text-[2.5rem] font-extrabold mb-2 tracking-tight leading-tight">DriveAway</h2>
-      <p class="text-gray-500 font-medium text-lg">Secure Employee &amp; Customer Portal</p>
+      <p class="text-gray-500 font-medium text-lg">Customer sign in — book and manage your rentals</p>
     </div>
 
     <div th:if="${param.error != null and param.error[0] == '1'}"
          class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-700 font-bold flex items-center gap-3 mb-8 shadow-sm">
       <i class="ph-fill ph-warning-circle text-2xl text-red-500"></i>
       Access Denied. Check credentials.
+    </div>
+
+    <div th:if="${param.error != null and param.error[0] == 'staff_portal'}"
+         class="auth-error-alert bg-amber-50 p-5 rounded-xl border border-amber-200 text-base text-amber-900 font-bold flex items-center gap-3 mb-8 shadow-sm">
+      <i class="ph-fill ph-info text-2xl text-amber-600"></i>
+      This page is for customers only. Staff and admins should use the Staff Portal.
     </div>
 
     <div th:if="${param.success != null and param.success[0] == 'registered'}"
@@ -60,8 +66,8 @@
 
     <form th:action="@{/auth/login}" method="post" class="space-y-8" id="loginForm">
       <div>
-        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide" for="usernameInput">Username</label>
-        <input type="text" name="username" id="usernameInput" required autocomplete="username" placeholder="Enter your ID"
+        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide" for="usernameInput">Customer username</label>
+        <input type="text" name="username" id="usernameInput" required autocomplete="username" placeholder="Your customer username"
                class="w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
       </div>
 
@@ -83,7 +89,7 @@
       </div>
 
       <button type="submit" class="w-full bg-[#0D6EFD] text-white font-bold py-5 rounded-2xl hover:bg-blue-700 transition-transform transform hover:-translate-y-1 shadow-lg hover:shadow-[#0D6EFD]/30 mt-8 text-xl tracking-wide flex justify-center items-center gap-3">
-        Authenticate <i class="ph-bold ph-arrow-right"></i>
+        Sign in <i class="ph-bold ph-arrow-right"></i>
       </button>
     </form>
 
@@ -92,8 +98,9 @@
         New user? <a th:href="@{/auth/register}" class="transition-link text-black font-bold hover:underline">Register</a>
       </p>
       <a th:href="@{/auth/staff-login}"
-         class="transition-link text-sm text-red-500 font-bold hover:underline bg-red-50 px-4 py-2 rounded-lg inline-flex items-center gap-2">
-        <i class="ph-bold ph-shield-check"></i> Staff Login
+         class="transition-link text-sm text-red-500 font-bold hover:underline bg-red-50 px-4 py-2 rounded-lg inline-flex items-center gap-2"
+         title="Employees and administrators">
+        <i class="ph-bold ph-shield-check"></i> Staff portal
       </a>
     </div>
   </div>

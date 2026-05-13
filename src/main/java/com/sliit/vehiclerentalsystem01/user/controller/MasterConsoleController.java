@@ -28,7 +28,7 @@ public class MasterConsoleController {
     @GetMapping("/master-console")
     public String masterConsole(HttpSession session, Model model) {
         if (!master(session)) {
-            return "redirect:/auth/login";
+            return "redirect:/auth/staff-login";
         }
         model.addAttribute("pendingLines", pendingService.readPendingLines());
         return "user/master-console";

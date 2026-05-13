@@ -42,7 +42,7 @@ public class ReviewController {
     @GetMapping("/form/admin")
     public String adminReviewForm(HttpSession session) {
         if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/login";
+            return "redirect:/auth/staff-login";
         }
         return "review/admin-review-form";
     }
@@ -62,7 +62,7 @@ public class ReviewController {
     @GetMapping(params = {"action=delete", "id"})
     public String deleteLegacyQuery(HttpSession session, @RequestParam String id) {
         if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/login";
+            return "redirect:/auth/staff-login";
         }
         if (id != null && !id.isBlank()) {
             reviewService.deleteById(id.trim());
