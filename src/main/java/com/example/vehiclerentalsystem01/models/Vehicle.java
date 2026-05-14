@@ -29,5 +29,5 @@ public abstract class Vehicle {
     public double getDailyRate() { return dailyRate; }
     public void setDailyRate(double dailyRate) { this.dailyRate = dailyRate; }
 
-    //commit
+
 }

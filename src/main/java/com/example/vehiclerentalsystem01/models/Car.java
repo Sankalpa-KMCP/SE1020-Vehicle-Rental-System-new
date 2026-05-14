@@ -40,5 +40,6 @@ public class Car extends Vehicle {
         return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity;
     }
 
-    //commit
 }
+
+// restoring CVS
