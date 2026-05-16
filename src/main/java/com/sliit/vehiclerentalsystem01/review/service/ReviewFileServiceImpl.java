@@ -112,11 +112,19 @@ public class ReviewFileServiceImpl implements ReviewService {
             return new ArrayList<>();
         }
         try {
-            return Files.readAllLines(p, StandardCharsets.UTF_8).stream()
-                    .map(String::trim)
-                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-                    .map(this::parseLine)
-                    .collect(Collectors.toCollection(ArrayList::new));
+            List<Feedback> loaded = new ArrayList<>();
+            for (String raw : Files.readAllLines(p, StandardCharsets.UTF_8)) {
+                String line = raw == null ? "" : raw.trim();
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+                try {
+                    loaded.add(parseLine(line));
+                } catch (RuntimeException ex) {
+                    // Skip corrupt rows so one bad line does not break the reviews page.
+                }
+            }
+            return loaded;
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read reviews file: " + p, e);
         }

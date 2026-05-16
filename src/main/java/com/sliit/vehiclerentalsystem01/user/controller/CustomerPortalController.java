@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -310,6 +311,49 @@ public class CustomerPortalController {
         return "redirect:/customer/support?status=sent";
     }
 
+    private Optional<CustomerReview> ownReview(HttpSession session, String id) {
+        if (id == null || id.isBlank()) {
+            return Optional.empty();
+        }
+        String un = username(session);
+        return reviewService.findById(id.trim())
+                .filter(r -> r instanceof CustomerReview)
+                .map(r -> (CustomerReview) r)
+                .filter(cr -> reviewOwnedBy(cr, un));
+    }
+
+    private static String sessionCustomerKey(HttpSession session) {
+        return username(session);
+    }
+
+    private static boolean reviewOwnedBy(CustomerReview cr, String customerKey) {
+        if (customerKey == null || customerKey.isBlank()) {
+            return false;
+        }
+        return customerKey.equalsIgnoreCase(Objects.toString(cr.getReviewerName(), "").trim());
+    }
+
+    @GetMapping("/reviews")
+    public String reviewList(HttpSession session, Model model) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        String customerKey = sessionCustomerKey(session);
+        List<CustomerReview> myReviews;
+        try {
+            myReviews = reviewService.findAll().stream()
+                    .filter(r -> r instanceof CustomerReview)
+                    .map(r -> (CustomerReview) r)
+                    .filter(cr -> reviewOwnedBy(cr, customerKey))
+                    .toList();
+        } catch (RuntimeException ex) {
+            myReviews = List.of();
+            model.addAttribute("reviewError", "Could not load your reviews. Please try again later.");
+        }
+        model.addAttribute("myReviews", myReviews);
+        return "review/customer-reviews-list";
+    }
+
     @GetMapping("/reviews/new")
     public String reviewNew(HttpSession session, Model model) {
         if (!customer(session)) {
@@ -374,7 +418,51 @@ public class CustomerPortalController {
             cr.setVehicleId(bookingService.findById(bid).map(Booking::getVehicleId).orElse(""));
         }
         reviewService.save(cr);
-        return "redirect:/customer/home";
+        return "redirect:/customer/reviews?created";
+    }
+
+    @GetMapping("/reviews/{id}/edit")
+    public String reviewEdit(HttpSession session, @PathVariable String id, Model model) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        return ownReview(session, id)
+                .map(cr -> {
+                    model.addAttribute("customerReview", cr);
+                    return "review/edit-review";
+                })
+                .orElse("redirect:/customer/reviews");
+    }
+
+    @PostMapping("/reviews/{id}")
+    public String reviewUpdate(HttpSession session, @PathVariable String id,
+                               @RequestParam int rating,
+                               @RequestParam String comments) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        if (comments == null || comments.isBlank()) {
+            return "redirect:/customer/reviews/" + id + "/edit?error=missing_fields";
+        }
+        return ownReview(session, id)
+                .map(cr -> {
+                    cr.setRating(rating);
+                    cr.setComments(comments.trim());
+                    reviewService.save(cr);
+                    return "redirect:/customer/reviews?updated";
+                })
+                .orElse("redirect:/customer/reviews");
+    }
+
+    @PostMapping("/reviews/{id}/delete")
+    public String reviewDelete(HttpSession session, @PathVariable String id) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        if (ownReview(session, id).isPresent()) {
+            reviewService.deleteById(id.trim());
+        }
+        return "redirect:/customer/reviews?deleted";
     }
 
     @GetMapping("/bookings/{id}/edit")
