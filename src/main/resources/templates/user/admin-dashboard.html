@@ -55,6 +55,15 @@
               <span class="admin-stat-card__label">Vehicles</span>
             </div>
           </div>
+          <div class="admin-stat-card admin-stat-card--danger">
+            <div class="admin-stat-card__icon">
+              <i class="ph-bold ph-wrench"></i>
+            </div>
+            <div class="admin-stat-card__body">
+              <span class="admin-stat-card__value" th:text="${maintenanceCount}">0</span>
+              <span class="admin-stat-card__label">Under Maintenance</span>
+            </div>
+          </div>
           <div class="admin-stat-card admin-stat-card--bookings">
             <div class="admin-stat-card__icon">
               <i class="ph-bold ph-calendar-check"></i>
@@ -93,7 +102,7 @@
             <span th:if="${pendingAccessCount != null and pendingAccessCount > 0}"
                   class="admin-module-card__badge"
                   th:text="|${pendingAccessCount} pending approvals|">0 pending approvals</span>
-            <a th:href="@{/customers(action=view_directory)}" class="admin-module-card__primary">
+            <a th:href="@{/user-management}" class="admin-module-card__primary">
               <div class="admin-module-card__icon">
                 <i class="ph-bold ph-users-three"></i>
               </div>
@@ -120,6 +129,21 @@
             <div class="admin-module-card__body">
               <h3 class="admin-module-card__title">Vehicle Inventory</h3>
               <p class="admin-module-card__desc">Add, search, and remove rental vehicles from the catalog.</p>
+            </div>
+            <span class="admin-module-card__arrow" aria-hidden="true">
+              <i class="ph-bold ph-arrow-right"></i>
+            </span>
+          </a>
+
+          <a th:href="@{/maintenance}" class="admin-module-card admin-module-card--maintenance">
+            <div class="admin-module-card__icon">
+              <i class="ph-bold ph-wrench"></i>
+            </div>
+            <div class="admin-module-card__body">
+              <h3 class="admin-module-card__title">Maintenance &amp; Availability</h3>
+              <p class="admin-module-card__desc">Track vehicle service schedules and real-time availability.</p>
+              <p class="admin-module-card__meta"
+                 th:text="|${availableCount} available • ${maintenanceCount} in service|">0 available • 0 in service</p>
             </div>
             <span class="admin-module-card__arrow" aria-hidden="true">
               <i class="ph-bold ph-arrow-right"></i>

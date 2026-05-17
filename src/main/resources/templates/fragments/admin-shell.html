@@ -51,7 +51,7 @@
     </a>
 
     <span class="admin-sidebar__label admin-sidebar__label-text">Modules</span>
-    <a th:href="@{/customers(action=view_directory)}"
+    <a th:href="@{/user-management}"
        class="admin-sidebar__link"
        data-tooltip="User Management"
        th:classappend="${activeNav == 'users'} ? ' is-active' : ''">
@@ -64,6 +64,13 @@
        th:classappend="${activeNav == 'vehicles'} ? ' is-active' : ''">
       <span class="admin-sidebar__link-icon"><i class="ph-bold ph-car"></i></span>
       <span class="admin-sidebar__link-text">Vehicles</span>
+    </a>
+    <a th:href="@{/maintenance}"
+       class="admin-sidebar__link"
+       data-tooltip="Maintenance & Availability"
+       th:classappend="${activeNav == 'maintenance'} ? ' is-active' : ''">
+      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-wrench"></i></span>
+      <span class="admin-sidebar__link-text">Maintenance</span>
     </a>
     <a th:href="@{/bookings(action=list)}"
        class="admin-sidebar__link"

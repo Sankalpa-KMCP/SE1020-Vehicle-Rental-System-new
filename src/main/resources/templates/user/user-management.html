@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <th:block th:replace="~{fragments/admin-shell :: adminHead('User Management - DriveAway')}"></th:block>
+</head>
+<body class="admin-shell">
+
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('users', 'User Management')}"></th:block>
+
+      <header class="admin-page-header">
+        <h1 class="admin-page-header__title">User Management</h1>
+        <p class="admin-page-header__subtitle">Choose a module to manage customers or staff.</p>
+      </header>
+
+      <div class="admin-user-gateway">
+        <a th:href="@{/customers(action=view_directory)}" class="admin-user-card">
+          <div class="admin-user-card__icon">
+            <i class="ph-bold ph-users" aria-hidden="true"></i>
+          </div>
+          <h3 class="admin-user-card__title">Customer Management</h3>
+          <p class="admin-user-card__desc">Manage customer records, verification, and bookings.</p>
+          <p class="admin-user-card__meta" th:text="|${customerCount} customer${customerCount == 1 ? '' : 's'}|">0 customers</p>
+        </a>
+
+        <a th:href="@{/staff(action=list)}" class="admin-user-card">
+          <div class="admin-user-card__icon">
+            <i class="ph-bold ph-user-gear" aria-hidden="true"></i>
+          </div>
+          <h3 class="admin-user-card__title">Staff Management</h3>
+          <p class="admin-user-card__desc">Manage staff accounts, roles, and permissions.</p>
+          <p class="admin-user-card__meta" th:text="|${staffCount} staff|">0 staff</p>
+        </a>
+      </div>
+
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+</body>
+</html>

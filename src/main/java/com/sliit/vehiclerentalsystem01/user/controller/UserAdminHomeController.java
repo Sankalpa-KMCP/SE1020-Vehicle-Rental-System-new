@@ -1,6 +1,7 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
 import com.sliit.vehiclerentalsystem01.booking.service.BookingService;
+import com.sliit.vehiclerentalsystem01.maintenance.service.MaintenanceService;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
 import com.sliit.vehiclerentalsystem01.review.service.ReviewService;
 import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
@@ -26,6 +27,7 @@ public class UserAdminHomeController {
     private final PaymentService paymentService;
     private final ReviewService reviewService;
     private final MasterAdminPendingService masterAdminPendingService;
+    private final MaintenanceService maintenanceService;
 
     public UserAdminHomeController(
             UserService userService,
@@ -33,13 +35,15 @@ public class UserAdminHomeController {
             BookingService bookingService,
             PaymentService paymentService,
             ReviewService reviewService,
-            MasterAdminPendingService masterAdminPendingService) {
+            MasterAdminPendingService masterAdminPendingService,
+            MaintenanceService maintenanceService) {
         this.userService = userService;
         this.vehicleService = vehicleService;
         this.bookingService = bookingService;
         this.paymentService = paymentService;
         this.reviewService = reviewService;
         this.masterAdminPendingService = masterAdminPendingService;
+        this.maintenanceService = maintenanceService;
     }
 
     @GetMapping("/admin-home")
@@ -62,6 +66,8 @@ public class UserAdminHomeController {
         model.addAttribute("bookingCount", bookingService.findAll().size());
         model.addAttribute("paymentCount", paymentService.findAll().size());
         model.addAttribute("reviewCount", reviewService.findAll().size());
+        model.addAttribute("availableCount", maintenanceService.countAvailable());
+        model.addAttribute("maintenanceCount", maintenanceService.countInMaintenance());
 
         int pendingAccessCount = 0;
         if (Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.IS_MASTER_ADMIN))) {
