@@ -84,6 +84,6 @@ public class HomeController {
             ));
         }
         model.addAttribute("fleetPreview", fleetPreview);
-        return "index";
+        return "landing/index";
     }
 }

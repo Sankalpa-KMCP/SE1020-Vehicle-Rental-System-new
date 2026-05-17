@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link rel="preload" as="image" href="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&amp;w=1920&amp;auto=format&amp;fit=crop"/>
-    <link rel="stylesheet" th:href="@{/css/index-landing.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/landing.css}"/>
 </head>
 <body class="index-landing text-gray-900 antialiased selection:bg-[#0D6EFD] selection:text-white">
 
@@ -53,15 +53,15 @@
 </div>
 
 <div class="index-landing-shell">
-<div th:replace="~{fragments/index-landing-nav :: indexNav}"></div>
+<div th:replace="~{landing/fragments/nav :: indexNav}"></div>
 
 <div class="parallax-bg" id="parallax-bg" aria-hidden="true"></div>
 
-<th:block th:replace="~{fragments/index-main :: landingMain}"></th:block>
+<th:block th:replace="~{landing/fragments/main :: landingMain}"></th:block>
 
-<div th:replace="~{fragments/index-landing-footer :: indexFooter}"></div>
+<div th:replace="~{landing/fragments/footer :: indexFooter}"></div>
 </div>
 
-<script th:src="@{/js/index-landing.js}"></script>
+<script th:src="@{/landing/landing.js}"></script>
 </body>
 </html>
