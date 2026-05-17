@@ -49,6 +49,9 @@ public class VehicleFileServiceImpl implements VehicleService {
 
     @Override
     public Optional<Vehicle> findById(String id) {
+        if (id == null || id.isBlank()) {
+            return Optional.empty();
+        }
         return readAll().stream().filter(v -> id.equals(v.getId())).findFirst();
     }
 
@@ -70,7 +73,10 @@ public class VehicleFileServiceImpl implements VehicleService {
      */
     @Override
     public void deleteById(String id) {
-        if (id != null && bookingService.findUnavailableVehicleIds().contains(id.trim())) {
+        if (id == null || id.isBlank()) {
+            return;
+        }
+        if (bookingService.findUnavailableVehicleIds().contains(id.trim())) {
             throw new IllegalStateException("vehicle_in_use");
         }
         List<Vehicle> list = readAll().stream()

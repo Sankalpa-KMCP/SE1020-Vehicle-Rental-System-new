@@ -88,7 +88,7 @@ public class StaffAdminController {
         boolean admin = "Admin".equalsIgnoreCase(role);
 
         if ("update".equals(action)) {
-            Staff existing = userService.findById(id)
+            userService.findById(id)
                     .filter(u -> u instanceof Staff)
                     .map(u -> (Staff) u)
                     .orElseThrow();

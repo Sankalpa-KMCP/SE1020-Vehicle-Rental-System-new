@@ -62,6 +62,9 @@ public class UserFileServiceImpl implements UserService {
 
     @Override
     public Optional<User> findById(String id) {
+        if (id == null || id.isBlank()) {
+            return Optional.empty();
+        }
         return readAllUsers().stream().filter(u -> id.equals(u.getId())).findFirst();
     }
 
@@ -118,16 +121,18 @@ public class UserFileServiceImpl implements UserService {
      */
     @Override
     public void deleteById(String id) {
-        if (id != null && !id.isBlank()) {
-            findById(id)
-                    .filter(u -> u instanceof Customer)
-                    .map(u -> (Customer) u)
-                    .ifPresent(c -> {
-                        if (!bookingService.findBookingsLinkedToCustomer(c).isEmpty()) {
-                            throw new IllegalStateException("customer_in_use");
-                        }
-                    });
+        if (id == null || id.isBlank()) {
+            return;
         }
+        findById(id)
+                .filter(u -> u instanceof Customer)
+                .map(u -> (Customer) u)
+                .ifPresent(c -> {
+                    if (!bookingService.findBookingsLinkedToCustomer(c).isEmpty()) {
+                        throw new IllegalStateException("customer_in_use");
+                    }
+                });
+
         List<User> users = readAllUsers().stream()
                 .filter(u -> !id.equals(u.getId()))
                 .collect(Collectors.toCollection(ArrayList::new));
