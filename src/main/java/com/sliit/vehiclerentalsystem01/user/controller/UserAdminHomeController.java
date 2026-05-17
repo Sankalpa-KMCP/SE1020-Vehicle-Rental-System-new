@@ -53,11 +53,14 @@ public class UserAdminHomeController {
             return "redirect:/auth/staff-login";
         }
 
-        model.addAttribute("customerCount", userService.findAllCustomers().size());
+        int customers = userService.findAllCustomers().size();
+        int staff = userService.findAllStaff().size();
+        model.addAttribute("customerCount", customers);
+        model.addAttribute("staffCount", staff);
+        model.addAttribute("userCount", customers + staff);
         model.addAttribute("vehicleCount", vehicleService.findAll().size());
         model.addAttribute("bookingCount", bookingService.findAll().size());
         model.addAttribute("paymentCount", paymentService.findAll().size());
-        model.addAttribute("staffCount", userService.findAllStaff().size());
         model.addAttribute("reviewCount", reviewService.findAll().size());
 
         int pendingAccessCount = 0;

@@ -9,7 +9,7 @@
 
       <header class="admin-page-header">
         <h1 class="admin-page-header__title">Central Dashboard</h1>
-        <p class="admin-page-header__subtitle">Manage customers, fleet, bookings, payments, staff, and reviews from one unified admin workspace.</p>
+        <p class="admin-page-header__subtitle">Manage users, fleet, bookings, payments, and reviews from one unified admin workspace.</p>
       </header>
 
       <div th:if="${session['isMasterAdmin'] != null and session['isMasterAdmin']}" class="admin-dashboard-section">
@@ -37,13 +37,13 @@
       <section class="admin-dashboard-section">
         <h2 class="admin-section-heading">Live overview</h2>
         <div class="admin-stat-grid">
-          <div class="admin-stat-card admin-stat-card--customers">
+          <div class="admin-stat-card admin-stat-card--users">
             <div class="admin-stat-card__icon">
-              <i class="ph-bold ph-users"></i>
+              <i class="ph-bold ph-users-three"></i>
             </div>
             <div class="admin-stat-card__body">
-              <span class="admin-stat-card__value" th:text="${customerCount}">0</span>
-              <span class="admin-stat-card__label">Customers</span>
+              <span class="admin-stat-card__value" th:text="${userCount}">0</span>
+              <span class="admin-stat-card__label">Users</span>
             </div>
           </div>
           <div class="admin-stat-card admin-stat-card--vehicles">
@@ -73,15 +73,6 @@
               <span class="admin-stat-card__label">Payments</span>
             </div>
           </div>
-          <div class="admin-stat-card admin-stat-card--staff">
-            <div class="admin-stat-card__icon">
-              <i class="ph-bold ph-identification-badge"></i>
-            </div>
-            <div class="admin-stat-card__body">
-              <span class="admin-stat-card__value" th:text="${staffCount}">0</span>
-              <span class="admin-stat-card__label">Staff</span>
-            </div>
-          </div>
           <div class="admin-stat-card admin-stat-card--reviews">
             <div class="admin-stat-card__icon">
               <i class="ph-bold ph-star"></i>
@@ -98,18 +89,29 @@
         <h2 class="admin-section-heading">Quick access</h2>
         <div class="admin-module-grid">
 
-          <a th:href="@{/customers(action=view_directory)}" class="admin-module-card">
-            <div class="admin-module-card__icon">
-              <i class="ph-bold ph-users"></i>
+          <div class="admin-module-card admin-module-card--featured">
+            <span th:if="${pendingAccessCount != null and pendingAccessCount > 0}"
+                  class="admin-module-card__badge"
+                  th:text="|${pendingAccessCount} pending approvals|">0 pending approvals</span>
+            <a th:href="@{/customers(action=view_directory)}" class="admin-module-card__primary">
+              <div class="admin-module-card__icon">
+                <i class="ph-bold ph-users-three"></i>
+              </div>
+              <div class="admin-module-card__body">
+                <h3 class="admin-module-card__title">User Management</h3>
+                <p class="admin-module-card__desc">Manage customers and staff accounts, roles, and access.</p>
+                <p class="admin-module-card__meta"
+                   th:text="|${customerCount} customers • ${staffCount} staff|">0 customers • 0 staff</p>
+              </div>
+              <span class="admin-module-card__arrow" aria-hidden="true">
+                <i class="ph-bold ph-arrow-right"></i>
+              </span>
+            </a>
+            <div class="admin-module-card__actions">
+              <a th:href="@{/customers(action=view_directory)}" class="admin-module-card__action">Customers</a>
+              <a th:href="@{/staff(action=list)}" class="admin-module-card__action">Staff</a>
             </div>
-            <div class="admin-module-card__body">
-              <h3 class="admin-module-card__title">Customer Management</h3>
-              <p class="admin-module-card__desc">Register customers, view profiles, and update contact details.</p>
-            </div>
-            <span class="admin-module-card__arrow" aria-hidden="true">
-              <i class="ph-bold ph-arrow-right"></i>
-            </span>
-          </a>
+          </div>
 
           <a th:href="@{/vehicles(action=list)}" class="admin-module-card">
             <div class="admin-module-card__icon">
@@ -144,19 +146,6 @@
             <div class="admin-module-card__body">
               <h3 class="admin-module-card__title">Payments &amp; Billing</h3>
               <p class="admin-module-card__desc">Generate invoices, track transactions, and update payment status.</p>
-            </div>
-            <span class="admin-module-card__arrow" aria-hidden="true">
-              <i class="ph-bold ph-arrow-right"></i>
-            </span>
-          </a>
-
-          <a th:href="@{/staff(action=list)}" class="admin-module-card">
-            <div class="admin-module-card__icon">
-              <i class="ph-bold ph-identification-badge"></i>
-            </div>
-            <div class="admin-module-card__body">
-              <h3 class="admin-module-card__title">Staff Directory</h3>
-              <p class="admin-module-card__desc">Manage rental employees, departments, and onboarding.</p>
             </div>
             <span class="admin-module-card__arrow" aria-hidden="true">
               <i class="ph-bold ph-arrow-right"></i>

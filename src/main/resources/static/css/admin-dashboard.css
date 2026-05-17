@@ -699,7 +699,7 @@ html:not(.sidebar-collapsed) .admin-sidebar__link:active {
 
 @media (min-width: 1280px) {
   .admin-stat-grid {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
@@ -747,12 +747,11 @@ html:not(.sidebar-collapsed) .admin-sidebar__link:active {
   color: var(--admin-charcoal-muted);
 }
 
-.admin-stat-card--customers .admin-stat-card__icon { background: rgba(201, 162, 39, 0.1); }
-.admin-stat-card--customers .admin-stat-card__icon i { color: var(--admin-gold); }
+.admin-stat-card--users .admin-stat-card__icon { background: rgba(201, 162, 39, 0.1); }
+.admin-stat-card--users .admin-stat-card__icon i { color: var(--admin-gold); }
 .admin-stat-card--vehicles .admin-stat-card__icon { background: rgba(15, 31, 53, 0.08); }
 .admin-stat-card--bookings .admin-stat-card__icon { background: rgba(201, 162, 39, 0.08); }
 .admin-stat-card--payments .admin-stat-card__icon { background: rgba(26, 35, 50, 0.08); }
-.admin-stat-card--staff .admin-stat-card__icon { background: rgba(15, 31, 53, 0.06); }
 .admin-stat-card--reviews .admin-stat-card__icon { background: rgba(201, 162, 39, 0.06); }
 
 .admin-stat-card__body {
@@ -1011,13 +1010,12 @@ html:not(.sidebar-collapsed) .admin-sidebar__link:active {
   opacity: 1;
 }
 
-.admin-module-grid .admin-module-card:nth-child(1) { animation-delay: 0.05s; }
-.admin-module-grid .admin-module-card:nth-child(2) { animation-delay: 0.1s; }
-.admin-module-grid .admin-module-card:nth-child(3) { animation-delay: 0.15s; }
-.admin-module-grid .admin-module-card:nth-child(4) { animation-delay: 0.2s; }
-.admin-module-grid .admin-module-card:nth-child(5) { animation-delay: 0.25s; }
-.admin-module-grid .admin-module-card:nth-child(6) { animation-delay: 0.3s; }
-.admin-module-grid .admin-module-card:nth-child(7) { animation-delay: 0.35s; }
+.admin-module-grid > :nth-child(1) { animation-delay: 0.05s; }
+.admin-module-grid > :nth-child(2) { animation-delay: 0.1s; }
+.admin-module-grid > :nth-child(3) { animation-delay: 0.15s; }
+.admin-module-grid > :nth-child(4) { animation-delay: 0.2s; }
+.admin-module-grid > :nth-child(5) { animation-delay: 0.25s; }
+.admin-module-grid > :nth-child(6) { animation-delay: 0.3s; }
 
 @media (min-width: 640px) {
   .admin-module-card {
@@ -1122,6 +1120,141 @@ html:not(.sidebar-collapsed) .admin-sidebar__link:active {
   color: var(--admin-gold);
 }
 
+/* Featured User Management gateway card */
+.admin-module-card--featured {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  gap: 0;
+  padding: 0;
+  min-height: 188px;
+  border-width: 1.5px;
+  border-color: rgba(201, 162, 39, 0.28);
+  box-shadow:
+    var(--admin-shadow-rest),
+    0 0 0 1px rgba(201, 162, 39, 0.08);
+}
+
+.admin-module-card--featured:hover {
+  transform: translateY(-6px);
+  border-color: rgba(201, 162, 39, 0.45);
+  box-shadow:
+    0 0 0 1px var(--admin-gold-muted),
+    0 20px 56px rgba(10, 22, 40, 0.14),
+    0 0 32px rgba(201, 162, 39, 0.12);
+}
+
+.admin-module-card__badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(201, 162, 39, 0.2);
+  color: var(--admin-gold);
+  border: 1px solid rgba(201, 162, 39, 0.35);
+}
+
+.admin-module-card__primary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+  padding: 2.25rem 2.25rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+}
+
+@media (min-width: 640px) {
+  .admin-module-card__primary {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 1.5rem;
+    padding: 2rem 2.25rem 1rem;
+  }
+}
+
+.admin-module-card__primary:focus-visible {
+  outline: 2px solid var(--admin-gold);
+  outline-offset: -2px;
+  border-radius: 1.125rem 1.125rem 0 0;
+}
+
+.admin-module-card__meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+  letter-spacing: 0.01em;
+}
+
+.admin-module-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0 2.25rem 1.5rem;
+  border-top: 1px solid rgba(26, 35, 50, 0.06);
+  margin-top: auto;
+}
+
+.admin-module-card__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--admin-charcoal);
+  background: rgba(26, 35, 50, 0.05);
+  border: 1px solid rgba(26, 35, 50, 0.1);
+  transition:
+    background var(--admin-transition),
+    border-color var(--admin-transition),
+    color var(--admin-transition),
+    transform var(--admin-transition);
+}
+
+.admin-module-card__action:hover {
+  background: var(--admin-gold-subtle);
+  border-color: rgba(201, 162, 39, 0.35);
+  color: var(--admin-charcoal);
+  transform: translateY(-1px);
+}
+
+.admin-module-card__action:focus-visible {
+  outline: 2px solid var(--admin-gold);
+  outline-offset: 2px;
+}
+
+.admin-module-card--featured:hover .admin-module-card__icon {
+  animation: adminIconBounce 0.45s var(--ease-emphasis);
+}
+
+.admin-module-card--featured:hover .admin-module-card__arrow {
+  opacity: 1;
+  transform: translateX(6px);
+}
+
+@keyframes adminIconBounce {
+  0%, 100% { transform: scale(1.05) translateY(0); }
+  40% { transform: scale(1.08) translateY(-3px); }
+  70% { transform: scale(1.04) translateY(-1px); }
+}
+
 /* Fade-in utility */
 .admin-fade-in {
   animation: adminFadeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1);
@@ -1140,10 +1273,12 @@ html:not(.sidebar-collapsed) .admin-sidebar__link:active {
 
 @media (prefers-reduced-motion: reduce) {
   .admin-module-card,
+  .admin-module-card--featured,
   .admin-module-card::before,
   .admin-module-card::after,
   .admin-module-card__icon,
   .admin-module-card__arrow,
+  .admin-module-card__action,
   .admin-stat-card,
   .admin-sidebar__link,
   .admin-sidebar__link::before,
@@ -1160,9 +1295,12 @@ html:not(.sidebar-collapsed) .admin-sidebar__link:active {
   }
 
   .admin-module-card:hover,
+  .admin-module-card--featured:hover,
   .admin-stat-card:hover,
   .admin-module-card:hover .admin-module-card__icon,
+  .admin-module-card--featured:hover .admin-module-card__icon,
   .admin-module-card:hover .admin-module-card__arrow,
+  .admin-module-card__action:hover,
   .admin-sidebar__link:hover,
   .admin-topbar__menu-btn:hover,
   .admin-topbar__user:hover,

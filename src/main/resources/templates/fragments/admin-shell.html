@@ -53,10 +53,10 @@
     <span class="admin-sidebar__label admin-sidebar__label-text">Modules</span>
     <a th:href="@{/customers(action=view_directory)}"
        class="admin-sidebar__link"
-       data-tooltip="Customers"
-       th:classappend="${activeNav == 'customers'} ? ' is-active' : ''">
-      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-users"></i></span>
-      <span class="admin-sidebar__link-text">Customers</span>
+       data-tooltip="User Management"
+       th:classappend="${activeNav == 'users'} ? ' is-active' : ''">
+      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-users-three"></i></span>
+      <span class="admin-sidebar__link-text">User Management</span>
     </a>
     <a th:href="@{/vehicles(action=list)}"
        class="admin-sidebar__link"
@@ -78,13 +78,6 @@
        th:classappend="${activeNav == 'payments'} ? ' is-active' : ''">
       <span class="admin-sidebar__link-icon"><i class="ph-bold ph-receipt"></i></span>
       <span class="admin-sidebar__link-text">Payments</span>
-    </a>
-    <a th:href="@{/staff(action=list)}"
-       class="admin-sidebar__link"
-       data-tooltip="Staff"
-       th:classappend="${activeNav == 'staff'} ? ' is-active' : ''">
-      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-identification-badge"></i></span>
-      <span class="admin-sidebar__link-text">Staff</span>
     </a>
     <a th:href="@{/reviews(action=list)}"
        class="admin-sidebar__link"
