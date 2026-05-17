@@ -20,8 +20,8 @@
         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-                <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Review moderation</h1>
-                <p class="text-amber-50 text-lg font-medium max-w-2xl leading-relaxed">Verified customer feedback and staff replies.</p>
+                <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Customer reviews</h1>
+                <p class="text-amber-50 text-lg font-medium max-w-2xl leading-relaxed">View feedback submitted by customers and post staff replies.</p>
             </div>
             <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
                 <div class="text-center px-4 border-r border-white/20">
@@ -110,12 +110,11 @@
                         <span class="bg-slate-100 text-slate-800 font-bold px-2 py-1 rounded-lg text-xs" th:text="${r.status}">s</span>
                     </td>
                     <td class="py-4 px-4 max-w-md text-sm text-gray-600" th:text="${r.comments}">c</td>
-                    <td class="py-4 px-4 text-right space-x-2 whitespace-nowrap">
-                        <a th:href="@{/reviews/{id}(id=${r.id})}" class="text-gray-400 hover:text-gray-700 font-bold text-sm"><i class="ph-bold ph-eye"></i></a>
-                        <a th:href="@{/reviews/{id}/edit(id=${r.id})}" class="text-amber-600 hover:text-amber-800 font-bold text-sm"><i class="ph-bold ph-pencil-simple"></i></a>
-                        <form th:action="@{/reviews/{id}/delete(id=${r.id})}" method="post" class="inline m-0" onsubmit="return confirm('Delete this review?');">
-                            <button type="submit" class="text-red-500 hover:text-red-700 font-bold text-sm"><i class="ph-bold ph-trash"></i></button>
-                        </form>
+                    <td class="py-4 px-4 text-right whitespace-nowrap">
+                        <a th:href="@{/reviews/{id}(id=${r.id})}"
+                           class="inline-flex items-center gap-1.5 text-amber-700 hover:text-amber-900 font-bold text-sm bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition">
+                            <i class="ph-bold ph-eye"></i> View
+                        </a>
                     </td>
                 </tr>
                 <tr th:if="${customerReviews == null or customerReviews.isEmpty()}">

@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,17 +37,6 @@ public class ReviewController {
             return "redirect:/auth/staff-login";
         }
         redirectAttributes.addFlashAttribute("reviewNotice", REVIEW_CUSTOMER_ONLY_MSG);
-        return "redirect:/reviews";
-    }
-
-    @GetMapping(params = {"action=delete", "id"})
-    public String deleteLegacyQuery(HttpSession session, @RequestParam String id) {
-        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/staff-login";
-        }
-        if (id != null && !id.isBlank()) {
-            reviewService.deleteById(id.trim());
-        }
         return "redirect:/reviews";
     }
 
@@ -107,20 +95,6 @@ public class ReviewController {
                 .orElse("redirect:/reviews");
     }
 
-    @GetMapping("/{id}/edit")
-    public String edit(@PathVariable String id, HttpSession session, Model model) {
-        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/staff-login";
-        }
-        return reviewService.findById(id)
-                .filter(r -> r instanceof CustomerReview)
-                .map(r -> {
-                    model.addAttribute("customerReview", (CustomerReview) r);
-                    return "review/edit-review";
-                })
-                .orElse("redirect:/reviews");
-    }
-
     @PostMapping
     public String create(
             HttpSession session,
@@ -149,42 +123,4 @@ public class ReviewController {
                 .orElse("redirect:/reviews");
     }
 
-    @PostMapping("/{id}")
-    public String update(
-            @PathVariable String id,
-            HttpSession session,
-            @RequestParam String reviewType,
-            @ModelAttribute CustomerReview customerReview,
-            @RequestParam(required = false) String parentReviewId,
-            @RequestParam(required = false) String repliedBy,
-            @RequestParam(required = false) String staffReply) {
-        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/staff-login";
-        }
-        if ("STAFF_REPLY".equalsIgnoreCase(reviewType)) {
-            return reviewService.findById(parentReviewId != null && !parentReviewId.isBlank() ? parentReviewId : id)
-                    .filter(f -> f instanceof CustomerReview)
-                    .map(f -> {
-                        CustomerReview cr = (CustomerReview) f;
-                        cr.setStaffReply(staffReply != null ? staffReply : "");
-                        cr.setRepliedBy(repliedBy != null ? repliedBy : "");
-                        cr.setRepliedAt(LocalDateTime.now().toString());
-                        reviewService.save(cr);
-                        return "redirect:/reviews";
-                    })
-                    .orElse("redirect:/reviews");
-        }
-        customerReview.setId(id);
-        reviewService.save(customerReview);
-        return "redirect:/reviews";
-    }
-
-    @PostMapping("/{id}/delete")
-    public String delete(@PathVariable String id, HttpSession session) {
-        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/staff-login";
-        }
-        reviewService.deleteById(id);
-        return "redirect:/reviews";
-    }
 }

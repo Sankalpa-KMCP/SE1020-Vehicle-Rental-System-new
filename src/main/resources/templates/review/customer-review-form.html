@@ -12,8 +12,8 @@
 <body class="min-h-screen bg-slate-50 text-slate-900 p-6">
 <div class="max-w-xl mx-auto">
     <div class="flex gap-3 mb-8">
-        <a th:href="@{/customer/home}" class="inline-flex items-center gap-2 text-slate-600 font-semibold hover:text-slate-900">
-            <i class="ph-bold ph-arrow-left"></i> Back to home
+        <a th:href="@{/customer/reviews}" class="inline-flex items-center gap-2 text-slate-600 font-semibold hover:text-slate-900">
+            <i class="ph-bold ph-arrow-left"></i> Back to my reviews
         </a>
     </div>
 
@@ -26,7 +26,7 @@
         <h1 class="text-2xl font-bold mb-2 flex items-center gap-2">
             <i class="ph-fill ph-star text-amber-500"></i> Write a review
         </h1>
-        <p class="text-slate-600 text-sm mb-6">Share feedback on a rental. Optionally tie this review to a booking ID from My Bookings.</p>
+        <p class="text-slate-600 text-sm mb-6">Share feedback on a rental. Optionally link your review to one of your bookings below.</p>
 
         <form th:action="@{/customer/reviews}" method="post" class="space-y-5">
             <input type="hidden" name="source" value="customer"/>
@@ -35,9 +35,23 @@
             <input type="hidden" name="reviewerName" th:value="${reviewerName}"/>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1">Booking ID (optional)</label>
-                <input type="text" name="bookingId" placeholder="e.g. BKG-AB12"
-                       class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"/>
+                <label for="bookingId" class="block text-sm font-semibold text-slate-700 mb-1">Booking ID (optional)</label>
+                <select id="bookingId" name="bookingId"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    <option value="">No booking — general review</option>
+                    <option th:each="b : ${customerBookings}"
+                            th:value="${b.id}"
+                            th:text="${b.id + ' — ' + b.vehicleId + ' (' + b.rentalDate + ', ' + b.status + ')'}">BK-001</option>
+                </select>
+                <p th:if="${customerBookings == null or #lists.isEmpty(customerBookings)}"
+                   class="mt-2 text-xs text-slate-500">
+                    You have no bookings yet. Leave this as general review, or
+                    <a th:href="@{/customer/bookings}" class="font-semibold text-blue-600 hover:text-blue-800">book a vehicle</a> first.
+                </p>
+                <p th:unless="${customerBookings == null or #lists.isEmpty(customerBookings)}"
+                   class="mt-2 text-xs text-slate-500">
+                    Choose a booking from your account, or leave as general review.
+                </p>
             </div>
 
             <div>
