@@ -106,10 +106,10 @@
       <span class="admin-sidebar__label admin-sidebar__label-text">Security</span>
       <a th:href="@{/user/master-console}"
          class="admin-sidebar__link"
-         data-tooltip="Master Console"
-         th:classappend="${activeNav == 'master'} ? ' is-active' : ''">
+         data-tooltip="Access Requests"
+         th:classappend="${activeNav == 'users' or activeNav == 'master'} ? ' is-active' : ''">
         <span class="admin-sidebar__link-icon"><i class="ph-bold ph-shield-check"></i></span>
-        <span class="admin-sidebar__link-text">Master Console</span>
+        <span class="admin-sidebar__link-text">Access Requests</span>
       </a>
     </th:block>
   </nav>

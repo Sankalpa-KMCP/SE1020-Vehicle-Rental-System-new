@@ -1,56 +1,79 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <th:block th:replace="~{fragments/admin-shell :: adminHead('Master console - DriveAway')}"></th:block>
+  <th:block th:replace="~{fragments/admin-shell :: adminHead('Access Requests - DriveAway')}"></th:block>
 </head>
-<body class="admin-shell text-slate-100">
-<th:block th:replace="~{fragments/admin-shell :: shellOpen('master', 'Master Console')}"></th:block>
+<body class="admin-shell">
 
-    <div class="max-w-5xl">
-    <p class="text-slate-500 mb-6 max-w-2xl">
-        Pending staff/administrator requests. Primary source:
-        <code class="text-amber-700 bg-amber-50 px-1 rounded border border-amber-200">data/staff_access_requests.txt</code>
-        (the legacy <code class="text-amber-700 bg-amber-50 px-1 rounded border border-amber-200">~/RentalData/pending_admins.txt</code>
-        is also read but never modified).
-    </p>
-    <div th:if="${message != null}" class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
-        <i class="ph-bold ph-check-circle text-lg"></i><span th:text="${message}">ok</span>
-    </div>
-    <div th:if="${error != null}" class="mb-4 bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
-        <i class="ph-bold ph-warning-circle text-lg"></i><span th:text="${error}">err</span>
-    </div>
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-sm">
-        <div class="px-6 py-4 border-b border-slate-700 flex items-center justify-between">
-            <h1 class="text-lg font-bold text-white">Pending requests</h1>
-            <span class="text-xs text-slate-400"><span th:text="${pendingLines != null ? #lists.size(pendingLines) : 0}">0</span> row(s)</span>
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('users', 'Access Requests')}"></th:block>
+
+      <header class="admin-page-header">
+        <h1 class="admin-page-header__title">Access Requests</h1>
+        <p class="admin-page-header__subtitle">Review and manage pending staff/admin access requests.</p>
+        <p class="admin-page-header__hint">Requests submitted by staff users awaiting admin approval.</p>
+      </header>
+
+      <div th:if="${message != null}"
+           class="admin-alert admin-alert--success"
+           role="status"
+           th:text="${message}">Success message</div>
+
+      <div th:if="${error != null}"
+           class="admin-alert admin-alert--warning"
+           role="alert"
+           th:text="${error}">Error message</div>
+
+      <div class="admin-access-panel">
+        <div class="admin-access-header">
+          <h2 class="admin-access-header__title">Pending Requests</h2>
+          <span class="admin-access-count">
+            <span th:text="${pendingAccessCount != null ? pendingAccessCount : 0}">0</span>
+            <span th:text="${pendingAccessCount == 1 ? ' request' : ' requests'}"> requests</span>
+          </span>
         </div>
-        <ul class="divide-y divide-slate-800" th:if="${pendingLines != null and !pendingLines.isEmpty()}">
-            <li th:each="line : ${pendingLines}" class="px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <span class="font-mono text-sm text-cyan-200 break-all flex-1" th:text="${line}">line</span>
-                <div class="flex gap-2 shrink-0">
-                    <form th:action="@{/user/master-console}" method="post" class="inline m-0">
-                        <input type="hidden" name="action" value="approve"/>
-                        <input type="hidden" name="request" th:value="${line}"/>
-                        <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
-                            <i class="ph-bold ph-check"></i> Approve
-                        </button>
-                    </form>
-                    <form th:action="@{/user/master-console}" method="post" class="inline m-0" onsubmit="return confirm('Reject this request?');">
-                        <input type="hidden" name="action" value="reject"/>
-                        <input type="hidden" name="request" th:value="${line}"/>
-                        <button type="submit" class="bg-rose-500/80 hover:bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
-                            <i class="ph-bold ph-x"></i> Reject
-                        </button>
-                    </form>
-                </div>
-            </li>
-        </ul>
-        <p th:if="${pendingLines == null or pendingLines.isEmpty()}" class="px-6 py-12 text-center text-slate-400">
-            No pending requests.
-        </p>
-    </div>
-    <p class="mt-8 text-xs text-slate-500">Approve creates a support-staff account with a generated temporary password.</p>
-    </div>
+
+        <div class="admin-access-list"
+             th:if="${pendingLines != null and !pendingLines.isEmpty()}">
+          <div th:each="line, iterStat : ${pendingLines}"
+               th:with="parts=${#strings.arraySplit(#strings.trim(line), ',')},
+                        partLen=${#arrays.length(parts)},
+                        displayName=${partLen > 0 ? #strings.trim(parts[0]) : line},
+                        displayId=${partLen > 1 ? #strings.trim(parts[1]) : '—'}"
+               class="admin-access-row"
+               th:style="${'animation-delay:' + (iterStat.index * 0.05) + 's'}">
+            <div class="admin-access-info">
+              <strong class="admin-access-info__name" th:text="${displayName}">username</strong>
+              <span class="admin-access-info__id">ID: <span th:text="${displayId}">0000</span></span>
+              <span class="admin-status-badge admin-status-badge--warning">Pending</span>
+            </div>
+            <div class="admin-access-actions">
+              <form th:action="@{/user/master-console}" method="post" class="admin-access-form">
+                <input type="hidden" name="action" value="approve"/>
+                <input type="hidden" name="request" th:value="${line}"/>
+                <button type="submit" class="admin-btn admin-btn--success admin-btn--compact">
+                  <i class="ph-bold ph-check" aria-hidden="true"></i> Approve
+                </button>
+              </form>
+              <form th:action="@{/user/master-console}" method="post" class="admin-access-form"
+                    onsubmit="return confirm('Reject this request?');">
+                <input type="hidden" name="action" value="reject"/>
+                <input type="hidden" name="request" th:value="${line}"/>
+                <button type="submit" class="admin-btn admin-btn--danger admin-btn--compact">
+                  <i class="ph-bold ph-x" aria-hidden="true"></i> Reject
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div th:if="${pendingLines == null or pendingLines.isEmpty()}"
+             class="admin-empty-state">
+          <i class="ph-bold ph-check-circle" aria-hidden="true"></i>
+          <p>No pending access requests</p>
+        </div>
+      </div>
+
+      <p class="admin-access-footer-note">Approve creates a support-staff account with a generated temporary password.</p>
 
 <th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
 <script th:replace="~{fragments/admin-shell :: mobileScript}"></script>

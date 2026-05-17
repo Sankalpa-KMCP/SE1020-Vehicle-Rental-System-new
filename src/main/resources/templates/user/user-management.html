@@ -9,26 +9,78 @@
 
       <header class="admin-page-header">
         <h1 class="admin-page-header__title">User Management</h1>
-        <p class="admin-page-header__subtitle">Choose a module to manage customers or staff.</p>
+        <p class="admin-page-header__subtitle">Choose a module to manage customers, staff, or access requests.</p>
       </header>
 
+      <div class="admin-user-gateway-summary" aria-label="User overview">
+        <div class="admin-user-gateway-stat">
+          <span class="admin-user-gateway-stat__value" th:text="${customerCount + staffCount}">0</span>
+          <span class="admin-user-gateway-stat__label">Total users</span>
+        </div>
+        <div class="admin-user-gateway-stat admin-user-gateway-stat--customers">
+          <span class="admin-user-gateway-stat__value" th:text="${customerCount}">0</span>
+          <span class="admin-user-gateway-stat__label">Customers</span>
+        </div>
+        <div class="admin-user-gateway-stat admin-user-gateway-stat--staff">
+          <span class="admin-user-gateway-stat__value" th:text="${staffCount}">0</span>
+          <span class="admin-user-gateway-stat__label">Staff</span>
+        </div>
+        <div th:if="${session['isMasterAdmin'] != null and session['isMasterAdmin']}"
+             class="admin-user-gateway-stat admin-user-gateway-stat--access">
+          <span class="admin-user-gateway-stat__value" th:text="${pendingAccessCount}">0</span>
+          <span class="admin-user-gateway-stat__label">Access pending</span>
+        </div>
+      </div>
+
       <div class="admin-user-gateway">
-        <a th:href="@{/customers(action=view_directory)}" class="admin-user-card">
-          <div class="admin-user-card__icon">
+        <a th:href="@{/customers(action=view_directory)}"
+           class="admin-user-card admin-user-card--customers">
+          <span class="admin-user-card__count" th:text="${customerCount}">0</span>
+          <div class="admin-user-card__icon-wrap">
             <i class="ph-bold ph-users" aria-hidden="true"></i>
           </div>
-          <h3 class="admin-user-card__title">Customer Management</h3>
-          <p class="admin-user-card__desc">Manage customer records, verification, and bookings.</p>
-          <p class="admin-user-card__meta" th:text="|${customerCount} customer${customerCount == 1 ? '' : 's'}|">0 customers</p>
+          <div class="admin-user-card__body">
+            <h3 class="admin-user-card__title">Customer Management</h3>
+            <p class="admin-user-card__desc">Manage customer records, verification, and bookings.</p>
+            <span class="admin-user-card__meta">View directory</span>
+          </div>
+          <span class="admin-user-card__arrow" aria-hidden="true">
+            <i class="ph-bold ph-arrow-right"></i>
+          </span>
         </a>
 
-        <a th:href="@{/staff(action=list)}" class="admin-user-card">
-          <div class="admin-user-card__icon">
+        <a th:href="@{/staff(action=list)}"
+           class="admin-user-card admin-user-card--staff">
+          <span class="admin-user-card__count" th:text="${staffCount}">0</span>
+          <div class="admin-user-card__icon-wrap">
             <i class="ph-bold ph-user-gear" aria-hidden="true"></i>
           </div>
-          <h3 class="admin-user-card__title">Staff Management</h3>
-          <p class="admin-user-card__desc">Manage staff accounts, roles, and permissions.</p>
-          <p class="admin-user-card__meta" th:text="|${staffCount} staff|">0 staff</p>
+          <div class="admin-user-card__body">
+            <h3 class="admin-user-card__title">Staff Management</h3>
+            <p class="admin-user-card__desc">Manage staff accounts, roles, and permissions.</p>
+            <span class="admin-user-card__meta">View staff list</span>
+          </div>
+          <span class="admin-user-card__arrow" aria-hidden="true">
+            <i class="ph-bold ph-arrow-right"></i>
+          </span>
+        </a>
+
+        <a th:if="${session['isMasterAdmin'] != null and session['isMasterAdmin']}"
+           th:href="@{/user/master-console}"
+           class="admin-user-card admin-user-card--access">
+          <span class="admin-user-card__count" th:text="${pendingAccessCount}">0</span>
+          <div class="admin-user-card__icon-wrap">
+            <i class="ph-bold ph-shield-check" aria-hidden="true"></i>
+          </div>
+          <div class="admin-user-card__body">
+            <h3 class="admin-user-card__title">Access Requests</h3>
+            <p class="admin-user-card__desc">Approve or reject staff/admin access requests.</p>
+            <span class="admin-user-card__meta"
+                  th:text="|${pendingAccessCount} pending|">0 pending</span>
+          </div>
+          <span class="admin-user-card__arrow" aria-hidden="true">
+            <i class="ph-bold ph-arrow-right"></i>
+          </span>
         </a>
       </div>
 

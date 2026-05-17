@@ -34,7 +34,9 @@ public class MasterConsoleController {
         if (!master(session)) {
             return "redirect:/auth/staff-login";
         }
-        model.addAttribute("pendingLines", pendingService.readPendingLines());
+        var pendingLines = pendingService.readPendingLines();
+        model.addAttribute("pendingLines", pendingLines);
+        model.addAttribute("pendingAccessCount", pendingLines.size());
         return "user/master-console";
     }
 
