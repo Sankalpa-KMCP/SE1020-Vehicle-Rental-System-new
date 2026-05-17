@@ -1,44 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Master console - DriveAway</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
-    <style>body { font-family: 'Inter', sans-serif; background: #0f172a; }</style>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Master console - DriveAway')}"></th:block>
 </head>
-<body class="min-h-screen text-slate-100">
-<header class="border-b border-white/10 bg-slate-900/80 backdrop-blur">
-    <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-        <span class="font-extrabold tracking-tight flex items-center gap-2">
-            <i class="ph-fill ph-terminal text-amber-400 text-xl"></i> Master console
-        </span>
-        <a th:href="@{/user/admin-dashboard}" class="text-sm font-semibold text-cyan-300 hover:text-white">Admin hub</a>
-    </div>
-</header>
-<main class="max-w-5xl mx-auto px-6 py-10">
-    <p class="text-slate-400 mb-6 max-w-2xl">
+<body class="admin-shell text-slate-100">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('master', 'Master Console')}"></th:block>
+
+    <div class="max-w-5xl">
+    <p class="text-slate-500 mb-6 max-w-2xl">
         Pending staff/administrator requests. Primary source:
-        <code class="text-amber-200 bg-slate-800 px-1 rounded">data/staff_access_requests.txt</code>
-        (the legacy <code class="text-amber-200 bg-slate-800 px-1 rounded">~/RentalData/pending_admins.txt</code>
+        <code class="text-amber-700 bg-amber-50 px-1 rounded border border-amber-200">data/staff_access_requests.txt</code>
+        (the legacy <code class="text-amber-700 bg-amber-50 px-1 rounded border border-amber-200">~/RentalData/pending_admins.txt</code>
         is also read but never modified).
     </p>
-    <div th:if="${message != null}" class="mb-4 bg-emerald-500/10 border border-emerald-400/30 text-emerald-200 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
+    <div th:if="${message != null}" class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
         <i class="ph-bold ph-check-circle text-lg"></i><span th:text="${message}">ok</span>
     </div>
-    <div th:if="${error != null}" class="mb-4 bg-rose-500/10 border border-rose-400/30 text-rose-200 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
+    <div th:if="${error != null}" class="mb-4 bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2">
         <i class="ph-bold ph-warning-circle text-lg"></i><span th:text="${error}">err</span>
     </div>
-    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden">
-        <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between">
-            <h1 class="text-lg font-bold">Pending requests</h1>
-            <span class="text-xs text-slate-500"><span th:text="${pendingLines != null ? #lists.size(pendingLines) : 0}">0</span> row(s)</span>
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-sm">
+        <div class="px-6 py-4 border-b border-slate-700 flex items-center justify-between">
+            <h1 class="text-lg font-bold text-white">Pending requests</h1>
+            <span class="text-xs text-slate-400"><span th:text="${pendingLines != null ? #lists.size(pendingLines) : 0}">0</span> row(s)</span>
         </div>
-        <ul class="divide-y divide-white/5" th:if="${pendingLines != null and !pendingLines.isEmpty()}">
+        <ul class="divide-y divide-slate-800" th:if="${pendingLines != null and !pendingLines.isEmpty()}">
             <li th:each="line : ${pendingLines}" class="px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <span class="font-mono text-sm text-cyan-100 break-all flex-1" th:text="${line}">line</span>
+                <span class="font-mono text-sm text-cyan-200 break-all flex-1" th:text="${line}">line</span>
                 <div class="flex gap-2 shrink-0">
                     <form th:action="@{/user/master-console}" method="post" class="inline m-0">
                         <input type="hidden" name="action" value="approve"/>
@@ -57,11 +45,14 @@
                 </div>
             </li>
         </ul>
-        <p th:if="${pendingLines == null or pendingLines.isEmpty()}" class="px-6 py-12 text-center text-slate-500">
+        <p th:if="${pendingLines == null or pendingLines.isEmpty()}" class="px-6 py-12 text-center text-slate-400">
             No pending requests.
         </p>
     </div>
     <p class="mt-8 text-xs text-slate-500">Approve creates a support-staff account with a generated temporary password.</p>
-</main>
+    </div>
+
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
 </body>
 </html>

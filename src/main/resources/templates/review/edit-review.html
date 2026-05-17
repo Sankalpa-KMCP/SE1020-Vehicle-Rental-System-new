@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Moderate review</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap'); body { font-family: 'Inter', sans-serif; }</style>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Edit Review - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body class="bg-[#FAFAFA] flex h-screen items-center justify-center p-4">
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('reviews', 'Edit Review')}"></th:block>
+<div class="fade-in">
+
 <div class="max-w-lg w-full bg-white p-10 rounded-2xl shadow-lg border-[3px] border-[#475569]">
     <div class="text-center mb-8">
         <i class="ph-fill ph-pencil-simple text-5xl text-[#475569] mb-2"></i>
@@ -54,5 +57,8 @@
         </div>
     </form>
 </div>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
 </body>
 </html>

@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Booking</title>
-    <link rel="stylesheet" th:href="@{/css/common.css}"/>
-    <link rel="stylesheet" th:href="@{/css/booking.css}"/>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Booking Detail - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('bookings', 'Booking Detail')}"></th:block>
+<div class="fade-in">
+
 <div th:replace="~{layout :: navbar}"></div>
-<main class="container">
-    <h1>Booking</h1>
+<h1>Booking</h1>
     <dl>
         <dt>ID</dt>
         <dd th:text="${booking.id}">-</dd>
@@ -32,6 +35,8 @@
         <a class="btn btn-ghost" th:href="@{/bookings}">Back</a>
         <a class="btn btn-primary" th:href="@{/bookings/{id}/edit(id=${booking.id})}">Edit</a>
     </p>
-</main>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
 </body>
 </html>

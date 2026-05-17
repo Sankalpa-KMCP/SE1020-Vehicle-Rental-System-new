@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <title th:text="${mode == 'edit'} ? 'Edit user' : 'New user'">User form</title>
-    <link rel="stylesheet" th:href="@{/css/common.css}"/>
-    <link rel="stylesheet" th:href="@{/css/user.css}"/>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('User Form - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('staff', 'User Form')}"></th:block>
+<div class="fade-in">
+
 <div th:replace="~{layout :: navbar}"></div>
-<main class="container">
-    <h1 th:text="${mode == 'edit'} ? 'Edit user' : 'New user'">User</h1>
+<h1 th:text="${mode == 'edit'} ? 'Edit user' : 'New user'">User</h1>
     <form class="form-grid user-form" method="post"
           th:action="${entityId != null} ? @{/users/{id}(id=${entityId})} : @{/users}">
         <fieldset>
@@ -37,7 +40,9 @@
         <button class="btn btn-primary" type="submit">Save</button>
         <a class="btn btn-ghost" th:href="@{/users}">Cancel</a>
     </form>
-</main>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
 <script th:src="@{/js/user.js}"></script>
 </body>
 </html>

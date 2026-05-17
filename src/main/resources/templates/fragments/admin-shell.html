@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<!-- Shared head assets for admin pages -->
+<th:block th:fragment="adminHead(title)">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="${title != null ? title : 'DriveAway - Admin'}">DriveAway - Admin</title>
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('adminSidebarCollapsed') === 'true') {
+          document.documentElement.classList.add('sidebar-collapsed');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/admin-dashboard.css}"/>
+</th:block>
+
+<!-- Mobile overlay -->
+<div th:fragment="mobileOverlay" class="admin-mobile-overlay" id="admin-mobile-overlay" aria-hidden="true"></div>
+
+<!-- Left sidebar navigation -->
+<aside th:fragment="sidebar(activeNav)" class="admin-sidebar" id="admin-sidebar" aria-label="Admin navigation">
+  <a th:href="@{/user/admin-dashboard}" class="admin-sidebar__brand" data-tooltip="DriveAway Hub">
+    <div class="admin-sidebar__brand-icon">
+      <i class="ph-fill ph-car-profile text-xl text-white"></i>
+    </div>
+    <div class="admin-sidebar__brand-text-wrap">
+      <span class="admin-sidebar__brand-text">DriveAway Hub</span>
+      <span class="admin-sidebar__brand-tagline">Admin workspace</span>
+    </div>
+  </a>
+
+  <div class="admin-sidebar__scroll">
+  <nav class="admin-sidebar__nav">
+    <span class="admin-sidebar__label admin-sidebar__label-text">Overview</span>
+    <a th:href="@{/user/admin-dashboard}"
+       class="admin-sidebar__link"
+       data-tooltip="Dashboard"
+       th:classappend="${activeNav == 'dashboard'} ? ' is-active' : ''">
+      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-squares-four"></i></span>
+      <span class="admin-sidebar__link-text">Dashboard</span>
+    </a>
+
+    <span class="admin-sidebar__label admin-sidebar__label-text">Modules</span>
+    <a th:href="@{/customers(action=view_directory)}"
+       class="admin-sidebar__link"
+       data-tooltip="Customers"
+       th:classappend="${activeNav == 'customers'} ? ' is-active' : ''">
+      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-users"></i></span>
+      <span class="admin-sidebar__link-text">Customers</span>
+    </a>
+    <a th:href="@{/vehicles(action=list)}"
+       class="admin-sidebar__link"
+       data-tooltip="Vehicles"
+       th:classappend="${activeNav == 'vehicles'} ? ' is-active' : ''">
+      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-car"></i></span>
+      <span class="admin-sidebar__link-text">Vehicles</span>
+    </a>
+    <a th:href="@{/bookings(action=list)}"
+       class="admin-sidebar__link"
+       data-tooltip="Bookings"
+       th:classappend="${activeNav == 'bookings'} ? ' is-active' : ''">
+      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-calendar-check"></i></span>
+      <span class="admin-sidebar__link-text">Bookings</span>
+    </a>
+    <a th:href="@{/payments(action=list)}"
+       class="admin-sidebar__link"
+       data-tooltip="Payments"
+       th:classappend="${activeNav == 'payments'} ? ' is-active' : ''">
+      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-receipt"></i></span>
+      <span class="admin-sidebar__link-text">Payments</span>
+    </a>
+    <a th:href="@{/staff(action=list)}"
+       class="admin-sidebar__link"
+       data-tooltip="Staff"
+       th:classappend="${activeNav == 'staff'} ? ' is-active' : ''">
+      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-identification-badge"></i></span>
+      <span class="admin-sidebar__link-text">Staff</span>
+    </a>
+    <a th:href="@{/reviews(action=list)}"
+       class="admin-sidebar__link"
+       data-tooltip="Reviews"
+       th:classappend="${activeNav == 'reviews'} ? ' is-active' : ''">
+      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-star"></i></span>
+      <span class="admin-sidebar__link-text">Reviews</span>
+    </a>
+    <a th:href="@{/public/contact}"
+       class="admin-sidebar__link"
+       data-tooltip="Support"
+       th:classappend="${activeNav == 'support'} ? ' is-active' : ''">
+      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-headset"></i></span>
+      <span class="admin-sidebar__link-text">Support</span>
+    </a>
+
+    <th:block th:if="${session['isMasterAdmin'] != null and session['isMasterAdmin']}">
+      <div class="admin-sidebar__divider"></div>
+      <span class="admin-sidebar__label admin-sidebar__label-text">Security</span>
+      <a th:href="@{/user/master-console}"
+         class="admin-sidebar__link"
+         data-tooltip="Master Console"
+         th:classappend="${activeNav == 'master'} ? ' is-active' : ''">
+        <span class="admin-sidebar__link-icon"><i class="ph-bold ph-shield-check"></i></span>
+        <span class="admin-sidebar__link-text">Master Console</span>
+      </a>
+    </th:block>
+  </nav>
+  </div>
+
+  <div class="admin-sidebar__footer">
+    <span class="admin-sidebar__footer-text">DriveAway Rentals</span>
+    <span class="admin-sidebar__footer-user" th:text="${session.username != null ? session.username : 'Admin'}">Admin</span>
+  </div>
+</aside>
+
+<!-- Shell layout: open (place page content before shellClose) -->
+<th:block th:fragment="shellOpen(activeNav, pageTitle)">
+  <div th:replace="~{fragments/admin-shell :: mobileOverlay}"></div>
+  <aside th:replace="~{fragments/admin-shell :: sidebar(${activeNav})}"></aside>
+  <div class="admin-content-wrapper">
+    <header th:replace="~{fragments/admin-shell :: topbar(${pageTitle})}"></header>
+    <main class="admin-main admin-fade-in">
+</th:block>
+
+<th:block th:fragment="shellClose">
+    </main>
+  </div>
+</th:block>
+
+<!-- Slim top bar -->
+<header th:fragment="topbar(pageTitle)" class="admin-topbar">
+  <div class="admin-topbar__left">
+    <button type="button"
+            class="admin-topbar__menu-btn"
+            id="admin-menu-toggle"
+            aria-label="Open navigation menu"
+            aria-expanded="false"
+            aria-controls="admin-sidebar">
+      <i class="ph-bold ph-list text-xl"></i>
+    </button>
+    <button type="button"
+            class="admin-topbar__collapse-btn"
+            id="admin-sidebar-collapse-btn"
+            aria-label="Collapse sidebar"
+            aria-expanded="true"
+            aria-controls="admin-sidebar">
+      <i class="ph-bold ph-sidebar-simple"></i>
+    </button>
+    <p class="admin-topbar__breadcrumb">
+      Admin / <strong th:text="${pageTitle != null ? pageTitle : 'Overview'}">Overview</strong>
+    </p>
+  </div>
+  <div class="admin-topbar__right">
+    <div class="admin-topbar__user">
+      <span class="admin-topbar__user-avatar">
+        <i class="ph-bold ph-user"></i>
+      </span>
+      <span th:text="${session.username != null ? session.username : 'Admin'}">Admin</span>
+    </div>
+    <form th:action="@{/auth}" method="post" class="m-0">
+      <input type="hidden" name="action" value="logout"/>
+      <button type="submit" class="admin-topbar__logout">
+        <i class="ph-bold ph-sign-out"></i>
+        <span class="hidden sm:inline">Sign Out</span>
+      </button>
+    </form>
+  </div>
+</header>
+
+<!-- Mobile drawer + sidebar collapse / hover-expand script -->
+<script th:fragment="mobileScript">
+  (function () {
+    var sidebar = document.getElementById('admin-sidebar');
+    var overlay = document.getElementById('admin-mobile-overlay');
+    var toggle = document.getElementById('admin-menu-toggle');
+    var collapseBtn = document.getElementById('admin-sidebar-collapse-btn');
+    var body = document.body;
+    var root = document.documentElement;
+    var STORAGE_KEY = 'adminSidebarCollapsed';
+    var DESKTOP_MIN = 1024;
+    var hoverExpandTimer = null;
+
+    if (!sidebar) return;
+
+    function isDesktop() {
+      return window.innerWidth >= DESKTOP_MIN;
+    }
+
+    function clearHoverExpand() {
+      if (hoverExpandTimer) {
+        clearTimeout(hoverExpandTimer);
+        hoverExpandTimer = null;
+      }
+      root.classList.remove('sidebar-hover-expand');
+    }
+
+    function setCollapsed(collapsed) {
+      if (!isDesktop()) return;
+      clearHoverExpand();
+      body.classList.toggle('sidebar-collapsed', collapsed);
+      root.classList.toggle('sidebar-collapsed', collapsed);
+      if (collapseBtn) {
+        collapseBtn.classList.toggle('is-collapsed', collapsed);
+        collapseBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        collapseBtn.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+      }
+      try {
+        localStorage.setItem(STORAGE_KEY, collapsed ? 'true' : 'false');
+      } catch (e) {}
+    }
+
+    function restoreCollapsed() {
+      try {
+        if (localStorage.getItem(STORAGE_KEY) === 'true') {
+          setCollapsed(true);
+        } else {
+          body.classList.remove('sidebar-collapsed');
+          root.classList.remove('sidebar-collapsed');
+          clearHoverExpand();
+          if (collapseBtn) {
+            collapseBtn.classList.remove('is-collapsed');
+            collapseBtn.setAttribute('aria-expanded', 'true');
+            collapseBtn.setAttribute('aria-label', 'Collapse sidebar');
+          }
+        }
+      } catch (e) {}
+    }
+
+    function pulseCollapseBtn() {
+      if (!collapseBtn) return;
+      collapseBtn.classList.add('is-animating');
+      setTimeout(function () {
+        collapseBtn.classList.remove('is-animating');
+      }, 200);
+    }
+
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', function () {
+        setCollapsed(!body.classList.contains('sidebar-collapsed'));
+        pulseCollapseBtn();
+      });
+    }
+
+    if (root.classList.contains('sidebar-collapsed') && isDesktop()) {
+      body.classList.add('sidebar-collapsed');
+      if (collapseBtn) {
+        collapseBtn.classList.add('is-collapsed');
+        collapseBtn.setAttribute('aria-expanded', 'false');
+        collapseBtn.setAttribute('aria-label', 'Expand sidebar');
+      }
+    }
+
+    restoreCollapsed();
+
+    sidebar.addEventListener('mouseenter', function () {
+      if (!isDesktop() || !body.classList.contains('sidebar-collapsed')) return;
+      if (sidebar.classList.contains('is-open')) return;
+      if (hoverExpandTimer) {
+        clearTimeout(hoverExpandTimer);
+        hoverExpandTimer = null;
+      }
+      root.classList.add('sidebar-hover-expand');
+    });
+
+    sidebar.addEventListener('mouseleave', function () {
+      if (!isDesktop() || !body.classList.contains('sidebar-collapsed')) return;
+      hoverExpandTimer = setTimeout(clearHoverExpand, 100);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (!isDesktop()) return;
+      if (e.key !== '[' || e.ctrlKey || e.metaKey || e.altKey) return;
+      var t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      e.preventDefault();
+      setCollapsed(!body.classList.contains('sidebar-collapsed'));
+      pulseCollapseBtn();
+    });
+
+    if (overlay && toggle) {
+      function openMenu() {
+        clearHoverExpand();
+        sidebar.classList.add('is-open');
+        overlay.classList.add('is-visible');
+        overlay.setAttribute('aria-hidden', 'false');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'Close navigation menu');
+      }
+
+      function closeMenu() {
+        sidebar.classList.remove('is-open');
+        overlay.classList.remove('is-visible');
+        overlay.setAttribute('aria-hidden', 'true');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Open navigation menu');
+      }
+
+      toggle.addEventListener('click', function () {
+        if (sidebar.classList.contains('is-open')) closeMenu();
+        else openMenu();
+      });
+
+      overlay.addEventListener('click', closeMenu);
+
+      sidebar.querySelectorAll('.admin-sidebar__link').forEach(function (link) {
+        link.addEventListener('click', function () {
+          if (!isDesktop()) closeMenu();
+        });
+      });
+    }
+
+    window.addEventListener('resize', function () {
+      if (!isDesktop()) {
+        body.classList.remove('sidebar-collapsed');
+        root.classList.remove('sidebar-collapsed');
+        clearHoverExpand();
+        if (collapseBtn) {
+          collapseBtn.classList.remove('is-collapsed');
+          collapseBtn.setAttribute('aria-expanded', 'true');
+        }
+        if (overlay && toggle) {
+          sidebar.classList.remove('is-open');
+          overlay.classList.remove('is-visible');
+          overlay.setAttribute('aria-hidden', 'true');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      } else {
+        restoreCollapsed();
+        if (overlay && toggle) {
+          sidebar.classList.remove('is-open');
+          overlay.classList.remove('is-visible');
+        }
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

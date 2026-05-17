@@ -1,40 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Reviews - DriveAway</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <th:block th:replace="~{fragments/admin-directory-head :: fontAndUtilities}"></th:block>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Reviews - DriveAway')}"></th:block>
     <style>
-        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at 20% 20%, #fef3c7 0%, #f8fafc 40%, #fff7ed 100%); }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="min-h-screen text-gray-800 flex flex-col">
-<nav class="bg-gradient-to-r from-amber-900 via-orange-900 to-rose-900 border-b border-white/10 sticky top-0 z-20 shadow-lg backdrop-blur">
-    <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
-        <a th:href="@{/reviews}" class="flex items-center gap-2 text-white">
-            <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm">
-                <i class="ph-fill ph-star text-2xl text-amber-300"></i>
-            </div>
-            <span class="text-2xl font-extrabold tracking-tight">Reviews</span>
-        </a>
-        <div class="flex items-center gap-4 flex-wrap justify-end">
-            <a th:href="@{/user/admin-dashboard}" class="text-amber-100 hover:text-white font-semibold text-sm flex items-center gap-2">
-                <i class="ph-bold ph-house"></i> Admin Hub
-            </a>
-            <form th:action="@{/auth}" method="post" class="m-0 inline">
-                <input type="hidden" name="action" value="logout"/>
-                <button type="submit" class="text-white hover:text-amber-100 font-bold border border-white/20 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl transition-all text-sm flex items-center gap-2 shadow-sm">
-                    Logout <i class="ph-bold ph-sign-out text-lg"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-</nav>
-<main class="flex-grow max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
-    <div th:if="${reviewNotice}"
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('reviews', 'Reviews')}"></th:block>
+<div class="fade-in">
+
+<div th:if="${reviewNotice}"
          class="mb-8 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 text-sm font-semibold shadow-sm flex items-start gap-3">
         <i class="ph-fill ph-info text-xl shrink-0 mt-0.5"></i>
         <span th:text="${reviewNotice}">Notice</span>
@@ -174,6 +151,8 @@
             </th:block>
         </th:block>
     </div>
-</main>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
 </body>
 </html>
