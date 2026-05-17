@@ -370,7 +370,10 @@ public class CustomerPortalController {
         } else if (name != null && !name.toString().isBlank()) {
             reviewerName = name.toString();
         }
+        String customerKey = username(session);
+        List<Booking> customerBookings = bookingService.findByCustomerId(customerKey);
         model.addAttribute("reviewerName", reviewerName);
+        model.addAttribute("customerBookings", customerBookings);
         return "review/customer-review-form";
     }
 
