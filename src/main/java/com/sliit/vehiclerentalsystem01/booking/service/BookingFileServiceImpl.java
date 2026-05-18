@@ -242,6 +242,7 @@ public class BookingFileServiceImpl implements BookingService {
                     .map(String::trim)
                     .filter(line -> !line.isEmpty() && !line.startsWith("#"))
                     .map(this::parseLine)
+                    .filter(b -> b != null)
                     .collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read bookings file: " + p, e);
@@ -254,30 +255,38 @@ public class BookingFileServiceImpl implements BookingService {
         }
         String[] a = line.split(",", -1);
         if (a.length < 7) {
-            throw new IllegalArgumentException("Invalid booking record: " + line);
+            return null;
         }
-        return new Booking(
-                a[0].trim(),
-                a[1].trim(),
-                a[2].trim(),
-                a[3].trim(),
-                Integer.parseInt(a[4].trim()),
-                a[5].trim(),
-                a.length > 6 ? a[6].trim() : "");
+        try {
+            return new Booking(
+                    a[0].trim(),
+                    a[1].trim(),
+                    a[2].trim(),
+                    a[3].trim(),
+                    Integer.parseInt(a[4].trim()),
+                    a[5].trim(),
+                    a.length > 6 ? a[6].trim() : "");
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private Booking parseLegacyPipeBooking(String line) {
         String[] a = line.split("\\|", -1);
         if (a.length < 7) {
-            throw new IllegalArgumentException("Invalid booking record: " + line);
+            return null;
         }
-        if ("DAILY".equals(a[0]) || "LONGTERM".equals(a[0])) {
-            LocalDate start = LocalDate.parse(a[4]);
-            LocalDate end = LocalDate.parse(a[5]);
-            int duration = (int) (java.time.temporal.ChronoUnit.DAYS.between(start, end) + 1);
-            return new Booking(a[1], a[2], start.toString(), a[3], duration, a[6], "");
+        try {
+            if ("DAILY".equals(a[0]) || "LONGTERM".equals(a[0])) {
+                LocalDate start = LocalDate.parse(a[4]);
+                LocalDate end = LocalDate.parse(a[5]);
+                int duration = (int) (java.time.temporal.ChronoUnit.DAYS.between(start, end) + 1);
+                return new Booking(a[1], a[2], start.toString(), a[3], duration, a[6], "");
+            }
+        } catch (Exception e) {
+            return null;
         }
-        throw new IllegalArgumentException("Unknown booking type: " + a[0]);
+        return null;
     }
 
     private String toLine(Booking b) {

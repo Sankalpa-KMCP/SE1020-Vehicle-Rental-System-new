@@ -5,6 +5,7 @@ import com.sliit.vehiclerentalsystem01.booking.service.BookingService;
 import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.model.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
+import com.sliit.vehiclerentalsystem01.vehicle.model.Vehicle;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  * Admin booking management. Every endpoint requires an {@code ADMIN_LOGGED_IN} session.
@@ -121,7 +123,11 @@ public class BookingController {
                             || containsIgnoreCase(b.getStatus(), needle))
                     .toList();
         }
+        // Fetch vehicle names for display
+        java.util.Map<String, String> vehicleNames = vehicleService.findAll().stream()
+                .collect(Collectors.toMap(Vehicle::getId, v -> v.getBrand() + " " + v.getModel()));
         model.addAttribute("bookingList", all);
+        model.addAttribute("vehicleNames", vehicleNames);
         model.addAttribute("searchQuery", q == null ? "" : q.trim());
         model.addAttribute("useAdminReservationBase", false);
         addBookingStats(model, all);

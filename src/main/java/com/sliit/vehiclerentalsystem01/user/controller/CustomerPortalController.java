@@ -123,8 +123,12 @@ public class CustomerPortalController {
         for (Booking b : list) {
             payAllowed.put(b.getId(), bookingService.isPaymentAllowed(b.getId()));
         }
+        // Fetch vehicle names for display
+        java.util.Map<String, String> vehicleNames = vehicleService.findAll().stream()
+                .collect(Collectors.toMap(Vehicle::getId, v -> v.getBrand() + " " + v.getModel()));
         model.addAttribute("bookingList", list);
         model.addAttribute("payAllowed", payAllowed);
+        model.addAttribute("vehicleNames", vehicleNames);
         return "booking/my-bookings";
     }
 
