@@ -1,0 +1,232 @@
+﻿/* ----------------------------------------------------------------------------
+ * loader.css — typographic fade-in loader + welcome exit overlay
+ * -------------------------------------------------------------------------- */
+
+#page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--da-z-loader);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--da-ink-900);
+  color: var(--da-text-inverse);
+  overflow: hidden;
+  transition: opacity 480ms var(--da-ease), visibility 480ms;
+}
+
+#page-loader.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Indigo shimmer underneath the brand word — sweeps right→left slowly */
+.da-loader__shimmer {
+  position: absolute;
+  inset: -20% -10%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 40% 30% at 30% 50%, var(--da-accent-glow, rgba(58,58,255,0.32)), transparent 70%),
+    radial-gradient(ellipse 35% 28% at 75% 60%, rgba(76, 29, 149, 0.22), transparent 75%);
+  opacity: 0.55;
+  filter: blur(40px);
+  animation: daLoaderShimmer 4200ms ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+@keyframes daLoaderShimmer {
+  0%   { transform: translate3d(-4%, -2%, 0); opacity: 0.45; }
+  100% { transform: translate3d( 6%,  3%, 0); opacity: 0.7;  }
+}
+
+/* Curtain panels — clip-path retract reveal on close */
+.da-loader__curtain {
+  position: absolute;
+  left: 0; right: 0;
+  height: 50%;
+  background: var(--da-ink-900);
+  pointer-events: none;
+  z-index: 2;
+  transform: translate3d(0, 0, 0);
+  transition: transform 760ms var(--da-ease-curtain, cubic-bezier(0.65, 0, 0.35, 1));
+  will-change: transform;
+}
+.da-loader__curtain--top    { top: 0; }
+.da-loader__curtain--bottom { bottom: 0; }
+
+#page-loader.is-opening .da-loader__curtain--top    { transform: translate3d(0, -100%, 0); }
+#page-loader.is-opening .da-loader__curtain--bottom { transform: translate3d(0,  100%, 0); }
+
+.da-loader__inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  transition: opacity 280ms var(--da-ease), transform 280ms var(--da-ease-out);
+}
+
+#page-loader.is-opening .da-loader__inner {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.da-loader__brand {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  color: var(--da-text-inverse);
+  margin: 0;
+  line-height: 1;
+}
+
+.da-loader__brand span { color: var(--da-ink-400); }
+
+.da-loader__sub {
+  font-size: var(--da-text-2xs);
+  font-weight: 500;
+  letter-spacing: var(--da-track-micro);
+  text-transform: uppercase;
+  color: var(--da-ink-400);
+  margin: 0;
+}
+
+.da-loader__bar {
+  width: min(180px, 50vw);
+  height: 1px;
+  margin-top: 0.5rem;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.da-loader__bar-fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: var(--da-text-inverse);
+  animation: daLoaderFill 900ms var(--da-ease-out) forwards;
+}
+
+@keyframes daLoaderFill {
+  to { transform: scaleX(1); }
+}
+
+/* ----------------------------------------------------------------------------
+ *  Reveal sequence — driven by body classes set in loader.js.
+ *  Each hero element opts in by tagging itself with data-reveal-step.
+ *  Elements stay hidden until their step class is added to <body>.
+ * -------------------------------------------------------------------------- */
+[data-reveal-step] {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+  transition:
+    opacity 720ms var(--da-ease-out),
+    transform 720ms var(--da-ease-out);
+  will-change: opacity, transform;
+}
+
+[data-reveal-step="3"] {
+  transform: translate3d(0, 14px, 0) scale(0.985);
+}
+
+body.is-revealed [data-reveal-step] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Combined: when an element has both reveal-step AND parallax we must let
+   parallax own the transform after reveal; otherwise reveal would clobber
+   the scroll-tied drift. Pre-reveal we still hide via opacity. */
+[data-reveal-step][data-parallax] {
+  opacity: 0;
+  transform: translate3d(0, var(--parallax-y, 16px), 0);
+  transition: opacity 720ms var(--da-ease-out);
+}
+body.is-revealed [data-reveal-step][data-parallax] {
+  opacity: 1;
+  transform: translate3d(0, var(--parallax-y, 0px), 0);
+}
+
+body.is-revealed [data-reveal-step="1"] { transition-delay:   0ms; }
+body.is-revealed [data-reveal-step="2"] { transition-delay: 120ms; }
+body.is-revealed [data-reveal-step="3"] { transition-delay: 240ms; transform: translate3d(0, 0, 0) scale(1); }
+body.is-revealed [data-reveal-step="4"] { transition-delay: 360ms; }
+
+/* Children inside step="4" stagger themselves */
+body.is-revealed [data-reveal-step="4"] > * {
+  animation: daStepRise 720ms var(--da-ease-out) both;
+  animation-delay: calc(420ms + (var(--idx, 0) * 90ms));
+}
+
+@keyframes daStepRise {
+  0%   { opacity: 0; transform: translate3d(0, 14px, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal-step],
+  body.is-revealed [data-reveal-step] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  body.is-revealed [data-reveal-step="4"] > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .da-loader__shimmer { animation: none !important; opacity: 0.3 !important; }
+  .da-loader__curtain { transition: none !important; }
+}
+
+/* === Welcome exit overlay (used on link → /auth/login) =================== */
+#welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--da-z-welcome);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--da-ink-900);
+  color: var(--da-text-inverse);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 360ms var(--da-ease);
+}
+
+#welcome-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.da-welcome__inner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.da-welcome__eyebrow {
+  font-size: var(--da-text-2xs);
+  font-weight: 500;
+  letter-spacing: var(--da-track-micro);
+  text-transform: uppercase;
+  color: var(--da-ink-400);
+  margin: 0;
+}
+
+.welcome-text {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  color: var(--da-text-inverse);
+  margin: 0;
+  line-height: 1;
+}

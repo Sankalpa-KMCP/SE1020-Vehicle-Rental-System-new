@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="fleetSection">
+<section id="fleet" class="da-scene da-scene--cinema" aria-label="Fleet" data-chapter="02" data-chapter-name="Discover" data-mood="discover">
+    <div class="da-container da-container--wide">
+        <header class="da-cinema__head da-reveal">
+            <div class="da-cinema__head-left">
+                <span class="da-eyebrow"><span class="da-eyebrow__num">02</span>The fleet</span>
+                <h2 class="da-cinema__title">
+                    Pick a car you'd actually <em>want to drive.</em>
+                </h2>
+            </div>
+            <div class="da-cinema__head-right">
+                <p class="da-cinema__lede">A live cut of the cleanest, most reliable vehicles in the country &mdash; updated the moment a car returns to base.</p>
+                <a th:if="${#strings.isEmpty(userRole)}" th:href="@{/auth/login}" class="da-inline-link transition-link">
+                    View all vehicles <span aria-hidden="true">&rarr;</span>
+                </a>
+                <a th:if="${!#strings.isEmpty(userRole)}" th:href="@{/customer/fleet}" class="da-inline-link transition-link">
+                    Browse full fleet <span aria-hidden="true">&rarr;</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="da-cinema__toolbar da-reveal">
+            <div class="da-tabs" role="group" aria-label="Filter vehicles" data-tabs>
+                <button type="button" class="da-tab filter-btn is-active" data-filter="all" aria-pressed="true">All</button>
+                <button type="button" class="da-tab filter-btn" data-filter="sedan" aria-pressed="false">Sedan</button>
+                <button type="button" class="da-tab filter-btn" data-filter="suv" aria-pressed="false">SUV &middot; 4x4</button>
+                <button type="button" class="da-tab filter-btn" data-filter="luxury" aria-pressed="false">Luxury</button>
+                <span class="da-tabs__indicator" data-tabs-indicator aria-hidden="true"></span>
+            </div>
+            <p class="da-cinema__hint">
+                <span class="da-cinema__hint-dot" aria-hidden="true"></span>
+                Updated live &middot; <span class="da-cinema__hint-swipe">swipe</span>
+            </p>
+        </div>
+
+        <div class="da-cinema__track-wrap">
+            <div class="da-cinema__track" id="fleet-grid" role="region" aria-label="Vehicle gallery">
+                <th:block th:if="${fleetPreview != null and !fleetPreview.isEmpty()}">
+                    <article th:each="v, vStat : ${fleetPreview}"
+                             th:attr="data-category=${v.category}, data-index=${vStat.index}"
+                             th:classappend="${vStat.first} ? ' da-card--lead' : ''"
+                             class="da-card da-card--vehicle car-item da-reveal"
+                             style="--card-index: 0;"
+                             th:style="'--card-index:' + ${vStat.index} + ';'">
+                        <figure class="da-card__media">
+                            <img th:src="${v.imageUrl}" th:alt="|${v.brand} ${v.model}|" loading="lazy" width="800" height="500"/>
+                            <figcaption class="da-card__chip">
+                                <span class="da-tag__dot" aria-hidden="true"></span>
+                                Available
+                            </figcaption>
+                            <span class="da-card__index" aria-hidden="true" th:text="${'0' + (vStat.index + 1)}">01</span>
+                        </figure>
+                        <div class="da-card__body">
+                            <div class="da-card__row">
+                                <p class="da-card__brand" th:text="${v.brand}">Brand</p>
+                                <p class="da-card__rating"><i class="ph-fill ph-star" aria-hidden="true"></i> 4.8</p>
+                            </div>
+                            <h3 class="da-card__title"><span th:text="${v.model}">Model</span></h3>
+                            <p class="da-card__detail" th:text="${v.specificDetail}">detail</p>
+                            <div class="da-card__foot">
+                                <div class="da-card__price">
+                                    <span class="da-card__price-num">$<span th:text="${v.ratePerDay}">0</span></span>
+                                    <span class="da-card__price-unit">/ day</span>
+                                </div>
+                                <a th:if="${#strings.isEmpty(userRole)}" th:href="@{/auth/login}" class="da-btn da-btn--ghost transition-link">
+                                    Check dates
+                                    <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+                                </a>
+                                <a th:if="${!#strings.isEmpty(userRole)}" th:href="@{/customer/bookings/new(vehicleId=${v.id})}" class="da-btn da-btn--primary transition-link">
+                                    Book now
+                                    <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+                                </a>
+                            </div>
+                            <p class="da-card__type"><span th:text="${v.vehicleType}">type</span></p>
+                        </div>
+                    </article>
+                </th:block>
+                <div th:if="${fleetPreview == null or fleetPreview.isEmpty()}" class="da-cinema__empty">
+                    <span class="da-cinema__empty-icon" aria-hidden="true" data-float>
+                        <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('search')}"></th:block>
+                    </span>
+                    <span class="da-eyebrow da-eyebrow--bare">Empty</span>
+                    <p>No vehicles available at the moment. Check back shortly.</p>
+                </div>
+            </div>
+            <div class="da-cinema__edges" aria-hidden="true">
+                <span class="da-cinema__edge da-cinema__edge--start"></span>
+                <span class="da-cinema__edge da-cinema__edge--end"></span>
+            </div>
+        </div>
+    </div>
+</section>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,19 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="pageLoader">
+<div id="page-loader" role="status" aria-live="polite" aria-busy="true">
+    <span class="da-loader__shimmer" aria-hidden="true"></span>
+    <div class="da-loader__inner">
+        <p class="da-loader__brand">DriveAway<span aria-hidden="true">.</span></p>
+        <p class="da-loader__sub">Premium vehicle rentals</p>
+        <div class="da-loader__bar" aria-hidden="true">
+            <span class="da-loader__bar-fill"></span>
+        </div>
+    </div>
+    <span class="da-loader__curtain da-loader__curtain--top"    aria-hidden="true"></span>
+    <span class="da-loader__curtain da-loader__curtain--bottom" aria-hidden="true"></span>
+</div>
+</th:block>
+</body>
+</html>
