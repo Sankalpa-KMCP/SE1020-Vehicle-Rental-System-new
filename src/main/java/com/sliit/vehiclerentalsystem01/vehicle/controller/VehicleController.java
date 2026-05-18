@@ -64,16 +64,34 @@ public class VehicleController {
                     })
                     .orElse("redirect:/vehicles?action=list");
         }
+
         List<Vehicle> all = vehicleService.findAll();
         model.addAttribute("vehicleList", all);
         model.addAttribute("vehicles", all);
+
         long carCount = all.stream().filter(v -> v instanceof Car).count();
         long motorcycleCount = all.stream().filter(v -> v instanceof Motorcycle).count();
-        double avgRate = all.stream().mapToDouble(Vehicle::calculateRentalRate).average().orElse(0.0);
+
+        // --- NEW SPLIT AVERAGE LOGIC STARTS HERE ---
+        double avgCarRate = all.stream()
+                .filter(v -> v instanceof Car)
+                .mapToDouble(Vehicle::calculateRentalRate)
+                .average().orElse(0.0);
+
+        double avgMotoRate = all.stream()
+                .filter(v -> v instanceof Motorcycle)
+                .mapToDouble(Vehicle::calculateRentalRate)
+                .average().orElse(0.0);
+
         model.addAttribute("totalVehicles", all.size());
         model.addAttribute("carCount", carCount);
         model.addAttribute("motorcycleCount", motorcycleCount);
-        model.addAttribute("avgRate", avgRate);
+
+        // Send the split averages to the HTML page
+        model.addAttribute("avgCarRate", avgCarRate);
+        model.addAttribute("avgMotoRate", avgMotoRate);
+        // --- NEW SPLIT AVERAGE LOGIC ENDS HERE ---
+
         return "vehicle/vehicle-dashboard";
     }
 
@@ -139,24 +157,47 @@ public class VehicleController {
             @ModelAttribute Car car,
             @ModelAttribute Motorcycle motorcycle,
             RedirectAttributes ra) {
+
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
-        if ("delete".equals(params.get("action"))) {
-            String id = params.get("id");
-            if (id != null && !id.isBlank()) {
+
+        String action = params.get("action");
+        String idParam = params.get("id");
+
+        // 1. Handle Delete Actions
+        if ("delete".equals(action)) {
+            if (idParam != null && !idParam.isBlank()) {
                 try {
-                    vehicleService.deleteById(id.trim());
+                    vehicleService.deleteById(idParam.trim());
                 } catch (IllegalStateException ex) {
                     ra.addAttribute("error", ex.getMessage());
                 }
             }
             return "redirect:/vehicles?action=list";
         }
+
+        // 2. Handle Add OR Update with the modern parameter extraction
         if (isModernVehicleType(vehicleType)) {
-            createModern(vehicleType, car, motorcycle);
-            return "redirect:/vehicles";
+            try {
+                String targetId;
+
+                // CRITICAL FIX: If editing, keep the original ID. If adding, generate a new one.
+                if ("update".equals(action) && idParam != null && !idParam.isBlank()) {
+                    targetId = idParam.trim();
+                } else {
+                    targetId = "V-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+                }
+
+                Vehicle toSave = buildVehicleLegacy(targetId, params);
+                vehicleService.save(toSave);
+                return "redirect:/vehicles";
+            } catch (NumberFormatException ex) {
+                return "redirect:/vehicles/new?error=invalid_number";
+            }
         }
+
+        // 3. Fallback for older query paths
         return handleLegacyPost(params);
     }
 

@@ -17,6 +17,7 @@
                 <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Vehicle Directory</h1>
                 <p class="text-violet-100 text-lg font-medium max-w-2xl leading-relaxed">Manage cars and motorcycles available for rental.</p>
             </div>
+
             <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
                 <div class="text-center px-4 border-r border-white/20">
                     <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Total</p>
@@ -30,12 +31,15 @@
                     <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Bikes</p>
                     <p class="text-white font-extrabold text-xl" th:text="${motorcycleCount}">0</p>
                 </div>
-                <div class="text-center px-4">
-                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Avg rate</p>
-                    <p class="text-white font-extrabold text-xl" th:text="${#numbers.formatDecimal(avgRate, 1, 2)}">0</p>
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Avg Car</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${'$' + #numbers.formatDecimal(avgCarRate, 1, 2)}">0.00</p>
                 </div>
-            </div>
-        </div>
+                <div class="text-center px-4">
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Avg Bike</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${'$' + #numbers.formatDecimal(avgMotoRate, 1, 2)}">0.00</p>
+                </div>
+            </div> </div>
         <i class="ph-fill ph-car-profile absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
     </div>
 
@@ -102,6 +106,7 @@
                     <th class="py-4 px-6 font-bold text-right">Actions</th>
                 </tr>
                 </thead>
+
                 <tbody class="text-gray-700">
                 <tr th:each="v : ${vehicleList}" class="border-b border-slate-100 hover:bg-violet-50/50 transition-colors group">
                     <td class="py-5 px-6 font-mono font-bold text-gray-900" th:text="${v.id}">id</td>
