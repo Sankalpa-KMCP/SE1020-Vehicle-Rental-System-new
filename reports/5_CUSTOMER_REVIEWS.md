@@ -20,15 +20,15 @@ The **Customer Reviews** component manages customer feedback, star ratings, and 
 This component's responsibilities are divided across standard Spring Boot MVC tiers:
 
 * **Entities (Domain Entities):**
-  * [Feedback.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/review/entity/Feedback.java): Abstract base class defining common metadata and declaring the abstract method `getReviewType()`.
-  * [CustomerReview.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/review/entity/CustomerReview.java): Concrete subclass representing reviews. It captures reviewer name, star rating (1-5), comments, approval status, and staff reply fields.
+  * [Feedback.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/Feedback.java): Abstract base class defining common metadata and declaring the abstract method `getReviewType()`.
+  * [CustomerReview.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/CustomerReview.java): Concrete subclass representing reviews. It captures reviewer name, star rating (1-5), comments, approval status, and staff reply fields.
 * **Repositories (Data Access Layer):**
-  * [ReviewRepository.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/review/repository/ReviewRepository.java): Coordinates CSV file operations, parsing, and serialization of rating comments.
+  * [ReviewRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/repository/ReviewRepository.java): Coordinates CSV file operations, parsing, and serialization of rating comments.
 * **Services (Business Logic):**
-  * [ReviewService.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/review/service/ReviewService.java): Coordinates moderation, approval states, and reply tracking contract.
-  * [ReviewServiceImpl.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/review/service/ReviewServiceImpl.java): Implements moderation transition rules, rating boundary controls, and staff reply trail tracking.
+  * [ReviewService.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/service/ReviewService.java): Coordinates moderation, approval states, and reply tracking contract.
+  * [ReviewServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/service/ReviewServiceImpl.java): Implements moderation transition rules, rating boundary controls, and staff reply trail tracking.
 * **Controllers (Request Routers):**
-  * [ReviewController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/review/controller/ReviewController.java): Coordinates review submissions, the star rating dashboard, and staff response editors.
+  * [ReviewController.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/controller/ReviewController.java): Coordinates review submissions, the star rating dashboard, and staff response editors.
 * **Thymeleaf HTML Templates (`templates/review` folder):**
   * `review/customer-review-form.html`: Customer submit vehicle feedback rating view.
   * `review/customer-reviews-list.html`: Vehicle profile reviews list view.
@@ -41,7 +41,7 @@ This component's responsibilities are divided across standard Spring Boot MVC ti
 ## 3. Academic OOP Rubric Implementation
 
 ### A. Abstraction
-Declares [Feedback.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/review/entity/Feedback.java) as `public abstract class Feedback` to establish a standard interface for comments and ratings, mandating the abstract `getReviewType()` method:
+Declares [Feedback.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/Feedback.java) as `public abstract class Feedback` to establish a standard interface for comments and ratings, mandating the abstract `getReviewType()` method:
 ```java
 public abstract class Feedback {
     private String id;

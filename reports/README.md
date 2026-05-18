@@ -53,15 +53,15 @@ This codebase is specifically engineered to demonstrate the **Four Pillars of Ob
 
 ### 1. Abstraction (Base Contracts)
 The system isolates complex subsystems by defining abstract classes with polymorphic method contracts. Client modules interact with high-level abstractions without knowing the underlying concrete classes:
-* [User.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/entity/User.java): The high-level abstraction for all authenticated users. It defines core properties (`id`, `name`, `email`) and exposes the abstract contract `getUserRole()`.
-* [Vehicle.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Vehicle.java): Declares abstract contracts `getVehicleType()`, `calculateRentalRate()`, `getSpecificDetail()`, and `toCSV()`.
-* [Transaction.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Transaction.java): Exposes the abstract contract `getTransactionType()` to represent transactional records.
-* [Payment.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/Payment.java): Declares the abstract method `getPaymentMethod()` to encapsulate multiple transactional ledger flows.
-* [Feedback.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/review/entity/Feedback.java): Declares the abstract method `getReviewType()` to support polymorphic display layouts.
+* [User.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/entity/User.java): The high-level abstraction for all authenticated users. It defines core properties (`id`, `name`, `email`) and exposes the abstract contract `getUserRole()`.
+* [Vehicle.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Vehicle.java): Declares abstract contracts `getVehicleType()`, `calculateRentalRate()`, `getSpecificDetail()`, and `toCSV()`.
+* [Transaction.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Transaction.java): Exposes the abstract contract `getTransactionType()` to represent transactional records.
+* [Payment.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/Payment.java): Declares the abstract method `getPaymentMethod()` to encapsulate multiple transactional ledger flows.
+* [Feedback.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/Feedback.java): Declares the abstract method `getReviewType()` to support polymorphic display layouts.
 
 ### 2. Encapsulation (Access & Domain Integrity)
 * **State Protection:** All fields in the entity/model classes are declared `private` or `protected`. State transitions are strictly controlled via public getter and setter methods.
-* **Domain Validation:** Setters and services enforce business boundaries. For example, [ReservationServiceImpl.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/service/ReservationServiceImpl.java) contains temporal logic and overlap checks to prevent temporal and double-booking conflicts.
+* **Domain Validation:** Setters and services enforce business boundaries. For example, [ReservationServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/service/ReservationServiceImpl.java) contains temporal logic and overlap checks to prevent temporal and double-booking conflicts.
 * **Deletion Protection:** Deletions are guarded with transactional integrity. The services ensure that a customer cannot be deleted if they have active rentals, and vehicles under active bookings cannot be removed from the fleet.
 * **Self-Contained File Parsing:** All file I/O operations are strictly encapsulated inside the respective repository layers (`UserRepository`, `VehicleRepository`, etc.). Controllers and Services never manipulate the underlying raw files directly.
 
@@ -104,12 +104,12 @@ The custom repository engine parses and serializes domain objects using structur
 
 | Data File | Delimiter | Record Types / Prefixes | Schema Fields | Description |
 | :--- | :---: | :--- | :--- | :--- |
-| **[users.txt](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/data/users.txt)** | `,` | `Customer` / `Staff` | **Customer (8 fields):** `id,name,email,username,password,nic,license,phone`<br>**Staff (7 fields):** `id,name,email,phone,username,password,role` | Managed by `UserRepository`. Stores credentials, user profiles, and active access roles. Role defaults to `Support` or `Admin`. |
-| **[vehicles.txt](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/data/vehicles.txt)** | `,` | `Car` / `Motorcycle` | **Car:** `Car,id,brand,model,dailyRate,seatingCapacity`<br>**Motorcycle:** `Motorcycle,id,brand,model,dailyRate,helmetIncluded` | Managed by `VehicleRepository`. Tracks vehicle fleet. First column acts as the polymorphic discriminator. |
-| **[bookings.txt](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/data/bookings.txt)** | `,` | *None* | `transactionId,customerName,rentalDate,vehicleId,durationDays,status,staffMessage` | Managed by `ReservationRepository`. Maintains active bookings. Connects customers to vehicles with date boundaries. |
-| **[payments.txt](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/data/payments.txt)** | `,` | `CARD` / `CASH` | `CARD/CASH,id,bookingId,amount,status` | Managed by `PaymentRepository`. Financial records ledger tracking invoice payment totals and statuses. |
-| **[reviews.txt](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/data/reviews.txt)** | `,` | *None* | `reviewId,reviewerName,rating,comments,status,bookingId,vehicleId,staffReply,repliedBy,repliedAt` | Managed by `ReviewRepository`. Keeps user reviews, star ratings, and administrator feedback loops. |
-| **[maintenance.txt](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/data/maintenance.txt)** | `\|` | *None* | `id\|vehicleId\|status\|lastServiceDate\|nextServiceDate\|notes` | Managed by `MaintenanceRepository`. Stores vehicle logs. Interacts with vehicle service to restrict double booking of vehicles in maintenance. |
+| **[users.txt](../data/users.txt)** | `,` | `Customer` / `Staff` | **Customer (8 fields):** `id,name,email,username,password,nic,license,phone`<br>**Staff (7 fields):** `id,name,email,phone,username,password,role` | Managed by `UserRepository`. Stores credentials, user profiles, and active access roles. Role defaults to `Support` or `Admin`. |
+| **[vehicles.txt](../data/vehicles.txt)** | `,` | `Car` / `Motorcycle` | **Car:** `Car,id,brand,model,dailyRate,seatingCapacity`<br>**Motorcycle:** `Motorcycle,id,brand,model,dailyRate,helmetIncluded` | Managed by `VehicleRepository`. Tracks vehicle fleet. First column acts as the polymorphic discriminator. |
+| **[bookings.txt](../data/bookings.txt)** | `,` | *None* | `transactionId,customerName,rentalDate,vehicleId,durationDays,status,staffMessage` | Managed by `ReservationRepository`. Maintains active bookings. Connects customers to vehicles with date boundaries. |
+| **[payments.txt](../data/payments.txt)** | `,` | `CARD` / `CASH` | `CARD/CASH,id,bookingId,amount,status` | Managed by `PaymentRepository`. Financial records ledger tracking invoice payment totals and statuses. |
+| **[reviews.txt](../data/reviews.txt)** | `,` | *None* | `reviewId,reviewerName,rating,comments,status,bookingId,vehicleId,staffReply,repliedBy,repliedAt` | Managed by `ReviewRepository`. Keeps user reviews, star ratings, and administrator feedback loops. |
+| **[maintenance.txt](../data/maintenance.txt)** | `\|` | *None* | `id\|vehicleId\|status\|lastServiceDate\|nextServiceDate\|notes` | Managed by `MaintenanceRepository`. Stores vehicle logs. Interacts with vehicle service to restrict double booking of vehicles in maintenance. |
 
 > [!IMPORTANT]
 > **Polymorphic CSV Discriminators & Backward Compatibility:**
@@ -123,7 +123,7 @@ Six distinct components were assigned to student group members, ensuring modular
 
 | Student Reg No. | Dedicated Git Branch | Assigned Component | Key Responsibilities & Implementations | Commit Contribution |
 | :---: | :--- | :--- | :--- | :---: |
-| **IT25100142** | `IT25100142---User-Management` | **User Management** | **Lead Developer / Core Integrator.** Developed the base abstractions and entities for users (`User`, `Customer`, `Staff`), password hashing, the Unified Session Auth rules ([UserAuthController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAuthController.java)), the primary `UserRepository.java` and `UserServiceImpl.java`, dynamic dashboard routing, and general layouts. | **106 Commits** |
+| **IT25100142** | `IT25100142---User-Management` | **User Management** | **Lead Developer / Core Integrator.** Developed the base abstractions and entities for users (`User`, `Customer`, `Staff`), password hashing, the Unified Session Auth rules ([UserAuthController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAuthController.java)), the primary `UserRepository.java` and `UserServiceImpl.java`, dynamic dashboard routing, and general layouts. | **106 Commits** |
 | **IT25100445** | `IT25100445---Reservations-&-Bookings` | **Reservations & Bookings** | Developed the transaction entity layers (`Transaction`, `Booking`), built the `ReservationRepository.java` and `ReservationServiceImpl.java`, dynamic date conflict prevention, vehicle availability validations, booking request panels, and active rental status managers. | **29 Commits** |
 | **IT24100879** | `IT24100879---Vehicle-Fleet-Inventory` | **Vehicle Fleet Inventory** | Created polymorphic vehicle hierarchies (`Vehicle`, `Car`, `Motorcycle`), built `VehicleRepository.java` and `VehicleServiceImpl.java`, the admin vehicle configuration forms, vehicle listing preview cards, dynamic catalog page, and vehicle usage check filters. | **31 Commits** |
 | **IT25100385** | `IT25100385---Payment-&-Billing` | **Payment & Billing** | Developed the polymorphic payment structures (`CardPayment`, `CashPayment`), billing calculator logic based on duration, `PaymentRepository.java` and `PaymentServiceImpl.java` ledgers, credit card verification flows, and printable receipts. | **14 Commits** |
@@ -141,7 +141,7 @@ Follow these instructions to configure and execute the application locally.
 * **Apache Maven:** Version 3.9+
 
 ### 1. Configure the Data Storage Location
-Configure the persistent flat-file directory in [src/main/resources/application.properties](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/resources/application.properties):
+Configure the persistent flat-file directory in [src/main/resources/application.properties](../src/main/resources/application.properties):
 ```properties
 # Canonical data storage directory (defaults to 'data' in the project root)
 app.data.directory=data

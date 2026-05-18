@@ -20,16 +20,16 @@ The **Vehicle Fleet Inventory** component manages all physical assets of the ren
 This component's responsibilities are divided across standard Spring Boot MVC tiers:
 
 * **Entities (Domain Entities):**
-  * [Vehicle.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Vehicle.java): Abstract base class defining common fields (`id`, `brand`, `model`, `dailyRate`) and declaring abstract methods `getVehicleType()`, `calculateRentalRate()`, `getSpecificDetail()`, and `toCSV()`.
-  * [Car.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Car.java): Concrete subclass representing cars, adding `seatingCapacity` encapsulation.
-  * [Motorcycle.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Motorcycle.java): Concrete subclass representing motorcycles, adding a `helmetIncluded` flag.
+  * [Vehicle.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Vehicle.java): Abstract base class defining common fields (`id`, `brand`, `model`, `dailyRate`) and declaring abstract methods `getVehicleType()`, `calculateRentalRate()`, `getSpecificDetail()`, and `toCSV()`.
+  * [Car.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Car.java): Concrete subclass representing cars, adding `seatingCapacity` encapsulation.
+  * [Motorcycle.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Motorcycle.java): Concrete subclass representing motorcycles, adding a `helmetIncluded` flag.
 * **Repositories (Data Access Layer):**
-  * [VehicleRepository.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/vehicle/repository/VehicleRepository.java): Manages CSV database operations and type serialization/deserialization for fleet records.
+  * [VehicleRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/repository/VehicleRepository.java): Manages CSV database operations and type serialization/deserialization for fleet records.
 * **Services (Business Logic):**
-  * [VehicleService.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/vehicle/service/VehicleService.java): Core fleet registry interface.
-  * [VehicleServiceImpl.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/vehicle/service/VehicleServiceImpl.java): Implements brand query methods, catalog lookups, and deletion safety checks.
+  * [VehicleService.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/service/VehicleService.java): Core fleet registry interface.
+  * [VehicleServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/service/VehicleServiceImpl.java): Implements brand query methods, catalog lookups, and deletion safety checks.
 * **Controllers (Request Routers):**
-  * [VehicleController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/vehicle/controller/VehicleController.java): Coordinates public catalogs browsing and admin-staff inventory control routes.
+  * [VehicleController.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/controller/VehicleController.java): Coordinates public catalogs browsing and admin-staff inventory control routes.
 * **Thymeleaf HTML Templates (`templates/vehicle` folder):**
   * `vehicle/vehicle-browse.html`: Dynamic vehicle catalog display & search card view.
   * `vehicle/vehicle-dashboard.html`: Admin catalog overview and deletion panels view.
@@ -45,7 +45,7 @@ This component's responsibilities are divided across standard Spring Boot MVC ti
 ## 3. Academic OOP Rubric Implementation
 
 ### A. Abstraction
-Declares [Vehicle.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Vehicle.java) as `public abstract class Vehicle` to establish a uniform fleet interface. Subclasses implement specialized pricing and details contracts:
+Declares [Vehicle.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Vehicle.java) as `public abstract class Vehicle` to establish a uniform fleet interface. Subclasses implement specialized pricing and details contracts:
 ```java
 public abstract class Vehicle {
     private String id;
@@ -82,7 +82,7 @@ The vehicle module establishes an elegant, extensible type hierarchy:
 ### D. Polymorphism
 Polymorphism is demonstrated through dynamic method overriding and dispatch:
 * **Overridden Rate Calculations:** `Car.calculateRentalRate()` returns the base rate, while `Motorcycle.calculateRentalRate()` dynamically adds a flat fee ($5/day) if a helmet rental is selected.
-* **Polymorphic CSV Serialization:** [VehicleRepository.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/vehicle/repository/VehicleRepository.java) iterates over a list of `Vehicle` objects and writes each record by calling `toCSV()`. Dynamic dispatch executes the overridden `toCSV()` method in the correct subclass at runtime:
+* **Polymorphic CSV Serialization:** [VehicleRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/repository/VehicleRepository.java) iterates over a list of `Vehicle` objects and writes each record by calling `toCSV()`. Dynamic dispatch executes the overridden `toCSV()` method in the correct subclass at runtime:
 ```java
 public String toCSV() { // In Car.java
     return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity;

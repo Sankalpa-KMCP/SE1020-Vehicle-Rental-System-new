@@ -21,16 +21,16 @@ The **Reservations & Bookings** component coordinates all transactional operatio
 This component's responsibilities are divided across the standard Spring Boot MVC tiers:
 
 * **Entities (Domain Entities):**
-  * [Transaction.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Transaction.java): Polymorphic abstract base class for monetary transactions. It defines common identifiers and the abstract contract `getTransactionType()`.
-  * [Booking.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Booking.java): Concrete subclass representing vehicle rental schedules. It captures parameters like vehicle ID, duration in days, rental date, status, and staff response notes.
+  * [Transaction.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Transaction.java): Polymorphic abstract base class for monetary transactions. It defines common identifiers and the abstract contract `getTransactionType()`.
+  * [Booking.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Booking.java): Concrete subclass representing vehicle rental schedules. It captures parameters like vehicle ID, duration in days, rental date, status, and staff response notes.
 * **Repositories (Data Access Layer):**
-  * [ReservationRepository.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/repository/ReservationRepository.java): Coordinates CSV file database operations, parsing, and serialization of booking transactional data.
+  * [ReservationRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/repository/ReservationRepository.java): Coordinates CSV file database operations, parsing, and serialization of booking transactional data.
 * **Services (Business Logic):**
-  * [ReservationService.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/service/ReservationService.java): Coordinates rental schedules, calendars, and transaction limits.
-  * [ReservationServiceImpl.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/service/ReservationServiceImpl.java): Implements business validations, calendar conflict validations, and active reservation audits.
+  * [ReservationService.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/service/ReservationService.java): Coordinates rental schedules, calendars, and transaction limits.
+  * [ReservationServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/service/ReservationServiceImpl.java): Implements business validations, calendar conflict validations, and active reservation audits.
 * **Controllers (Request Routers):**
-  * [BookingController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/controller/BookingController.java): Coordinates customer booking submissions and confirmations.
-  * [ReservationAdminController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/controller/ReservationAdminController.java): Staff console controller managing pending bookings, updates, cancellations, and reviews.
+  * [BookingController.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/controller/BookingController.java): Coordinates customer booking submissions and confirmations.
+  * [ReservationAdminController.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/controller/ReservationAdminController.java): Staff console controller managing pending bookings, updates, cancellations, and reviews.
 * **Thymeleaf HTML Templates (`templates/booking` folder):**
   * `booking/booking-admin-form.html`: Admin booking modification panel.
   * `booking/booking-dashboard.html`: Staff central reservations dashboard.
@@ -48,7 +48,7 @@ This component's responsibilities are divided across the standard Spring Boot MV
 ## 3. Academic OOP Rubric Implementation
 
 ### A. Abstraction
-Declares [Transaction.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Transaction.java) as `public abstract class Transaction` to enforce uniform logging metadata across all financial transactions, mandating `getTransactionType()`:
+Declares [Transaction.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Transaction.java) as `public abstract class Transaction` to enforce uniform logging metadata across all financial transactions, mandating `getTransactionType()`:
 ```java
 public abstract class Transaction {
     private String transactionId;
@@ -60,7 +60,7 @@ public abstract class Transaction {
 ```
 
 ### B. Encapsulation
-Encapsulates booking validation within [ReservationServiceImpl.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/service/ReservationServiceImpl.java) to prevent double bookings. Setters in [Booking.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Booking.java) validate input data (e.g. durations must be greater than zero):
+Encapsulates booking validation within [ReservationServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/service/ReservationServiceImpl.java) to prevent double bookings. Setters in [Booking.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Booking.java) validate input data (e.g. durations must be greater than zero):
 ```java
 public void setDurationDays(int durationDays) {
     if (durationDays <= 0) {

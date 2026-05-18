@@ -9,7 +9,7 @@
 ## 1. Subsystem Overview & Purpose
 The **User Management** component forms the security, authentication, and user registry backbone of the DriveAway Vehicle Rental platform. It handles:
 * Customer and staff account registration workflows.
-* Secure session-based authentication and lifecycle controls (managed via [UserAuthController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAuthController.java)).
+* Secure session-based authentication and lifecycle controls (managed via [UserAuthController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAuthController.java)).
 * User role differentiation (Customers vs. Support Staff vs. Administrators).
 * Profile management (such as updating NIC, phone numbers, and driver's license numbers).
 * System access request auditing to onboard new staff.
@@ -20,26 +20,26 @@ The **User Management** component forms the security, authentication, and user r
 This component's responsibilities are divided across standard Spring Boot MVC tiers:
 
 * **Entities (Domain Entities):**
-  * [User.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/entity/User.java): Abstract base class containing credentials, identity fields, and dynamic role indicators.
-  * [Customer.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/entity/Customer.java): Inherits from `User`, adding customer-specific license, nic, and phone details.
-  * [Staff.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/entity/Staff.java): Abstract base class representing operating team members.
-  * [AdminStaff.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/entity/AdminStaff.java): Concrete administrator subclass with user directory moderation privileges.
-  * [SupportStaff.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/entity/SupportStaff.java): Concrete support/maintenance representative subclass.
+  * [User.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/entity/User.java): Abstract base class containing credentials, identity fields, and dynamic role indicators.
+  * [Customer.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/entity/Customer.java): Inherits from `User`, adding customer-specific license, nic, and phone details.
+  * [Staff.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/entity/Staff.java): Abstract base class representing operating team members.
+  * [AdminStaff.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/entity/AdminStaff.java): Concrete administrator subclass with user directory moderation privileges.
+  * [SupportStaff.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/entity/SupportStaff.java): Concrete support/maintenance representative subclass.
 * **Repositories (Data Access Layer):**
-  * [UserRepository.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/repository/UserRepository.java): Manages file storage serialization and CSV line parsing of user records.
+  * [UserRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/repository/UserRepository.java): Manages file storage serialization and CSV line parsing of user records.
 * **Services (Business Logic):**
-  * [UserService.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/service/UserService.java): Base user operations interface.
-  * [UserServiceImpl.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/service/UserServiceImpl.java): Coordinates authentication logic, customer profile updates, password matching, and default admin/customer seeding.
-  * [MasterAdminPendingService.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/service/MasterAdminPendingService.java): Onboards and approves new staff access request cards.
+  * [UserService.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/service/UserService.java): Base user operations interface.
+  * [UserServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/service/UserServiceImpl.java): Coordinates authentication logic, customer profile updates, password matching, and default admin/customer seeding.
+  * [MasterAdminPendingService.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/service/MasterAdminPendingService.java): Onboards and approves new staff access request cards.
 * **Controllers (Request Routers):**
-  * [UserAuthController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAuthController.java): Manages credentials verification, logins, registration forms, and session lifecycles.
-  * [UserController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserController.java): Manages profile details and customer/staff account editors.
-  * [CustomerAdminController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/controller/CustomerAdminController.java): Admin panel listing all customer records.
-  * [CustomerPortalController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/controller/CustomerPortalController.java): Customer dashboard panel route mapping.
-  * [StaffAdminController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/controller/StaffAdminController.java): Admin panel listing and creating new staff members.
-  * [UserAdminHomeController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAdminHomeController.java): Root admin path dashboard routers.
-  * [UserManagementController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserManagementController.java): Admin direct REST CRUD APIs for user records.
-  * [MasterConsoleController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/controller/MasterConsoleController.java): System override utilities and seed reset configurations.
+  * [UserAuthController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAuthController.java): Manages credentials verification, logins, registration forms, and session lifecycles.
+  * [UserController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserController.java): Manages profile details and customer/staff account editors.
+  * [CustomerAdminController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/CustomerAdminController.java): Admin panel listing all customer records.
+  * [CustomerPortalController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/CustomerPortalController.java): Customer dashboard panel route mapping.
+  * [StaffAdminController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/StaffAdminController.java): Admin panel listing and creating new staff members.
+  * [UserAdminHomeController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAdminHomeController.java): Root admin path dashboard routers.
+  * [UserManagementController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserManagementController.java): Admin direct REST CRUD APIs for user records.
+  * [MasterConsoleController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/MasterConsoleController.java): System override utilities and seed reset configurations.
 * **Thymeleaf HTML Templates:**
   * `auth/register.html`: Customer account registration form.
   * `user/login.html`: Unified customer login form.
@@ -58,7 +58,7 @@ This component's responsibilities are divided across standard Spring Boot MVC ti
 ## 3. Academic OOP Rubric Implementation
 
 ### A. Abstraction
-Defines [User.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/entity/User.java) as `public abstract class User` to outline a uniform credential validation interface. Subclasses override `getUserRole()` dynamically:
+Defines [User.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/entity/User.java) as `public abstract class User` to outline a uniform credential validation interface. Subclasses override `getUserRole()` dynamically:
 ```java
 public abstract class User {
     private String id;
@@ -91,7 +91,7 @@ A clean, modular inheritance tree separates access roles and profile details:
 ```
 
 ### D. Polymorphism
-Used in [UserRepository.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/user/repository/UserRepository.java) to dynamically deserialize various polymorphic classes from a single file by checking column counts:
+Used in [UserRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/repository/UserRepository.java) to dynamically deserialize various polymorphic classes from a single file by checking column counts:
 ```java
 private User parseLine(String line) {
     String[] a = line.split(",", -1);

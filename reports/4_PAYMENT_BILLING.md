@@ -20,16 +20,16 @@ The **Payment & Billing** component manages all financial workflows, invoicing, 
 This component's responsibilities are divided across standard Spring Boot MVC tiers:
 
 * **Entities (Domain Entities):**
-  * [Payment.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/Payment.java): Abstract base class defining common fields (`id`, `bookingId`, `amount`, `status`) and declaring abstract methods `getPaymentMethod()` and `getPaymentType()`.
-  * [CardPayment.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/CardPayment.java): Concrete subclass representing credit/debit card transactions.
-  * [CashPayment.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/CashPayment.java): Concrete subclass representing cash ledger entries.
+  * [Payment.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/Payment.java): Abstract base class defining common fields (`id`, `bookingId`, `amount`, `status`) and declaring abstract methods `getPaymentMethod()` and `getPaymentType()`.
+  * [CardPayment.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/CardPayment.java): Concrete subclass representing credit/debit card transactions.
+  * [CashPayment.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/CashPayment.java): Concrete subclass representing cash ledger entries.
 * **Repositories (Data Access Layer):**
-  * [PaymentRepository.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/payment/repository/PaymentRepository.java): Manages file storage serialization, legacy pipe parsing, and CSV operations for card and cash payments.
+  * [PaymentRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/repository/PaymentRepository.java): Manages file storage serialization, legacy pipe parsing, and CSV operations for card and cash payments.
 * **Services (Business Logic):**
-  * [PaymentService.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/payment/service/PaymentService.java): Core billing calculation and ledger verification interface.
-  * [PaymentServiceImpl.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/payment/service/PaymentServiceImpl.java): Implements duration billing formulas, card parameters validation, and active status ledger controls.
+  * [PaymentService.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/service/PaymentService.java): Core billing calculation and ledger verification interface.
+  * [PaymentServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/service/PaymentServiceImpl.java): Implements duration billing formulas, card parameters validation, and active status ledger controls.
 * **Controllers (Request Routers):**
-  * [PaymentController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/payment/controller/PaymentController.java): Coordinates card/cash payment forms, customer receipt page layouts, and the admin ledgers monitor dashboard.
+  * [PaymentController.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/controller/PaymentController.java): Coordinates card/cash payment forms, customer receipt page layouts, and the admin ledgers monitor dashboard.
 * **Thymeleaf HTML Templates (`templates/payment` folder):**
   * `payment/process-payment.html`: Card details validator and billing payment form view.
   * `payment/customer-payment.html`: Customer-facing checkout gateway form.
@@ -43,7 +43,7 @@ This component's responsibilities are divided across standard Spring Boot MVC ti
 ## 3. Academic OOP Rubric Implementation
 
 ### A. Abstraction
-Declares [Payment.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/Payment.java) as `public abstract class Payment` to define a uniform interface for all monetary settlements, mandating the `getPaymentMethod()` contract:
+Declares [Payment.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/Payment.java) as `public abstract class Payment` to define a uniform interface for all monetary settlements, mandating the `getPaymentMethod()` contract:
 ```java
 public abstract class Payment {
     private String id;
@@ -77,7 +77,7 @@ The payment module adopts a simple, modular class hierarchy:
 ### D. Polymorphism
 Polymorphism is demonstrated by overriding the `getPaymentMethod()` method, which dynamically dispatches the correct payment type label at runtime:
 * **Dynamic View Rendering:** In customer billing views, Thymeleaf displays the appropriate payment type dynamically by calling `payment.getPaymentMethod()`.
-* **Polymorphic File Serialization:** [PaymentRepository.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/payment/repository/PaymentRepository.java) processes list elements as base `Payment` objects, dynamically writing their subtype indicators (`CARD` or `CASH`) to the flat-file database.
+* **Polymorphic File Serialization:** [PaymentRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/repository/PaymentRepository.java) processes list elements as base `Payment` objects, dynamically writing their subtype indicators (`CARD` or `CASH`) to the flat-file database.
 
 ---
 

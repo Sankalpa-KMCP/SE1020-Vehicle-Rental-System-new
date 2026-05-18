@@ -19,15 +19,15 @@ The **Maintenance & Vehicle Availability** component tracks fleet service status
 This component's responsibilities are divided across standard Spring Boot MVC tiers:
 
 * **Entities (Domain Entities):**
-  * [MaintenanceRecord.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/maintenance/entity/MaintenanceRecord.java): Domain entity containing details of specific maintenance tasks.
-  * [MaintenanceStatus.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/maintenance/entity/MaintenanceStatus.java): Defines standard status constants (`AVAILABLE`, `IN_USE`, `MAINTENANCE`).
+  * [MaintenanceRecord.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/entity/MaintenanceRecord.java): Domain entity containing details of specific maintenance tasks.
+  * [MaintenanceStatus.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/entity/MaintenanceStatus.java): Defines standard status constants (`AVAILABLE`, `IN_USE`, `MAINTENANCE`).
 * **Repositories (Data Access Layer):**
-  * [MaintenanceRepository.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/maintenance/repository/MaintenanceRepository.java): Coordinates file database operations, parsing, and serialization of maintenance and fleet status records using a custom pipe-separated format.
+  * [MaintenanceRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/repository/MaintenanceRepository.java): Coordinates file database operations, parsing, and serialization of maintenance and fleet status records using a custom pipe-separated format.
 * **Services (Business Logic):**
-  * [MaintenanceService.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/maintenance/service/MaintenanceService.java): Core maintenance tracking interface.
-  * [MaintenanceServiceImpl.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/maintenance/service/MaintenanceServiceImpl.java): Enforces status transitions and handles default seeding for fleet availability status checks.
+  * [MaintenanceService.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/service/MaintenanceService.java): Core maintenance tracking interface.
+  * [MaintenanceServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/service/MaintenanceServiceImpl.java): Enforces status transitions and handles default seeding for fleet availability status checks.
 * **Controllers (Request Routers):**
-  * [MaintenanceController.java](file:///c:/Users/chamidu/Desktop/new%20oop/VehicleRentalSystem01/src/main/java/com/sliit/vehiclerentalsystem01/maintenance/controller/MaintenanceController.java): Coordinates staff service dashboards and routine checkup log creation routes.
+  * [MaintenanceController.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/controller/MaintenanceController.java): Coordinates staff service dashboards and routine checkup log creation routes.
 * **Thymeleaf HTML Templates (`templates/user` folder):**
   * `user/maintenance-dashboard.html`: Operational fleet service status boards view.
 
