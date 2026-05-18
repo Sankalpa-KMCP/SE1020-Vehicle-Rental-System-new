@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Fleet Management - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('vehicles', 'Vehicles')}"></th:block>
+<div class="fade-in">
+    <div class="bg-gradient-to-br from-violet-600 via-fuchsia-600 to-slate-700 rounded-3xl p-10 sm:p-12 text-white shadow-xl mb-10 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Vehicle Directory</h1>
+                <p class="text-violet-100 text-lg font-medium max-w-2xl leading-relaxed">Manage cars and motorcycles available for rental.</p>
+            </div>
+            <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Total</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${totalVehicles}">0</p>
+                </div>
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Cars</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${carCount}">0</p>
+                </div>
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Bikes</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${motorcycleCount}">0</p>
+                </div>
+                <div class="text-center px-4">
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Avg rate</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${#numbers.formatDecimal(avgRate, 1, 2)}">0</p>
+                </div>
+            </div>
+        </div>
+        <i class="ph-fill ph-car-profile absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-violet-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-car-profile text-2xl text-violet-600"></i>
+                </div>
+                <span class="text-xs font-bold text-violet-600 bg-violet-50 px-2 py-1 rounded-lg">TOTAL</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${totalVehicles}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Vehicles in fleet</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-fuchsia-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-car text-2xl text-fuchsia-600"></i>
+                </div>
+                <span class="text-xs font-bold text-fuchsia-600 bg-fuchsia-50 px-2 py-1 rounded-lg">CARS</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${carCount}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Car listings</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-slate-100 p-3 rounded-xl">
+                    <i class="ph-fill ph-motorcycle text-2xl text-slate-600"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-lg">BIKES</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${motorcycleCount}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Motorcycle listings</p>
+        </div>
+        <div class="bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-2xl p-6 text-white shadow-lg card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                    <i class="ph-fill ph-plus-circle text-2xl text-white"></i>
+                </div>
+                <span class="text-xs font-bold text-white bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">ACTION</span>
+            </div>
+            <p class="text-lg font-extrabold mb-2">Add vehicle</p>
+            <p class="text-sm text-violet-100 mb-4">Register a new fleet unit</p>
+            <a th:href="@{/vehicles/add}" class="inline-flex items-center gap-2 bg-white text-violet-600 font-bold px-4 py-2 rounded-xl hover:bg-violet-50 transition-colors text-sm">
+                <i class="ph-bold ph-plus"></i> Add vehicle
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-3xl p-10 soft-card shadow-lg">
+        <div th:if="${param.error != null and param.error[0] == 'vehicle_in_use'}" class="mb-8 bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 font-semibold flex items-center gap-2">
+            <i class="ph-bold ph-warning-circle text-xl"></i> Cannot delete this vehicle: it is linked to an active booking.
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white soft-card">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                <tr class="bg-slate-50 text-gray-500 text-sm uppercase tracking-wider border-b border-slate-200">
+                    <th class="py-4 px-6 font-bold">ID</th>
+                    <th class="py-4 px-6 font-bold">Type</th>
+                    <th class="py-4 px-6 font-bold">Brand</th>
+                    <th class="py-4 px-6 font-bold">Model</th>
+                    <th class="py-4 px-6 font-bold">Daily rate</th>
+                    <th class="py-4 px-6 font-bold">Detail</th>
+                    <th class="py-4 px-6 font-bold text-right">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                <tr th:each="v : ${vehicleList}" class="border-b border-slate-100 hover:bg-violet-50/50 transition-colors group">
+                    <td class="py-5 px-6 font-mono font-bold text-gray-900" th:text="${v.id}">id</td>
+                    <td class="py-5 px-6 font-semibold" th:text="${v.vehicleType}">t</td>
+                    <td class="py-5 px-6" th:text="${v.brand}">b</td>
+                    <td class="py-5 px-6" th:text="${v.model}">m</td>
+                    <td class="py-5 px-6 font-bold text-violet-700" th:text="${#numbers.formatDecimal(v.dailyRate, 1, 2)}">r</td>
+                    <td class="py-5 px-6 text-sm text-gray-500" th:text="${v.specificDetail}">d</td>
+                    <td class="py-5 px-6 text-right space-x-2">
+                        <a th:href="@{/vehicles(action=edit,id=${v.id})}" class="inline-flex items-center gap-1 text-violet-600 hover:text-violet-800 font-bold text-sm">
+                            <i class="ph-bold ph-pencil-simple"></i> Edit
+                        </a>
+                        <form th:action="@{/vehicles/{id}/delete(id=${v.id})}" method="post" class="inline m-0" onsubmit="return confirm('Delete this vehicle?');">
+                            <button type="submit" class="inline-flex items-center gap-1 text-red-500 hover:text-red-700 font-bold text-sm ml-2">
+                                <i class="ph-bold ph-trash"></i> Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${vehicleList == null or vehicleList.isEmpty()}">
+                    <td colspan="7" class="py-10 text-center text-gray-500 font-medium">No vehicles in the fleet yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+</body>
+</html>

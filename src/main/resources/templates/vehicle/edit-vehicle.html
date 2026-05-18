@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Edit Vehicle - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('vehicles', 'Edit Vehicle')}"></th:block>
+<div class="fade-in">
+
+<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
+<header class="max-w-3xl mx-auto px-6 pt-10 pb-6">
+    <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Edit <span class="text-indigo-600">Vehicle</span></h1>
+    <p class="text-gray-500 mt-2 font-medium">Update specifications; changes apply immediately after save.</p>
+</header>
+<form method="post" th:action="@{/vehicles}" class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-6" id="vehicleForm">
+        <input type="hidden" name="action" value="update"/>
+        <input type="hidden" name="id" th:value="${vehicle.id}"/>
+        <div class="grid md:grid-cols-2 gap-5">
+            <label class="block">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Brand</span>
+                <input type="text" name="brand" th:value="${vehicle.brand}" required class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"/>
+            </label>
+            <label class="block">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Model</span>
+                <input type="text" name="model" th:value="${vehicle.model}" required class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"/>
+            </label>
+        </div>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Daily rate (LKR)</span>
+            <input type="number" step="0.01" name="rate" th:value="${vehicle.dailyRate}" required class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"/>
+        </label>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vehicle type</span>
+            <select name="vehicleType" id="vehicleType" onchange="toggleVehicleFields()" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                <option value="Car" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Car)}">Car</option>
+                <option value="Motorcycle" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Motorcycle)}">Motorcycle</option>
+            </select>
+        </label>
+        <div id="carFields" class="space-y-3">
+            <label class="block">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Seating capacity</span>
+                <input type="number" name="capacity" id="capacityInput" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"
+                       th:value="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Car)} ? ${vehicle.seatingCapacity} : 4"/>
+            </label>
+        </div>
+        <input type="hidden" name="capacity" value="4" id="capacityMotoHidden"/>
+        <div id="motorcycleFields" class="space-y-3 hidden">
+            <label class="flex items-center gap-3 font-semibold text-gray-700 cursor-pointer">
+                <input type="checkbox" name="helmetIncluded" value="true" id="helmetCb" class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                       th:checked="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Motorcycle)} ? ${vehicle.helmetIncluded} : false"/>
+                Helmet included
+            </label>
+        </div>
+        <input type="hidden" name="helmetIncluded" value="false" id="helmetFalseHidden"/>
+        <div class="flex flex-wrap gap-3 pt-4">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-indigo-600/25 transition flex items-center gap-2">
+                <i class="ph-bold ph-floppy-disk"></i> Save changes
+            </button>
+            <a th:href="@{/vehicles}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-xl transition">Cancel</a>
+        </div>
+    </form>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+<script>
+function toggleVehicleFields() {
+    var sel = document.getElementById('vehicleType');
+    var car = document.getElementById('carFields');
+    var moto = document.getElementById('motorcycleFields');
+    var cap = document.getElementById('capacityInput');
+    var capH = document.getElementById('capacityMotoHidden');
+    var helmetCb = document.getElementById('helmetCb');
+    var helmetFalse = document.getElementById('helmetFalseHidden');
+    if (!sel || !car || !moto) return;
+    var isMoto = sel.value === 'Motorcycle';
+    car.classList.toggle('hidden', isMoto);
+    moto.classList.toggle('hidden', !isMoto);
+    if (cap) cap.disabled = isMoto;
+    if (capH) capH.disabled = !isMoto;
+    if (helmetCb) helmetCb.disabled = !isMoto;
+    if (helmetFalse) {
+        helmetFalse.disabled = isMoto && helmetCb && helmetCb.checked;
+    }
+}
+document.getElementById('helmetCb')?.addEventListener('change', function () {
+    var helmetFalse = document.getElementById('helmetFalseHidden');
+    if (helmetFalse) helmetFalse.disabled = this.checked;
+});
+toggleVehicleFields();
+</script>
+</body>
+</html>

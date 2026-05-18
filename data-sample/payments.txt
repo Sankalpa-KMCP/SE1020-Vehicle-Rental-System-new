@@ -1,0 +1,2 @@
+# CARD|CASH,id,bookingId,amount,status
+CARD,PAY-001,BK-001,10500.0,PAID

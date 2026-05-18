@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Booking Form - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('bookings', 'Booking Form')}"></th:block>
+<div class="fade-in">
+
+<div th:replace="~{layout :: navbar}"></div>
+<h1 th:text="${mode == 'edit'} ? 'Edit booking' : 'New booking'">Booking</h1>
+    <form class="form-grid" method="post"
+          th:action="${entityId != null} ? @{/bookings/{id}(id=${entityId})} : @{/bookings}"
+          th:object="${booking}">
+        <h2>Reservation</h2>
+        <label>Customer (username)
+            <select th:field="*{customerName}" required>
+                <option value="">—</option>
+                <option th:each="c : ${customers}" th:value="${c.username}"
+                        th:text="${c.username + ' (' + c.id + ')'}">c</option>
+            </select>
+        </label>
+        <label>Vehicle
+            <select th:field="*{vehicleId}" required>
+                <option value="">—</option>
+                <option th:each="v : ${vehicles}" th:value="${v.id}"
+                        th:text="${v.brand + ' ' + v.model + ' (' + v.id + ')'}">v</option>
+            </select>
+        </label>
+        <label>Rental start <input type="date" th:field="*{rentalDate}" required/></label>
+        <label>Duration (days) <input type="number" min="1" th:field="*{durationDays}" required/></label>
+        <label>Status <input type="text" th:field="*{status}" placeholder="CONFIRMED"/></label>
+        <label>Staff message <textarea th:field="*{staffMessage}"></textarea></label>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a class="btn btn-ghost" th:href="@{/bookings}">Cancel</a>
+    </form>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+</body>
+</html>
