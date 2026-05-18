@@ -7,143 +7,140 @@
     </div>
 
     <header class="da-hero da-scene da-scene--hero" id="cinematic-hero" data-chapter="01" data-chapter-name="Act" data-mood="act">
-        <div class="da-hero__bleed" aria-hidden="true">
-            <span class="da-hero__bleed-word" data-parallax="0.08">DriveAway</span>
-        </div>
+        <div class="da-hero__visual" aria-hidden="true"></div>
 
         <div class="da-container da-container--wide">
-            <div class="da-hero__masthead" data-reveal-step="1">
-                <span class="da-hero__index">DriveAway &nbsp;/&nbsp; Vol.&nbsp;01 &nbsp;/&nbsp; 2026</span>
-                <span class="da-hero__meta" data-parallax="-0.05">
-                    <span class="da-hero__meta-rule"></span>
-                    Live in Sri Lanka
-                </span>
-            </div>
+            <div class="da-hero__grid">
+                <div class="da-hero__content">
+                    <div class="da-hero__masthead" data-reveal-step="1">
+                        <span class="da-hero__index">DriveAway &nbsp;/&nbsp; Vol.&nbsp;01 &nbsp;/&nbsp; 2026</span>
+                        <span class="da-hero__meta" data-parallax="-0.05">
+                            <span class="da-hero__meta-rule"></span>
+                            Sri Lanka
+                        </span>
+                    </div>
 
-            <div class="da-hero__lockup">
-                <div class="da-hero__title-wrap" data-parallax="0.04" data-reveal-step="2">
-                    <h1 class="da-hero__title">
-                        <span class="da-hero__title-line">Skip the counter.</span>
-                        <span class="da-hero__title-line da-hero__title-line--quiet"><em>Drive within the hour.</em></span>
-                    </h1>
-                    <p class="da-hero__lede">
-                        Pick your dates, choose your vehicle, walk out with the keys. The island's most reliable rental, redesigned around you.
-                    </p>
+                    <div class="da-hero__title-wrap" data-parallax="0.04" data-reveal-step="2">
+                        <h1 class="da-hero__title">
+                            <span class="da-hero__title-line">Command the Road.</span>
+                            <span class="da-hero__title-line da-hero__title-line--accent">Unapologetically.</span>
+                        </h1>
+                        <p class="da-hero__lede">
+                            The island's most curated fleet — hand-selected machines for those who refuse the ordinary. Reserve in minutes, arrive in style.
+                        </p>
+                    </div>
+
+                    <!-- Search — guest -->
+                    <div class="da-hero__search-slot glass glass--gold-edge"
+                         th:if="${#strings.isEmpty(userRole)}"
+                         data-reveal-step="3"
+                         aria-labelledby="act-title-guest">
+                        <header class="da-search__head">
+                            <span class="da-search__step">Step 01</span>
+                            <h2 class="da-search__title" id="act-title-guest">Find your vehicle</h2>
+                            <p class="da-search__sub">Free to search. No account required to browse.</p>
+                        </header>
+                        <form th:action="@{/auth/login}" method="get" class="da-act__form da-search__form">
+                            <div class="da-act__row">
+                                <label class="da-act__field" for="pickup-location">
+                                    <span class="da-act__label">Pick-up location</span>
+                                    <select id="pickup-location" name="location" class="da-act__select">
+                                        <option value="colombo">Colombo 03 &mdash; Main Hub</option>
+                                        <option value="airport">BIA Airport &mdash; Katunayake</option>
+                                        <option value="kandy">Kandy &mdash; City Center</option>
+                                        <option value="galle">Galle &mdash; Fort Entrance</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="da-act__row da-act__row--pair">
+                                <label class="da-act__field" for="pickup-date">
+                                    <span class="da-act__label">Pick-up date</span>
+                                    <input id="pickup-date" type="date" name="pickupDate" class="da-act__input" required/>
+                                </label>
+                                <label class="da-act__field" for="dropoff-date">
+                                    <span class="da-act__label">Drop-off date</span>
+                                    <input id="dropoff-date" type="date" name="dropoffDate" class="da-act__input" required/>
+                                </label>
+                            </div>
+                            <div class="da-act__submit">
+                                <button type="submit" class="da-btn da-btn--primary da-btn--xl da-magnetic">
+                                    <span>Find available vehicles</span>
+                                    <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+                                </button>
+                                <a th:href="@{/auth/register}" class="da-act__alt transition-link">
+                                    or create a free account
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Search — logged in -->
+                    <div class="da-hero__search-slot glass glass--gold-edge"
+                         th:if="${!#strings.isEmpty(userRole)}"
+                         data-reveal-step="3"
+                         aria-labelledby="act-title">
+                        <header class="da-search__head">
+                            <span class="da-search__step">
+                                <span th:if="${userRole == 'customer'}">Welcome back, <strong th:text="${displayName}">there</strong></span>
+                                <span th:if="${userRole == 'staff'}">Staff console, <strong th:text="${displayName}">team</strong></span>
+                            </span>
+                            <h2 class="da-search__title" id="act-title">Where are you driving today?</h2>
+                            <p class="da-search__sub">Your saved preferences are ready to go.</p>
+                        </header>
+                        <form th:action="@{/customer/fleet}" method="get" class="da-act__form da-search__form">
+                            <div class="da-act__row">
+                                <label class="da-act__field" for="pickup-location-logged">
+                                    <span class="da-act__label">Pick-up location</span>
+                                    <select id="pickup-location-logged" name="location" class="da-act__select">
+                                        <option value="colombo">Colombo 03 &mdash; Main Hub</option>
+                                        <option value="airport">BIA Airport &mdash; Katunayake</option>
+                                        <option value="kandy">Kandy &mdash; City Center</option>
+                                        <option value="galle">Galle &mdash; Fort Entrance</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="da-act__row da-act__row--pair">
+                                <label class="da-act__field" for="pickup-date-logged">
+                                    <span class="da-act__label">Pick-up date</span>
+                                    <input id="pickup-date-logged" type="date" name="pickupDate" class="da-act__input" required/>
+                                </label>
+                                <label class="da-act__field" for="dropoff-date-logged">
+                                    <span class="da-act__label">Drop-off date</span>
+                                    <input id="dropoff-date-logged" type="date" name="dropoffDate" class="da-act__input" required/>
+                                </label>
+                            </div>
+                            <div class="da-act__submit">
+                                <button type="submit" class="da-btn da-btn--primary da-btn--xl da-magnetic">
+                                    <span>Find available vehicles</span>
+                                    <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+                                </button>
+                                <a th:if="${userRole == 'customer'}" th:href="@{/customer/home}" class="da-act__alt transition-link">or open dashboard</a>
+                                <a th:if="${userRole == 'staff'}" th:href="@{/dashboard}" class="da-act__alt transition-link">or open staff portal</a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                <!-- ACTION PANEL ? guest -->
-                <section class="da-act" th:if="${#strings.isEmpty(userRole)}" aria-labelledby="act-title" data-reveal-step="3">
-                    <header class="da-act__head">
-                        <span class="da-act__step">Step 01</span>
-                        <h2 class="da-act__title" id="act-title">Find your vehicle</h2>
-                        <p class="da-act__sub">Free to search. No account required to browse.</p>
-                    </header>
-                    <form th:action="@{/auth/login}" method="get" class="da-act__form">
-                        <div class="da-act__row">
-                            <label class="da-act__field" for="pickup-location">
-                                <span class="da-act__label">Pick-up location</span>
-                                <select id="pickup-location" name="location" class="da-act__select">
-                                    <option value="colombo">Colombo 03 &mdash; Main Hub</option>
-                                    <option value="airport">BIA Airport &mdash; Katunayake</option>
-                                    <option value="kandy">Kandy &mdash; City Center</option>
-                                    <option value="galle">Galle &mdash; Fort Entrance</option>
-                                </select>
-                            </label>
-                        </div>
-                        <div class="da-act__row da-act__row--pair">
-                            <label class="da-act__field" for="pickup-date">
-                                <span class="da-act__label">Pick-up date</span>
-                                <input id="pickup-date" type="date" name="pickupDate" class="da-act__input" required/>
-                            </label>
-                            <label class="da-act__field" for="dropoff-date">
-                                <span class="da-act__label">Drop-off date</span>
-                                <input id="dropoff-date" type="date" name="dropoffDate" class="da-act__input" required/>
-                            </label>
-                        </div>
-                        <div class="da-act__submit">
-                            <button type="submit" class="da-btn da-btn--primary da-btn--xl da-magnetic">
-                                <span>Find available vehicles</span>
-                                <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
-                            </button>
-                            <a th:href="@{/auth/register}" class="da-act__alt transition-link">
-                                or create a free account
-                            </a>
-                        </div>
-                    </form>
-                </section>
-
-                <!-- ACTION PANEL ? logged in -->
-                <section class="da-act" th:if="${!#strings.isEmpty(userRole)}" aria-labelledby="act-title" data-reveal-step="3">
-                    <header class="da-act__head">
-                        <span class="da-act__step">
-                            <span th:if="${userRole == 'customer'}">Welcome back, <strong th:text="${displayName}">there</strong></span>
-                            <span th:if="${userRole == 'staff'}">Staff console, <strong th:text="${displayName}">team</strong></span>
-                        </span>
-                        <h2 class="da-act__title" id="act-title">Where are you driving today?</h2>
-                        <p class="da-act__sub">Your saved preferences are ready to go.</p>
-                    </header>
-                    <form th:action="@{/customer/fleet}" method="get" class="da-act__form">
-                        <div class="da-act__row">
-                            <label class="da-act__field" for="pickup-location-logged">
-                                <span class="da-act__label">Pick-up location</span>
-                                <select id="pickup-location-logged" name="location" class="da-act__select">
-                                    <option value="colombo">Colombo 03 &mdash; Main Hub</option>
-                                    <option value="airport">BIA Airport &mdash; Katunayake</option>
-                                    <option value="kandy">Kandy &mdash; City Center</option>
-                                    <option value="galle">Galle &mdash; Fort Entrance</option>
-                                </select>
-                            </label>
-                        </div>
-                        <div class="da-act__row da-act__row--pair">
-                            <label class="da-act__field" for="pickup-date-logged">
-                                <span class="da-act__label">Pick-up date</span>
-                                <input id="pickup-date-logged" type="date" name="pickupDate" class="da-act__input" required/>
-                            </label>
-                            <label class="da-act__field" for="dropoff-date-logged">
-                                <span class="da-act__label">Drop-off date</span>
-                                <input id="dropoff-date-logged" type="date" name="dropoffDate" class="da-act__input" required/>
-                            </label>
-                        </div>
-                        <div class="da-act__submit">
-                            <button type="submit" class="da-btn da-btn--primary da-btn--xl da-magnetic">
-                                <span>Find available vehicles</span>
-                                <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
-                            </button>
-                            <a th:if="${userRole == 'customer'}" th:href="@{/customer/home}" class="da-act__alt transition-link">or open dashboard</a>
-                            <a th:if="${userRole == 'staff'}" th:href="@{/dashboard}" class="da-act__alt transition-link">or open staff portal</a>
-                        </div>
-                    </form>
-                </section>
-
-                <aside class="da-hero__signals" aria-label="Live signals" data-reveal-step="4">
-                    <div class="da-signal-card">
-                        <span class="da-signal-card__icon" aria-hidden="true">
-                            <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('availability')}"></th:block>
-                        </span>
-                        <span class="da-signal-card__dot" aria-hidden="true"></span>
-                        <span class="da-signal-card__label">Available now</span>
-                        <span class="da-signal-card__value"><span class="counter" data-target="42">0</span> cars in Colombo</span>
+                <aside class="da-hero__stats" aria-label="Fleet highlights" data-reveal-step="4">
+                    <div class="da-stat-card glass glass--gold-edge">
+                        <i class="ph ph-car-profile da-stat-card__icon" aria-hidden="true"></i>
+                        <span class="da-stat-card__label">Premium fleet</span>
+                        <span class="da-stat-card__value"><span class="counter" data-target="500">0</span>+ vehicles</span>
                     </div>
-                    <div class="da-signal-card">
-                        <span class="da-signal-card__icon" aria-hidden="true">
-                            <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('clock')}"></th:block>
-                        </span>
-                        <span class="da-signal-card__label">Avg. response</span>
-                        <span class="da-signal-card__value">Under 6 min</span>
+                    <div class="da-stat-card glass glass--gold-edge">
+                        <i class="ph ph-headset da-stat-card__icon" aria-hidden="true"></i>
+                        <span class="da-stat-card__label">Concierge</span>
+                        <span class="da-stat-card__value">24/7 support</span>
                     </div>
-                    <div class="da-signal-card">
-                        <span class="da-signal-card__icon" aria-hidden="true">
-                            <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('drivers')}"></th:block>
-                        </span>
-                        <span class="da-signal-card__label">Drivers this month</span>
-                        <span class="da-signal-card__value"><span class="counter" data-target="1200">0</span>+</span>
+                    <div class="da-stat-card glass glass--gold-edge">
+                        <i class="ph ph-lightning da-stat-card__icon" aria-hidden="true"></i>
+                        <span class="da-stat-card__label">Avg. response</span>
+                        <span class="da-stat-card__value">Under 6 min</span>
                     </div>
-                    <a href="#fleet" class="da-signal-card da-signal-card--link">
-                        <span class="da-signal-card__icon" aria-hidden="true">
-                            <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('discover')}"></th:block>
-                        </span>
-                        <span class="da-signal-card__label">Up next</span>
-                        <span class="da-signal-card__value">
+                    <a href="#fleet" class="da-stat-card da-stat-card--link glass glass--gold-edge">
+                        <i class="ph ph-arrow-down da-stat-card__icon" aria-hidden="true"></i>
+                        <span class="da-stat-card__label">Explore</span>
+                        <span class="da-stat-card__value">
                             Browse the fleet
                             <span class="da-btn__arrow" aria-hidden="true">&darr;</span>
                         </span>
@@ -157,7 +154,7 @@
                     <span class="da-hero__trust-sep" aria-hidden="true"></span>
                     <i class="ph ph-lightning" aria-hidden="true"></i> Instant booking
                     <span class="da-hero__trust-sep" aria-hidden="true"></span>
-                    <i class="ph ph-headset" aria-hidden="true"></i> 24/7 support
+                    <i class="ph ph-headset" aria-hidden="true"></i> 24/7 concierge
                 </p>
                 <a href="#fleet" class="da-hero__scroll" aria-label="Scroll to fleet">
                     <span>Scroll to discover</span>

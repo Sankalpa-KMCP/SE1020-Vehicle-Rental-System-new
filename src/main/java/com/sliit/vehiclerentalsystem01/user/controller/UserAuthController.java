@@ -1,9 +1,10 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
-import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
-import com.sliit.vehiclerentalsystem01.user.model.Customer;
-import com.sliit.vehiclerentalsystem01.user.model.Staff;
-import com.sliit.vehiclerentalsystem01.user.model.User;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.user.entity.Customer;
+import com.sliit.vehiclerentalsystem01.user.entity.Staff;
+import com.sliit.vehiclerentalsystem01.user.entity.User;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
@@ -178,10 +179,6 @@ public class UserAuthController {
             @RequestParam(required = false) String license,
             RedirectAttributes redirectAttributes) {
         try {
-            if (userService.findByUsername(username).isPresent()) {
-                redirectAttributes.addFlashAttribute("error", "Username already exists");
-                return "redirect:/auth/register?error=username_taken";
-            }
             Customer customer = new Customer();
             customer.setId("C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase());
             customer.setName(name != null ? name.trim() : "");
@@ -194,6 +191,8 @@ public class UserAuthController {
             userService.save(customer);
             redirectAttributes.addFlashAttribute("success", "Registration successful! Please login.");
             return "redirect:/auth/login?success=registered";
+        } catch (ValidationException ex) {
+            return "redirect:/auth/register?error=" + ex.getMessage();
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Registration failed: " + e.getMessage());
             return "redirect:/auth/register?error=true";

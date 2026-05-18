@@ -1,9 +1,10 @@
 package com.sliit.vehiclerentalsystem01.vehicle.controller;
 
-import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
-import com.sliit.vehiclerentalsystem01.vehicle.model.Car;
-import com.sliit.vehiclerentalsystem01.vehicle.model.Motorcycle;
-import com.sliit.vehiclerentalsystem01.vehicle.model.Vehicle;
+import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.vehicle.entity.Car;
+import com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle;
+import com.sliit.vehiclerentalsystem01.vehicle.entity.Vehicle;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -190,7 +191,14 @@ public class VehicleController {
                 }
 
                 Vehicle toSave = buildVehicleLegacy(targetId, params);
-                vehicleService.save(toSave);
+                try {
+                    vehicleService.save(toSave);
+                } catch (ValidationException ex) {
+                    if ("update".equals(action) && idParam != null && !idParam.isBlank()) {
+                        return "redirect:/vehicles/" + idParam.trim() + "/edit?error=" + ex.getMessage();
+                    }
+                    return "redirect:/vehicles/new?error=" + ex.getMessage();
+                }
                 return "redirect:/vehicles";
             } catch (NumberFormatException ex) {
                 return "redirect:/vehicles/new?error=invalid_number";
@@ -211,10 +219,18 @@ public class VehicleController {
         try {
             if ("update".equals(action)) {
                 String id = normalized(params.get("id"));
-                vehicleService.save(buildVehicleLegacy(id, params));
+                try {
+                    vehicleService.save(buildVehicleLegacy(id, params));
+                } catch (ValidationException ex) {
+                    return "redirect:/vehicles/" + id + "/edit?error=" + ex.getMessage();
+                }
             } else {
                 String id = "V-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
-                vehicleService.save(buildVehicleLegacy(id, params));
+                try {
+                    vehicleService.save(buildVehicleLegacy(id, params));
+                } catch (ValidationException ex) {
+                    return "redirect:/vehicles/new?error=" + ex.getMessage();
+                }
             }
             return "redirect:/vehicles?action=list";
         } catch (NumberFormatException ex) {
@@ -254,7 +270,11 @@ public class VehicleController {
         }
         Vehicle toSave = "MOTORCYCLE".equalsIgnoreCase(vehicleType) ? motorcycle : car;
         toSave.setId(id);
-        vehicleService.save(toSave);
+        try {
+            vehicleService.save(toSave);
+        } catch (ValidationException ex) {
+            return "redirect:/vehicles/" + id + "/edit?error=" + ex.getMessage();
+        }
         return "redirect:/vehicles";
     }
 

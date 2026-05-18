@@ -10,9 +10,8 @@
         </a>
 
         <div class="da-nav__links" role="navigation">
+            <a th:href="@{/}" class="da-nav__link transition-link">Home</a>
             <a href="#fleet" data-section-link="fleet" class="da-nav__link">Fleet</a>
-            <a href="#how-it-works" data-section-link="how-it-works" class="da-nav__link">How it works</a>
-            <a href="#team" data-section-link="team" class="da-nav__link">Team</a>
             <a th:href="@{/public/about}" class="da-nav__link transition-link">About</a>
             <a th:href="@{/public/contact}" class="da-nav__link transition-link">Contact</a>
         </div>
@@ -20,7 +19,7 @@
         <div class="da-nav__actions" th:if="${#strings.isEmpty(userRole)}">
             <a th:href="@{/auth/login}" class="da-btn da-btn--ghost transition-link">Sign in</a>
             <a th:href="@{/auth/register}" class="da-btn da-btn--primary transition-link">
-                Get started
+                Register
                 <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
             </a>
         </div>
@@ -46,14 +45,13 @@
     </div>
 
     <div id="mobile-menu" class="da-nav__mobile da-container da-container--wide" hidden>
+        <a th:href="@{/}" class="transition-link">Home</a>
         <a href="#fleet">Fleet</a>
-        <a href="#how-it-works">How it works</a>
-        <a href="#team">Team</a>
         <a th:href="@{/public/about}" class="transition-link">About</a>
         <a th:href="@{/public/contact}" class="transition-link">Contact</a>
         <th:block th:if="${#strings.isEmpty(userRole)}">
             <a th:href="@{/auth/login}" class="transition-link">Sign in</a>
-            <a th:href="@{/auth/register}" class="da-btn da-btn--primary da-btn--block transition-link">Get started</a>
+            <a th:href="@{/auth/register}" class="da-btn da-btn--primary da-btn--block transition-link">Register</a>
         </th:block>
         <th:block th:if="${!#strings.isEmpty(userRole)}">
             <a th:if="${userRole == 'customer'}" th:href="@{/customer/home}" class="da-btn da-btn--primary da-btn--block transition-link">Dashboard</a>

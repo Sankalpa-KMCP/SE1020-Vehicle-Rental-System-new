@@ -1,6 +1,6 @@
 package com.sliit.vehiclerentalsystem01.review.service;
 
-import com.sliit.vehiclerentalsystem01.review.model.Feedback;
+import com.sliit.vehiclerentalsystem01.review.entity.Feedback;
 
 import java.util.List;
 import java.util.Optional;

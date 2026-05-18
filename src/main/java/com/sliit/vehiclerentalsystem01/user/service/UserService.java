@@ -1,8 +1,8 @@
 package com.sliit.vehiclerentalsystem01.user.service;
 
-import com.sliit.vehiclerentalsystem01.user.model.Customer;
-import com.sliit.vehiclerentalsystem01.user.model.Staff;
-import com.sliit.vehiclerentalsystem01.user.model.User;
+import com.sliit.vehiclerentalsystem01.user.entity.Customer;
+import com.sliit.vehiclerentalsystem01.user.entity.Staff;
+import com.sliit.vehiclerentalsystem01.user.entity.User;
 
 import java.util.List;
 import java.util.Optional;

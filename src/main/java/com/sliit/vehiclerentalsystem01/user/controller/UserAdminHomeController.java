@@ -1,10 +1,10 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
-import com.sliit.vehiclerentalsystem01.booking.service.BookingService;
+import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
 import com.sliit.vehiclerentalsystem01.maintenance.service.MaintenanceService;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
 import com.sliit.vehiclerentalsystem01.review.service.ReviewService;
-import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.service.MasterAdminPendingService;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
@@ -23,7 +23,7 @@ public class UserAdminHomeController {
 
     private final UserService userService;
     private final VehicleService vehicleService;
-    private final BookingService bookingService;
+    private final ReservationService reservationService;
     private final PaymentService paymentService;
     private final ReviewService reviewService;
     private final MasterAdminPendingService masterAdminPendingService;
@@ -32,14 +32,14 @@ public class UserAdminHomeController {
     public UserAdminHomeController(
             UserService userService,
             VehicleService vehicleService,
-            BookingService bookingService,
+            ReservationService reservationService,
             PaymentService paymentService,
             ReviewService reviewService,
             MasterAdminPendingService masterAdminPendingService,
             MaintenanceService maintenanceService) {
         this.userService = userService;
         this.vehicleService = vehicleService;
-        this.bookingService = bookingService;
+        this.reservationService = reservationService;
         this.paymentService = paymentService;
         this.reviewService = reviewService;
         this.masterAdminPendingService = masterAdminPendingService;
@@ -63,7 +63,7 @@ public class UserAdminHomeController {
         model.addAttribute("staffCount", staff);
         model.addAttribute("userCount", customers + staff);
         model.addAttribute("vehicleCount", vehicleService.findAll().size());
-        model.addAttribute("bookingCount", bookingService.findAll().size());
+        model.addAttribute("bookingCount", reservationService.findAll().size());
         model.addAttribute("paymentCount", paymentService.findAll().size());
         model.addAttribute("reviewCount", reviewService.findAll().size());
         model.addAttribute("availableCount", maintenanceService.countAvailable());

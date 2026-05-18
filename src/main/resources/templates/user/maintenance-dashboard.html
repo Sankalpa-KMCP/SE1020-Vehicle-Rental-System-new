@@ -13,6 +13,13 @@
         <p class="admin-page-header__subtitle">Monitor vehicle service status and fleet availability in real-time.</p>
       </header>
 
+      <p th:if="${param.error != null and param.error[0] == 'invalid_status'}"
+         class="admin-alert admin-alert--warning mb-6"
+         role="alert">Invalid status. Choose Available, In Use, or Maintenance.</p>
+      <p th:if="${param.error != null and param.error[0] == 'invalid_service_dates'}"
+         class="admin-alert admin-alert--warning mb-6"
+         role="alert">Next service date cannot be before the last service date.</p>
+
       <!-- Status overview -->
       <section class="admin-dashboard-section" aria-label="Fleet status overview">
         <h2 class="admin-section-heading">Status overview</h2>
