@@ -7,6 +7,7 @@ package com.sliit.vehiclerentalsystem01.payment.entity;
 public enum PaymentStatus {
     PAID,
     PENDING,
+    VERIFYING,
     REFUNDED,
     FAILED;
 

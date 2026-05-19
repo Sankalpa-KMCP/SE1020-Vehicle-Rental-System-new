@@ -59,7 +59,7 @@
                 <span class="bg-yellow-50 text-yellow-800 border border-yellow-200 text-xs font-extrabold px-3 py-2 rounded-lg" th:text="${payment.status}">PENDING</span>
             </div>
 
-            <form th:action="@{/customer/billing/gateway/complete}" method="post" class="space-y-5">
+            <form th:action="@{/payments/customer/gateway/complete}" method="post" class="space-y-5">
                 <input type="hidden" name="bookingId" th:value="${booking.id}"/>
 
                 <label class="block">
