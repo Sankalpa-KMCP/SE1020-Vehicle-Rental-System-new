@@ -416,8 +416,11 @@
           <option value="General Service">General Service</option>
         </select>
 
-        <input type="date"
+        <input type="text"
                name="maintenanceDate"
+               placeholder="Date put into maintenance"
+               onfocus="this.type='date'"
+               onblur="if(!this.value)this.type='text'"
                class="admin-maintenance-form__control"
                aria-label="Maintenance date" />
 
