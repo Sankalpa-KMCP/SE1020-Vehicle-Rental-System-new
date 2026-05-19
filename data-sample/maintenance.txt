@@ -1,0 +1,6 @@
+# id|vehicleId|status|lastServiceDate|nextServiceDate|notes
+MNT-001|VEH-101|AVAILABLE|2026-03-17|2026-09-17|Routine inspection completed; ready for rental.
+MNT-002|VEH-102|IN_USE|2026-04-17|2026-10-17|Currently on active booking.
+MNT-003|VEH-103|MAINTENANCE|2026-02-17|2026-05-03|Brake pads replacement in progress.
+MNT-004|VEH-104|AVAILABLE|2026-04-26|2026-08-17|Oil change and tire rotation done.
+MNT-005|VEH-105|IN_USE|2026-01-17|2026-07-17|Long-term corporate rental.

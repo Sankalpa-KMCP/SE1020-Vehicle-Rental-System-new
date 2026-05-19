@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Payments - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('payments', 'Payments')}"></th:block>
+<div class="fade-in">
+
+<div class="bg-gradient-to-br from-emerald-600 via-teal-600 to-slate-700 rounded-3xl p-10 sm:p-12 text-white shadow-xl mb-10 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Payment Dashboard</h1>
+                <p class="text-emerald-100 text-lg font-medium max-w-2xl leading-relaxed">Track transactions, statuses, and settlement totals.</p>
+            </div>
+            <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">Total txn</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${totalTransactions}">0</p>
+                </div>
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">Paid</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${paidCount}">0</p>
+                </div>
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">Pending</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${pendingCount}">0</p>
+                </div>
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">Refunded</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${refundedCount}">0</p>
+                </div>
+                <div class="text-center px-4">
+                    <p class="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">Volume</p>
+                    <p class="text-white font-extrabold text-lg" th:text="${#numbers.formatDecimal(totalAmount, 1, 2)}">0</p>
+                </div>
+            </div>
+        </div>
+        <i class="ph-fill ph-currency-circle-dollar absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-emerald-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-receipt text-2xl text-emerald-600"></i>
+                </div>
+                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">TXNS</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${totalTransactions}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Total transactions</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-green-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-check-circle text-2xl text-green-600"></i>
+                </div>
+                <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg">PAID</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${paidCount}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Settled payments</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-amber-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-clock text-2xl text-amber-600"></i>
+                </div>
+                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">PENDING</span>
+            </div>
+            <p class="text-3xl font-extrabold text-gray-900" th:text="${pendingCount}">0</p>
+            <p class="text-sm text-gray-500 mt-2">Awaiting completion</p>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl p-6 text-white shadow-lg card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                    <i class="ph-fill ph-plus-circle text-2xl text-white"></i>
+                </div>
+                <span class="text-xs font-bold text-white bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">ACTION</span>
+            </div>
+            <p class="text-lg font-extrabold mb-2">Volume <span class="text-2xl" th:text="${#numbers.formatDecimal(totalAmount, 1, 2)}">0</span></p>
+            <p class="text-sm text-emerald-100 mb-4">Record a new transaction</p>
+            <a th:href="@{/payments/new}" class="inline-flex items-center gap-2 bg-white text-emerald-700 font-bold px-4 py-2 rounded-xl hover:bg-emerald-50 transition-colors text-sm">
+                <i class="ph-bold ph-plus"></i> New transaction
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-3xl p-10 soft-card shadow-lg">
+        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white soft-card">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                <tr class="bg-slate-50 text-gray-500 text-sm uppercase tracking-wider border-b border-slate-200">
+                    <th class="py-4 px-6 font-bold">ID</th>
+                    <th class="py-4 px-6 font-bold">Method</th>
+                    <th class="py-4 px-6 font-bold">Booking</th>
+                    <th class="py-4 px-6 font-bold">Amount</th>
+                    <th class="py-4 px-6 font-bold">Status</th>
+                    <th class="py-4 px-6 font-bold text-right">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                <tr th:each="p : ${payments}" class="border-b border-slate-100 hover:bg-emerald-50/50 transition-colors">
+                    <td class="py-5 px-6 font-mono font-bold text-gray-900" th:text="${p.id}">id</td>
+                    <td class="py-5 px-6 text-sm font-semibold text-emerald-700" th:text="${p.paymentMethod}">m</td>
+                    <td class="py-5 px-6"><span class="bg-gray-100 px-2 py-1 rounded text-sm font-mono" th:text="${p.bookingId}">b</span></td>
+                    <td class="py-5 px-6 font-bold" th:text="${#numbers.formatDecimal(p.amount, 1, 2)}">0</td>
+                    <td class="py-5 px-6">
+                        <span class="bg-slate-100 text-slate-800 font-bold px-3 py-1 rounded-lg text-xs" th:text="${p.status}">s</span>
+                    </td>
+                    <td class="py-5 px-6 text-right space-x-2">
+                        <a th:href="@{/payments/{id}(id=${p.id})}" class="inline-flex items-center gap-1 text-gray-500 hover:text-gray-800 font-bold text-sm">
+                            <i class="ph-bold ph-eye"></i>
+                        </a>
+                        <a th:href="@{/payments/{id}/edit(id=${p.id})}" class="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-800 font-bold text-sm">
+                            <i class="ph-bold ph-pencil-simple"></i>
+                        </a>
+                        <form th:action="@{/payments/{id}/delete(id=${p.id})}" method="post" class="inline" onsubmit="return confirm('Delete this payment record?');">
+                            <button type="submit" class="inline-flex items-center gap-1 text-red-500 hover:text-red-700 font-bold text-sm align-middle">
+                                <i class="ph-bold ph-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${payments == null or payments.isEmpty()}">
+                    <td colspan="6" class="py-12 text-center text-gray-500 font-medium">No payment records yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+</body>
+</html>

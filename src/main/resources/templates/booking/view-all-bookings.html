@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('All Bookings - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('bookings', 'Bookings')}"></th:block>
+<div class="fade-in">
+
+<div class="bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-600 rounded-3xl p-10 sm:p-12 text-white shadow-xl mb-10 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Full booking list</h1>
+                <p class="text-cyan-100 text-lg font-medium max-w-2xl leading-relaxed">Read-only snapshot of every reservation. Filter by keyword below.</p>
+            </div>
+            <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-cyan-100 text-xs font-bold uppercase tracking-wider mb-1">Shown</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${totalBookings}">0</p>
+                </div>
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-cyan-100 text-xs font-bold uppercase tracking-wider mb-1">Pending</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${pendingBookings}">0</p>
+                </div>
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-cyan-100 text-xs font-bold uppercase tracking-wider mb-1">Edit req</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${updateRequests}">0</p>
+                </div>
+                <div class="text-center px-4">
+                    <p class="text-cyan-100 text-xs font-bold uppercase tracking-wider mb-1">Cancel req</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${cancellationRequests}">0</p>
+                </div>
+            </div>
+        </div>
+        <i class="ph-fill ph-list absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-cyan-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-funnel text-2xl text-cyan-600"></i>
+                </div>
+                <span class="text-xs font-bold text-cyan-600 bg-cyan-50 px-2 py-1 rounded-lg">FILTER</span>
+            </div>
+            <p class="text-sm text-gray-600 mb-3">Search by ID, customer, vehicle, or status.</p>
+            <form th:if="${useAdminReservationBase}" th:action="@{/admin/reservations/view-all}" method="get" class="flex gap-2">
+                <input type="text" name="q" th:value="${searchQuery}" placeholder="Keyword…" class="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-400 outline-none"/>
+                <button type="submit" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-xl text-sm">Go</button>
+            </form>
+            <form th:unless="${useAdminReservationBase}" th:action="@{/bookings/view-all}" method="get" class="flex gap-2">
+                <input type="text" name="q" th:value="${searchQuery}" placeholder="Keyword…" class="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-400 outline-none"/>
+                <button type="submit" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-xl text-sm">Go</button>
+            </form>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover md:col-span-2 xl:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-teal-50 p-3 rounded-xl">
+                    <i class="ph-fill ph-info text-2xl text-teal-600"></i>
+                </div>
+                <span class="text-xs font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded-lg">NOTE</span>
+            </div>
+            <p class="text-sm text-gray-600 leading-relaxed">Counts in the hero reflect the <strong>filtered</strong> rows when a search is active. Use <a th:href="@{/bookings}" class="text-teal-600 font-bold hover:underline">Booking list</a> for edit and delete actions.</p>
+        </div>
+        <div class="bg-gradient-to-br from-cyan-600 to-teal-600 rounded-2xl p-6 text-white shadow-lg card-hover">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                    <i class="ph-fill ph-pencil-simple text-2xl text-white"></i>
+                </div>
+                <span class="text-xs font-bold text-white bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">CRUD</span>
+            </div>
+            <p class="text-lg font-extrabold mb-2">Manage records</p>
+            <p class="text-sm text-cyan-100 mb-4">View, edit, or delete bookings</p>
+            <a th:href="@{/bookings}" class="inline-flex items-center gap-2 bg-white text-teal-700 font-bold px-4 py-2 rounded-xl hover:bg-cyan-50 transition-colors text-sm">
+                <i class="ph-bold ph-arrow-right"></i> Booking list
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-3xl p-10 soft-card shadow-lg">
+        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white soft-card">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                <tr class="bg-slate-50 text-gray-500 text-sm uppercase tracking-wider border-b border-slate-200">
+                    <th class="py-4 px-6 font-bold">ID</th>
+                    <th class="py-4 px-6 font-bold">Customer</th>
+                    <th class="py-4 px-6 font-bold">Vehicle</th>
+                    <th class="py-4 px-6 font-bold">Date / Days</th>
+                    <th class="py-4 px-6 font-bold">Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="b : ${bookingList}" class="border-b border-slate-100 hover:bg-cyan-50/50 transition-colors">
+                    <td class="py-4 px-6 font-mono font-bold text-gray-900" th:text="${b.id}">id</td>
+                    <td class="py-4 px-6 font-semibold" th:text="${b.customerName}">c</td>
+                    <td class="py-4 px-6 font-medium text-sm" th:text="${vehicleNames.get(b.vehicleId) ?: b.vehicleId}">v</td>
+                    <td class="py-4 px-6 text-sm">
+                        <div th:text="${b.rentalDate}">d</div>
+                        <div class="text-gray-400 text-xs"><span th:text="${b.days}">1</span> days</div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <span class="bg-slate-100 text-slate-800 font-bold px-3 py-1 rounded-lg text-xs" th:text="${b.status}">s</span>
+                    </td>
+                </tr>
+                <tr th:if="${bookingList == null or bookingList.isEmpty()}">
+                    <td colspan="5" class="py-12 text-center text-gray-500 font-medium">No bookings in the system.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+</body>
+</html>

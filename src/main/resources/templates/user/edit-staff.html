@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Edit Staff - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('users', 'Edit Staff')}"></th:block>
+<div class="fade-in">
+
+<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
+<div class="max-w-lg w-full bg-white rounded-3xl shadow-2xl border-[3px] border-red-500 p-10">
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-red-50 text-red-600 mb-3">
+            <i class="ph-fill ph-user-gear text-3xl"></i>
+        </div>
+        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Edit staff</h1>
+        <p class="text-gray-500 text-sm mt-1">Update credentials and access role.</p>
+    </div>
+    <form method="post" th:action="@{/staff}" class="space-y-5">
+        <input type="hidden" name="action" value="update"/>
+        <input type="hidden" name="id" th:value="${staff.id}"/>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Full name</span>
+            <input type="text" name="name" th:value="${staff.name}" required class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-semibold focus:border-red-400 focus:ring-0 outline-none transition"/>
+        </label>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Email</span>
+            <input type="email" name="email" th:value="${staff.email}" required class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-semibold focus:border-red-400 outline-none"/>
+        </label>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Phone</span>
+            <input type="text" name="phone" th:value="${staff.phone}" class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-semibold focus:border-red-400 outline-none"/>
+        </label>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Username</span>
+            <input type="text" name="username" th:value="${staff.username}" required class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-semibold focus:border-red-400 outline-none"/>
+        </label>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Password</span>
+            <input type="text" name="password" th:value="${staff.password}" class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-mono text-sm focus:border-red-400 outline-none"/>
+        </label>
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Role</span>
+            <select name="role" class="mt-1 w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-bold bg-white focus:border-red-400 outline-none">
+                <option value="Admin" th:selected="${#strings.equalsIgnoreCase(staff.role, 'Admin')}">Admin</option>
+                <option value="Support" th:selected="${#strings.equalsIgnoreCase(staff.role, 'Support')}">Support</option>
+            </select>
+        </label>
+        <div class="flex gap-3 pt-4">
+            <a th:href="@{/staff}" class="flex-1 text-center bg-gray-100 text-gray-800 font-bold py-3 rounded-xl hover:bg-gray-200 transition">Cancel</a>
+            <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-red-600/25 transition">Save</button>
+        </div>
+    </form>
+</div>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Payment Detail - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('payments', 'Payment Detail')}"></th:block>
+<div class="fade-in">
+
+<div th:replace="~{layout :: navbar}"></div>
+<h1>Payment</h1>
+    <dl>
+        <dt>ID</dt>
+        <dd th:text="${payment.id}">-</dd>
+        <dt>Method</dt>
+        <dd th:text="${payment.paymentType}">-</dd>
+        <dt>Booking</dt>
+        <dd th:text="${payment.bookingId}">-</dd>
+        <dt>Amount</dt>
+        <dd th:text="${payment.amount}">-</dd>
+        <dt>Status</dt>
+        <dd th:text="${payment.status}">-</dd>
+    </dl>
+    <p class="actions">
+        <a class="btn btn-ghost" th:href="@{/payments}">Back</a>
+        <a class="btn btn-primary" th:href="@{/payments/{id}/edit(id=${payment.id})}">Edit</a>
+    </p>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+</body>
+</html>

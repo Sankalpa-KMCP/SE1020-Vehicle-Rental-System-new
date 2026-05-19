@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Search Bookings - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('bookings', 'Search Bookings')}"></th:block>
+<div class="fade-in">
+
+<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
+<form th:action="@{/bookings/search}" method="get" class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-4">
+        <label class="block">
+            <span class="text-xs font-bold text-gray-500 uppercase">Booking ID</span>
+            <input type="text" name="id" placeholder="Enter booking ID" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-mono font-semibold focus:ring-2 focus:ring-cyan-500 outline-none"/>
+        </label>
+        <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+            <i class="ph-bold ph-magnifying-glass"></i> Search
+        </button>
+    </form>
+
+    <div th:if="${searchAttempted}" class="mt-8 bg-white rounded-3xl border border-slate-200 shadow-lg p-8">
+        <th:block th:if="${searchedBooking != null}">
+            <h2 class="text-xl font-extrabold text-gray-900 mb-4">Result</h2>
+            <dl class="grid grid-cols-1 gap-3 text-sm">
+                <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500 font-semibold">ID</dt><dd class="font-mono font-bold" th:text="${searchedBooking.id}">id</dd></div>
+                <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500 font-semibold">Customer</dt><dd class="font-semibold" th:text="${searchedBooking.customerName}">c</dd></div>
+                <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500 font-semibold">Vehicle</dt><dd class="font-mono" th:text="${searchedBooking.vehicleId}">v</dd></div>
+                <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500 font-semibold">Rental date</dt><dd th:text="${searchedBooking.rentalDate}">d</dd></div>
+                <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500 font-semibold">Days</dt><dd th:text="${searchedBooking.days}">1</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500 font-semibold">Status</dt><dd class="font-bold text-cyan-700" th:text="${searchedBooking.status}">s</dd></div>
+            </dl>
+        </th:block>
+        <div th:if="${searchedBooking == null}" class="text-center text-gray-500 font-semibold py-6">
+            <i class="ph-fill ph-warning-circle text-3xl text-amber-500 mb-2 inline-block"></i>
+            <p>No booking found for that ID.</p>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+</body>
+</html>

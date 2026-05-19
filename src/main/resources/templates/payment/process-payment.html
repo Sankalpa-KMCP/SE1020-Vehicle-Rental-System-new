@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Process Payment - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('payments', 'Process Payment')}"></th:block>
+<div class="fade-in">
+
+<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
+<div th:if="${formError == 'booking_not_found'}" class="bg-red-50 border border-red-200 text-red-800 font-semibold px-4 py-3 rounded-xl flex items-center gap-2">
+        <i class="ph-fill ph-warning-circle text-xl"></i> Booking ID was not found.
+    </div>
+    <div th:if="${formError == 'booking_not_confirmed'}" class="bg-amber-50 border border-amber-200 text-amber-900 font-semibold px-4 py-3 rounded-xl flex items-center gap-2">
+        <i class="ph-fill ph-warning-circle text-xl"></i> Payment is only allowed for confirmed bookings.
+    </div>
+    <div th:if="${formError == 'booking_required'}" class="bg-red-50 border border-red-200 text-red-800 font-semibold px-4 py-3 rounded-xl flex items-center gap-2">
+        <i class="ph-fill ph-warning-circle text-xl"></i> Please select a booking.
+    </div>
+
+    <section class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8">
+        <h1 class="text-2xl font-extrabold text-gray-900 mb-2">New transaction</h1>
+        <p class="text-gray-500 text-sm mb-6">Record a payment against a confirmed booking (legacy flow).</p>
+        <form th:action="@{/payments}" method="post" class="space-y-5">
+            <input type="hidden" name="action" value="create"/>
+            <div class="grid md:grid-cols-2 gap-4">
+                <label class="block md:col-span-2">
+                    <span class="text-xs font-bold text-gray-500 uppercase">Booking</span>
+                    <select name="bookingId" required class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                        <option value="">— Select booking —</option>
+                        <option th:each="b : ${bookings}" th:value="${b.id}"
+                                th:text="${b.id + ' (' + b.bookingType + ') — ' + b.status}">b</option>
+                    </select>
+                </label>
+                <label class="block">
+                    <span class="text-xs font-bold text-gray-500 uppercase">Amount</span>
+                    <input type="number" step="0.01" name="amount" required min="0" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-blue-500 outline-none"/>
+                </label>
+                <label class="block">
+                    <span class="text-xs font-bold text-gray-500 uppercase">Manual payment ID (optional)</span>
+                    <input type="text" name="manualId" placeholder="Auto-generated if empty" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-blue-500 outline-none"/>
+                </label>
+                <label class="block">
+                    <span class="text-xs font-bold text-gray-500 uppercase">Method</span>
+                    <select name="method" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                        <option value="Card">Card</option>
+                        <option value="Cash">Cash</option>
+                    </select>
+                </label>
+                <label class="block">
+                    <span class="text-xs font-bold text-gray-500 uppercase">Status</span>
+                    <select name="status" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                        <option value="PAID">PAID</option>
+                        <option value="PENDING">PENDING</option>
+                        <option value="REFUNDED">REFUNDED</option>
+                    </select>
+                </label>
+            </div>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-600/25 transition flex items-center gap-2">
+                <i class="ph-bold ph-check-circle"></i> Save transaction
+            </button>
+        </form>
+    </section>
+
+    <section class="bg-slate-900 text-slate-100 rounded-3xl p-8 shadow-xl">
+        <h2 class="text-lg font-extrabold mb-4 flex items-center gap-2">
+            <i class="ph-bold ph-magnifying-glass text-sky-400"></i> Lookup payment
+        </h2>
+        <div class="flex flex-col sm:flex-row gap-3">
+            <input type="text" id="searchPaymentId" placeholder="Payment ID" class="flex-1 border border-slate-600 bg-slate-800 rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-sky-500 outline-none"/>
+            <button type="button" onclick="handleSearch()" class="bg-slate-700 hover:bg-slate-600 font-bold px-5 py-3 rounded-xl transition">View</button>
+            <button type="button" onclick="handleEdit()" class="bg-sky-600 hover:bg-sky-500 font-bold px-5 py-3 rounded-xl transition">Edit</button>
+            <button type="button" onclick="handleDelete()" class="bg-red-600 hover:bg-red-500 font-bold px-5 py-3 rounded-xl transition">Delete</button>
+        </div>
+        <form id="deletePaymentForm" method="post" class="hidden" aria-hidden="true"></form>
+    </section>
+
+    <details class="bg-white rounded-3xl border border-slate-200 shadow-lg p-6 group">
+        <summary class="font-extrabold text-gray-900 cursor-pointer list-none flex items-center justify-between">
+            <span>Polymorphic quick entry</span>
+            <i class="ph-bold ph-caret-down text-gray-400 group-open:rotate-180 transition-transform"></i>
+        </summary>
+        <div class="mt-6 pt-6 border-t border-gray-100">
+            <form class="form-grid space-y-4" method="post" th:action="@{/payments}">
+                <fieldset>
+                    <legend class="text-sm font-bold text-gray-600 mb-2">Payment method</legend>
+                    <div class="flex gap-4">
+                        <label class="font-semibold"><input type="radio" name="paymentType" value="CARD" th:checked="${paymentType == 'CARD'}"/> Card</label>
+                        <label class="font-semibold"><input type="radio" name="paymentType" value="CASH" th:checked="${paymentType == 'CASH'}"/> Cash</label>
+                    </div>
+                </fieldset>
+                <div id="cardBlock" th:object="${cardPayment}">
+                    <h3 class="font-bold text-gray-800 mb-2">Card</h3>
+                    <label class="block text-sm font-semibold">Booking
+                        <select th:field="*{bookingId}" required class="mt-1 w-full border rounded-lg px-3 py-2">
+                            <option value="">—</option>
+                            <option th:each="b : ${bookings}" th:value="${b.id}"
+                                    th:text="${b.id + ' (' + b.bookingType + ')'}">b</option>
+                        </select>
+                    </label>
+                    <label class="block text-sm font-semibold mt-2">Amount
+                        <input type="number" step="0.01" min="0" th:field="*{amount}" required class="mt-1 w-full border rounded-lg px-3 py-2"/>
+                    </label>
+                    <label class="block text-sm font-semibold mt-2">Status
+                        <input type="text" th:field="*{status}" placeholder="PAID" class="mt-1 w-full border rounded-lg px-3 py-2"/>
+                    </label>
+                </div>
+                <div id="cashBlock" th:object="${cashPayment}">
+                    <h3 class="font-bold text-gray-800 mb-2">Cash</h3>
+                    <label class="block text-sm font-semibold">Booking
+                        <select th:field="*{bookingId}" required class="mt-1 w-full border rounded-lg px-3 py-2">
+                            <option value="">—</option>
+                            <option th:each="b : ${bookings}" th:value="${b.id}"
+                                    th:text="${b.id + ' (' + b.bookingType + ')'}">b</option>
+                        </select>
+                    </label>
+                    <label class="block text-sm font-semibold mt-2">Amount
+                        <input type="number" step="0.01" min="0" th:field="*{amount}" required class="mt-1 w-full border rounded-lg px-3 py-2"/>
+                    </label>
+                    <label class="block text-sm font-semibold mt-2">Status
+                        <input type="text" th:field="*{status}" placeholder="PAID" class="mt-1 w-full border rounded-lg px-3 py-2"/>
+                    </label>
+                </div>
+                <button type="submit" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-xl hover:bg-slate-900">Save (polymorphic)</button>
+            </form>
+        </div>
+    </details>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var paymentsBase = /*[[@{/payments}]]*/ '/payments';
+    function handleSearch() {
+        var id = document.getElementById('searchPaymentId').value.trim();
+        if (!id) return;
+        window.location.href = paymentsBase + '/' + encodeURIComponent(id);
+    }
+    function handleEdit() {
+        var id = document.getElementById('searchPaymentId').value.trim();
+        if (!id) return;
+        window.location.href = paymentsBase + '/' + encodeURIComponent(id) + '/edit';
+    }
+    function handleDelete() {
+        var id = document.getElementById('searchPaymentId').value.trim();
+        if (!id) return;
+        if (!confirm('Delete this payment record?')) return;
+        var f = document.getElementById('deletePaymentForm');
+        f.action = paymentsBase + '/' + encodeURIComponent(id) + '/delete';
+        f.submit();
+    }
+    /*]]>*/
+</script>
+<script th:src="@{/js/payment.js}"></script>
+</body>
+</html>

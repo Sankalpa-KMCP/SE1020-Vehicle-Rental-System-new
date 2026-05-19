@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Reviews - DriveAway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/review.css}"/>
+</head>
+<body class="min-h-screen review-customer-page pb-16">
+<div class="max-w-5xl mx-auto px-6 pt-10">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">My reviews</h1>
+            <p class="text-gray-500 font-medium mt-1">View, edit, or remove feedback you have submitted.</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <a th:href="@{/customer/home}" class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-800 font-bold px-4 py-2.5 rounded-xl shadow-sm hover:bg-gray-50 transition">
+                <i class="ph-bold ph-house"></i> Portal
+            </a>
+            <a th:href="@{/customer/reviews/new}" class="inline-flex items-center gap-2 bg-orange-600 text-white font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-orange-600/25 hover:bg-orange-700 transition">
+                <i class="ph-bold ph-plus"></i> Write review
+            </a>
+        </div>
+    </div>
+
+    <p th:if="${reviewError != null}" class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm font-semibold" th:text="${reviewError}">Error</p>
+    <p th:if="${param.created != null and !#lists.isEmpty(param.created)}" class="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-900 text-sm font-semibold">
+        Your review was submitted successfully.
+    </p>
+    <p th:if="${param.updated != null and !#lists.isEmpty(param.updated)}" class="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-900 text-sm font-semibold">
+        Your review was updated.
+    </p>
+    <p th:if="${param.deleted != null and !#lists.isEmpty(param.deleted)}" class="mb-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-800 text-sm font-semibold">
+        Your review was deleted.
+    </p>
+
+    <div th:if="${myReviews == null or #lists.isEmpty(myReviews)}" class="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center">
+        <i class="ph-fill ph-star text-5xl text-amber-300 mb-4"></i>
+        <p class="text-gray-600 font-medium mb-6">You have not submitted any reviews yet.</p>
+        <a th:href="@{/customer/reviews/new}" class="inline-flex items-center gap-2 bg-orange-600 text-white font-bold px-5 py-3 rounded-xl hover:bg-orange-700 transition">
+            Write your first review <i class="ph-bold ph-arrow-right"></i>
+        </a>
+    </div>
+
+    <div th:unless="${myReviews == null or #lists.isEmpty(myReviews)}" class="grid gap-6">
+        <article th:each="r : ${myReviews}" class="bg-white rounded-3xl border border-slate-200/80 shadow-lg p-6 flex flex-col sm:flex-row sm:items-start gap-4 justify-between">
+            <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-3 mb-3">
+                    <span class="font-mono text-xs font-bold text-slate-500" th:text="${r.id}">id</span>
+                    <span class="inline-flex items-center gap-1 text-amber-600 font-extrabold text-sm">
+                        <i class="ph-fill ph-star"></i>
+                        <span th:text="${r.rating}">5</span>/5
+                    </span>
+                    <span th:if="${r.bookingId != null and !#strings.isEmpty(r.bookingId)}"
+                          class="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">
+                        Booking: <span th:text="${r.bookingId}">—</span>
+                    </span>
+                </div>
+                <p class="text-gray-700 leading-relaxed" th:text="${r.comments}">comment</p>
+                <div th:if="${r.staffReply != null and !#strings.isEmpty(r.staffReply)}" class="mt-4 rounded-xl border border-amber-100 bg-amber-50/80 p-4 text-sm">
+                    <p class="text-xs font-bold text-amber-800 uppercase mb-1">Staff reply</p>
+                    <p class="text-slate-700"><span class="font-semibold text-amber-900" th:text="${r.repliedBy}">staff</span>: <span th:text="${r.staffReply}">reply</span></p>
+                </div>
+            </div>
+            <div class="flex shrink-0 gap-2">
+                <a th:href="@{/customer/reviews/{id}/edit(id=${r.id})}"
+                   class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm px-4 py-2.5 rounded-xl transition">
+                    <i class="ph-bold ph-pencil-simple"></i> Edit
+                </a>
+                <form th:action="@{/customer/reviews/{id}/delete(id=${r.id})}" method="post" class="m-0"
+                      onsubmit="return confirm('Delete this review permanently?');">
+                    <button type="submit"
+                            class="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-sm px-4 py-2.5 rounded-xl transition">
+                        <i class="ph-bold ph-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </article>
+    </div>
+</div>
+</body>
+</html>

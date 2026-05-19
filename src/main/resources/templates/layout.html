@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle} ?: 'Vehicle Rental System'">Vehicle Rental System</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+</head>
+<body>
+<th:block th:fragment="navbar">
+    <th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
+    <header>
+        <nav class="nav">
+            <a class="brand" th:href="@{/}">VRS</a>
+            <a th:href="@{/customers}">Customers</a>
+            <a th:href="@{/staff}">Staff</a>
+            <a th:href="@{/users}">Users</a>
+            <a th:href="@{/vehicles}">Vehicles</a>
+            <a th:href="@{/bookings}">Bookings</a>
+            <a th:href="@{/admin/reservations}">Reservations</a>
+            <a th:href="@{/payments}">Payments</a>
+            <a th:href="@{/reviews}">Reviews</a>
+            <a th:href="@{/auth/login}">Login</a>
+            <a th:href="@{/auth/logout}">Logout</a>
+            <a th:href="@{/dashboard}">Dashboard</a>
+        </nav>
+    </header>
+</th:block>
+</body>
+</html>
