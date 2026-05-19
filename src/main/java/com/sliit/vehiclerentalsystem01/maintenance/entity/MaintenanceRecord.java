@@ -6,6 +6,7 @@ public class MaintenanceRecord {
 
     private String id;
     private String vehicleId;
+    private String vehicleType;
     private String status;
     private LocalDate lastServiceDate;
     private LocalDate nextServiceDate;
@@ -16,16 +17,27 @@ public class MaintenanceRecord {
 
     public MaintenanceRecord(String id,
                              String vehicleId,
+                             String vehicleType,
                              String status,
                              LocalDate lastServiceDate,
                              LocalDate nextServiceDate,
                              String notes) {
         this.id = id;
         this.vehicleId = vehicleId;
+        this.vehicleType = vehicleType;
         this.status = status;
         this.lastServiceDate = lastServiceDate;
         this.nextServiceDate = nextServiceDate;
         this.notes = notes;
+    }
+
+    public MaintenanceRecord(String id,
+                             String vehicleId,
+                             String status,
+                             LocalDate lastServiceDate,
+                             LocalDate nextServiceDate,
+                             String notes) {
+        this(id, vehicleId, "", status, lastServiceDate, nextServiceDate, notes);
     }
 
     public String getId() {
@@ -42,6 +54,14 @@ public class MaintenanceRecord {
 
     public void setVehicleId(String vehicleId) {
         this.vehicleId = vehicleId;
+    }
+
+    public String getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(String vehicleType) {
+        this.vehicleType = vehicleType;
     }
 
     public String getStatus() {

@@ -59,6 +59,7 @@ public class MaintenanceController {
     @PostMapping("/add")
     public String addRecord(HttpSession session,
                             @RequestParam String vehicleId,
+                            @RequestParam String vehicleType,
                             @RequestParam String status,
                             @RequestParam(required = false) String lastServiceDate,
                             @RequestParam(required = false) String nextServiceDate,
@@ -72,6 +73,8 @@ public class MaintenanceController {
         MaintenanceRecord record = new MaintenanceRecord();
 
         record.setVehicleId(vehicleId);
+
+        record.setVehicleType(vehicleType);
 
         record.setStatus(status);
 
