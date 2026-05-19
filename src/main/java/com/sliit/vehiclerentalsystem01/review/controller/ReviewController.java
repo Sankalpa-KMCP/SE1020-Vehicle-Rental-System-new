@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,7 +35,7 @@ public class ReviewController {
 
     @GetMapping("/form/admin")
     public String adminReviewForm(HttpSession session, RedirectAttributes redirectAttributes) {
-        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+        if (!Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
             return "redirect:/auth/staff-login";
         }
         redirectAttributes.addFlashAttribute("reviewNotice", REVIEW_CUSTOMER_ONLY_MSG);
@@ -43,7 +44,7 @@ public class ReviewController {
 
     @GetMapping
     public String list(Model model, HttpSession session) {
-        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+        if (!Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
             return "redirect:/auth/staff-login";
         }
         List<Feedback> all = reviewService.findAll();
@@ -51,6 +52,9 @@ public class ReviewController {
         List<CustomerReview> customerReviews = all.stream()
                 .filter(r -> r instanceof CustomerReview)
                 .map(r -> (CustomerReview) r)
+                .sorted(Comparator
+                        .comparing((CustomerReview r) -> Objects.toString(r.getRepliedAt(), ""), Comparator.reverseOrder())
+                        .thenComparing((CustomerReview r) -> Objects.toString(r.getReviewId(), ""), Comparator.reverseOrder()))
                 .toList();
         model.addAttribute("customerReviews", customerReviews);
         model.addAttribute("totalReviews", customerReviews.size());
@@ -66,7 +70,7 @@ public class ReviewController {
         model.addAttribute("avgRating", avgRating);
 
         String staffUser = "";
-        if (session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+        if (Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
             Object u = session.getAttribute(UserSessionKeys.USERNAME);
             staffUser = u == null ? "" : u.toString().trim();
         }
@@ -76,7 +80,7 @@ public class ReviewController {
 
     @GetMapping("/new")
     public String newForm(HttpSession session, RedirectAttributes redirectAttributes) {
-        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+        if (!Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
             return "redirect:/auth/staff-login";
         }
         redirectAttributes.addFlashAttribute("reviewNotice", REVIEW_CUSTOMER_ONLY_MSG);
@@ -85,7 +89,7 @@ public class ReviewController {
 
     @GetMapping("/{id}")
     public String detail(@PathVariable String id, HttpSession session, Model model) {
-        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+        if (!Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
             return "redirect:/auth/staff-login";
         }
         return reviewService.findById(id)
@@ -104,7 +108,7 @@ public class ReviewController {
             @RequestParam(required = false) String repliedBy,
             @RequestParam(required = false) String staffReply,
             RedirectAttributes redirectAttributes) {
-        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+        if (!Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
             return "redirect:/auth/staff-login";
         }
         if (!"STAFF_REPLY".equalsIgnoreCase(reviewType)) {

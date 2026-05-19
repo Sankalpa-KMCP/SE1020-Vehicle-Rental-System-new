@@ -18,6 +18,7 @@
         <table>
             <thead>
             <tr>
+                <th>Avatar</th>
                 <th>ID</th>
                 <th>Username</th>
                 <th>Email</th>
@@ -27,6 +28,7 @@
             </thead>
             <tbody>
             <tr th:each="u : ${users}">
+                <td><div th:replace="~{fragments/user-avatar :: avatar(user=${u}, size=40)}"></div></td>
                 <td th:text="${u.id}">id</td>
                 <td th:text="${u.username}">user</td>
                 <td th:text="${u.email}">email</td>

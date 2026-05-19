@@ -14,8 +14,12 @@ public class MaintenanceRecord {
     public MaintenanceRecord() {
     }
 
-    public MaintenanceRecord(String id, String vehicleId, String status,
-                             LocalDate lastServiceDate, LocalDate nextServiceDate, String notes) {
+    public MaintenanceRecord(String id,
+                             String vehicleId,
+                             String status,
+                             LocalDate lastServiceDate,
+                             LocalDate nextServiceDate,
+                             String notes) {
         this.id = id;
         this.vehicleId = vehicleId;
         this.status = status;

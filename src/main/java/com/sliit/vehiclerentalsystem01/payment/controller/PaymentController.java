@@ -5,6 +5,7 @@ import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
 import com.sliit.vehiclerentalsystem01.payment.entity.CardPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.CashPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
+import com.sliit.vehiclerentalsystem01.payment.entity.PaymentStatus;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import jakarta.servlet.http.HttpSession;
@@ -51,13 +52,13 @@ public class PaymentController {
         model.addAttribute("payments", payments);
         model.addAttribute("totalTransactions", payments.size());
         long paidCount = payments.stream()
-                .filter(p -> statusMatches(p.getStatus(), "PAID", "COMPLETED", "SETTLED"))
+                .filter(p -> PaymentStatus.fromString(p.getStatus()).isPaid())
                 .count();
         long pendingCount = payments.stream()
-                .filter(p -> statusMatches(p.getStatus(), "PENDING", "DUE", "AWAITING"))
+                .filter(p -> PaymentStatus.fromString(p.getStatus()).isPending())
                 .count();
         long refundedCount = payments.stream()
-                .filter(p -> statusMatches(p.getStatus(), "REFUND", "REFUNDED"))
+                .filter(p -> PaymentStatus.fromString(p.getStatus()).isRefunded())
                 .count();
         double totalAmount = payments.stream().mapToDouble(Payment::getAmount).sum();
         model.addAttribute("paidCount", paidCount);
@@ -65,19 +66,6 @@ public class PaymentController {
         model.addAttribute("refundedCount", refundedCount);
         model.addAttribute("totalAmount", totalAmount);
         return "payment/payment-dashboard";
-    }
-
-    private static boolean statusMatches(String status, String... tokens) {
-        if (status == null || status.isBlank()) {
-            return false;
-        }
-        String s = status.trim().toUpperCase();
-        for (String t : tokens) {
-            if (s.contains(t.toUpperCase())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @GetMapping("/new")

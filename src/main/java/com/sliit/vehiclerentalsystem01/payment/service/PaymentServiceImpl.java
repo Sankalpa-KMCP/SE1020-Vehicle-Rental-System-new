@@ -2,6 +2,7 @@ package com.sliit.vehiclerentalsystem01.payment.service;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
+import com.sliit.vehiclerentalsystem01.payment.entity.PaymentStatus;
 import com.sliit.vehiclerentalsystem01.payment.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
 
@@ -35,9 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
         if (payment.getAmount() < 0) {
             throw new ValidationException("invalid_amount");
         }
-        if (payment.getStatus() == null || payment.getStatus().isBlank()) {
-            payment.setStatus("PENDING");
-        }
+        payment.setStatus(PaymentStatus.fromString(payment.getStatus()).name());
         if (payment.getId() == null || payment.getId().isBlank()) {
             payment.setId(UUID.randomUUID().toString());
         }
@@ -55,19 +54,24 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.saveAll(list);
     }
 
+    /**
+     * Returns the most recent payment for the booking. Assumes {@code payments.txt}
+     * appends rows chronologically, so the last matching entry is the latest.
+     */
     @Override
     public Optional<Payment> findLatestByBookingId(String bookingId) {
         if (bookingId == null || bookingId.isBlank()) {
             return Optional.empty();
         }
         String key = bookingId.trim();
-        Payment latest = null;
-        for (Payment p : paymentRepository.findAll()) {
+        List<Payment> all = paymentRepository.findAll();
+        for (int i = all.size() - 1; i >= 0; i--) {
+            Payment p = all.get(i);
             if (key.equals(p.getBookingId())) {
-                latest = p;
+                return Optional.of(p);
             }
         }
-        return Optional.ofNullable(latest);
+        return Optional.empty();
     }
 
     @Override
@@ -87,10 +91,6 @@ public class PaymentServiceImpl implements PaymentService {
         String key = bookingId.trim();
         return paymentRepository.findAll().stream()
                 .filter(p -> key.equals(p.getBookingId()))
-                .anyMatch(p -> "PAID".equalsIgnoreCase(nullSafe(p.getStatus())));
-    }
-
-    private static String nullSafe(String s) {
-        return s == null ? "" : s.trim();
+                .anyMatch(p -> PaymentStatus.fromString(p.getStatus()).isPaid());
     }
 }

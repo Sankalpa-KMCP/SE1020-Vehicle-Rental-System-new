@@ -91,4 +91,58 @@ public abstract class Staff extends User {
             setRole("Support");
         }
     }
+
+    private static String safeCsvValue(String value) {
+        return value == null ? "" : value.replace(",", " ").trim();
+    }
+
+    /**
+     * CSV for file storage: ID,Name,Email,Phone,Username,Password,Role,ProfilePicture
+     */
+    @Override
+    public String toCSV() {
+        String roleValue = getRole();
+        if (roleValue == null || roleValue.isEmpty()) {
+            roleValue = "Support";
+        }
+        return safeCsvValue(getId()) + "," + safeCsvValue(getName()) + "," + safeCsvValue(getEmail()) + ","
+                + safeCsvValue(phone) + "," + safeCsvValue(username) + "," + safeCsvValue(password) + ","
+                + safeCsvValue(roleValue) + "," + safeCsvValue(getProfilePicture());
+    }
+
+    public static Staff fromCSV(String line) {
+        if (line == null || line.trim().isEmpty()) {
+            return null;
+        }
+        String[] data = line.split(",", -1);
+        if (data.length == 7) {
+            Staff staff = buildStaffFromFields(data, 6);
+            if (staff != null) {
+                staff.setProfilePicture("N/A");
+            }
+            return staff;
+        }
+        if (data.length == 8) {
+            Staff staff = buildStaffFromFields(data, 6);
+            if (staff != null) {
+                staff.setProfilePicture(data[7].trim());
+            }
+            return staff;
+        }
+        return null;
+    }
+
+    private static Staff buildStaffFromFields(String[] data, int roleIndex) {
+        String id = data[0].trim();
+        String name = data[1].trim();
+        String email = data[2].trim();
+        String phone = data[3].trim();
+        String username = data[4].trim();
+        String password = data[5].trim();
+        String role = data[roleIndex].trim();
+        if ("Admin".equalsIgnoreCase(role) || "ADMIN".equalsIgnoreCase(role)) {
+            return new AdminStaff(id, name, email, phone, username, password);
+        }
+        return new SupportStaff(id, name, email, phone, username, password);
+    }
 }

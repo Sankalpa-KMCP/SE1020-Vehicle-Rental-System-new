@@ -47,6 +47,9 @@ graph TD
 * **Repository Layer:** Custom thread-safe Object-to-Flat-File serialization system leveraging `ReentrantReadWriteLock` concurrency controls, high-speed Java NIO.2 file channels (`java.nio.file.Files`), and UTF-8 buffered readers/writers.
 * **Build System:** Apache Maven 3.9+
 
+### 🗄️ Custom Thread-Safe Flat-File Database Engine
+A defining architectural component of this application is its custom, enterprise-grade flat-file database engine implemented within the Repository layer. Moving beyond traditional relational databases, this system achieves bulletproof data integrity in concurrent web environments by employing `java.util.concurrent.locks.ReentrantReadWriteLock`. This mechanism distinguishes between shared read operations and exclusive write operations, guaranteeing that multiple threads can safely read data simultaneously while ensuring that modify-write transactions are executed as serializable, atomic operations. Furthermore, the engine is built with high resilience and fault-tolerant parsing; malformed lines or incomplete CSV records are gracefully intercepted, logged using the SLF4J API framework, and skipped without throwing HTTP 500 server errors. This ensures maximum system uptime and a smooth user experience.
+
 ---
 
 ## 🎨 Academic OOP Rubric Mapping
@@ -101,6 +104,11 @@ Feedback (Abstract)
 ## 🗄️ File Database & Repository Layer Specification
 
 The custom repository engine parses and serializes domain objects using structured delimiters. The database maintains transactional state through comma-delimited (`,`) and pipe-delimited (`|`) text files.
+
+### 🏛️ The Concurrency Architecture of the Flat-File Database Engine
+At the heart of the system is a highly structured and decoupled Flat-File Database Engine, designed to simulate a professional relational transaction processor without the overhead of external SQL engines. To prevent critical concurrency bugs—such as race conditions, lost updates, and dirty reads when multiple online customers attempt to check out vehicles simultaneously—the engine relies on explicit lock separation via `java.util.concurrent.locks.ReentrantReadWriteLock`. 
+
+Every read transaction (e.g., retrieving vehicles, loading profiles, displaying booking histories) acquires a non-blocking shared read lock, maximizing read throughput. Conversely, modifying transactions (e.g., saving user profiles, updating vehicle inventories, registering bookings) acquire an exclusive write lock, which suspends all other read/write access until the memory state is completely flushed to disk. Operating on a strict read-modify-write pattern, the engine buffers records in memory, performs transactional mutations, and serializes the complete state back to flat-files. In tandem, the engine integrates a fault-tolerant parser: rather than allowing corrupted file entries to trigger general application crashes or bubble up as HTTP 500 internal server exceptions, the repository utilizes localized try-catch blocks to skip malformed lines, log descriptive warnings via SLF4J, and continue loading valid records unimpeded.
 
 ### 🛡️ Enterprise-Grade Concurrency & Fault-Tolerance Engine
 To scale flat-file databases in multi-user environments, we implemented a sophisticated persistence architecture:

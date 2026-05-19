@@ -40,7 +40,9 @@
     <i class="ph-bold ph-warning-circle text-xl"></i> Please fill in all required fields.
   </div>
 
-  <form th:action="@{/customers}" method="post" class="space-y-6">
+  <form th:action="@{/customers}" method="post" enctype="multipart/form-data" class="space-y-6">
+    <div class="flex justify-center mb-6" th:replace="~{fragments/user-avatar :: avatar(user=${customer}, size=80)}"></div>
+    <th:block th:replace="~{fragments/user-avatar :: avatarInput}"></th:block>
     <input type="hidden" name="action" value="update"/>
     <input type="hidden" name="id" th:value="${customer.id}"/>
 

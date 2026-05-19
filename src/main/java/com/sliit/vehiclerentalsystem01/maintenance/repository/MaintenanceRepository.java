@@ -50,32 +50,32 @@ public class MaintenanceRepository {
         }
     }
 
-    /**
-     * Atomically upserts a maintenance record (replace by vehicleId, then persist full file).
-     */
     public void saveRecord(MaintenanceRecord record) {
         writeLock.lock();
         try {
             List<MaintenanceRecord> records = readRecordsFromDiskUnlocked();
+
             records.removeIf(r -> record.getVehicleId().equals(r.getVehicleId()));
+
             records.add(record);
+
             writeRecordsToDiskUnlocked(records);
         } finally {
             writeLock.unlock();
         }
     }
 
-    /**
-     * Atomically removes the record for the given vehicle id, if present. No-op for null/blank id.
-     */
     public void deleteRecordByVehicleId(String vehicleId) {
         if (vehicleId == null || vehicleId.isBlank()) {
             return;
         }
+
         writeLock.lock();
         try {
             List<MaintenanceRecord> records = readRecordsFromDiskUnlocked();
+
             records.removeIf(r -> vehicleId.equals(r.getVehicleId()));
+
             writeRecordsToDiskUnlocked(records);
         } finally {
             writeLock.unlock();
@@ -91,25 +91,28 @@ public class MaintenanceRepository {
         }
     }
 
-    /**
-     * Reads and parses maintenance records from disk without acquiring locks.
-     * Call only while holding {@link #writeLock}, or from {@link #findAll()} after taking {@link #readLock}.
-     */
     private List<MaintenanceRecord> readRecordsFromDiskUnlocked() {
         List<MaintenanceRecord> records = new ArrayList<>();
+
         Path path = maintenancePath();
+
         if (!Files.exists(path)) {
             return records;
         }
+
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             String line;
+
             while ((line = reader.readLine()) != null) {
                 String trimmed = line.trim();
+
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                     continue;
                 }
+
                 try {
                     MaintenanceRecord record = parseLine(trimmed);
+
                     if (record != null) {
                         records.add(record);
                     }
@@ -117,6 +120,7 @@ public class MaintenanceRepository {
                     log.warn("Skipping invalid maintenance line: {} — {}", trimmed, ex.getMessage());
                 }
             }
+
             return records;
         } catch (IOException e) {
             throw new StorageException("Maintenance repository file operation failed", e);
@@ -125,15 +129,19 @@ public class MaintenanceRepository {
 
     private void writeRecordsToDiskUnlocked(List<MaintenanceRecord> records) {
         Path path = maintenancePath();
+
         try {
             Files.createDirectories(path.getParent());
+
             try (BufferedWriter writer = Files.newBufferedWriter(
                     path,
                     StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING)) {
+
                 writer.write("# id|vehicleId|status|lastServiceDate|nextServiceDate|notes");
                 writer.newLine();
+
                 for (MaintenanceRecord record : records) {
                     writer.write(formatLine(record));
                     writer.newLine();
@@ -146,18 +154,24 @@ public class MaintenanceRepository {
 
     private MaintenanceRecord parseLine(String line) {
         String[] parts = line.split(DELIMITER, -1);
+
         if (parts.length < FIELD_COUNT) {
             throw new IllegalArgumentException("Expected " + FIELD_COUNT + " fields, got " + parts.length);
         }
+
         String id = nullSafeTrim(parts[0]);
         String vehicleId = nullSafeTrim(parts[1]);
         String status = nullSafeTrim(parts[2]);
+
         LocalDate lastServiceDate = parseDate(parts[3]);
         LocalDate nextServiceDate = parseDate(parts[4]);
+
         String notes = parts.length > 5 ? nullSafeTrim(parts[5]) : "";
+
         if (id.isEmpty() || vehicleId.isEmpty()) {
             throw new IllegalArgumentException("id and vehicleId are required");
         }
+
         return new MaintenanceRecord(id, vehicleId, status, lastServiceDate, nextServiceDate, notes);
     }
 
@@ -175,6 +189,7 @@ public class MaintenanceRepository {
         if (value == null || value.isBlank()) {
             return null;
         }
+
         return LocalDate.parse(value.trim());
     }
 
