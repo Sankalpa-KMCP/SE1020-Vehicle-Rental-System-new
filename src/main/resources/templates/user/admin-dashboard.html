@@ -61,7 +61,7 @@
             </div>
             <div class="admin-stat-card__body">
               <span class="admin-stat-card__value" th:text="${maintenanceCount}">0</span>
-              <span class="admin-stat-card__label">Under Maintenance</span>
+              <span class="admin-stat-card__label">Maintenance Records</span>
             </div>
           </div>
           <div class="admin-stat-card admin-stat-card--bookings">
@@ -140,10 +140,10 @@
               <i class="ph-bold ph-wrench"></i>
             </div>
             <div class="admin-module-card__body">
-              <h3 class="admin-module-card__title">Maintenance &amp; Availability</h3>
-              <p class="admin-module-card__desc">Track vehicle service schedules and real-time availability.</p>
+              <h3 class="admin-module-card__title">Maintenance Register</h3>
+              <p class="admin-module-card__desc">Track vehicle service schedules, photos, mileage, and repair reasons.</p>
               <p class="admin-module-card__meta"
-                 th:text="|${availableCount} available • ${maintenanceCount} in service|">0 available • 0 in service</p>
+                 th:text="|${maintenanceCount} maintenance records|">0 maintenance records</p>
             </div>
             <span class="admin-module-card__arrow" aria-hidden="true">
               <i class="ph-bold ph-arrow-right"></i>

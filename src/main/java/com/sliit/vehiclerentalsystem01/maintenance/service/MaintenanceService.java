@@ -9,23 +9,11 @@ public interface MaintenanceService {
 
     List<MaintenanceRecord> findAll();
 
-    List<MaintenanceRecord> findAvailableVehicles();
-
-    List<MaintenanceRecord> findInMaintenance();
-
-    List<MaintenanceRecord> findInUse();
-
-    int countAvailable();
-
     int countInMaintenance();
-
-    int countInUse();
 
     Optional<MaintenanceRecord> findByVehicleId(String vehicleId);
 
     void addRecord(MaintenanceRecord record);
-
-    void updateStatus(String vehicleId, String status);
 
     void deleteRecord(String vehicleId);
 }
