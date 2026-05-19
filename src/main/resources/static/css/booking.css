@@ -1,1 +1,210 @@
-/* Booking feature overrides */
+/* Booking feature dark theme */
+:root {
+  --booking-bg: #050506;
+  --booking-panel: rgba(15, 23, 42, 0.86);
+  --booking-panel-strong: rgba(8, 13, 24, 0.94);
+  --booking-panel-soft: rgba(30, 41, 59, 0.72);
+  --booking-border: rgba(148, 163, 184, 0.22);
+  --booking-border-strong: rgba(6, 182, 212, 0.36);
+  --booking-text: #f8fafc;
+  --booking-muted: #94a3b8;
+  --booking-cyan: #22d3ee;
+  --booking-gold: #fbbf24;
+  --booking-red: #fb7185;
+}
+
+body.booking-theme {
+  min-height: 100vh;
+  color: var(--booking-text) !important;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% -20%, rgba(6, 182, 212, 0.24), transparent 65%),
+    radial-gradient(ellipse 55% 40% at 88% 12%, rgba(251, 191, 36, 0.10), transparent 62%),
+    linear-gradient(180deg, #050506 0%, #08111f 55%, #050506 100%) !important;
+}
+
+body.booking-theme .admin-main {
+  background: transparent;
+}
+
+body.booking-theme .bg-white,
+body.booking-theme .bg-slate-50,
+body.booking-theme .bg-slate-100,
+body.booking-theme .bg-gray-50,
+body.booking-theme .bg-gray-100 {
+  background-color: var(--booking-panel) !important;
+}
+
+body.booking-theme .soft-card,
+body.booking-theme .shadow-lg,
+body.booking-theme .shadow-xl {
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42) !important;
+}
+
+body.booking-theme .border,
+body.booking-theme .border-gray-100,
+body.booking-theme .border-gray-200,
+body.booking-theme .border-gray-300,
+body.booking-theme .border-slate-100,
+body.booking-theme .border-slate-200,
+body.booking-theme .border-slate-200\/80 {
+  border-color: var(--booking-border) !important;
+}
+
+body.booking-theme .bg-gradient-to-br.from-cyan-600,
+body.booking-theme .bg-gradient-to-r.from-cyan-50,
+body.booking-theme .bg-gradient-to-r.from-blue-50,
+body.booking-theme .bg-gradient-to-r.from-red-50 {
+  background:
+    linear-gradient(135deg, rgba(8, 13, 24, 0.96), rgba(12, 74, 110, 0.70)),
+    radial-gradient(circle at top right, rgba(34, 211, 238, 0.28), transparent 42%) !important;
+  border: 1px solid var(--booking-border-strong);
+}
+
+body.booking-theme .rounded-3xl,
+body.booking-theme .rounded-\[24px\] {
+  backdrop-filter: blur(18px);
+}
+
+body.booking-theme .text-gray-900,
+body.booking-theme .text-gray-800,
+body.booking-theme .text-gray-700,
+body.booking-theme .text-slate-800,
+body.booking-theme .text-slate-700 {
+  color: var(--booking-text) !important;
+}
+
+body.booking-theme .text-gray-600,
+body.booking-theme .text-gray-500,
+body.booking-theme .text-gray-400,
+body.booking-theme .text-slate-500,
+body.booking-theme .text-slate-400 {
+  color: var(--booking-muted) !important;
+}
+
+body.booking-theme .text-cyan-600,
+body.booking-theme .text-cyan-700,
+body.booking-theme .text-teal-600,
+body.booking-theme .text-teal-700,
+body.booking-theme .text-indigo-500,
+body.booking-theme .text-indigo-600 {
+  color: var(--booking-cyan) !important;
+}
+
+body.booking-theme .text-amber-600,
+body.booking-theme .text-yellow-700,
+body.booking-theme .text-\[\#F59E0B\] {
+  color: var(--booking-gold) !important;
+}
+
+body.booking-theme .text-red-500,
+body.booking-theme .text-red-600,
+body.booking-theme .text-red-700,
+body.booking-theme .text-\[\#EF4444\] {
+  color: var(--booking-red) !important;
+}
+
+body.booking-theme input,
+body.booking-theme select,
+body.booking-theme textarea {
+  color: var(--booking-text) !important;
+  background-color: rgba(2, 6, 23, 0.78) !important;
+  border-color: var(--booking-border) !important;
+}
+
+body.booking-theme input:focus,
+body.booking-theme select:focus,
+body.booking-theme textarea:focus {
+  border-color: var(--booking-cyan) !important;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.18) !important;
+}
+
+body.booking-theme input::placeholder,
+body.booking-theme textarea::placeholder {
+  color: #64748b !important;
+}
+
+body.booking-theme input[readonly] {
+  color: #cbd5e1 !important;
+  background-color: rgba(15, 23, 42, 0.92) !important;
+}
+
+body.booking-theme table {
+  color: var(--booking-text);
+}
+
+body.booking-theme thead tr {
+  background-color: rgba(15, 23, 42, 0.96) !important;
+  color: #cbd5e1 !important;
+}
+
+body.booking-theme tbody tr {
+  border-color: var(--booking-border) !important;
+}
+
+body.booking-theme tbody tr:hover {
+  background-color: rgba(6, 182, 212, 0.10) !important;
+}
+
+body.booking-theme .bg-cyan-50,
+body.booking-theme .bg-blue-50,
+body.booking-theme .bg-indigo-50,
+body.booking-theme .bg-teal-50 {
+  background-color: rgba(6, 182, 212, 0.12) !important;
+}
+
+body.booking-theme .bg-green-50 {
+  background-color: rgba(34, 197, 94, 0.14) !important;
+}
+
+body.booking-theme .bg-yellow-50,
+body.booking-theme .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.14) !important;
+}
+
+body.booking-theme .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.14) !important;
+}
+
+body.booking-theme .bg-slate-900 {
+  background-color: var(--booking-cyan) !important;
+  color: #06202a !important;
+}
+
+body.booking-theme .bg-cyan-600,
+body.booking-theme .bg-indigo-600,
+body.booking-theme .bg-\[\#06B6D4\] {
+  background-color: var(--booking-cyan) !important;
+  color: #06202a !important;
+}
+
+body.booking-theme .bg-\[\#F59E0B\] {
+  background-color: var(--booking-gold) !important;
+  color: #211400 !important;
+}
+
+body.booking-theme .bg-\[\#EF4444\],
+body.booking-theme .bg-red-600 {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+body.booking-theme hr {
+  border-color: var(--booking-border) !important;
+}
+
+body.booking-theme a:hover,
+body.booking-theme button:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 640px) {
+  body.booking-theme .p-10 {
+    padding: 1.5rem !important;
+  }
+
+  body.booking-theme .text-4xl,
+  body.booking-theme .text-5xl {
+    font-size: 2rem !important;
+    line-height: 1.1 !important;
+  }
+}

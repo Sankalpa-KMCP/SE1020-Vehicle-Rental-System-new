@@ -6,8 +6,9 @@
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
+    <link rel="stylesheet" th:href="@{/css/booking.css}"/>
 </head>
-<body class="admin-shell text-gray-800">
+<body class="admin-shell booking-theme text-gray-800">
 <th:block th:replace="~{fragments/admin-shell :: shellOpen('bookings', 'Booking Form')}"></th:block>
 <div class="fade-in">
 
