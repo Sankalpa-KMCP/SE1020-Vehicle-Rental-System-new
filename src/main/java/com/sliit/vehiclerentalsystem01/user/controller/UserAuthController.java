@@ -1,13 +1,13 @@
-package com.sliit.vehiclerentalsystem01.user.controller;
+﻿package com.sliit.vehiclerentalsystem01.user.controller;
 
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.entity.Staff;
 import com.sliit.vehiclerentalsystem01.user.entity.User;
+import com.sliit.vehiclerentalsystem01.user.service.MasterAdminPendingService;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,27 +16,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.time.Instant;
 import java.util.UUID;
 
 @Controller
 @RequestMapping("/auth")
 public class UserAuthController {
 
-    private static final String STAFF_REQUESTS_FILE = "staff_access_requests.txt";
-
     private final UserService userService;
+    private final MasterAdminPendingService pendingService;
 
-    @Value("${app.data.directory:data}")
-    private String dataDirectory;
-
-    public UserAuthController(UserService userService) {
+    public UserAuthController(UserService userService, MasterAdminPendingService pendingService) {
         this.userService = userService;
+        this.pendingService = pendingService;
     }
 
     @GetMapping("/login")
@@ -113,21 +104,13 @@ public class UserAuthController {
             return "redirect:/auth/staff-login?error=username_taken";
         }
         try {
-            appendStaffAccessRequestLine(user);
+            pendingService.appendStaffAccessRequestLine(user);
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute("error", "Could not save your request. Try again later.");
             return "redirect:/auth/staff-login?error=invalid";
         }
         redirectAttributes.addFlashAttribute("message", "Request recorded for Master Admin review.");
         return "redirect:/auth/staff-login?success=requested";
-    }
-
-    private void appendStaffAccessRequestLine(String username) throws IOException {
-        Path dir = Paths.get(dataDirectory).toAbsolutePath().normalize();
-        Files.createDirectories(dir);
-        Path file = dir.resolve(STAFF_REQUESTS_FILE);
-        String line = Instant.now().toString() + "," + username + System.lineSeparator();
-        Files.writeString(file, line, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     }
 
     private void establishAuthenticatedSession(HttpSession session, User u) {
@@ -239,3 +222,4 @@ public class UserAuthController {
         return v.trim();
     }
 }
+

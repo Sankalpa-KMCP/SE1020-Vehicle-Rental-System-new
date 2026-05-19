@@ -20,7 +20,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Repository
 public class UserRepository {
@@ -28,6 +29,10 @@ public class UserRepository {
     private static final String FILE_NAME = "users.txt";
 
     private static final Logger log = LoggerFactory.getLogger(UserRepository.class);
+
+    private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final Lock readLock = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
 
     @Value("${app.data.directory:data}")
     private String dataDirectory;
@@ -43,22 +48,84 @@ public class UserRepository {
     }
 
     public List<User> findAll() {
+        readLock.lock();
+        try {
+            return readUsersFromDiskUnlocked();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
+     * Atomically upserts a user (replace by id, then persist full file).
+     */
+    public void saveUser(User user) {
+        writeLock.lock();
+        try {
+            List<User> users = readUsersFromDiskUnlocked();
+            users.removeIf(u -> user.getId().equals(u.getId()));
+            users.add(user);
+            writeUsersToDiskUnlocked(users);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    /**
+     * Atomically removes the user with the given id, if present. No-op for null/blank id.
+     */
+    public void deleteUserById(String id) {
+        if (id == null || id.isBlank()) {
+            return;
+        }
+        writeLock.lock();
+        try {
+            List<User> users = readUsersFromDiskUnlocked();
+            users.removeIf(u -> id.equals(u.getId()));
+            writeUsersToDiskUnlocked(users);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public void saveAll(List<User> users) {
+        writeLock.lock();
+        try {
+            writeUsersToDiskUnlocked(users);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    /**
+     * Reads and parses users from disk without acquiring locks.
+     * Call only while holding {@link #writeLock}, or from {@link #findAll()} after taking {@link #readLock}.
+     */
+    private List<User> readUsersFromDiskUnlocked() {
         Path path = usersPath();
         if (!Files.exists(path)) {
             return new ArrayList<>();
         }
         try {
-            return Files.readAllLines(path, StandardCharsets.UTF_8).stream()
-                    .map(String::trim)
-                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-                    .map(this::parseLine)
-                    .collect(Collectors.toCollection(ArrayList::new));
+            List<User> result = new ArrayList<>();
+            for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+                    continue;
+                }
+                try {
+                    result.add(parseLine(trimmed));
+                } catch (IllegalArgumentException ex) {
+                    log.warn("Skipping malformed user line: {}", trimmed, ex);
+                }
+            }
+            return result;
         } catch (IOException e) {
             throw new StorageException("Database file operation failed", e);
         }
     }
 
-    public void saveAll(List<User> users) {
+    private void writeUsersToDiskUnlocked(List<User> users) {
         Path path = usersPath();
         try {
             Files.createDirectories(path.getParent());

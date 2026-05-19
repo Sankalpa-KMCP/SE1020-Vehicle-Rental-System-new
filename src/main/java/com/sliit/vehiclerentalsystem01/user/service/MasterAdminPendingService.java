@@ -1,4 +1,4 @@
-package com.sliit.vehiclerentalsystem01.user.service;
+﻿package com.sliit.vehiclerentalsystem01.user.service;
 
 import com.sliit.vehiclerentalsystem01.user.entity.SupportStaff;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,23 +10,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/**
- * Reads and updates pending staff/admin access requests. Primary file is
- * {@code <data.directory>/staff_access_requests.txt} (where {@code UserAuthController} writes new
- * requests); the legacy {@code ~/RentalData/pending_admins.txt} is also read for backward
- * compatibility but never written to.
- */
 @Service
 public class MasterAdminPendingService {
 
     static final String PRIMARY_FILE = "staff_access_requests.txt";
+
+    private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final Lock readLock = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
 
     private final UserService userService;
 
@@ -46,13 +47,35 @@ public class MasterAdminPendingService {
     }
 
     public List<String> readPendingLines() {
-        List<String> lines = new ArrayList<>();
-        lines.addAll(readLines(primaryPath()));
-        lines.addAll(readLines(legacyPath()));
-        return Collections.unmodifiableList(lines);
+        readLock.lock();
+        try {
+            List<String> lines = new ArrayList<>();
+            lines.addAll(readLinesUnlocked(primaryPath()));
+            lines.addAll(readLinesUnlocked(legacyPath()));
+            return Collections.unmodifiableList(lines);
+        } finally {
+            readLock.unlock();
+        }
     }
 
-    private List<String> readLines(Path file) {
+    public void appendStaffAccessRequestLine(String username) throws IOException {
+        if (username == null || username.isBlank()) {
+            throw new IOException("username required");
+        }
+        writeLock.lock();
+        try {
+            Path dir = Paths.get(dataDirectory).toAbsolutePath().normalize();
+            Files.createDirectories(dir);
+            Path file = dir.resolve(PRIMARY_FILE);
+            String line = Instant.now().toString() + "," + username.trim() + System.lineSeparator();
+            Files.writeString(file, line, StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    private List<String> readLinesUnlocked(Path file) {
         if (file == null || !Files.isRegularFile(file)) {
             return List.of();
         }
@@ -66,43 +89,40 @@ public class MasterAdminPendingService {
         }
     }
 
-    /**
-     * Removes a single line from the primary requests file. The legacy file is left untouched.
-     * Returns {@code true} when at least one matching line was removed.
-     */
     public boolean removeLine(String exactLine) {
         if (exactLine == null) {
             return false;
         }
-        Path file = primaryPath();
-        if (!Files.isRegularFile(file)) {
-            return false;
-        }
+        writeLock.lock();
         try {
-            List<String> kept = new ArrayList<>();
-            boolean removed = false;
-            for (String raw : Files.readAllLines(file, StandardCharsets.UTF_8)) {
-                String trimmed = raw == null ? "" : raw.trim();
-                if (!removed && trimmed.equals(exactLine.trim())) {
-                    removed = true;
-                    continue;
+            Path file = primaryPath();
+            if (!Files.isRegularFile(file)) {
+                return false;
+            }
+            try {
+                List<String> kept = new ArrayList<>();
+                boolean removed = false;
+                for (String raw : Files.readAllLines(file, StandardCharsets.UTF_8)) {
+                    String trimmed = raw == null ? "" : raw.trim();
+                    if (!removed && trimmed.equals(exactLine.trim())) {
+                        removed = true;
+                        continue;
+                    }
+                    kept.add(raw);
                 }
-                kept.add(raw);
+                if (removed) {
+                    Files.write(file, kept, StandardCharsets.UTF_8,
+                            StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                }
+                return removed;
+            } catch (IOException e) {
+                return false;
             }
-            if (removed) {
-                Files.write(file, kept, StandardCharsets.UTF_8,
-                        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            }
-            return removed;
-        } catch (IOException e) {
-            return false;
+        } finally {
+            writeLock.unlock();
         }
     }
 
-    /**
-     * Promotes a pending request line into a fresh {@link SupportStaff} account, then removes
-     * the line from the primary requests file. The temporary password is the result.
-     */
     public String approve(String pendingLine) {
         String username = parseUsername(pendingLine);
         if (username.isEmpty()) {
@@ -121,7 +141,6 @@ public class MasterAdminPendingService {
         return tempPassword;
     }
 
-    /** Extracts a {@code username} component from a pending line in either CSV or label format. */
     public static String parseUsername(String line) {
         if (line == null) {
             return "";

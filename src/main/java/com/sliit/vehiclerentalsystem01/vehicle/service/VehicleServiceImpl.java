@@ -7,11 +7,9 @@ import com.sliit.vehiclerentalsystem01.vehicle.repository.VehicleRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class VehicleServiceImpl implements VehicleService {
@@ -49,10 +47,7 @@ public class VehicleServiceImpl implements VehicleService {
         if (vehicle.getId() == null || vehicle.getId().isBlank()) {
             vehicle.setId(UUID.randomUUID().toString());
         }
-        List<Vehicle> list = new ArrayList<>(vehicleRepository.findAll());
-        list.removeIf(v -> vehicle.getId().equals(v.getId()));
-        list.add(vehicle);
-        vehicleRepository.saveAll(list);
+        vehicleRepository.saveVehicle(vehicle);
     }
 
     /**
@@ -68,9 +63,6 @@ public class VehicleServiceImpl implements VehicleService {
         if (reservationService.findUnavailableVehicleIds().contains(id.trim())) {
             throw new IllegalStateException("vehicle_in_use");
         }
-        List<Vehicle> list = vehicleRepository.findAll().stream()
-                .filter(v -> !id.equals(v.getId()))
-                .collect(Collectors.toCollection(ArrayList::new));
-        vehicleRepository.saveAll(list);
+        vehicleRepository.deleteVehicleById(id);
     }
 }

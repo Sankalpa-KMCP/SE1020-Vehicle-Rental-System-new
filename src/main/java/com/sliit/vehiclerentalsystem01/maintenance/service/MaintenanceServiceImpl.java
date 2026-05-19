@@ -110,9 +110,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             record.setStatus(record.getStatus().trim());
         }
         record.setVehicleId(vehicleId);
-        List<MaintenanceRecord> list = new ArrayList<>(maintenanceRepository.findAll());
-        list.add(record);
-        maintenanceRepository.saveAll(list);
+        maintenanceRepository.saveRecord(record);
     }
 
     @Override
@@ -122,14 +120,11 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         }
         validateStatus(status);
         String key = vehicleId.trim();
-        List<MaintenanceRecord> list = new ArrayList<>(maintenanceRepository.findAll());
-        MaintenanceRecord record = list.stream()
-                .filter(r -> key.equals(r.getVehicleId()))
-                .findFirst()
+        MaintenanceRecord record = findByVehicleId(key)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "No maintenance record found for vehicle: " + key));
         record.setStatus(status.trim());
-        maintenanceRepository.saveAll(list);
+        maintenanceRepository.saveRecord(record);
     }
 
     @Override
@@ -138,12 +133,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             return;
         }
         String key = vehicleId.trim();
-        List<MaintenanceRecord> list = maintenanceRepository.findAll().stream()
-                .filter(r -> !key.equals(r.getVehicleId()))
-                .toList();
-        if (list.size() < maintenanceRepository.findAll().size()) {
-            maintenanceRepository.saveAll(new ArrayList<>(list));
-        }
+        maintenanceRepository.deleteRecordByVehicleId(key);
     }
 
     private List<MaintenanceRecord> seedDefaults() {

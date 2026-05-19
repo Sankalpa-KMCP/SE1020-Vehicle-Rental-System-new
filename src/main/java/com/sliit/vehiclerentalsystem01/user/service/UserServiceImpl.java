@@ -87,10 +87,7 @@ public class UserServiceImpl implements UserService {
             user.setId(UUID.randomUUID().toString());
         }
         validateBeforeSave(user);
-        List<User> users = new ArrayList<>(userRepository.findAll());
-        users.removeIf(u -> user.getId().equals(u.getId()));
-        users.add(user);
-        userRepository.saveAll(users);
+        userRepository.saveUser(user);
     }
 
     /**
@@ -112,10 +109,7 @@ public class UserServiceImpl implements UserService {
                     }
                 });
 
-        List<User> users = userRepository.findAll().stream()
-                .filter(u -> !id.equals(u.getId()))
-                .collect(Collectors.toCollection(ArrayList::new));
-        userRepository.saveAll(users);
+        userRepository.deleteUserById(id);
     }
 
     /**
