@@ -18,7 +18,7 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentServiceImpl(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
     }
-gi
+
     @Override
     public List<Payment> findAll() {
         // The repository already knows how to read every payment from storage.
