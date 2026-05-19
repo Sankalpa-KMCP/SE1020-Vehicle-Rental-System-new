@@ -27,7 +27,8 @@ public class MaintenanceRepository {
     private static final String FILE_NAME = "maintenance.txt";
     private static final String DELIMITER = "\\|";
     private static final int MIN_FIELD_COUNT = 6;
-    private static final int FIELD_COUNT = 7;
+    private static final int LEGACY_WITH_TYPE_FIELD_COUNT = 7;
+    private static final int FIELD_COUNT = 10;
 
     private static final Logger log = LoggerFactory.getLogger(MaintenanceRepository.class);
 
@@ -140,7 +141,7 @@ public class MaintenanceRepository {
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING)) {
 
-                writer.write("# id|vehicleId|vehicleType|status|lastServiceDate|nextServiceDate|notes");
+                writer.write("# id|vehicleId|vehicleType|vehicleModel|mileage|photoFileName|lastServiceDate|nextServiceDate|maintenanceReason|notes");
                 writer.newLine();
 
                 for (MaintenanceRecord record : records) {
@@ -160,11 +161,50 @@ public class MaintenanceRepository {
             throw new IllegalArgumentException("Expected at least " + MIN_FIELD_COUNT + " fields, got " + parts.length);
         }
 
+        if (parts.length >= FIELD_COUNT) {
+            return parseCurrentLine(parts);
+        }
+
+        return parseLegacyLine(parts);
+    }
+
+    private MaintenanceRecord parseCurrentLine(String[] parts) {
         String id = nullSafeTrim(parts[0]);
         String vehicleId = nullSafeTrim(parts[1]);
-        boolean hasVehicleType = parts.length >= FIELD_COUNT;
+        String vehicleType = nullSafeTrim(parts[2]);
+        String vehicleModel = nullSafeTrim(parts[3]);
+        String mileage = nullSafeTrim(parts[4]);
+        String photoFileName = nullSafeTrim(parts[5]);
+
+        LocalDate lastServiceDate = parseDate(parts[6]);
+        LocalDate nextServiceDate = parseDate(parts[7]);
+
+        String maintenanceReason = nullSafeTrim(parts[8]);
+        String notes = nullSafeTrim(parts[9]);
+
+        if (id.isEmpty() || vehicleId.isEmpty()) {
+            throw new IllegalArgumentException("id and vehicleId are required");
+        }
+
+        return new MaintenanceRecord(
+                id,
+                vehicleId,
+                vehicleType,
+                vehicleModel,
+                mileage,
+                photoFileName,
+                lastServiceDate,
+                nextServiceDate,
+                maintenanceReason,
+                notes);
+    }
+
+    private MaintenanceRecord parseLegacyLine(String[] parts) {
+        String id = nullSafeTrim(parts[0]);
+        String vehicleId = nullSafeTrim(parts[1]);
+        boolean hasVehicleType = parts.length >= LEGACY_WITH_TYPE_FIELD_COUNT;
         String vehicleType = hasVehicleType ? nullSafeTrim(parts[2]) : "";
-        String status = hasVehicleType ? nullSafeTrim(parts[3]) : nullSafeTrim(parts[2]);
+        String legacyStatus = hasVehicleType ? nullSafeTrim(parts[3]) : nullSafeTrim(parts[2]);
 
         LocalDate lastServiceDate = parseDate(hasVehicleType ? parts[4] : parts[3]);
         LocalDate nextServiceDate = parseDate(hasVehicleType ? parts[5] : parts[4]);
@@ -175,18 +215,33 @@ public class MaintenanceRepository {
             throw new IllegalArgumentException("id and vehicleId are required");
         }
 
-        return new MaintenanceRecord(id, vehicleId, vehicleType, status, lastServiceDate, nextServiceDate, notes);
+        String maintenanceReason = legacyStatus.equals("MAINTENANCE") ? "General Service" : "";
+
+        return new MaintenanceRecord(
+                id,
+                vehicleId,
+                vehicleType,
+                "",
+                "",
+                "",
+                lastServiceDate,
+                nextServiceDate,
+                maintenanceReason,
+                notes);
     }
 
     private String formatLine(MaintenanceRecord record) {
         return String.join("|",
-                nullSafe(record.getId()),
-                nullSafe(record.getVehicleId()),
-                nullSafe(record.getVehicleType()),
-                nullSafe(record.getStatus()),
+                storageSafe(record.getId()),
+                storageSafe(record.getVehicleId()),
+                storageSafe(record.getVehicleType()),
+                storageSafe(record.getVehicleModel()),
+                storageSafe(record.getMileage()),
+                storageSafe(record.getPhotoFileName()),
                 formatDate(record.getLastServiceDate()),
                 formatDate(record.getNextServiceDate()),
-                nullSafe(record.getNotes()));
+                storageSafe(record.getMaintenanceReason()),
+                storageSafe(record.getNotes()));
     }
 
     private static LocalDate parseDate(String value) {
@@ -207,5 +262,9 @@ public class MaintenanceRepository {
 
     private static String nullSafe(String value) {
         return value == null ? "" : value;
+    }
+
+    private static String storageSafe(String value) {
+        return nullSafe(value).replace("|", "/");
     }
 }

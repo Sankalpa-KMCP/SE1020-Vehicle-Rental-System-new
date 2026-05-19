@@ -2,7 +2,6 @@ package com.sliit.vehiclerentalsystem01.maintenance.service;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.maintenance.entity.MaintenanceRecord;
-import com.sliit.vehiclerentalsystem01.maintenance.entity.MaintenanceStatus;
 import com.sliit.vehiclerentalsystem01.maintenance.repository.MaintenanceRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,12 @@ import java.util.regex.Pattern;
 public class MaintenanceServiceImpl implements MaintenanceService {
 
     private static final Pattern ID_PATTERN = Pattern.compile("^MNT-(\\d+)$");
-    private static final Set<String> VEHICLE_TYPES = Set.of("Car", "Bike", "SUV", "Cab");
+    private static final Set<String> VEHICLE_TYPES = Set.of("Car", "Van", "Bike", "Cab", "SUV");
+    private static final Set<String> MAINTENANCE_REASONS = Set.of(
+            "Accident",
+            "Interior Clean",
+            "New Paint",
+            "General Service");
 
     private final MaintenanceRepository maintenanceRepository;
 
@@ -49,48 +53,8 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     }
 
     @Override
-    public List<MaintenanceRecord> findAvailableVehicles() {
-        return maintenanceRepository.findAll()
-                .stream()
-                .filter(record -> statusMatches(record, MaintenanceStatus.AVAILABLE))
-                .toList();
-    }
-
-    @Override
-    public List<MaintenanceRecord> findInMaintenance() {
-        return maintenanceRepository.findAll()
-                .stream()
-                .filter(record -> statusMatches(record, MaintenanceStatus.MAINTENANCE))
-                .toList();
-    }
-
-    @Override
-    public List<MaintenanceRecord> findInUse() {
-        return maintenanceRepository.findAll()
-                .stream()
-                .filter(record -> statusMatches(record, MaintenanceStatus.IN_USE))
-                .toList();
-    }
-
-    @Override
-    public int countAvailable() {
-        List<MaintenanceRecord> availableVehicles = findAvailableVehicles();
-
-        return availableVehicles.size();
-    }
-
-    @Override
     public int countInMaintenance() {
-        List<MaintenanceRecord> vehiclesInMaintenance = findInMaintenance();
-
-        return vehiclesInMaintenance.size();
-    }
-
-    @Override
-    public int countInUse() {
-        List<MaintenanceRecord> vehiclesInUse = findInUse();
-
-        return vehiclesInUse.size();
+        return maintenanceRepository.findAll().size();
     }
 
     @Override
@@ -114,7 +78,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         }
 
         if (record.getVehicleId() == null || record.getVehicleId().isBlank()) {
-            throw new IllegalArgumentException("vehicleId is required");
+            throw new ValidationException("vehicle_id_required");
         }
 
         String cleanedVehicleId = record.getVehicleId().trim();
@@ -122,7 +86,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         boolean recordAlreadyExists = findByVehicleId(cleanedVehicleId).isPresent();
 
         if (recordAlreadyExists) {
-            throw new IllegalArgumentException("A maintenance record already exists for vehicle: " + cleanedVehicleId);
+            throw new ValidationException("duplicate_vehicle");
         }
 
         LocalDate lastServiceDate = record.getLastServiceDate();
@@ -135,6 +99,9 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         }
 
         String cleanedVehicleType = normalizeVehicleType(record.getVehicleType());
+        String cleanedVehicleModel = requireText(record.getVehicleModel(), "vehicle_model_required");
+        String cleanedMileage = requireText(record.getMileage(), "mileage_required");
+        String cleanedMaintenanceReason = normalizeMaintenanceReason(record.getMaintenanceReason());
 
         boolean recordIdIsMissing = record.getId() == null || record.getId().isBlank();
 
@@ -144,36 +111,13 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             record.setId(generatedMaintenanceId);
         }
 
-        if (record.getStatus() != null) {
-            String cleanedStatus = record.getStatus().trim();
-
-            validateStatus(cleanedStatus);
-
-            record.setStatus(cleanedStatus);
-        }
-
         record.setVehicleId(cleanedVehicleId);
         record.setVehicleType(cleanedVehicleType);
-
-        maintenanceRepository.saveRecord(record);
-    }
-
-    @Override
-    public void updateStatus(String vehicleId, String status) {
-        if (vehicleId == null || vehicleId.isBlank()) {
-            throw new IllegalArgumentException("vehicleId is required");
-        }
-
-        validateStatus(status);
-
-        String cleanedVehicleId = vehicleId.trim();
-        String cleanedStatus = status.trim();
-
-        MaintenanceRecord record = findByVehicleId(cleanedVehicleId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No maintenance record found for vehicle: " + cleanedVehicleId));
-
-        record.setStatus(cleanedStatus);
+        record.setVehicleModel(cleanedVehicleModel);
+        record.setMileage(cleanedMileage);
+        record.setMaintenanceReason(cleanedMaintenanceReason);
+        record.setPhotoFileName(cleanText(record.getPhotoFileName()));
+        record.setNotes(cleanText(record.getNotes()));
 
         maintenanceRepository.saveRecord(record);
     }
@@ -194,56 +138,41 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
         List<MaintenanceRecord> records = new ArrayList<>();
 
-        MaintenanceRecord firstVehicleRecord = new MaintenanceRecord(
+        records.add(new MaintenanceRecord(
                 "MNT-001",
                 "VEH-101",
                 "Car",
-                MaintenanceStatus.AVAILABLE,
+                "Toyota",
+                "42500",
+                "",
                 today.minusMonths(2),
                 today.plusMonths(4),
-                "Routine inspection completed; ready for rental.");
+                "General Service",
+                "Routine inspection completed."));
 
-        MaintenanceRecord secondVehicleRecord = new MaintenanceRecord(
+        records.add(new MaintenanceRecord(
                 "MNT-002",
                 "VEH-102",
                 "SUV",
-                MaintenanceStatus.IN_USE,
+                "Nissan",
+                "61000",
+                "",
                 today.minusMonths(1),
                 today.plusMonths(5),
-                "Currently on active booking.");
+                "Interior Clean",
+                "Deep clean scheduled after long rental."));
 
-        MaintenanceRecord thirdVehicleRecord = new MaintenanceRecord(
+        records.add(new MaintenanceRecord(
                 "MNT-003",
                 "VEH-103",
-                "Cab",
-                MaintenanceStatus.MAINTENANCE,
+                "Van",
+                "Mercedes",
+                "78500",
+                "",
                 today.minusMonths(3),
-                today.minusDays(14),
-                "Brake pads replacement in progress.");
-
-        MaintenanceRecord fourthVehicleRecord = new MaintenanceRecord(
-                "MNT-004",
-                "VEH-104",
-                "Bike",
-                MaintenanceStatus.AVAILABLE,
-                today.minusWeeks(3),
-                today.plusMonths(3),
-                "Oil change and tire rotation done.");
-
-        MaintenanceRecord fifthVehicleRecord = new MaintenanceRecord(
-                "MNT-005",
-                "VEH-105",
-                "Car",
-                MaintenanceStatus.IN_USE,
-                today.minusMonths(4),
-                today.plusMonths(2),
-                "Long-term corporate rental.");
-
-        records.add(firstVehicleRecord);
-        records.add(secondVehicleRecord);
-        records.add(thirdVehicleRecord);
-        records.add(fourthVehicleRecord);
-        records.add(fifthVehicleRecord);
+                today.plusWeeks(2),
+                "Accident",
+                "Front bumper and paint inspection required."));
 
         return records;
     }
@@ -278,24 +207,6 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         return String.format("MNT-%03d", nextMaintenanceNumber);
     }
 
-    private static void validateStatus(String status) {
-        if (status == null || status.isBlank()) {
-            throw new ValidationException("invalid_status");
-        }
-
-        String cleanedStatus = status.trim();
-
-        boolean statusIsAvailable = MaintenanceStatus.AVAILABLE.equals(cleanedStatus);
-        boolean statusIsInUse = MaintenanceStatus.IN_USE.equals(cleanedStatus);
-        boolean statusIsMaintenance = MaintenanceStatus.MAINTENANCE.equals(cleanedStatus);
-
-        boolean statusIsValid = statusIsAvailable || statusIsInUse || statusIsMaintenance;
-
-        if (!statusIsValid) {
-            throw new ValidationException("invalid_status");
-        }
-    }
-
     private static String normalizeVehicleType(String vehicleType) {
         if (vehicleType == null || vehicleType.isBlank()) {
             throw new ValidationException("invalid_vehicle_type");
@@ -309,19 +220,28 @@ public class MaintenanceServiceImpl implements MaintenanceService {
                 .orElseThrow(() -> new ValidationException("invalid_vehicle_type"));
     }
 
-    private static boolean statusMatches(MaintenanceRecord record, String status) {
-        boolean recordExists = record != null;
-
-        if (!recordExists) {
-            return false;
+    private static String normalizeMaintenanceReason(String maintenanceReason) {
+        if (maintenanceReason == null || maintenanceReason.isBlank()) {
+            throw new ValidationException("invalid_maintenance_reason");
         }
 
-        boolean recordStatusExists = record.getStatus() != null;
+        String cleanedMaintenanceReason = maintenanceReason.trim();
 
-        if (!recordStatusExists) {
-            return false;
+        return MAINTENANCE_REASONS.stream()
+                .filter(reason -> reason.equalsIgnoreCase(cleanedMaintenanceReason))
+                .findFirst()
+                .orElseThrow(() -> new ValidationException("invalid_maintenance_reason"));
+    }
+
+    private static String requireText(String value, String errorCode) {
+        if (value == null || value.isBlank()) {
+            throw new ValidationException(errorCode);
         }
 
-        return status.equals(record.getStatus());
+        return value.trim();
+    }
+
+    private static String cleanText(String value) {
+        return value == null ? "" : value.trim();
     }
 }
