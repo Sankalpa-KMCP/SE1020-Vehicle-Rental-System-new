@@ -1,6 +1,6 @@
 package com.sliit.vehiclerentalsystem01.vehicle.service;
 
-import com.sliit.vehiclerentalsystem01.vehicle.model.Vehicle;
+import com.sliit.vehiclerentalsystem01.vehicle.entity.Vehicle;
 
 import java.util.List;
 import java.util.Optional;

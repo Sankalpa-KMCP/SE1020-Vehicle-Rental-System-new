@@ -1,6 +1,6 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
-import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.service.MasterAdminPendingService;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import jakarta.servlet.http.HttpSession;

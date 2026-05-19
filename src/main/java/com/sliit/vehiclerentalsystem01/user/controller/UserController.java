@@ -1,11 +1,12 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
-import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
-import com.sliit.vehiclerentalsystem01.user.model.AdminStaff;
-import com.sliit.vehiclerentalsystem01.user.model.Customer;
-import com.sliit.vehiclerentalsystem01.user.model.Staff;
-import com.sliit.vehiclerentalsystem01.user.model.SupportStaff;
-import com.sliit.vehiclerentalsystem01.user.model.User;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.user.entity.AdminStaff;
+import com.sliit.vehiclerentalsystem01.user.entity.Customer;
+import com.sliit.vehiclerentalsystem01.user.entity.Staff;
+import com.sliit.vehiclerentalsystem01.user.entity.SupportStaff;
+import com.sliit.vehiclerentalsystem01.user.entity.User;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -105,7 +106,11 @@ public class UserController {
             return "redirect:/auth/staff-login";
         }
         User toSave = "STAFF".equalsIgnoreCase(userType) ? staff : customer;
-        userService.save(toSave);
+        try {
+            userService.save(toSave);
+        } catch (ValidationException ex) {
+            return "redirect:/users/new?error=" + ex.getMessage();
+        }
         return "redirect:/users";
     }
 
@@ -126,11 +131,19 @@ public class UserController {
                     staff.getPhone(), staff.getUsername(), staff.getPassword())
                     : new SupportStaff(id, staff.getName(), staff.getEmail(), staff.getPhone(), staff.getUsername(),
                     staff.getPassword());
-            userService.save(replacement);
+            try {
+                userService.save(replacement);
+            } catch (ValidationException ex) {
+                return "redirect:/users/" + id + "/edit?error=" + ex.getMessage();
+            }
             return "redirect:/users";
         }
         customer.setId(id);
-        userService.save(customer);
+        try {
+            userService.save(customer);
+        } catch (ValidationException ex) {
+            return "redirect:/users/" + id + "/edit?error=" + ex.getMessage();
+        }
         return "redirect:/users";
     }
 

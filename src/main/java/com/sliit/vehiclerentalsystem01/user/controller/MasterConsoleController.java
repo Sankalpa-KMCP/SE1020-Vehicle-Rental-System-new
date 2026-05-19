@@ -1,6 +1,7 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
-import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.service.MasterAdminPendingService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -59,6 +60,8 @@ public class MasterConsoleController {
                     ra.addFlashAttribute("error", "Cannot parse the request line.");
                 } catch (IllegalStateException ex) {
                     ra.addFlashAttribute("error", "Username already exists; request was discarded.");
+                } catch (ValidationException ex) {
+                    ra.addFlashAttribute("error", ex.getMessage());
                 }
             }
             case "reject" -> {

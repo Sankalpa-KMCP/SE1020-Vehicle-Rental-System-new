@@ -11,30 +11,101 @@
 <th:block th:replace="~{fragments/admin-shell :: shellOpen('bookings', 'Booking Detail')}"></th:block>
 <div class="fade-in">
 
-<div th:replace="~{layout :: navbar}"></div>
-<h1>Booking</h1>
-    <dl>
-        <dt>ID</dt>
-        <dd th:text="${booking.id}">-</dd>
-        <dt>Type</dt>
-        <dd th:text="${booking.bookingType}">-</dd>
-        <dt>Customer</dt>
-        <dd th:text="${booking.customerName}">-</dd>
-        <dt>Vehicle</dt>
-        <dd th:text="${booking.vehicleId}">-</dd>
-        <dt>Rental start</dt>
-        <dd th:text="${booking.rentalDate}">-</dd>
-        <dt>Duration (days)</dt>
-        <dd th:text="${booking.durationDays}">-</dd>
-        <dt>Status</dt>
-        <dd th:text="${booking.status}">-</dd>
-        <dt>Staff message</dt>
-        <dd th:text="${booking.staffMessage}">-</dd>
-    </dl>
-    <p class="actions">
-        <a class="btn btn-ghost" th:href="@{/bookings}">Back</a>
-        <a class="btn btn-primary" th:href="@{/bookings/{id}/edit(id=${booking.id})}">Edit</a>
-    </p>
+<div class="bg-white border border-slate-200 rounded-3xl p-10 soft-card shadow-lg max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-extrabold text-gray-900">Booking Details</h1>
+        <a th:href="@{/admin/reservations}" class="text-gray-500 hover:text-gray-700 font-medium">← Back to Reservations</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-slate-50 rounded-2xl p-6">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Booking ID</p>
+            <p class="text-xl font-bold text-gray-900" th:text="${booking.id}">-</p>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-6">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Status</p>
+            <span th:if="${#strings.equalsIgnoreCase(booking.status,'CONFIRMED')}" class="bg-green-50 text-green-700 border border-green-200 font-bold px-3 py-1 rounded-lg text-sm">Confirmed</span>
+            <span th:if="${#strings.equalsIgnoreCase(booking.status,'PENDING')}" class="bg-yellow-50 text-yellow-700 border border-yellow-200 font-bold px-3 py-1 rounded-lg text-sm">Pending</span>
+            <span th:if="${#strings.equalsIgnoreCase(booking.status,'UPDATE_REQUESTED')}" class="bg-blue-50 text-blue-700 border border-blue-200 font-bold px-3 py-1 rounded-lg text-sm">Edit Requested</span>
+            <span th:if="${#strings.equalsIgnoreCase(booking.status,'CANCELLATION_REQUESTED')}" class="bg-red-50 text-red-700 border border-red-200 font-bold px-3 py-1 rounded-lg text-sm">Cancel Requested</span>
+            <span th:if="${#strings.equalsIgnoreCase(booking.status,'CANCELLED')}" class="bg-gray-100 text-gray-500 font-bold px-3 py-1 rounded-lg text-sm">Cancelled</span>
+            <span th:if="${#strings.equalsIgnoreCase(booking.status,'REJECTED')}" class="bg-gray-50 text-gray-600 px-3 py-1 rounded-lg text-sm">Rejected</span>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-6">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Customer</p>
+            <p class="text-lg font-semibold text-gray-900" th:text="${booking.customerName}">-</p>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-6">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Vehicle</p>
+            <p class="text-lg font-semibold text-gray-900" th:text="${vehicleName ?: booking.vehicleId}">-</p>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-6">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Rental Start Date</p>
+            <p class="text-lg font-semibold text-gray-900" th:text="${booking.rentalDate}">-</p>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-6">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Duration</p>
+            <p class="text-lg font-semibold text-gray-900"><span th:text="${booking.durationDays}">-</span> Days</p>
+        </div>
+    </div>
+
+    <div th:if="${booking.staffMessage != null and !booking.staffMessage.isEmpty()}" class="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8">
+        <p class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">Staff Message</p>
+        <p class="text-gray-900" th:text="${booking.staffMessage}">-</p>
+    </div>
+
+    <!-- Confirm/Reject Actions for Pending Bookings -->
+    <div th:if="${#strings.equalsIgnoreCase(booking.status,'PENDING')}" class="bg-gradient-to-r from-cyan-50 to-teal-50 border border-cyan-200 rounded-2xl p-6">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">Review Booking Request</h2>
+        <p class="text-gray-600 mb-6">Please review this booking request and decide whether to confirm or reject it.</p>
+        <form th:action="@{/admin/reservations/{id}/action(id=${booking.id})}" method="post" class="flex gap-4">
+            <button type="submit" name="action" value="confirm" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+                <i class="ph-bold ph-check"></i> Confirm Booking
+            </button>
+            <button type="submit" name="action" value="reject" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+                <i class="ph-bold ph-x"></i> Reject Booking
+            </button>
+        </form>
+    </div>
+
+    <!-- Actions for Update Requested -->
+    <div th:if="${#strings.equalsIgnoreCase(booking.status,'UPDATE_REQUESTED')}" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">Edit Request</h2>
+        <p class="text-gray-600 mb-6">Customer has requested changes to this booking.</p>
+        <form th:action="@{/admin/reservations/{id}/action(id=${booking.id})}" method="post" class="flex gap-4">
+            <button type="submit" name="action" value="approve_update" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+                <i class="ph-bold ph-check"></i> Accept Edit
+            </button>
+            <button type="submit" name="action" value="reject_update" class="bg-gray-100 text-gray-600 hover:bg-gray-200 font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+                <i class="ph-bold ph-x"></i> Deny Edit
+            </button>
+        </form>
+    </div>
+
+    <!-- Actions for Cancellation Requested -->
+    <div th:if="${#strings.equalsIgnoreCase(booking.status,'CANCELLATION_REQUESTED')}" class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-2xl p-6">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">Cancellation Request</h2>
+        <p class="text-gray-600 mb-6">Customer has requested to cancel this booking.</p>
+        <form th:action="@{/admin/reservations/{id}/action(id=${booking.id})}" method="post" class="flex gap-4">
+            <button type="submit" name="action" value="approve_cancel" class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+                <i class="ph-bold ph-check"></i> Confirm Cancel
+            </button>
+            <button type="submit" name="action" value="reject_cancel" class="bg-gray-100 text-gray-600 hover:bg-gray-200 font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+                <i class="ph-bold ph-x"></i> Deny Cancel
+            </button>
+        </form>
+    </div>
+
+    <!-- Delete action for completed bookings -->
+    <div th:if="${!#strings.equalsIgnoreCase(booking.status,'PENDING') and !#strings.equalsIgnoreCase(booking.status,'UPDATE_REQUESTED') and !#strings.equalsIgnoreCase(booking.status,'CANCELLATION_REQUESTED')}" class="flex justify-end">
+        <form th:action="@{/admin/reservations}" method="post">
+            <input type="hidden" name="id" th:value="${booking.id}"/>
+            <button type="submit" name="action" value="delete" onclick="return confirm('Delete this booking record forever?');" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+                <i class="ph-bold ph-trash"></i> Delete Booking
+            </button>
+        </form>
+    </div>
+</div>
 </div>
 <th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
 <script th:replace="~{fragments/admin-shell :: mobileScript}"></script>

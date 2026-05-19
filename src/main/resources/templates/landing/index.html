@@ -4,64 +4,44 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>DriveAway | Premium Vehicle Rentals</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <meta name="description" content="DriveAway — premium vehicle rentals in Sri Lanka. Browse verified cars, book exact dates, and skip the counter."/>
+    <meta name="theme-color" content="#050506"/>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&amp;w=1920&amp;auto=format&amp;fit=crop"/>
-    <link rel="stylesheet" th:href="@{/landing/landing.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" th:href="@{/landing/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/sections.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/loader.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/motion.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/animations.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/responsive.css}"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
-<body class="index-landing text-gray-900 antialiased selection:bg-[#0D6EFD] selection:text-white">
+<body class="index-landing lux-landing">
 
-<div id="welcome-overlay">
-    <div class="welcome-bg-circle"></div>
-    <div class="welcome-bg-circle"></div>
-    <div class="welcome-bg-circle"></div>
-    <div class="welcome-particles">
-        <div class="welcome-particle"></div>
-        <div class="welcome-particle"></div>
-        <div class="welcome-particle"></div>
-    </div>
-    <div class="welcome-text">Welcome</div>
-</div>
-
-<div id="page-loader" role="status" aria-live="polite" aria-busy="true">
-    <div class="loader-aurora" aria-hidden="true"></div>
-    <div class="loader-bokeh loader-bokeh--1" aria-hidden="true"></div>
-    <div class="loader-bokeh loader-bokeh--2" aria-hidden="true"></div>
-    <div class="loader-bokeh loader-bokeh--3" aria-hidden="true"></div>
-    <div class="loader-vignette" aria-hidden="true"></div>
-    <div class="loader-glass-morph" aria-hidden="true"></div>
-    <div class="loader-morph-shape" aria-hidden="true">
-        <div class="morph-circle"></div>
-        <div class="morph-square"></div>
-    </div>
-    <div class="loader-particles" aria-hidden="true">
-        <div class="loader-particle"></div>
-        <div class="loader-particle"></div>
-        <div class="loader-particle"></div>
-        <div class="loader-particle"></div>
-        <div class="loader-particle"></div>
-    </div>
-    <div class="loader-content">
-        <p class="loader-wordmark">
-            <span class="loader-char">D</span><span class="loader-char">r</span><span class="loader-char">i</span><span class="loader-char">v</span><span class="loader-char">e</span><span class="loader-char">A</span><span class="loader-char">w</span><span class="loader-char">a</span><span class="loader-char">y</span>
-        </p>
-        <p class="loader-tagline">Premium vehicle rentals</p>
-        <div class="loader-progress" aria-hidden="true"><span class="loader-progress-inner"></span></div>
-    </div>
-</div>
+<th:block th:replace="~{landing/fragments/overlays/welcome :: welcomeOverlay}"></th:block>
+<th:block th:replace="~{landing/fragments/overlays/loader :: pageLoader}"></th:block>
 
 <div class="index-landing-shell">
-<div th:replace="~{landing/fragments/nav :: indexNav}"></div>
+    <div th:replace="~{landing/fragments/nav :: indexNav}"></div>
 
-<div class="parallax-bg" id="parallax-bg" aria-hidden="true"></div>
+    <aside class="da-chapter" id="chapter-marker" aria-hidden="true">
+        <span class="da-chapter__num" data-chapter-num>01</span>
+        <span class="da-chapter__rule"></span>
+        <span class="da-chapter__label" data-chapter-label>Act</span>
+    </aside>
 
-<th:block th:replace="~{landing/fragments/main :: landingMain}"></th:block>
-
-<div th:replace="~{landing/fragments/footer :: indexFooter}"></div>
+    <main class="da-canvas" id="top">
+        <th:block th:replace="~{landing/fragments/main :: landingMain}"></th:block>
+    </main>
+    <div th:replace="~{landing/fragments/footer :: indexFooter}"></div>
 </div>
 
-<script th:src="@{/landing/landing.js}"></script>
+<script th:src="@{/landing/js/loader.js}"></script>
+<script th:src="@{/landing/js/scroll.js}"></script>
+<script th:src="@{/landing/js/interactions.js}"></script>
+<script th:src="@{/landing/js/motion.js}"></script>
+<script th:src="@{/landing/js/mascots.js}"></script>
 </body>
 </html>

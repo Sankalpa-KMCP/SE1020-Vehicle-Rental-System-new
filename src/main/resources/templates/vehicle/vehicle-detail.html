@@ -19,11 +19,11 @@
         <dd th:text="${vehicle.brand + ' ' + vehicle.model}">-</dd>
         <dt>Daily rate</dt>
         <dd th:text="${vehicle.dailyRate}">-</dd>
-        <th:block th:if="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Car)}">
+        <th:block th:if="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Car)}">
             <dt>Seats</dt>
             <dd th:text="${vehicle.seatingCapacity}">-</dd>
         </th:block>
-        <th:block th:if="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Motorcycle)}">
+        <th:block th:if="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle)}">
             <dt>Helmet</dt>
             <dd th:text="${vehicle.helmetIncluded}">-</dd>
         </th:block>

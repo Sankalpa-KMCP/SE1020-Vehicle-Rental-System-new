@@ -2,62 +2,61 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <th:block th:fragment="indexNav">
-<nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-5 bg-white/92 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-    <div class="max-w-[1400px] mx-auto px-6 lg:px-8 flex justify-between items-center">
-        <a th:href="@{/}" class="flex items-center gap-3 group transition-link">
-            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-2.5 rounded-xl shadow-lg group-hover:shadow-blue-500/30 transition-all">
-                <i class="ph-fill ph-car-profile text-2xl text-white"></i>
-            </div>
-            <span class="text-2xl font-black tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">DriveAway</span>
+<nav id="navbar" class="da-nav" aria-label="Main navigation">
+    <div class="da-container da-container--wide da-nav__inner">
+        <a th:href="@{/}" class="da-nav__brand transition-link" aria-label="DriveAway home">
+            <span class="da-nav__mark" aria-hidden="true">D</span>
+            <span>DriveAway</span>
         </a>
-        <div class="hidden lg:flex items-center gap-8">
-            <a href="#fleet" data-section-link="fleet" class="nav-link text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">Our Fleet</a>
-            <a href="#how-it-works" data-section-link="how-it-works" class="nav-link text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">Process</a>
-            <a href="#team" data-section-link="team" class="nav-link text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide">Team</a>
-            <a th:href="@{/public/about}" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide transition-link">About</a>
-            <a th:href="@{/public/contact}" class="text-sm font-bold text-gray-600 hover:text-[#0D6EFD] transition-colors uppercase tracking-wide transition-link">Contact</a>
+
+        <div class="da-nav__links" role="navigation">
+            <a th:href="@{/}" class="da-nav__link transition-link">Home</a>
+            <a href="#fleet" data-section-link="fleet" class="da-nav__link">Fleet</a>
+            <a th:href="@{/public/about}" class="da-nav__link transition-link">About</a>
+            <a th:href="@{/public/contact}" class="da-nav__link transition-link">Contact</a>
         </div>
-        <div class="hidden md:flex items-center gap-4" th:if="${#strings.isEmpty(userRole)}">
-            <a th:href="@{/auth/login}" class="text-base font-extrabold text-gray-600 hover:text-black transition-colors px-4 py-2 transition-link">Sign In</a>
-            <a th:href="@{/auth/register}" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold py-3 px-8 rounded-full hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:-translate-y-0.5 shadow-lg shadow-blue-500/30 tracking-wide transition-link">Join Network</a>
+
+        <div class="da-nav__actions" th:if="${#strings.isEmpty(userRole)}">
+            <a th:href="@{/auth/login}" class="da-btn da-btn--ghost transition-link">Sign in</a>
+            <a th:href="@{/auth/register}" class="da-btn da-btn--primary transition-link">
+                Register
+                <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+            </a>
         </div>
-        <div class="hidden md:flex items-center gap-4" th:if="${!#strings.isEmpty(userRole)}">
-            <div class="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100">
-                <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                    <i class="ph-bold ph-user text-lg text-white"></i>
-                </div>
-                <span class="font-bold text-gray-900 text-sm" th:text="${displayName}">User</span>
-            </div>
-            <a th:if="${userRole == 'customer'}" th:href="@{/customer/home}" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold py-3 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/30 transition-link">Dashboard</a>
-            <a th:if="${userRole == 'staff'}" th:href="@{/dashboard}" class="bg-gradient-to-r from-rose-500 to-pink-600 text-white font-extrabold py-3 px-6 rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-lg shadow-rose-500/30 transition-link">Staff Portal</a>
+
+        <div class="da-nav__actions" th:if="${!#strings.isEmpty(userRole)}">
+            <span class="da-nav__user">
+                <span class="da-tag__dot" aria-hidden="true"></span>
+                <span class="da-nav__user-name" th:text="${displayName}">User</span>
+            </span>
+            <a th:if="${userRole == 'customer'}" th:href="@{/customer/home}" class="da-btn da-btn--primary transition-link">
+                Dashboard
+                <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+            </a>
+            <a th:if="${userRole == 'staff'}" th:href="@{/dashboard}" class="da-btn da-btn--primary transition-link">
+                Staff portal
+                <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+            </a>
         </div>
-        <button id="mobile-menu-btn" type="button" class="lg:hidden text-gray-600 focus:outline-none bg-gray-50 p-2 rounded-lg" aria-label="Open menu">
-            <i class="ph-bold ph-list text-2xl"></i>
+
+        <button id="mobile-menu-btn" type="button" class="da-nav__menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+            <i class="ph ph-list" aria-hidden="true"></i>
         </button>
     </div>
-    <div id="mobile-menu" class="hidden lg:hidden bg-white absolute top-full left-0 w-full border-b border-gray-100 shadow-2xl">
-        <div class="flex flex-col p-6 space-y-3">
-            <a href="#fleet" class="text-lg font-bold text-gray-800 hover:text-[#0D6EFD] py-2 border-b border-gray-50">Our Fleet</a>
-            <a href="#how-it-works" class="text-lg font-bold text-gray-800 hover:text-[#0D6EFD] py-2 border-b border-gray-50">How it Works</a>
-            <a th:href="@{/public/about}" class="text-lg font-bold text-gray-800 hover:text-[#0D6EFD] py-2 border-b border-gray-50 transition-link">About Us</a>
-            <a th:href="@{/public/contact}" class="text-lg font-bold text-gray-800 hover:text-[#0D6EFD] py-2 border-b border-gray-50 transition-link">Contact Support</a>
-            <th:block th:if="${#strings.isEmpty(userRole)}">
-                <div class="pt-4 flex flex-col gap-3">
-                    <a th:href="@{/auth/login}" class="bg-gray-100 text-gray-900 font-bold py-3 rounded-xl text-center transition-link">Sign In</a>
-                    <a th:href="@{/auth/register}" class="bg-[#0D6EFD] text-white font-bold py-3 rounded-xl text-center transition-link">Join Network</a>
-                </div>
-            </th:block>
-            <th:block th:if="${!#strings.isEmpty(userRole)}">
-                <div class="pt-4 flex flex-col gap-3">
-                    <div class="bg-blue-50 text-gray-900 font-bold py-3 rounded-xl text-center px-4 flex items-center justify-center gap-2">
-                        <i class="ph-bold ph-user"></i>
-                        <span th:text="${displayName}">User</span>
-                    </div>
-                    <a th:if="${userRole == 'customer'}" th:href="@{/customer/home}" class="bg-[#0D6EFD] text-white font-bold py-3 rounded-xl text-center transition-link">Go to Dashboard</a>
-                    <a th:if="${userRole == 'staff'}" th:href="@{/dashboard}" class="bg-rose-500 text-white font-bold py-3 rounded-xl text-center transition-link">Staff Portal</a>
-                </div>
-            </th:block>
-        </div>
+
+    <div id="mobile-menu" class="da-nav__mobile da-container da-container--wide" hidden>
+        <a th:href="@{/}" class="transition-link">Home</a>
+        <a href="#fleet">Fleet</a>
+        <a th:href="@{/public/about}" class="transition-link">About</a>
+        <a th:href="@{/public/contact}" class="transition-link">Contact</a>
+        <th:block th:if="${#strings.isEmpty(userRole)}">
+            <a th:href="@{/auth/login}" class="transition-link">Sign in</a>
+            <a th:href="@{/auth/register}" class="da-btn da-btn--primary da-btn--block transition-link">Register</a>
+        </th:block>
+        <th:block th:if="${!#strings.isEmpty(userRole)}">
+            <a th:if="${userRole == 'customer'}" th:href="@{/customer/home}" class="da-btn da-btn--primary da-btn--block transition-link">Dashboard</a>
+            <a th:if="${userRole == 'staff'}" th:href="@{/dashboard}" class="da-btn da-btn--primary da-btn--block transition-link">Staff portal</a>
+        </th:block>
     </div>
 </nav>
 </th:block>

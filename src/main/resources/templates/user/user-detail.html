@@ -22,7 +22,7 @@
         <dd th:text="${user.email}">-</dd>
         <dt>Type</dt>
         <dd th:text="${user.userRole}">-</dd>
-        <th:block th:if="${user instanceof T(com.sliit.vehiclerentalsystem01.user.model.Customer)}">
+        <th:block th:if="${user instanceof T(com.sliit.vehiclerentalsystem01.user.entity.Customer)}">
             <dt>Name</dt>
             <dd th:text="${user.name}">-</dd>
             <dt>Phone</dt>
@@ -30,7 +30,7 @@
             <dt>Driver license</dt>
             <dd th:text="${user.driverLicense}">-</dd>
         </th:block>
-        <th:block th:if="${user instanceof T(com.sliit.vehiclerentalsystem01.user.model.Staff)}">
+        <th:block th:if="${user instanceof T(com.sliit.vehiclerentalsystem01.user.entity.Staff)}">
             <dt>Name</dt>
             <dd th:text="${user.name}">-</dd>
             <dt>Phone</dt>

@@ -1,15 +1,16 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
-import com.sliit.vehiclerentalsystem01.booking.model.Booking;
-import com.sliit.vehiclerentalsystem01.booking.service.BookingService;
-import com.sliit.vehiclerentalsystem01.payment.model.Payment;
+import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
+import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
+import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
-import com.sliit.vehiclerentalsystem01.review.model.CustomerReview;
+import com.sliit.vehiclerentalsystem01.review.entity.CustomerReview;
 import com.sliit.vehiclerentalsystem01.review.service.ReviewService;
-import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
-import com.sliit.vehiclerentalsystem01.user.model.Customer;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
-import com.sliit.vehiclerentalsystem01.vehicle.model.Vehicle;
+import com.sliit.vehiclerentalsystem01.vehicle.entity.Vehicle;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -39,18 +40,18 @@ import java.util.stream.Collectors;
 public class CustomerPortalController {
 
     private final UserService userService;
-    private final BookingService bookingService;
+    private final ReservationService reservationService;
     private final VehicleService vehicleService;
     private final PaymentService paymentService;
     private final ReviewService reviewService;
 
     public CustomerPortalController(UserService userService,
-                                    BookingService bookingService,
+                                    ReservationService reservationService,
                                     VehicleService vehicleService,
                                     PaymentService paymentService,
                                     ReviewService reviewService) {
         this.userService = userService;
-        this.bookingService = bookingService;
+        this.reservationService = reservationService;
         this.vehicleService = vehicleService;
         this.paymentService = paymentService;
         this.reviewService = reviewService;
@@ -81,7 +82,7 @@ public class CustomerPortalController {
         }
         model.addAttribute("displayName", displayName);
         List<String> notices = new ArrayList<>();
-        for (Booking booking : bookingService.findAll()) {
+        for (Booking booking : reservationService.findAll()) {
             String owner = booking.getCustomerName();
             boolean isOwner = owner != null && un.equalsIgnoreCase(owner.trim());
             boolean hasNotice = booking.getStaffMessage() != null && !booking.getStaffMessage().trim().isEmpty();
@@ -104,7 +105,7 @@ public class CustomerPortalController {
             return "redirect:/";
         }
         List<Vehicle> all = vehicleService.findAll();
-        Set<String> unavailable = bookingService.findUnavailableVehicleIds();
+        Set<String> unavailable = reservationService.findUnavailableVehicleIds();
         List<Vehicle> available = all.stream()
                 .filter(v -> !unavailable.contains(v.getId()))
                 .collect(Collectors.toList());
@@ -118,13 +119,17 @@ public class CustomerPortalController {
             return "redirect:/auth/login";
         }
         String un = username(session);
-        List<Booking> list = bookingService.findByCustomerId(un);
+        List<Booking> list = reservationService.findByCustomerId(un);
         java.util.Map<String, Boolean> payAllowed = new java.util.HashMap<>();
         for (Booking b : list) {
-            payAllowed.put(b.getId(), bookingService.isPaymentAllowed(b.getId()));
+            payAllowed.put(b.getId(), reservationService.isPaymentAllowed(b.getId()));
         }
+        // Fetch vehicle names for display
+        java.util.Map<String, String> vehicleNames = vehicleService.findAll().stream()
+                .collect(Collectors.toMap(Vehicle::getId, v -> v.getBrand() + " " + v.getModel()));
         model.addAttribute("bookingList", list);
         model.addAttribute("payAllowed", payAllowed);
+        model.addAttribute("vehicleNames", vehicleNames);
         return "booking/my-bookings";
     }
 
@@ -150,9 +155,6 @@ public class CustomerPortalController {
             return "redirect:/auth/login";
         }
         String vid = vehicleId == null ? "" : vehicleId.trim();
-        if (vid.isEmpty() || !bookingService.isVehicleAvailable(vid)) {
-            return "redirect:/customer/bookings/new?vehicleId=" + vid + "&error=vehicle_unavailable";
-        }
         String un = username(session);
         Booking b = new Booking(
                 UUID.randomUUID().toString(),
@@ -162,7 +164,11 @@ public class CustomerPortalController {
                 Math.max(1, days),
                 "PENDING",
                 "");
-        bookingService.save(b);
+        try {
+            reservationService.save(b);
+        } catch (ValidationException ex) {
+            return "redirect:/customer/bookings/new?vehicleId=" + vid + "&error=" + ex.getMessage();
+        }
         return "redirect:/customer/bookings";
     }
 
@@ -172,7 +178,7 @@ public class CustomerPortalController {
             return "redirect:/auth/login";
         }
         String un = username(session);
-        Optional<Booking> ob = bookingService.findById(id);
+        Optional<Booking> ob = reservationService.findById(id);
         if (ob.isEmpty()) {
             return "redirect:/customer/home";
         }
@@ -192,13 +198,17 @@ public class CustomerPortalController {
             return "redirect:/auth/login";
         }
         String un = username(session);
-        bookingService.findById(id).ifPresent(b -> {
-            if (b.getCustomerName() != null && un.equalsIgnoreCase(b.getCustomerName().trim())) {
-                b.setStatus("CANCELLATION_REQUESTED");
-                b.setStaffMessage(cancelReason == null ? "" : cancelReason.trim());
-                bookingService.save(b);
-            }
-        });
+        try {
+            reservationService.findById(id).ifPresent(b -> {
+                if (b.getCustomerName() != null && un.equalsIgnoreCase(b.getCustomerName().trim())) {
+                    b.setStatus("CANCELLATION_REQUESTED");
+                    b.setStaffMessage(cancelReason == null ? "" : cancelReason.trim());
+                    reservationService.save(b);
+                }
+            });
+        } catch (ValidationException ex) {
+            return "redirect:/customer/bookings?error=" + ex.getMessage();
+        }
         return "redirect:/customer/bookings";
     }
 
@@ -213,7 +223,7 @@ public class CustomerPortalController {
         if (displayName.isBlank()) {
             displayName = "Customer";
         }
-        List<Booking> myBookings = bookingService.findByCustomerId(un);
+        List<Booking> myBookings = reservationService.findByCustomerId(un);
         Set<String> myBookingIds = new HashSet<>();
         for (Booking b : myBookings) {
             myBookingIds.add(b.getId());
@@ -252,7 +262,7 @@ public class CustomerPortalController {
             return "redirect:/";
         }
         String un = username(session);
-        Optional<Booking> ob = bookingService.findById(bookingId);
+        Optional<Booking> ob = reservationService.findById(bookingId);
         if (ob.isEmpty()) {
             return "redirect:/customer/bookings?payment=missing_invoice";
         }
@@ -277,17 +287,23 @@ public class CustomerPortalController {
             return "redirect:/auth/login";
         }
         String un = username(session);
-        Optional<Booking> ob = bookingService.findById(bookingId);
+        Optional<Booking> ob = reservationService.findById(bookingId);
         if (ob.isEmpty()) {
             return "redirect:/customer/bookings";
         }
         if (ob.get().getCustomerName() == null || !un.equalsIgnoreCase(ob.get().getCustomerName().trim())) {
             return "redirect:/customer/bookings";
         }
-        paymentService.findLatestByBookingId(bookingId).ifPresent(p -> {
+        Optional<Payment> latest = paymentService.findLatestByBookingId(bookingId);
+        if (latest.isPresent()) {
+            Payment p = latest.get();
             p.setStatus("PAID");
-            paymentService.save(p);
-        });
+            try {
+                paymentService.save(p);
+            } catch (ValidationException ex) {
+                return "redirect:/customer/pay?bookingId=" + bookingId + "&error=" + ex.getMessage();
+            }
+        }
         return "redirect:/customer/billing";
     }
 
@@ -371,7 +387,7 @@ public class CustomerPortalController {
             reviewerName = name.toString();
         }
         String customerKey = username(session);
-        List<Booking> customerBookings = bookingService.findByCustomerId(customerKey);
+        List<Booking> customerBookings = reservationService.findByCustomerId(customerKey);
         model.addAttribute("reviewerName", reviewerName);
         model.addAttribute("customerBookings", customerBookings);
         return "review/customer-review-form";
@@ -395,7 +411,7 @@ public class CustomerPortalController {
                 return "redirect:/customer/reviews/new?error=account_limit";
             }
         } else {
-            Optional<Booking> b = bookingService.findById(bid);
+            Optional<Booking> b = reservationService.findById(bid);
             if (b.isEmpty() || b.get().getCustomerName() == null
                     || !un.equalsIgnoreCase(b.get().getCustomerName().trim())) {
                 return "redirect:/customer/reviews/new?error=invalid_booking";
@@ -418,9 +434,13 @@ public class CustomerPortalController {
         if (bid.isEmpty()) {
             cr.setVehicleId("");
         } else {
-            cr.setVehicleId(bookingService.findById(bid).map(Booking::getVehicleId).orElse(""));
+            cr.setVehicleId(reservationService.findById(bid).map(Booking::getVehicleId).orElse(""));
         }
-        reviewService.save(cr);
+        try {
+            reviewService.save(cr);
+        } catch (ValidationException ex) {
+            return "redirect:/customer/reviews/new?error=" + ex.getMessage();
+        }
         return "redirect:/customer/reviews?created";
     }
 
@@ -451,7 +471,11 @@ public class CustomerPortalController {
                 .map(cr -> {
                     cr.setRating(rating);
                     cr.setComments(comments.trim());
-                    reviewService.save(cr);
+                    try {
+                        reviewService.save(cr);
+                    } catch (ValidationException ex) {
+                        return "redirect:/customer/reviews/" + id + "/edit?error=" + ex.getMessage();
+                    }
                     return "redirect:/customer/reviews?updated";
                 })
                 .orElse("redirect:/customer/reviews");
@@ -474,7 +498,7 @@ public class CustomerPortalController {
             return "redirect:/auth/login";
         }
         String un = username(session);
-        Optional<Booking> ob = bookingService.findById(id);
+        Optional<Booking> ob = reservationService.findById(id);
         if (ob.isEmpty()) {
             return "redirect:/customer/home";
         }
@@ -499,7 +523,7 @@ public class CustomerPortalController {
             return "redirect:/auth/login";
         }
         String un = username(session);
-        Optional<Booking> ob = bookingService.findById(id);
+        Optional<Booking> ob = reservationService.findById(id);
         if (ob.isEmpty()) {
             return "redirect:/customer/bookings";
         }
@@ -517,7 +541,11 @@ public class CustomerPortalController {
         }
         b.setRentalDate(rentalDate == null ? b.getRentalDate() : rentalDate.trim());
         b.setDurationDays(Math.max(1, days));
-        bookingService.save(b);
+        try {
+            reservationService.save(b);
+        } catch (ValidationException ex) {
+            return "redirect:/customer/bookings/" + id + "/edit?error=" + ex.getMessage();
+        }
         return "redirect:/customer/bookings";
     }
 }

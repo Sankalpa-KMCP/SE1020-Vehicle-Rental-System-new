@@ -36,22 +36,22 @@
         <label class="block">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vehicle type</span>
             <select name="vehicleType" id="vehicleType" onchange="toggleVehicleFields()" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
-                <option value="Car" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Car)}">Car</option>
-                <option value="Motorcycle" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Motorcycle)}">Motorcycle</option>
+                <option value="Car" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Car)}">Car</option>
+                <option value="Motorcycle" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle)}">Motorcycle</option>
             </select>
         </label>
         <div id="carFields" class="space-y-3">
             <label class="block">
                 <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Seating capacity</span>
                 <input type="number" name="capacity" id="capacityInput" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"
-                       th:value="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Car)} ? ${vehicle.seatingCapacity} : 4"/>
+                       th:value="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Car)} ? ${vehicle.seatingCapacity} : 4"/>
             </label>
         </div>
         <input type="hidden" name="capacity" value="4" id="capacityMotoHidden"/>
         <div id="motorcycleFields" class="space-y-3 hidden">
             <label class="flex items-center gap-3 font-semibold text-gray-700 cursor-pointer">
                 <input type="checkbox" name="helmetIncluded" value="true" id="helmetCb" class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                       th:checked="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.model.Motorcycle)} ? ${vehicle.helmetIncluded} : false"/>
+                       th:checked="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle)} ? ${vehicle.helmetIncluded} : false"/>
                 Helmet included
             </label>
         </div>
