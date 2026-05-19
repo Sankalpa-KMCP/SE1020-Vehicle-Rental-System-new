@@ -1,9 +1,10 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
-import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
-import com.sliit.vehiclerentalsystem01.user.model.AdminStaff;
-import com.sliit.vehiclerentalsystem01.user.model.Staff;
-import com.sliit.vehiclerentalsystem01.user.model.SupportStaff;
+import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.user.entity.AdminStaff;
+import com.sliit.vehiclerentalsystem01.user.entity.Staff;
+import com.sliit.vehiclerentalsystem01.user.entity.SupportStaff;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -88,14 +89,18 @@ public class StaffAdminController {
         boolean admin = "Admin".equalsIgnoreCase(role);
 
         if ("update".equals(action)) {
-            Staff existing = userService.findById(id)
+            userService.findById(id)
                     .filter(u -> u instanceof Staff)
                     .map(u -> (Staff) u)
                     .orElseThrow();
             Staff updated = admin
                     ? new AdminStaff(id, nv(name), nv(email), nv(phone), nv(username), nv(password))
                     : new SupportStaff(id, nv(name), nv(email), nv(phone), nv(username), nv(password));
-            userService.save(updated);
+            try {
+                userService.save(updated);
+            } catch (ValidationException ex) {
+                return "redirect:/staff?action=edit&id=" + id + "&error=" + ex.getMessage();
+            }
         } else {
             String manualId = params.get("manualId");
             String newId = manualId != null && !manualId.trim().isEmpty()
@@ -104,7 +109,11 @@ public class StaffAdminController {
             Staff created = admin
                     ? new AdminStaff(newId, nv(name), nv(email), nv(phone), nv(username), nv(password))
                     : new SupportStaff(newId, nv(name), nv(email), nv(phone), nv(username), nv(password));
-            userService.save(created);
+            try {
+                userService.save(created);
+            } catch (ValidationException ex) {
+                return "redirect:/staff?action=add&error=" + ex.getMessage();
+            }
         }
 
         return "redirect:/staff?action=list";

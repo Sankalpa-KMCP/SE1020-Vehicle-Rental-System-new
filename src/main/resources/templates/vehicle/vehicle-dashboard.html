@@ -1,40 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Fleet Management - DriveAway</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <th:block th:replace="~{fragments/admin-directory-head :: fontAndUtilities}"></th:block>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Fleet Management - DriveAway')}"></th:block>
     <style>
-        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at top left, #ede9fe 0%, #f8fafc 40%, #f1f5f9 100%); }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="min-h-screen text-gray-800 flex flex-col">
-<nav class="bg-gradient-to-r from-violet-900 via-fuchsia-900 to-slate-900 border-b border-white/10 sticky top-0 z-20 shadow-lg backdrop-blur">
-    <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
-        <a th:href="@{/vehicles}" class="flex items-center gap-2 text-white">
-            <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm">
-                <i class="ph-fill ph-car-profile text-2xl text-violet-300"></i>
-            </div>
-            <span class="text-2xl font-extrabold tracking-tight">Fleet</span>
-        </a>
-        <div class="flex items-center gap-4 flex-wrap justify-end">
-            <a th:href="@{/vehicles/add}" class="text-violet-200 hover:text-white text-sm font-semibold">Add</a>
-            <a th:href="@{/user/admin-dashboard}" class="text-violet-200 hover:text-white font-semibold text-sm flex items-center gap-2">
-                <i class="ph-bold ph-house"></i> Admin Hub
-            </a>
-            <form th:action="@{/auth}" method="post" class="m-0 inline">
-                <input type="hidden" name="action" value="logout"/>
-                <button type="submit" class="text-white hover:text-violet-200 font-bold border border-white/20 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2 shadow-sm">
-                    Logout <i class="ph-bold ph-sign-out text-lg"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-</nav>
-<main class="flex-grow max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('vehicles', 'Vehicles')}"></th:block>
+<div class="fade-in">
     <div class="bg-gradient-to-br from-violet-600 via-fuchsia-600 to-slate-700 rounded-3xl p-10 sm:p-12 text-white shadow-xl mb-10 relative overflow-hidden">
         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -42,6 +17,7 @@
                 <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Vehicle Directory</h1>
                 <p class="text-violet-100 text-lg font-medium max-w-2xl leading-relaxed">Manage cars and motorcycles available for rental.</p>
             </div>
+
             <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
                 <div class="text-center px-4 border-r border-white/20">
                     <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Total</p>
@@ -55,12 +31,15 @@
                     <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Bikes</p>
                     <p class="text-white font-extrabold text-xl" th:text="${motorcycleCount}">0</p>
                 </div>
-                <div class="text-center px-4">
-                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Avg rate</p>
-                    <p class="text-white font-extrabold text-xl" th:text="${#numbers.formatDecimal(avgRate, 1, 2)}">0</p>
+                <div class="text-center px-4 border-r border-white/20">
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Avg Car</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${'$' + #numbers.formatDecimal(avgCarRate, 1, 2)}">0.00</p>
                 </div>
-            </div>
-        </div>
+                <div class="text-center px-4">
+                    <p class="text-violet-100 text-xs font-bold uppercase tracking-wider mb-1">Avg Bike</p>
+                    <p class="text-white font-extrabold text-xl" th:text="${'$' + #numbers.formatDecimal(avgMotoRate, 1, 2)}">0.00</p>
+                </div>
+            </div> </div>
         <i class="ph-fill ph-car-profile absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
     </div>
 
@@ -127,6 +106,7 @@
                     <th class="py-4 px-6 font-bold text-right">Actions</th>
                 </tr>
                 </thead>
+
                 <tbody class="text-gray-700">
                 <tr th:each="v : ${vehicleList}" class="border-b border-slate-100 hover:bg-violet-50/50 transition-colors group">
                     <td class="py-5 px-6 font-mono font-bold text-gray-900" th:text="${v.id}">id</td>
@@ -153,6 +133,8 @@
             </table>
         </div>
     </div>
-</main>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
 </body>
 </html>

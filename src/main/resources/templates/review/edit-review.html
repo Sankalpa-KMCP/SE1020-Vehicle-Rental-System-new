@@ -25,6 +25,9 @@
         <p th:if="${param.error != null and param.error[0] == 'missing_fields'}" class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm">
             Please enter comments before saving.
         </p>
+        <p th:if="${param.error != null and param.error[0] == 'invalid_rating'}" class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm">
+            Rating must be between 1 and 5 stars.
+        </p>
 
         <div th:if="${customerReview.bookingId != null and !#strings.isEmpty(customerReview.bookingId)}"
              class="mb-5 rounded-xl bg-slate-50 border border-slate-100 px-4 py-3 text-sm text-slate-600">

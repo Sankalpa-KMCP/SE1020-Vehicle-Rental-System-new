@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <title>User detail</title>
-    <link rel="stylesheet" th:href="@{/css/common.css}"/>
-    <link rel="stylesheet" th:href="@{/css/user.css}"/>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('User Detail - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('users', 'User Detail')}"></th:block>
+<div class="fade-in">
+
 <div th:replace="~{layout :: navbar}"></div>
-<main class="container">
-    <h1>User</h1>
+<h1>User</h1>
     <dl>
         <dt>ID</dt>
         <dd th:text="${user.id}">-</dd>
@@ -19,7 +22,7 @@
         <dd th:text="${user.email}">-</dd>
         <dt>Type</dt>
         <dd th:text="${user.userRole}">-</dd>
-        <th:block th:if="${user instanceof T(com.sliit.vehiclerentalsystem01.user.model.Customer)}">
+        <th:block th:if="${user instanceof T(com.sliit.vehiclerentalsystem01.user.entity.Customer)}">
             <dt>Name</dt>
             <dd th:text="${user.name}">-</dd>
             <dt>Phone</dt>
@@ -27,7 +30,7 @@
             <dt>Driver license</dt>
             <dd th:text="${user.driverLicense}">-</dd>
         </th:block>
-        <th:block th:if="${user instanceof T(com.sliit.vehiclerentalsystem01.user.model.Staff)}">
+        <th:block th:if="${user instanceof T(com.sliit.vehiclerentalsystem01.user.entity.Staff)}">
             <dt>Name</dt>
             <dd th:text="${user.name}">-</dd>
             <dt>Phone</dt>
@@ -42,6 +45,8 @@
         <a class="btn btn-ghost" th:href="@{/users}">Back</a>
         <a class="btn btn-primary" th:href="@{/users/{id}/edit(id=${user.id})}">Edit</a>
     </p>
-</main>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
 </body>
 </html>

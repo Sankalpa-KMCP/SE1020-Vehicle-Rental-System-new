@@ -1,9 +1,10 @@
 package com.sliit.vehiclerentalsystem01.review.controller;
 
-import com.sliit.vehiclerentalsystem01.review.model.CustomerReview;
-import com.sliit.vehiclerentalsystem01.review.model.Feedback;
+import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.review.entity.CustomerReview;
+import com.sliit.vehiclerentalsystem01.review.entity.Feedback;
 import com.sliit.vehiclerentalsystem01.review.service.ReviewService;
-import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -117,7 +118,11 @@ public class ReviewController {
                     cr.setStaffReply(staffReply != null ? staffReply : "");
                     cr.setRepliedBy(repliedBy != null ? repliedBy : "");
                     cr.setRepliedAt(LocalDateTime.now().toString());
-                    reviewService.save(cr);
+                    try {
+                        reviewService.save(cr);
+                    } catch (ValidationException ex) {
+                        return "redirect:/reviews?error=" + ex.getMessage();
+                    }
                     return "redirect:/reviews";
                 })
                 .orElse("redirect:/reviews");

@@ -1,6 +1,6 @@
 package com.sliit.vehiclerentalsystem01.payment.service;
 
-import com.sliit.vehiclerentalsystem01.payment.model.Payment;
+import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
 
 import java.util.List;
 import java.util.Optional;

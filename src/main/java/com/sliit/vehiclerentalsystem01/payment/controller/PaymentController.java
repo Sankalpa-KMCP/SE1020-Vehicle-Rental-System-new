@@ -1,11 +1,12 @@
 package com.sliit.vehiclerentalsystem01.payment.controller;
 
-import com.sliit.vehiclerentalsystem01.booking.service.BookingService;
-import com.sliit.vehiclerentalsystem01.payment.model.CardPayment;
-import com.sliit.vehiclerentalsystem01.payment.model.CashPayment;
-import com.sliit.vehiclerentalsystem01.payment.model.Payment;
+import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
+import com.sliit.vehiclerentalsystem01.payment.entity.CardPayment;
+import com.sliit.vehiclerentalsystem01.payment.entity.CashPayment;
+import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
-import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,11 +31,11 @@ import java.util.UUID;
 public class PaymentController {
 
     private final PaymentService paymentService;
-    private final BookingService bookingService;
+    private final ReservationService reservationService;
 
-    public PaymentController(PaymentService paymentService, BookingService bookingService) {
+    public PaymentController(PaymentService paymentService, ReservationService reservationService) {
         this.paymentService = paymentService;
-        this.bookingService = bookingService;
+        this.reservationService = reservationService;
     }
 
     private static boolean admin(HttpSession session) {
@@ -89,7 +90,7 @@ public class PaymentController {
         model.addAttribute("paymentType", "CARD");
         model.addAttribute("cardPayment", new CardPayment());
         model.addAttribute("cashPayment", new CashPayment());
-        model.addAttribute("bookings", bookingService.findAll());
+        model.addAttribute("bookings", reservationService.findAll());
         model.addAttribute("formError", error);
         return "payment/process-payment";
     }
@@ -125,7 +126,7 @@ public class PaymentController {
                         model.addAttribute("cardPayment", new CardPayment());
                         model.addAttribute("cashPayment", (CashPayment) p);
                     }
-                    model.addAttribute("bookings", bookingService.findAll());
+                    model.addAttribute("bookings", reservationService.findAll());
                     return "payment/edit-payment";
                 })
                 .orElse("redirect:/payments");
@@ -162,7 +163,11 @@ public class PaymentController {
         } else {
             toSave = new CashPayment(id, bookingId, amount, status);
         }
-        paymentService.save(toSave);
+        try {
+            paymentService.save(toSave);
+        } catch (ValidationException ex) {
+            return "redirect:/payments/" + id + "/edit?error=" + ex.getMessage();
+        }
         return "redirect:/payments";
     }
 
@@ -187,11 +192,11 @@ public class PaymentController {
             ra.addAttribute("error", "booking_required");
             return "redirect:/payments/new";
         }
-        if (bookingService.findById(bid).isEmpty()) {
+        if (reservationService.findById(bid).isEmpty()) {
             ra.addAttribute("error", "booking_not_found");
             return "redirect:/payments/new";
         }
-        if (!bookingService.isPaymentAllowed(bid)) {
+        if (!reservationService.isPaymentAllowed(bid)) {
             ra.addAttribute("error", "booking_not_confirmed");
             return "redirect:/payments/new";
         }
@@ -202,7 +207,12 @@ public class PaymentController {
         Payment toSave = wantCash
                 ? new CashPayment(id, bid, amount, status == null ? "" : status.trim())
                 : new CardPayment(id, bid, amount, status == null ? "" : status.trim());
-        paymentService.save(toSave);
+        try {
+            paymentService.save(toSave);
+        } catch (ValidationException ex) {
+            ra.addAttribute("error", ex.getMessage());
+            return "redirect:/payments/new";
+        }
         return "redirect:/payments";
     }
 
@@ -226,15 +236,20 @@ public class PaymentController {
             ra.addAttribute("error", "booking_required");
             return "redirect:/payments/new";
         }
-        if (bookingService.findById(bookingId).isEmpty()) {
+        if (reservationService.findById(bookingId).isEmpty()) {
             ra.addAttribute("error", "booking_not_found");
             return "redirect:/payments/new";
         }
-        if (!bookingService.isPaymentAllowed(bookingId)) {
+        if (!reservationService.isPaymentAllowed(bookingId)) {
             ra.addAttribute("error", "booking_not_confirmed");
             return "redirect:/payments/new";
         }
-        paymentService.save(toSave);
+        try {
+            paymentService.save(toSave);
+        } catch (ValidationException ex) {
+            ra.addAttribute("error", ex.getMessage());
+            return "redirect:/payments/new";
+        }
         return "redirect:/payments";
     }
 
@@ -250,7 +265,11 @@ public class PaymentController {
         }
         Payment toSave = "CASH".equalsIgnoreCase(paymentType) ? cashPayment : cardPayment;
         toSave.setId(id);
-        paymentService.save(toSave);
+        try {
+            paymentService.save(toSave);
+        } catch (ValidationException ex) {
+            return "redirect:/payments/" + id + "/edit?error=" + ex.getMessage();
+        }
         return "redirect:/payments";
     }
 

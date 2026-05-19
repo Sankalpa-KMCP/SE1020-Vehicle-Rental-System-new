@@ -1,8 +1,9 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
-import com.sliit.vehiclerentalsystem01.booking.service.BookingService;
-import com.sliit.vehiclerentalsystem01.user.auth.UserSessionKeys;
-import com.sliit.vehiclerentalsystem01.user.model.Customer;
+import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -26,11 +27,11 @@ import java.util.UUID;
 public class CustomerAdminController {
 
     private final UserService userService;
-    private final BookingService bookingService;
+    private final ReservationService reservationService;
 
-    public CustomerAdminController(UserService userService, BookingService bookingService) {
+    public CustomerAdminController(UserService userService, ReservationService reservationService) {
         this.userService = userService;
-        this.bookingService = bookingService;
+        this.reservationService = reservationService;
     }
 
     private static String normalized(String value) {
@@ -133,7 +134,7 @@ public class CustomerAdminController {
                             .ifPresent(found -> {
                                 model.addAttribute("foundCustomer", found);
                                 model.addAttribute("customerBookings",
-                                        bookingService.findBookingsLinkedToCustomer(found));
+                                        reservationService.findBookingsLinkedToCustomer(found));
                             });
                 }
             }
@@ -199,58 +200,53 @@ public class CustomerAdminController {
             return "redirect:/auth/register?error=missing_fields";
         }
 
-        if (!"update".equals(action) && userService.findByUsername(username).isPresent()) {
-            return "create".equals(action)
-                    ? "redirect:/customers?action=view_directory&error=username_taken"
-                    : "redirect:/auth/register?error=username_taken";
-        }
-
-        if ("update".equals(action)) {
-            Customer existing = userService.findById(id)
-                    .filter(u -> u instanceof Customer)
-                    .map(u -> (Customer) u)
-                    .orElseThrow();
-            String currentUsername = existing.getUsername() == null ? "" : existing.getUsername().trim();
-            if (!currentUsername.equalsIgnoreCase(username)) {
-                boolean collision = userService.findByUsername(username)
-                        .filter(u -> !id.equalsIgnoreCase(u.getId()))
-                        .isPresent();
-                if (collision) {
-                    boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
-                    return isAdmin
-                            ? "redirect:/customers?action=edit&id=" + id + "&error=username_taken"
-                            : "redirect:/customers?action=editSelf&error=username_taken";
-                }
+        try {
+            if ("update".equals(action)) {
+                Customer existing = userService.findById(id)
+                        .filter(u -> u instanceof Customer)
+                        .map(u -> (Customer) u)
+                        .orElseThrow();
+                existing.setUsername(username);
+                existing.setPassword(password);
+                existing.setEmail(email);
+                existing.setPhone(phone);
+                existing.setNic(nic);
+                existing.setDriverLicense(license);
+                existing.setFullName(name);
+                userService.save(existing);
+                boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
+                return isAdmin
+                        ? "redirect:/customers?action=view_directory&msg=updated"
+                        : "redirect:/customers?action=editSelf&msg=updated";
             }
-            existing.setUsername(username);
-            existing.setPassword(password);
-            existing.setEmail(email);
-            existing.setPhone(phone);
-            existing.setNic(nic);
-            existing.setDriverLicense(license);
-            existing.setFullName(name);
-            userService.save(existing);
-            boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
-            return isAdmin
-                    ? "redirect:/customers?action=view_directory&msg=updated"
-                    : "redirect:/customers?action=editSelf&msg=updated";
-        }
 
-        String newId = "C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
-        Customer created = new Customer();
-        created.setId(newId);
-        created.setUsername(username);
-        created.setPassword(password);
-        created.setEmail(email);
-        created.setPhone(phone);
-        created.setNic(nic);
-        created.setDriverLicense(license);
-        created.setFullName(name);
-        userService.save(created);
+            String newId = "C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+            Customer created = new Customer();
+            created.setId(newId);
+            created.setUsername(username);
+            created.setPassword(password);
+            created.setEmail(email);
+            created.setPhone(phone);
+            created.setNic(nic);
+            created.setDriverLicense(license);
+            created.setFullName(name);
+            userService.save(created);
 
-        if ("create".equals(action) || (session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN)))) {
-            return "redirect:/customers?action=view_directory&msg=created";
+            if ("create".equals(action) || (session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN)))) {
+                return "redirect:/customers?action=view_directory&msg=created";
+            }
+            return "redirect:/auth/login?success=registered";
+        } catch (ValidationException ex) {
+            if ("update".equals(action)) {
+                boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
+                return isAdmin
+                        ? "redirect:/customers?action=edit&id=" + id + "&error=" + ex.getMessage()
+                        : "redirect:/customers?action=editSelf&error=" + ex.getMessage();
+            }
+            if ("create".equals(action)) {
+                return "redirect:/customers?action=view_directory&error=" + ex.getMessage();
+            }
+            return "redirect:/auth/register?error=" + ex.getMessage();
         }
-        return "redirect:/auth/login?success=registered";
     }
 }

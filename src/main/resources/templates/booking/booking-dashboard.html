@@ -1,46 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Reservation Management - DriveAway</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <th:block th:replace="~{fragments/admin-directory-head :: fontAndUtilities}"></th:block>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Reservation Management - DriveAway')}"></th:block>
     <style>
-        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at top right, #e0f2fe 0%, #f8fafc 45%, #f1f5f9 100%); }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="min-h-screen text-gray-800 flex flex-col">
-<nav class="bg-gradient-to-r from-cyan-900 via-teal-900 to-emerald-900 border-b border-white/10 sticky top-0 z-20 shadow-lg backdrop-blur">
-    <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
-        <a th:href="@{/user/admin-dashboard}" class="flex items-center gap-2 text-white">
-            <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm">
-                <i class="ph-fill ph-calendar-check text-2xl text-cyan-300"></i>
-            </div>
-            <span class="text-2xl font-extrabold tracking-tight">Reservations</span>
-        </a>
-        <div class="flex items-center gap-4 flex-wrap justify-end">
-            <a th:href="@{/admin/reservations/search}" class="text-cyan-200 hover:text-white text-sm font-semibold flex items-center gap-1">
-                <i class="ph-bold ph-magnifying-glass"></i> Search
-            </a>
-            <a th:href="@{/admin/reservations/view-all}" class="text-cyan-200 hover:text-white text-sm font-semibold flex items-center gap-1">
-                <i class="ph-bold ph-list"></i> View all
-            </a>
-            <a th:href="@{/user/admin-dashboard}" class="text-cyan-200 hover:text-white font-semibold text-sm flex items-center gap-2">
-                <i class="ph-bold ph-house"></i> Admin Hub
-            </a>
-            <form th:action="@{/auth}" method="post" class="m-0 inline">
-                <input type="hidden" name="action" value="logout"/>
-                <button type="submit" class="text-white hover:text-cyan-200 font-bold border border-white/20 bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl text-sm transition-all flex items-center gap-2 shadow-sm">
-                    Logout <i class="ph-bold ph-sign-out text-lg"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-</nav>
-<main class="flex-grow max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
-    <div class="bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-600 rounded-3xl p-10 sm:p-12 text-white shadow-xl mb-10 relative overflow-hidden">
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('bookings', 'Bookings')}"></th:block>
+<div class="fade-in">
+
+<div class="bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-600 rounded-3xl p-10 sm:p-12 text-white shadow-xl mb-10 relative overflow-hidden">
         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
@@ -129,7 +100,7 @@
                 <tr th:each="b : ${bookingList}" class="border-b border-slate-100 hover:bg-cyan-50/50 transition-colors group">
                     <td class="py-5 px-6 font-bold text-gray-900" th:text="'#' + ${b.id}">#</td>
                     <td class="py-5 px-6 font-semibold" th:text="${b.customerName}">c</td>
-                    <td class="py-5 px-6"><span class="bg-gray-100 px-2 py-1 rounded text-sm font-mono" th:text="${b.vehicleId}">v</span></td>
+                    <td class="py-5 px-6"><span class="bg-gray-100 px-2 py-1 rounded text-sm font-medium" th:text="${vehicleNames.get(b.vehicleId) ?: b.vehicleId}">v</span></td>
                     <td class="py-5 px-6 text-sm">
                         <p class="font-medium" th:text="${b.rentalDate}">d</p>
                         <p class="text-gray-400 text-xs"><span th:text="${b.days}">1</span> Days Duration</p>
@@ -147,26 +118,28 @@
                         <span th:if="${!#strings.equalsIgnoreCase(b.status,'CONFIRMED') and !#strings.equalsIgnoreCase(b.status,'PENDING') and !#strings.equalsIgnoreCase(b.status,'UPDATE_REQUESTED') and !#strings.equalsIgnoreCase(b.status,'CANCELLATION_REQUESTED') and !#strings.equalsIgnoreCase(b.status,'CANCELLED') and !#strings.equalsIgnoreCase(b.status,'REJECTED')}" class="bg-gray-50 text-gray-600 px-3 py-1 rounded-lg text-xs" th:text="${b.status}">Other</span>
                     </td>
                     <td class="py-5 px-6 text-right">
-                        <form th:action="@{/admin/reservations}" method="post" class="flex justify-end gap-2">
-                            <input type="hidden" name="id" th:value="${b.id}"/>
+                        <div class="flex justify-end gap-2">
                             <th:block th:if="${#strings.equalsIgnoreCase(b.status,'PENDING')}">
-                                <button type="submit" name="action" value="accept" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition-all">Approve</button>
-                                <button type="submit" name="action" value="decline" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white text-xs font-bold px-3 py-2 rounded-lg transition-all">Reject</button>
+                                <a th:href="@{/admin/reservations/{id}/view(id=${b.id})}" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all">View</a>
                             </th:block>
                             <th:block th:if="${#strings.equalsIgnoreCase(b.status,'UPDATE_REQUESTED')}">
-                                <button type="submit" name="action" value="approve_update" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition-all">Accept Edit</button>
-                                <button type="submit" name="action" value="reject_update" class="bg-gray-100 text-gray-600 hover:bg-gray-200 text-xs font-bold px-3 py-2 rounded-lg transition-all">Deny Edit</button>
+                                <a th:href="@{/admin/reservations/{id}/view(id=${b.id})}" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all">View</a>
                             </th:block>
                             <th:block th:if="${#strings.equalsIgnoreCase(b.status,'CANCELLATION_REQUESTED')}">
-                                <button type="submit" name="action" value="approve_cancel" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition-all">Confirm Cancel</button>
-                                <button type="submit" name="action" value="reject_cancel" class="bg-gray-100 text-gray-600 hover:bg-gray-200 text-xs font-bold px-3 py-2 rounded-lg transition-all">Deny Cancel</button>
+                                <a th:href="@{/admin/reservations/{id}/view(id=${b.id})}" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all">View</a>
                             </th:block>
                             <th:block th:if="${!#strings.equalsIgnoreCase(b.status,'PENDING') and !#strings.equalsIgnoreCase(b.status,'UPDATE_REQUESTED') and !#strings.equalsIgnoreCase(b.status,'CANCELLATION_REQUESTED')}">
-                                <button type="submit" name="action" value="delete" onclick="return confirm('Delete this record forever?');" class="text-gray-400 hover:text-red-600 p-2 transition-colors">
-                                    <i class="ph-bold ph-trash text-lg"></i>
-                                </button>
+                                <a th:href="@{/admin/reservations/{id}/view(id=${b.id})}" class="text-gray-400 hover:text-cyan-600 p-2 transition-colors">
+                                    <i class="ph-bold ph-eye text-lg"></i>
+                                </a>
+                                <form th:action="@{/admin/reservations}" method="post" class="inline">
+                                    <input type="hidden" name="id" th:value="${b.id}"/>
+                                    <button type="submit" name="action" value="delete" onclick="return confirm('Delete this record forever?');" class="text-gray-400 hover:text-red-600 p-2 transition-colors">
+                                        <i class="ph-bold ph-trash text-lg"></i>
+                                    </button>
+                                </form>
                             </th:block>
-                        </form>
+                        </div>
                     </td>
                 </tr>
                 <tr th:if="${bookingList == null or bookingList.isEmpty()}">
@@ -176,6 +149,8 @@
             </table>
         </div>
     </div>
-</main>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
 </body>
 </html>
