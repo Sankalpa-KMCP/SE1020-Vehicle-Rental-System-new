@@ -28,51 +28,67 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
     @PostConstruct
     void init() {
-        if (maintenanceRepository.findAll().isEmpty()) {
-            List<MaintenanceRecord> seeded = seedDefaults();
-            maintenanceRepository.saveAll(seeded);
+        boolean maintenanceRecordsAreEmpty = maintenanceRepository.findAll().isEmpty();
+
+        if (maintenanceRecordsAreEmpty) {
+            List<MaintenanceRecord> defaultMaintenanceRecords = seedDefaults();
+
+            maintenanceRepository.saveAll(defaultMaintenanceRecords);
         }
     }
 
     @Override
     public List<MaintenanceRecord> findAll() {
-        return Collections.unmodifiableList(new ArrayList<>(maintenanceRepository.findAll()));
+        List<MaintenanceRecord> recordsFromRepository = maintenanceRepository.findAll();
+
+        List<MaintenanceRecord> copiedRecords = new ArrayList<>(recordsFromRepository);
+
+        return Collections.unmodifiableList(copiedRecords);
     }
 
     @Override
     public List<MaintenanceRecord> findAvailableVehicles() {
-        return maintenanceRepository.findAll().stream()
-                .filter(r -> statusMatches(r, MaintenanceStatus.AVAILABLE))
+        return maintenanceRepository.findAll()
+                .stream()
+                .filter(record -> statusMatches(record, MaintenanceStatus.AVAILABLE))
                 .toList();
     }
 
     @Override
     public List<MaintenanceRecord> findInMaintenance() {
-        return maintenanceRepository.findAll().stream()
-                .filter(r -> statusMatches(r, MaintenanceStatus.MAINTENANCE))
+        return maintenanceRepository.findAll()
+                .stream()
+                .filter(record -> statusMatches(record, MaintenanceStatus.MAINTENANCE))
                 .toList();
     }
 
     @Override
     public List<MaintenanceRecord> findInUse() {
-        return maintenanceRepository.findAll().stream()
-                .filter(r -> statusMatches(r, MaintenanceStatus.IN_USE))
+        return maintenanceRepository.findAll()
+                .stream()
+                .filter(record -> statusMatches(record, MaintenanceStatus.IN_USE))
                 .toList();
     }
 
     @Override
     public int countAvailable() {
-        return findAvailableVehicles().size();
+        List<MaintenanceRecord> availableVehicles = findAvailableVehicles();
+
+        return availableVehicles.size();
     }
 
     @Override
     public int countInMaintenance() {
-        return findInMaintenance().size();
+        List<MaintenanceRecord> vehiclesInMaintenance = findInMaintenance();
+
+        return vehiclesInMaintenance.size();
     }
 
     @Override
     public int countInUse() {
-        return findInUse().size();
+        List<MaintenanceRecord> vehiclesInUse = findInUse();
+
+        return vehiclesInUse.size();
     }
 
     @Override
@@ -80,9 +96,12 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         if (vehicleId == null || vehicleId.isBlank()) {
             return Optional.empty();
         }
-        String key = vehicleId.trim();
-        return maintenanceRepository.findAll().stream()
-                .filter(r -> key.equals(r.getVehicleId()))
+
+        String searchedVehicleId = vehicleId.trim();
+
+        return maintenanceRepository.findAll()
+                .stream()
+                .filter(record -> searchedVehicleId.equals(record.getVehicleId()))
                 .findFirst();
     }
 
@@ -91,25 +110,46 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         if (record == null) {
             throw new IllegalArgumentException("Maintenance record must not be null");
         }
+
         if (record.getVehicleId() == null || record.getVehicleId().isBlank()) {
             throw new IllegalArgumentException("vehicleId is required");
         }
-        String vehicleId = record.getVehicleId().trim();
-        if (findByVehicleId(vehicleId).isPresent()) {
-            throw new IllegalArgumentException("A maintenance record already exists for vehicle: " + vehicleId);
+
+        String cleanedVehicleId = record.getVehicleId().trim();
+
+        boolean recordAlreadyExists = findByVehicleId(cleanedVehicleId).isPresent();
+
+        if (recordAlreadyExists) {
+            throw new IllegalArgumentException("A maintenance record already exists for vehicle: " + cleanedVehicleId);
         }
-        if (record.getLastServiceDate() != null && record.getNextServiceDate() != null
-                && record.getNextServiceDate().isBefore(record.getLastServiceDate())) {
+
+        LocalDate lastServiceDate = record.getLastServiceDate();
+        LocalDate nextServiceDate = record.getNextServiceDate();
+
+        boolean bothServiceDatesExist = lastServiceDate != null && nextServiceDate != null;
+
+        if (bothServiceDatesExist && nextServiceDate.isBefore(lastServiceDate)) {
             throw new ValidationException("invalid_service_dates");
         }
-        if (record.getId() == null || record.getId().isBlank()) {
-            record.setId(nextMaintenanceId());
+
+        boolean recordIdIsMissing = record.getId() == null || record.getId().isBlank();
+
+        if (recordIdIsMissing) {
+            String generatedMaintenanceId = nextMaintenanceId();
+
+            record.setId(generatedMaintenanceId);
         }
+
         if (record.getStatus() != null) {
-            validateStatus(record.getStatus());
-            record.setStatus(record.getStatus().trim());
+            String cleanedStatus = record.getStatus().trim();
+
+            validateStatus(cleanedStatus);
+
+            record.setStatus(cleanedStatus);
         }
-        record.setVehicleId(vehicleId);
+
+        record.setVehicleId(cleanedVehicleId);
+
         maintenanceRepository.saveRecord(record);
     }
 
@@ -118,12 +158,18 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         if (vehicleId == null || vehicleId.isBlank()) {
             throw new IllegalArgumentException("vehicleId is required");
         }
+
         validateStatus(status);
-        String key = vehicleId.trim();
-        MaintenanceRecord record = findByVehicleId(key)
+
+        String cleanedVehicleId = vehicleId.trim();
+        String cleanedStatus = status.trim();
+
+        MaintenanceRecord record = findByVehicleId(cleanedVehicleId)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "No maintenance record found for vehicle: " + key));
-        record.setStatus(status.trim());
+                        "No maintenance record found for vehicle: " + cleanedVehicleId));
+
+        record.setStatus(cleanedStatus);
+
         maintenanceRepository.saveRecord(record);
     }
 
@@ -132,80 +178,127 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         if (vehicleId == null || vehicleId.isBlank()) {
             return;
         }
-        String key = vehicleId.trim();
-        maintenanceRepository.deleteRecordByVehicleId(key);
+
+        String cleanedVehicleId = vehicleId.trim();
+
+        maintenanceRepository.deleteRecordByVehicleId(cleanedVehicleId);
     }
 
     private List<MaintenanceRecord> seedDefaults() {
         LocalDate today = LocalDate.now();
+
         List<MaintenanceRecord> records = new ArrayList<>();
-        records.add(new MaintenanceRecord(
+
+        MaintenanceRecord firstVehicleRecord = new MaintenanceRecord(
                 "MNT-001",
                 "VEH-101",
                 MaintenanceStatus.AVAILABLE,
                 today.minusMonths(2),
                 today.plusMonths(4),
-                "Routine inspection completed; ready for rental."));
-        records.add(new MaintenanceRecord(
+                "Routine inspection completed; ready for rental.");
+
+        MaintenanceRecord secondVehicleRecord = new MaintenanceRecord(
                 "MNT-002",
                 "VEH-102",
                 MaintenanceStatus.IN_USE,
                 today.minusMonths(1),
                 today.plusMonths(5),
-                "Currently on active booking."));
-        records.add(new MaintenanceRecord(
+                "Currently on active booking.");
+
+        MaintenanceRecord thirdVehicleRecord = new MaintenanceRecord(
                 "MNT-003",
                 "VEH-103",
                 MaintenanceStatus.MAINTENANCE,
                 today.minusMonths(3),
                 today.minusDays(14),
-                "Brake pads replacement in progress."));
-        records.add(new MaintenanceRecord(
+                "Brake pads replacement in progress.");
+
+        MaintenanceRecord fourthVehicleRecord = new MaintenanceRecord(
                 "MNT-004",
                 "VEH-104",
                 MaintenanceStatus.AVAILABLE,
                 today.minusWeeks(3),
                 today.plusMonths(3),
-                "Oil change and tire rotation done."));
-        records.add(new MaintenanceRecord(
+                "Oil change and tire rotation done.");
+
+        MaintenanceRecord fifthVehicleRecord = new MaintenanceRecord(
                 "MNT-005",
                 "VEH-105",
                 MaintenanceStatus.IN_USE,
                 today.minusMonths(4),
                 today.plusMonths(2),
-                "Long-term corporate rental."));
+                "Long-term corporate rental.");
+
+        records.add(firstVehicleRecord);
+        records.add(secondVehicleRecord);
+        records.add(thirdVehicleRecord);
+        records.add(fourthVehicleRecord);
+        records.add(fifthVehicleRecord);
+
         return records;
     }
 
     private String nextMaintenanceId() {
-        int max = 0;
-        for (MaintenanceRecord record : maintenanceRepository.findAll()) {
+        int highestMaintenanceNumber = 0;
+
+        List<MaintenanceRecord> existingRecords = maintenanceRepository.findAll();
+
+        for (MaintenanceRecord record : existingRecords) {
             if (record.getId() == null) {
                 continue;
             }
-            Matcher matcher = ID_PATTERN.matcher(record.getId().trim());
-            if (matcher.matches()) {
-                max = Math.max(max, Integer.parseInt(matcher.group(1)));
+
+            String currentRecordId = record.getId().trim();
+
+            Matcher matcher = ID_PATTERN.matcher(currentRecordId);
+
+            boolean idMatchesMaintenancePattern = matcher.matches();
+
+            if (idMatchesMaintenancePattern) {
+                String numberPart = matcher.group(1);
+
+                int maintenanceNumber = Integer.parseInt(numberPart);
+
+                highestMaintenanceNumber = Math.max(highestMaintenanceNumber, maintenanceNumber);
             }
         }
-        return String.format("MNT-%03d", max + 1);
+
+        int nextMaintenanceNumber = highestMaintenanceNumber + 1;
+
+        return String.format("MNT-%03d", nextMaintenanceNumber);
     }
 
     private static void validateStatus(String status) {
         if (status == null || status.isBlank()) {
             throw new ValidationException("invalid_status");
         }
-        String value = status.trim();
-        if (!MaintenanceStatus.AVAILABLE.equals(value)
-                && !MaintenanceStatus.IN_USE.equals(value)
-                && !MaintenanceStatus.MAINTENANCE.equals(value)) {
+
+        String cleanedStatus = status.trim();
+
+        boolean statusIsAvailable = MaintenanceStatus.AVAILABLE.equals(cleanedStatus);
+        boolean statusIsInUse = MaintenanceStatus.IN_USE.equals(cleanedStatus);
+        boolean statusIsMaintenance = MaintenanceStatus.MAINTENANCE.equals(cleanedStatus);
+
+        boolean statusIsValid = statusIsAvailable || statusIsInUse || statusIsMaintenance;
+
+        if (!statusIsValid) {
             throw new ValidationException("invalid_status");
         }
     }
 
     private static boolean statusMatches(MaintenanceRecord record, String status) {
-        return record != null
-                && record.getStatus() != null
-                && status.equals(record.getStatus());
+        boolean recordExists = record != null;
+
+        if (!recordExists) {
+            return false;
+        }
+
+        boolean recordStatusExists = record.getStatus() != null;
+
+        if (!recordStatusExists) {
+            return false;
+        }
+
+        return status.equals(record.getStatus());
     }
 }

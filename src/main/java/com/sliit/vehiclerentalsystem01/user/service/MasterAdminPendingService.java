@@ -1,5 +1,6 @@
 package com.sliit.vehiclerentalsystem01.user.service;
 
+import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.user.entity.SupportStaff;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -135,7 +136,7 @@ public class MasterAdminPendingService {
         String tempPassword = "temp-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
         String id = "EMP-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
         String email = username.toLowerCase() + "@staff.driveaway.local";
-        SupportStaff staff = new SupportStaff(id, username, email, "", username, tempPassword);
+        SupportStaff staff = new SupportStaff(id, username, email, "", username, SecurityUtils.hashPassword(tempPassword));
         userService.save(staff);
         removeLine(pendingLine);
         return tempPassword;

@@ -50,6 +50,12 @@
                 <dt class="text-xs font-bold text-slate-500 uppercase mb-1">Comment</dt>
                 <dd class="text-gray-700 leading-relaxed bg-slate-50 rounded-xl p-4 border border-slate-100" th:text="${review.comments}">—</dd>
             </div>
+            <div th:if="${review.imageUrl != null and !#strings.isEmpty(review.imageUrl)}">
+                <dt class="text-xs font-bold text-slate-500 uppercase mb-1">Attached Photo</dt>
+                <dd>
+                    <img th:src="@{${review.imageUrl}}" alt="Review photo" class="max-w-xs h-auto rounded-xl border border-slate-200 object-cover shadow-sm mt-2"/>
+                </dd>
+            </div>
             <div th:if="${review.staffReply != null and !#strings.isEmpty(review.staffReply)}">
                 <dt class="text-xs font-bold text-amber-700 uppercase mb-1">Staff reply</dt>
                 <dd class="text-sm bg-amber-50 border border-amber-100 rounded-xl p-4">

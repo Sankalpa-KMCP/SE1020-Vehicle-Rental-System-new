@@ -49,7 +49,8 @@
       <span th:text="${error}">Error</span>
     </div>
 
-    <form method="post" th:action="@{/auth/register}" class="space-y-8">
+    <form method="post" th:action="@{/auth/register}" enctype="multipart/form-data" class="space-y-8">
+      <th:block th:replace="~{fragments/user-avatar :: avatarInput}"></th:block>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Full Name <span class="text-red-500">*</span></label>

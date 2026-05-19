@@ -1,5 +1,7 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
+import com.sliit.vehiclerentalsystem01.core.service.ImageStorageService;
+import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.user.entity.AdminStaff;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -27,9 +30,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserController {
 
     private final UserService userService;
+    private final ImageStorageService imageStorageService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, ImageStorageService imageStorageService) {
         this.userService = userService;
+        this.imageStorageService = imageStorageService;
     }
 
     private static boolean admin(HttpSession session) {
@@ -101,11 +106,18 @@ public class UserController {
             HttpSession session,
             @RequestParam String userType,
             @ModelAttribute Customer customer,
-            @ModelAttribute SupportStaff staff) {
+            @ModelAttribute SupportStaff staff,
+            @RequestParam(value = "avatarImage", required = false) MultipartFile avatarImage) {
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
         User toSave = "STAFF".equalsIgnoreCase(userType) ? staff : customer;
+        if (toSave instanceof Customer c) {
+            c.setPassword(SecurityUtils.hashPasswordIfNeeded(c.getPassword()));
+        } else if (toSave instanceof Staff s) {
+            s.setPassword(SecurityUtils.hashPasswordIfNeeded(s.getPassword()));
+        }
+        imageStorageService.attachAvatar(toSave, avatarImage);
         try {
             userService.save(toSave);
         } catch (ValidationException ex) {
@@ -120,17 +132,21 @@ public class UserController {
             HttpSession session,
             @RequestParam String userType,
             @ModelAttribute Customer customer,
-            @ModelAttribute SupportStaff staff) {
+            @ModelAttribute SupportStaff staff,
+            @RequestParam(value = "avatarImage", required = false) MultipartFile avatarImage) {
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
         if ("STAFF".equalsIgnoreCase(userType)) {
             User existing = userService.findById(id).orElseThrow();
+            String hashedPassword = SecurityUtils.hashPasswordIfNeeded(staff.getPassword());
             Staff replacement = existing instanceof AdminStaff
                     ? new AdminStaff(id, staff.getName(), staff.getEmail(),
-                    staff.getPhone(), staff.getUsername(), staff.getPassword())
+                    staff.getPhone(), staff.getUsername(), hashedPassword)
                     : new SupportStaff(id, staff.getName(), staff.getEmail(), staff.getPhone(), staff.getUsername(),
-                    staff.getPassword());
+                    hashedPassword);
+            replacement.setProfilePicture(existing.getProfilePicture());
+            imageStorageService.attachAvatar(replacement, avatarImage);
             try {
                 userService.save(replacement);
             } catch (ValidationException ex) {
@@ -139,6 +155,9 @@ public class UserController {
             return "redirect:/users";
         }
         customer.setId(id);
+        customer.setPassword(SecurityUtils.hashPasswordIfNeeded(customer.getPassword()));
+        userService.findById(id).ifPresent(existing -> customer.setProfilePicture(existing.getProfilePicture()));
+        imageStorageService.attachAvatar(customer, avatarImage);
         try {
             userService.save(customer);
         } catch (ValidationException ex) {

@@ -8,6 +8,7 @@ public abstract class User {
     private String id;
     private String name;
     private String email;
+    private String profilePicture = "N/A";
 
     protected static String normalize(String value) {
         return value == null ? "" : value.trim();
@@ -51,6 +52,9 @@ public abstract class User {
     /** Role label for polymorphism (e.g. CUSTOMER, STAFF). */
     public abstract String getUserRole();
 
+    /** Serialized form for flat-file storage (CSV). */
+    public abstract String toCSV();
+
     /** Login id; overridden by {@link Customer} and {@link Staff}. */
     public String getUsername() {
         return "";
@@ -58,5 +62,27 @@ public abstract class User {
 
     public String getPassword() {
         return "";
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        if (profilePicture == null || profilePicture.isBlank()) {
+            this.profilePicture = "N/A";
+        } else {
+            this.profilePicture = profilePicture.trim();
+        }
+    }
+
+    public boolean hasAvatar() {
+        return profilePicture != null
+                && !profilePicture.isBlank()
+                && !"N/A".equalsIgnoreCase(profilePicture);
+    }
+
+    public String getAvatarUrl() {
+        return hasAvatar() ? "/avatars/" + profilePicture : null;
     }
 }

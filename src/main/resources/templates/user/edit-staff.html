@@ -20,7 +20,9 @@
         <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Edit staff</h1>
         <p class="text-gray-500 text-sm mt-1">Update credentials and access role.</p>
     </div>
-    <form method="post" th:action="@{/staff}" class="space-y-5">
+    <form method="post" th:action="@{/staff}" enctype="multipart/form-data" class="space-y-5">
+        <div class="flex justify-center mb-4" th:replace="~{fragments/user-avatar :: avatar(user=${staff}, size=80)}"></div>
+        <th:block th:replace="~{fragments/user-avatar :: avatarInput}"></th:block>
         <input type="hidden" name="action" value="update"/>
         <input type="hidden" name="id" th:value="${staff.id}"/>
         <label class="block">

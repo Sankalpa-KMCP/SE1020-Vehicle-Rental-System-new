@@ -88,7 +88,8 @@
                 <i class="ph-bold ph-user-plus text-rose-500"></i> Onboard employee
             </h2>
             <p class="text-gray-500 font-medium mb-6">Create a new staff login. Fields marked with the form are required by the server.</p>
-            <form th:action="@{/staff}" method="post" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form th:action="@{/staff}" method="post" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2" th:replace="~{fragments/user-avatar :: avatarInput}"></div>
                 <input type="text" name="manualId" placeholder="Employee ID (optional — auto if empty)" class="border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-rose-400 outline-none md:col-span-2"/>
                 <input type="text" name="name" placeholder="Full Name" class="border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-rose-400 outline-none" required/>
                 <input type="email" name="email" placeholder="Email Address" class="border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-rose-400 outline-none" required/>
@@ -111,6 +112,7 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                     <tr class="bg-slate-50 text-gray-500 text-sm uppercase tracking-wider border-b border-slate-200">
+                        <th class="py-4 px-6 font-bold">Avatar</th>
                         <th class="py-4 px-6 font-bold">EMP ID</th>
                         <th class="py-4 px-6 font-bold">Name</th>
                         <th class="py-4 px-6 font-bold">Email</th>
@@ -121,6 +123,9 @@
                     </thead>
                     <tbody class="text-gray-700">
                     <tr th:each="s : ${staffList}" class="border-b border-slate-100 hover:bg-rose-50/50 transition-colors">
+                        <td class="py-5 px-6">
+                            <div th:replace="~{fragments/user-avatar :: avatar(user=${s}, size=44)}"></div>
+                        </td>
                         <td class="py-5 px-6 font-mono font-bold text-gray-900" th:text="${s.staffId}">id</td>
                         <td class="py-5 px-6 font-semibold" th:text="${s.name}">n</td>
                         <td class="py-5 px-6 text-sm" th:text="${s.email}">e</td>
@@ -136,7 +141,7 @@
                         </td>
                     </tr>
                     <tr th:if="${staffList == null or staffList.isEmpty()}">
-                        <td colspan="6" class="py-10 text-center text-gray-500 font-medium">No staff found in the system.</td>
+                        <td colspan="7" class="py-10 text-center text-gray-500 font-medium">No staff found in the system.</td>
                     </tr>
                     </tbody>
                 </table>
