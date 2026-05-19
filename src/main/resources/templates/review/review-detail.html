@@ -3,68 +3,158 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Review detail - DriveAway</title>
+    <title>Review Detail — DriveAway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <th:block th:replace="~{fragments/admin-directory-head :: fontAndUtilities}"></th:block>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <style>
-        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at 20% 20%, #fef3c7 0%, #f8fafc 40%, #fff7ed 100%); }
+        :root {
+            --da-bg: #050506;
+            --da-accent: #c9a227;
+            --da-accent-glow: rgba(201, 162, 39, 0.15);
+            --da-text: #f3f4f6;
+            --da-text-muted: #9ca3af;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            background-color: var(--da-bg);
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201, 162, 39, 0.08), transparent 50%);
+            background-size: 24px 24px, auto;
+            color: var(--da-text);
+        }
+        .detail-card {
+            background: rgba(18, 18, 24, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 50px rgba(201, 162, 39, 0.03);
+            border-radius: 2rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .detail-card:hover {
+            border-color: rgba(201, 162, 39, 0.25);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 60px rgba(201, 162, 39, 0.06);
+        }
+        .label-text {
+            color: var(--da-text-muted);
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .val-text {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .comment-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #e5e7eb;
+        }
+        .reply-box {
+            background: rgba(201, 162, 39, 0.05);
+            border: 1px solid rgba(201, 162, 39, 0.15);
+            color: #e5e7eb;
+        }
+        .star-display .star { font-size: 1.25rem; }
+        .star-display .star.filled { color: var(--da-accent); }
+        .star-display .star.empty  { color: rgba(255, 255, 255, 0.15); }
     </style>
 </head>
-<body class="min-h-screen text-gray-800 p-8">
+<body class="min-h-screen text-gray-200 p-6 sm:p-12">
 <div class="max-w-2xl mx-auto">
-    <a th:href="@{/reviews}" class="inline-flex items-center gap-2 text-amber-800 font-semibold hover:text-amber-950 mb-8">
-        <i class="ph-bold ph-arrow-left"></i> Back to customer reviews
+    
+    <a th:href="@{/reviews}" class="inline-flex items-center gap-2 text-[#c9a227] hover:text-[#d4af37] font-bold text-sm tracking-wide mb-8 group transition-all duration-300">
+        <i class="ph-bold ph-arrow-left transition-transform group-hover:-translate-x-1"></i> 
+        Back to customer reviews
     </a>
 
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-lg p-8 space-y-6" th:if="${review instanceof T(com.sliit.vehiclerentalsystem01.review.entity.CustomerReview)}">
-        <div class="flex items-start justify-between gap-4">
+    <div class="detail-card p-8 sm:p-10 space-y-8" th:if="${review instanceof T(com.sliit.vehiclerentalsystem01.review.entity.CustomerReview)}">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-6">
             <div>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Review ID</p>
-                <p class="font-mono font-extrabold text-lg" th:text="${review.id}">id</p>
+                <p class="label-text mb-1">Review ID</p>
+                <p class="font-mono font-bold text-xl text-white">#<span th:text="${review.id}">id</span></p>
             </div>
-            <span class="bg-slate-100 text-slate-800 font-bold px-3 py-1 rounded-lg text-xs" th:text="${review.status}">status</span>
+            
+            <div>
+                <!-- Status Badge -->
+                <span th:if="${review.status == 'PUBLISHED'}" class="px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <i class="ph-fill ph-check-circle inline mr-1"></i> Published
+                </span>
+                <span th:if="${review.status == 'FLAGGED'}" class="px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                    <i class="ph-fill ph-flag inline mr-1"></i> Flagged
+                </span>
+                <span th:if="${review.status == 'PENDING'}" class="px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <i class="ph-fill ph-clock inline mr-1"></i> Pending
+                </span>
+                <span th:if="${review.status != 'PUBLISHED' and review.status != 'FLAGGED' and review.status != 'PENDING'}"
+                      class="px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-white/5 text-white/70 border border-white/10"
+                      th:text="${review.status}">Status</span>
+            </div>
         </div>
 
-        <dl class="grid gap-4 text-sm">
+        <!-- Details Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
             <div>
-                <dt class="text-xs font-bold text-slate-500 uppercase">Customer</dt>
-                <dd class="font-semibold text-gray-900" th:text="${review.reviewerName}">—</dd>
+                <dt class="label-text mb-1.5">Customer Name</dt>
+                <dd class="val-text text-base" th:text="${review.reviewerName}">—</dd>
             </div>
+            
             <div th:if="${review.bookingId != null and !#strings.isEmpty(review.bookingId)}">
-                <dt class="text-xs font-bold text-slate-500 uppercase">Booking</dt>
-                <dd class="font-mono font-semibold" th:text="${review.bookingId}">—</dd>
+                <dt class="label-text mb-1.5">Booking Reference</dt>
+                <dd class="val-text font-mono text-base" th:text="${review.bookingId}">—</dd>
             </div>
+            
             <div th:if="${review.vehicleId != null and !#strings.isEmpty(review.vehicleId)}">
-                <dt class="text-xs font-bold text-slate-500 uppercase">Vehicle</dt>
-                <dd class="font-mono font-semibold" th:text="${review.vehicleId}">—</dd>
+                <dt class="label-text mb-1.5">Vehicle Reference</dt>
+                <dd class="val-text font-mono text-base" th:text="${review.vehicleId}">—</dd>
             </div>
+            
             <div>
-                <dt class="text-xs font-bold text-slate-500 uppercase mb-1">Rating</dt>
-                <dd class="text-amber-600 font-extrabold text-lg flex items-center gap-1">
-                    <i class="ph-fill ph-star"></i>
-                    <span th:text="${review.rating}">5</span>/5
+                <dt class="label-text mb-1.5">Rating Score</dt>
+                <dd class="flex items-center gap-2">
+                    <div class="star-display inline-flex gap-0.5">
+                        <span th:each="i : ${#numbers.sequence(1,5)}"
+                              th:class="${i <= review.rating} ? 'star filled' : 'star empty'">★</span>
+                    </div>
+                    <span class="text-[#c9a227] font-extrabold text-base" th:text="${review.rating} + '/5'">5/5</span>
                 </dd>
             </div>
-            <div>
-                <dt class="text-xs font-bold text-slate-500 uppercase mb-1">Comment</dt>
-                <dd class="text-gray-700 leading-relaxed bg-slate-50 rounded-xl p-4 border border-slate-100" th:text="${review.comments}">—</dd>
-            </div>
-            <div th:if="${review.imageUrl != null and !#strings.isEmpty(review.imageUrl)}">
-                <dt class="text-xs font-bold text-slate-500 uppercase mb-1">Attached Photo</dt>
-                <dd>
-                    <img th:src="@{${review.imageUrl}}" alt="Review photo" class="max-w-xs h-auto rounded-xl border border-slate-200 object-cover shadow-sm mt-2"/>
-                </dd>
-            </div>
-            <div th:if="${review.staffReply != null and !#strings.isEmpty(review.staffReply)}">
-                <dt class="text-xs font-bold text-amber-700 uppercase mb-1">Staff reply</dt>
-                <dd class="text-sm bg-amber-50 border border-amber-100 rounded-xl p-4">
-                    <span class="font-bold text-amber-900" th:text="${review.repliedBy}">staff</span>:
-                    <span th:text="${review.staffReply}">reply</span>
-                    <p th:if="${review.repliedAt != null and !#strings.isEmpty(review.repliedAt)}" class="text-xs text-amber-700/80 mt-2" th:text="${review.repliedAt}">time</p>
-                </dd>
-            </div>
-        </dl>
+        </div>
+
+        <!-- Comments -->
+        <div class="space-y-2">
+            <dt class="label-text">Customer Comments</dt>
+            <dd class="comment-box rounded-2xl p-5 leading-relaxed text-gray-200 text-sm font-medium shadow-inner" th:text="${review.comments}">—</dd>
+        </div>
+
+        <!-- Attached Photo -->
+        <div class="space-y-3" th:if="${review.imageUrl != null and !#strings.isEmpty(review.imageUrl)}">
+            <dt class="label-text">Attached Photo</dt>
+            <dd class="relative group overflow-hidden rounded-2xl border border-white/10 max-w-sm">
+                <img th:src="@{${review.imageUrl}}" alt="Review photo" class="w-full h-auto object-cover transform duration-500 group-hover:scale-105 shadow-md"/>
+            </dd>
+        </div>
+
+        <!-- Staff Reply -->
+        <div class="space-y-3 border-t border-white/10 pt-6" th:if="${review.staffReply != null and !#strings.isEmpty(review.staffReply)}">
+            <dt class="label-text text-[#c9a227]">Staff Response</dt>
+            <dd class="reply-box rounded-2xl p-5 shadow-inner">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-[#c9a227]" aria-hidden="true"></span>
+                    <span class="text-xs font-bold text-white/95" th:text="${review.repliedBy}">staff</span>
+                    <span class="text-xs text-white/50">· Replied</span>
+                </div>
+                <p class="text-gray-200 text-sm leading-relaxed" th:text="${review.staffReply}">reply</p>
+                <p th:if="${review.repliedAt != null and !#strings.isEmpty(review.repliedAt)}" class="text-[10px] text-[#c9a227]/70 mt-3 font-semibold uppercase tracking-wider" th:text="${review.repliedAt}">time</p>
+            </dd>
+        </div>
+
     </div>
 </div>
 </body>
