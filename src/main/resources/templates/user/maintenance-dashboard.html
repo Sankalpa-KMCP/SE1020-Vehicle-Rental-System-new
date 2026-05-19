@@ -162,23 +162,7 @@
       background: #f8fbff;
     }
 
-    .admin-maintenance-photo {
-      width: 4.6rem;
-      height: 3.2rem;
-      border-radius: 10px;
-      object-fit: cover;
-      background: #e2e8f0;
-      border: 1px solid rgba(148, 163, 184, 0.36);
-    }
 
-    .admin-maintenance-photo--empty {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #64748b;
-      font-size: 0.78rem;
-      font-weight: 900;
-    }
 
     .admin-maintenance-reason {
       display: inline-flex;
@@ -259,13 +243,7 @@
    class="admin-alert admin-alert--warning mb-6"
    role="alert">Next service date cannot be before the last service date.</p>
 
-<p th:if="${param.error != null and param.error[0] == 'invalid_photo'}"
-   class="admin-alert admin-alert--warning mb-6"
-   role="alert">Vehicle photo must be a JPG, PNG, or WEBP image.</p>
 
-<p th:if="${param.error != null and param.error[0] == 'photo_upload_failed'}"
-   class="admin-alert admin-alert--warning mb-6"
-   role="alert">Vehicle photo could not be uploaded. Try again.</p>
 
 <p th:if="${param.error != null and param.error[0] == 'duplicate_vehicle'}"
    class="admin-alert admin-alert--warning mb-6"
@@ -291,7 +269,6 @@
 
       <form method="post"
             th:action="@{/maintenance/vehicles/add}"
-            enctype="multipart/form-data"
             class="admin-maintenance-form__grid"
             id="fleet-add-form">
 
@@ -339,13 +316,6 @@
                class="admin-maintenance-form__control"
                aria-label="Next service date" />
 
-        <input type="file"
-               name="vehiclePhoto"
-               accept="image/png,image/jpeg,image/webp"
-               required
-               class="admin-maintenance-form__control"
-               aria-label="Vehicle photo" />
-
         <button type="submit" class="admin-btn admin-btn--primary">Add Vehicle</button>
       </form>
     </div>
@@ -354,7 +324,6 @@
       <table role="table" class="admin-maintenance-table" aria-label="Fleet vehicle records">
         <thead>
         <tr>
-          <th scope="col">Photo</th>
           <th scope="col">Vehicle ID</th>
           <th scope="col">Type</th>
           <th scope="col">Model</th>
@@ -368,14 +337,6 @@
         <tbody>
         <tr th:each="vehicle : ${fleetList != null ? fleetList : T(java.util.Collections).emptyList()}"
             class="admin-maintenance-row">
-          <td>
-            <img th:if="${vehicle.photoFileName != null and !#strings.isEmpty(vehicle.photoFileName)}"
-                 th:src="@{/maintenance/photos/{fileName}(fileName=${vehicle.photoFileName})}"
-                 th:alt="|Photo of ${vehicle.vehicleId}|"
-                 class="admin-maintenance-photo" />
-            <span th:unless="${vehicle.photoFileName != null and !#strings.isEmpty(vehicle.photoFileName)}"
-                  class="admin-maintenance-photo admin-maintenance-photo--empty">No photo</span>
-          </td>
           <td th:text="${vehicle.vehicleId}">VEH-000</td>
           <td th:text="${vehicle.vehicleType != null and !#strings.isEmpty(vehicle.vehicleType) ? vehicle.vehicleType : '-'}">Car</td>
           <td th:text="${vehicle.vehicleModel != null and !#strings.isEmpty(vehicle.vehicleModel) ? vehicle.vehicleModel : '-'}">Toyota</td>
@@ -402,7 +363,7 @@
         </tr>
 
         <tr th:if="${fleetList == null or fleetList.isEmpty()}">
-          <td colspan="8" class="admin-maintenance-empty">No fleet vehicles available.</td>
+          <td colspan="7" class="admin-maintenance-empty">No fleet vehicles available.</td>
         </tr>
         </tbody>
       </table>
