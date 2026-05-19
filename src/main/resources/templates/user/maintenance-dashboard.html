@@ -306,13 +306,19 @@
                class="admin-maintenance-form__control"
                aria-label="Mileage" />
 
-        <input type="date"
+        <input type="text"
                name="lastServiceDate"
+               placeholder="Last service date"
+               onfocus="this.type='date'"
+               onblur="if(!this.value)this.type='text'"
                class="admin-maintenance-form__control"
                aria-label="Last service date" />
 
-        <input type="date"
+        <input type="text"
                name="nextServiceDate"
+               placeholder="Next service date"
+               onfocus="this.type='date'"
+               onblur="if(!this.value)this.type='text'"
                class="admin-maintenance-form__control"
                aria-label="Next service date" />
 
