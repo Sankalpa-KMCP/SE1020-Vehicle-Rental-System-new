@@ -1,6 +1,7 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.core.service.ImageStorageService;
 import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.entity.AdminStaff;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.UUID;
@@ -26,9 +28,11 @@ import java.util.UUID;
 public class StaffAdminController {
 
     private final UserService userService;
+    private final ImageStorageService imageStorageService;
 
-    public StaffAdminController(UserService userService) {
+    public StaffAdminController(UserService userService, ImageStorageService imageStorageService) {
         this.userService = userService;
+        this.imageStorageService = imageStorageService;
     }
 
     @GetMapping
@@ -67,7 +71,8 @@ public class StaffAdminController {
     }
 
     @PostMapping
-    public String handlePost(HttpSession session, @RequestParam Map<String, String> params) {
+    public String handlePost(HttpSession session, @RequestParam Map<String, String> params,
+                             @RequestParam(value = "avatarImage", required = false) MultipartFile avatarImage) {
         if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
             return "redirect:/auth/staff-login";
         }
@@ -90,13 +95,15 @@ public class StaffAdminController {
         boolean admin = "Admin".equalsIgnoreCase(role);
 
         if ("update".equals(action)) {
-            userService.findById(id)
+            Staff existing = userService.findById(id)
                     .filter(u -> u instanceof Staff)
                     .map(u -> (Staff) u)
                     .orElseThrow();
             Staff updated = admin
                     ? new AdminStaff(id, nv(name), nv(email), nv(phone), nv(username), password)
                     : new SupportStaff(id, nv(name), nv(email), nv(phone), nv(username), password);
+            updated.setProfilePicture(existing.getProfilePicture());
+            imageStorageService.attachAvatar(updated, avatarImage);
             try {
                 userService.save(updated);
             } catch (ValidationException ex) {
@@ -110,6 +117,7 @@ public class StaffAdminController {
             Staff created = admin
                     ? new AdminStaff(newId, nv(name), nv(email), nv(phone), nv(username), password)
                     : new SupportStaff(newId, nv(name), nv(email), nv(phone), nv(username), password);
+            imageStorageService.attachAvatar(created, avatarImage);
             try {
                 userService.save(created);
             } catch (ValidationException ex) {

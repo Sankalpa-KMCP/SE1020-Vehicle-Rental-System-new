@@ -128,8 +128,8 @@ public class UserRepository {
         try {
             Files.createDirectories(path.getParent());
             List<String> lines = new ArrayList<>();
-            lines.add("# Customer: id,name,email,username,password,nic,license,phone (8 CSV fields)");
-            lines.add("# Staff: id,name,email,phone,username,password,role (7 CSV fields)");
+            lines.add("# Customer: id,name,email,username,password,nic,license,phone,profilePicture (9 CSV fields)");
+            lines.add("# Staff: id,name,email,phone,username,password,role,profilePicture (8 CSV fields)");
             lines.addAll(users.stream().map(this::toLine).toList());
             Files.write(path, lines, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -143,6 +143,18 @@ public class UserRepository {
             return parseLegacyPipeLine(line);
         }
         String[] a = line.split(",", -1);
+        if (a.length == 9) {
+            Customer c = Customer.fromCSV(line);
+            if (c != null) {
+                return c;
+            }
+        }
+        if (a.length == 8 && isStaffRole(a[6])) {
+            Staff staff = Staff.fromCSV(line);
+            if (staff != null) {
+                return staff;
+            }
+        }
         if (a.length == 8) {
             Customer c = Customer.fromCSV(line);
             if (c != null) {
@@ -156,6 +168,17 @@ public class UserRepository {
             }
         }
         throw new IllegalArgumentException("Invalid user record: " + line);
+    }
+
+    private static boolean isStaffRole(String role) {
+        if (role == null) {
+            return false;
+        }
+        String trimmed = role.trim();
+        return "Admin".equalsIgnoreCase(trimmed)
+                || "ADMIN".equalsIgnoreCase(trimmed)
+                || "Support".equalsIgnoreCase(trimmed)
+                || "SUPPORT".equalsIgnoreCase(trimmed);
     }
 
     /** Backward compatibility for older pipe files. */

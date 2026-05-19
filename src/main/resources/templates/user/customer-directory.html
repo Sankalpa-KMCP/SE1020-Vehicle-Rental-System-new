@@ -126,7 +126,8 @@
            </button>
          </div>
 
-         <form th:action="@{/customers}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+         <form th:action="@{/customers}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div class="md:col-span-2" th:replace="~{fragments/user-avatar :: avatarInput}"></div>
            <input type="hidden" name="action" value="create"/>
 
            <div>
@@ -194,6 +195,7 @@
           <table class="w-full text-left border-collapse">
             <thead>
             <tr class="bg-slate-50 text-gray-500 text-sm uppercase tracking-wider border-b border-slate-200">
+              <th class="py-4 px-6 font-bold">Avatar</th>
               <th class="py-4 px-6 font-bold">Username</th>
               <th class="py-4 px-6 font-bold">Name</th>
               <th class="py-4 px-6 font-bold">Email</th>
@@ -203,6 +205,9 @@
             </thead>
             <tbody class="text-gray-700 text-base">
             <tr th:each="c : ${customerList}" class="border-b border-slate-100 hover:bg-blue-50/50 transition-colors group">
+              <td class="py-4 px-6">
+                <div th:replace="~{fragments/user-avatar :: avatar(user=${c}, size=44)}"></div>
+              </td>
               <td class="py-4 px-6 font-bold text-gray-900 text-lg" th:text="'@' + ${c.username}">@user</td>
               <td class="py-4 px-6 font-semibold" th:text="${c.name}">Name</td>
               <td class="py-4 px-6 text-gray-500" th:text="${c.email}">email</td>
@@ -225,7 +230,7 @@
                 </div>
               </td>
             </tr>
-            <tr th:if="${customerList == null or customerList.isEmpty()}"><td colspan="5" class="py-10 text-center text-gray-500 font-medium text-lg">No registered guests found in the system.</td></tr>
+            <tr th:if="${customerList == null or customerList.isEmpty()}"><td colspan="6" class="py-10 text-center text-gray-500 font-medium text-lg">No registered guests found in the system.</td></tr>
             </tbody>
           </table>
         </div>
@@ -262,7 +267,8 @@
           </div>
 
           <div class="p-8">
-            <form th:action="@{/customers}" method="POST" class="space-y-8">
+            <form th:action="@{/customers}" method="POST" enctype="multipart/form-data" class="space-y-8">
+              <th:block th:replace="~{fragments/user-avatar :: avatarInput}"></th:block>
               <input type="hidden" name="action" id="manageAction" value="update"/>
               <input type="hidden" name="id" th:value="${foundCustomer.id}"/>
               <input type="hidden" name="username" th:value="${foundCustomer.username}"/>
