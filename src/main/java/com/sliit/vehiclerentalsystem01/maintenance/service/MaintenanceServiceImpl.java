@@ -101,7 +101,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         record.setVehicleType(normalizeVehicleType(record.getVehicleType()));
         record.setVehicleModel(requireText(record.getVehicleModel(), "vehicle_model_required"));
         record.setMileage(requireText(record.getMileage(), "mileage_required"));
-        record.setPhotoFileName(requireText(record.getPhotoFileName(), "invalid_photo"));
+        record.setPhotoFileName(cleanText(record.getPhotoFileName()));
 
         maintenanceRepository.saveVehicle(record);
     }
