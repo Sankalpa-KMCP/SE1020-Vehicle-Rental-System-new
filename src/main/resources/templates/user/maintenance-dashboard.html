@@ -5,42 +5,73 @@
 
   <style>
     .admin-shell {
-      background: linear-gradient(135deg, #f8fafc 0%, #eef4ff 48%, #fff7ed 100%);
+      /* DriveAway Premium Obsidian Dark theme variables */
+      --admin-navy: #050506;
+      --admin-navy-mid: #0c0c0e;
+      --admin-charcoal: #f4f2ee;
+      --admin-charcoal-muted: #a8a6a0;
+      --admin-bg: #050506;
+      --admin-canvas: #050506;
+      --admin-surface: #0c0c0e;
+      --admin-glass: rgba(12, 12, 14, 0.85);
+      --admin-text: #f4f2ee;
+      --admin-text-muted: #a8a6a0;
+      --admin-border: rgba(255, 255, 255, 0.08);
+
+      background:
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+        radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+        #050506;
+      background-size: 24px 24px, auto, auto, auto;
+    }
+
+    .admin-main {
+      background:
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+        radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+        var(--admin-canvas);
+      background-size: 24px 24px, auto, auto, auto;
     }
 
     .admin-page-header {
       padding: 1.4rem 1.6rem;
       margin-bottom: 1.4rem;
       border-radius: 18px;
-      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 52%, #0f766e 100%);
-      color: #ffffff;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+      background: linear-gradient(135deg, #0a0a0b 0%, #141418 100%);
+      color: #f4f2ee;
+      border: 1px solid rgba(201, 169, 98, 0.15);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
     }
 
     .admin-page-header__title {
-      color: #ffffff;
-      letter-spacing: 0;
+      font-family: var(--da-font-display, 'Playfair Display', Georgia, serif);
+      color: #f4f2ee;
+      letter-spacing: -0.02em;
       font-size: 2.1rem;
     }
 
     .admin-page-header__subtitle {
-      color: rgba(255, 255, 255, 0.82);
+      color: #a8a6a0;
       font-size: 1rem;
     }
 
     .admin-section-heading {
-      color: #0f172a;
-      font-weight: 900;
+      font-family: var(--da-font-display, 'Playfair Display', Georgia, serif);
+      color: #e8d5a3;
+      font-weight: 700;
       margin: 0 0 1rem;
-      font-size: 1.15rem;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
     }
 
     .admin-maintenance-panel {
       overflow: hidden;
-      border: 1px solid rgba(148, 163, 184, 0.24);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 18px;
-      background: rgba(255, 255, 255, 0.92);
-      box-shadow: 0 20px 48px rgba(15, 23, 42, 0.1);
+      background: #0c0c0e;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
       backdrop-filter: blur(10px);
     }
 
@@ -54,25 +85,26 @@
       justify-content: space-between;
       gap: 1rem;
       padding: 1.2rem;
-      background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+      background: #141418;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .admin-maintenance-count {
-      color: #64748b;
-      font-weight: 800;
+      color: #a8a6a0;
+      font-weight: 700;
       font-size: 0.95rem;
     }
 
     .admin-maintenance-form {
       padding: 1rem 1.2rem;
-      background: linear-gradient(135deg, #f8fafc 0%, #eef6ff 100%);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+      background: #0c0c0e;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .admin-maintenance-form__title {
-      color: #0f172a;
-      font-weight: 900;
+      font-family: var(--da-font-display, 'Playfair Display', Georgia, serif);
+      color: #e8d5a3;
+      font-weight: 700;
       margin-bottom: 0.8rem;
     }
 
@@ -84,19 +116,24 @@
 
     .admin-maintenance-form__control {
       min-height: 2.75rem;
-      border: 1px solid rgba(148, 163, 184, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 10px;
-      background: #ffffff;
-      color: #0f172a;
+      background: #141418;
+      color: #f4f2ee;
       padding: 0.65rem 0.8rem;
-      font-weight: 700;
+      font-weight: 600;
       transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .admin-maintenance-form__control option {
+      background: #0c0c0e;
+      color: #f4f2ee;
     }
 
     .admin-maintenance-form__control:focus {
       outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+      border-color: #c9a962;
+      box-shadow: 0 0 0 4px rgba(201, 169, 98, 0.18);
     }
 
     .admin-maintenance-form__control--wide {
@@ -104,27 +141,41 @@
     }
 
     .admin-btn--primary {
-      border: none;
+      border: 1px solid rgba(232, 213, 163, 0.3);
       font-size: 0.9rem;
-      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
-      color: #ffffff;
-      font-weight: 900;
-      box-shadow: 0 12px 24px rgba(180, 83, 9, 0.24);
+      background: linear-gradient(135deg, #c9a962 0%, #e8d5a3 100%);
+      color: #050506;
+      font-weight: 800;
+      box-shadow: 0 12px 24px rgba(201, 169, 98, 0.18);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .admin-btn--primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(201, 169, 98, 0.28);
     }
 
     .admin-btn--danger {
       border: none;
-      background: linear-gradient(135deg, #ef4444 0%, #be123c 100%);
+      background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
       color: #ffffff;
-      font-weight: 800;
-      box-shadow: 0 10px 20px rgba(190, 18, 60, 0.2);
+      font-weight: 700;
+      box-shadow: 0 10px 20px rgba(239, 68, 68, 0.15);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .admin-btn--danger:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(239, 68, 68, 0.25);
     }
 
     .admin-alert--warning {
-      border-color: rgba(245, 158, 11, 0.45);
-      background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
-      color: #92400e;
-      font-weight: 800;
+      border-color: rgba(245, 158, 11, 0.3);
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 1rem;
     }
 
     .admin-maintenance-table-wrap {
@@ -136,7 +187,7 @@
       min-width: 980px;
       border-collapse: separate;
       border-spacing: 0;
-      background: #ffffff;
+      background: #0c0c0e;
     }
 
     .admin-maintenance-table th,
@@ -144,49 +195,49 @@
       padding: 0.95rem 1rem;
       text-align: left;
       vertical-align: middle;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      color: #f4f2ee;
     }
 
     .admin-maintenance-table thead {
-      background: linear-gradient(135deg, #f1f5f9 0%, #e0f2fe 100%);
+      background: #141418;
     }
 
     .admin-maintenance-table th {
-      color: #475569;
-      font-weight: 900;
-      letter-spacing: 0;
+      color: #a8a6a0;
+      font-weight: 700;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
+      font-size: 0.8rem;
     }
 
     .admin-maintenance-row:hover {
-      background: #f8fbff;
+      background: #141418;
     }
-
-
 
     .admin-maintenance-reason {
       display: inline-flex;
       align-items: center;
       border-radius: 999px;
       padding: 0.34rem 0.7rem;
-      background: #e0f2fe;
-      color: #075985;
-      border: 1px solid #7dd3fc;
-      font-weight: 900;
+      background: rgba(34, 211, 238, 0.1);
+      color: #22d3ee;
+      border: 1px solid rgba(34, 211, 238, 0.2);
+      font-weight: 700;
       white-space: nowrap;
     }
 
     .admin-maintenance-notes {
       max-width: 22rem;
-      color: #475569;
+      color: #a8a6a0;
       line-height: 1.45;
     }
 
     .admin-maintenance-empty {
       text-align: center;
-      color: #64748b;
-      font-weight: 800;
-      padding: 2rem;
+      color: #a8a6a0;
+      font-weight: 700;
+      padding: 2.5rem;
     }
 
     .admin-maintenance-actions {
@@ -195,9 +246,29 @@
 
     .admin-toast {
       border-radius: 12px;
-      background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%);
-      color: #ffffff;
-      box-shadow: 0 18px 38px rgba(15, 23, 42, 0.22);
+      background: linear-gradient(135deg, #0c0c0e 0%, #141418 100%);
+      color: #f4f2ee;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Sleek buttons and elements in topbar override */
+    .admin-topbar__menu-btn,
+    .admin-topbar__collapse-btn,
+    .admin-topbar__logout,
+    .admin-topbar__user {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      color: #f4f2ee !important;
+    }
+
+    .admin-topbar__menu-btn:hover,
+    .admin-topbar__collapse-btn:hover,
+    .admin-topbar__logout:hover,
+    .admin-topbar__user:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      border-color: rgba(201, 169, 98, 0.35) !important;
+      color: #e8d5a3 !important;
     }
 
     @media (max-width: 1024px) {
