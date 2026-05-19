@@ -66,7 +66,6 @@
             </dl>
             <div class="mt-6 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
                 <a th:href="@{/customer/bookings/{id}/edit(id=${b.id})}" class="flex-1 min-w-[7rem] text-center bg-slate-900 text-white text-sm font-bold py-2.5 rounded-xl hover:bg-slate-800 transition">Edit</a>
-                <a th:if="${payAllowed != null and payAllowed.get(b.id)}" th:href="@{/customer/pay(bookingId=${b.id})}" class="flex-1 min-w-[7rem] text-center bg-emerald-600 text-white text-sm font-bold py-2.5 rounded-xl hover:bg-emerald-700 transition">Pay</a>
                 <a th:href="@{/customer/bookings/{bid}/cancel(bid=${b.id})}" class="flex-1 min-w-[7rem] text-center bg-white border border-red-200 text-red-600 text-sm font-bold py-2.5 rounded-xl hover:bg-red-50 transition">Cancel</a>
             </div>
         </article>
