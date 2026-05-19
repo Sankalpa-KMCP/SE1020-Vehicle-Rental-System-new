@@ -1,6 +1,7 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.entity.AdminStaff;
 import com.sliit.vehiclerentalsystem01.user.entity.Staff;
@@ -84,7 +85,7 @@ public class StaffAdminController {
         String email = params.get("email");
         String phone = params.get("phone");
         String username = params.get("username");
-        String password = params.get("password");
+        String password = SecurityUtils.hashPasswordIfNeeded(nv(params.get("password")));
 
         boolean admin = "Admin".equalsIgnoreCase(role);
 
@@ -94,8 +95,8 @@ public class StaffAdminController {
                     .map(u -> (Staff) u)
                     .orElseThrow();
             Staff updated = admin
-                    ? new AdminStaff(id, nv(name), nv(email), nv(phone), nv(username), nv(password))
-                    : new SupportStaff(id, nv(name), nv(email), nv(phone), nv(username), nv(password));
+                    ? new AdminStaff(id, nv(name), nv(email), nv(phone), nv(username), password)
+                    : new SupportStaff(id, nv(name), nv(email), nv(phone), nv(username), password);
             try {
                 userService.save(updated);
             } catch (ValidationException ex) {
@@ -107,8 +108,8 @@ public class StaffAdminController {
                     ? manualId.trim()
                     : "EMP-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
             Staff created = admin
-                    ? new AdminStaff(newId, nv(name), nv(email), nv(phone), nv(username), nv(password))
-                    : new SupportStaff(newId, nv(name), nv(email), nv(phone), nv(username), nv(password));
+                    ? new AdminStaff(newId, nv(name), nv(email), nv(phone), nv(username), password)
+                    : new SupportStaff(newId, nv(name), nv(email), nv(phone), nv(username), password);
             try {
                 userService.save(created);
             } catch (ValidationException ex) {

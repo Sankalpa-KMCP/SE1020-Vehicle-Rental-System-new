@@ -1,5 +1,6 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
+import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
@@ -166,7 +167,7 @@ public class UserAuthController {
             customer.setId("C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase());
             customer.setName(name != null ? name.trim() : "");
             customer.setUsername(username);
-            customer.setPassword(password);
+            customer.setPassword(SecurityUtils.hashPasswordIfNeeded(password));
             customer.setEmail(email);
             customer.setPhoneNumber(phone);
             customer.setLicenseNumber(blankToNa(license));

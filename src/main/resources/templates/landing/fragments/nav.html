@@ -10,7 +10,7 @@
 
             <ul class="nav__links">
                 <li><a th:href="@{/features}"
-                       th:classappend="${activeNav == 'features'} ? 'is-active' : ''">Features</a></li>
+                       th:classappend="${activeNav == 'features'} ? 'is-active' : ''">Why DriveAway</a></li>
                 <li><a th:href="@{/how-it-works}"
                        th:classappend="${activeNav == 'how-it-works'} ? 'is-active' : ''">How it works</a></li>
                 <li><a th:href="@{/fleet}"
@@ -30,10 +30,10 @@
 
                 <a th:if="${#strings.isEmpty(userRole)}"
                    th:href="@{/auth/register}"
-                   class="btn btn--primary nav__cta">Get Started</a>
+                   class="btn btn--primary nav__cta">Book now</a>
                 <a th:if="${!#strings.isEmpty(userRole)}"
                    th:href="@{/customer/fleet}"
-                   class="btn btn--primary nav__cta">Browse Fleet</a>
+                   class="btn btn--primary nav__cta">Browse fleet</a>
 
                 <button type="button" id="nav-toggle" class="nav__toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-mobile">
                     <span></span><span></span><span></span>
@@ -43,7 +43,7 @@
 
         <div id="nav-mobile" class="nav__mobile" role="dialog" aria-label="Mobile menu">
             <a th:href="@{/features}"
-               th:classappend="${activeNav == 'features'} ? 'is-active' : ''">Features</a>
+               th:classappend="${activeNav == 'features'} ? 'is-active' : ''">Why DriveAway</a>
             <a th:href="@{/how-it-works}"
                th:classappend="${activeNav == 'how-it-works'} ? 'is-active' : ''">How it works</a>
             <a th:href="@{/fleet}"
@@ -51,7 +51,7 @@
             <a th:href="@{/testimonials}"
                th:classappend="${activeNav == 'testimonials'} ? 'is-active' : ''">Reviews</a>
             <a th:if="${#strings.isEmpty(userRole)}" th:href="@{/auth/login}">Sign in</a>
-            <a th:if="${#strings.isEmpty(userRole)}" th:href="@{/auth/register}" class="btn btn--primary">Get Started</a>
+            <a th:if="${#strings.isEmpty(userRole)}" th:href="@{/auth/register}" class="btn btn--primary">Book now</a>
         </div>
     </nav>
 </header>

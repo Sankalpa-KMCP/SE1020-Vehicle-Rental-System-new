@@ -422,9 +422,127 @@
 
 
 
+  function initHero3D() {
+
+    const stage = document.querySelector(".hero__model-stage");
+
+    if (!stage) return;
+
+
+
+    const viewer = stage.querySelector(".hero__model-viewer");
+
+    const cssCar = stage.querySelector(".hero__car-3d");
+
+    const tiltWrap = stage.querySelector(".hero__car-3d__tilt");
+
+
+
+    if (prefersReduced && viewer) {
+
+      viewer.removeAttribute("auto-rotate");
+
+    }
+
+
+
+    function markLoaded() {
+
+      stage.classList.add("is-loaded");
+
+      if (cssCar) cssCar.setAttribute("aria-hidden", "true");
+
+    }
+
+
+
+    function setupViewer() {
+
+      if (!viewer) return;
+
+      viewer.addEventListener("load", markLoaded);
+
+      viewer.addEventListener("error", function () {
+
+        stage.classList.remove("is-loaded");
+
+        if (cssCar) cssCar.removeAttribute("aria-hidden");
+
+      });
+
+      if (viewer.loaded) markLoaded();
+
+    }
+
+
+
+    if (window.customElements && customElements.whenDefined) {
+
+      customElements.whenDefined("model-viewer").then(setupViewer).catch(setupViewer);
+
+    } else {
+
+      setupViewer();
+
+    }
+
+
+
+    if (prefersReduced || !finePointer || !tiltWrap) return;
+
+
+
+    let ticking = false;
+
+    let tx = 0;
+
+    let ty = 0;
+
+
+
+    function applyTilt() {
+
+      tiltWrap.style.transform = "rotateX(" + (-ty * 10) + "deg) rotateY(" + (tx * 14) + "deg)";
+
+      ticking = false;
+
+    }
+
+
+
+    stage.addEventListener("mousemove", function (e) {
+
+      const rect = stage.getBoundingClientRect();
+
+      tx = (e.clientX - rect.left) / rect.width - 0.5;
+
+      ty = (e.clientY - rect.top) / rect.height - 0.5;
+
+      if (!ticking) {
+
+        requestAnimationFrame(applyTilt);
+
+        ticking = true;
+
+      }
+
+    });
+
+
+
+    stage.addEventListener("mouseleave", function () {
+
+      tiltWrap.style.transform = "";
+
+    });
+
+  }
+
+
+
   function initHeroScene() {
 
-    const scene = document.querySelector(".hero__cinema-wrap");
+    const scene = document.querySelector(".hero__showcase .hero__cinema--photo");
 
     if (!scene || prefersReduced || !finePointer) return;
 
@@ -488,7 +606,7 @@
 
 
 
-    const targets = document.querySelectorAll(".btn--primary, .mockup-card, .hero__badge");
+    const targets = document.querySelectorAll(".btn--primary, .hero__model-stage, .hero__badge");
 
     if (!targets.length) return;
 
@@ -498,7 +616,7 @@
 
       if (el.classList.contains("hero__badge")) return 0.08;
 
-      if (el.classList.contains("mockup-card")) return 0.1;
+      if (el.classList.contains("hero__model-stage")) return 0.06;
 
       return 0.15;
 
@@ -865,6 +983,8 @@
     initParallax();
 
     initHeroScene();
+
+    initHero3D();
 
     initMagneticHover();
 

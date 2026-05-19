@@ -1,5 +1,6 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
+import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.user.entity.AdminStaff;
@@ -106,6 +107,11 @@ public class UserController {
             return "redirect:/auth/staff-login";
         }
         User toSave = "STAFF".equalsIgnoreCase(userType) ? staff : customer;
+        if (toSave instanceof Customer c) {
+            c.setPassword(SecurityUtils.hashPasswordIfNeeded(c.getPassword()));
+        } else if (toSave instanceof Staff s) {
+            s.setPassword(SecurityUtils.hashPasswordIfNeeded(s.getPassword()));
+        }
         try {
             userService.save(toSave);
         } catch (ValidationException ex) {
@@ -126,11 +132,12 @@ public class UserController {
         }
         if ("STAFF".equalsIgnoreCase(userType)) {
             User existing = userService.findById(id).orElseThrow();
+            String hashedPassword = SecurityUtils.hashPasswordIfNeeded(staff.getPassword());
             Staff replacement = existing instanceof AdminStaff
                     ? new AdminStaff(id, staff.getName(), staff.getEmail(),
-                    staff.getPhone(), staff.getUsername(), staff.getPassword())
+                    staff.getPhone(), staff.getUsername(), hashedPassword)
                     : new SupportStaff(id, staff.getName(), staff.getEmail(), staff.getPhone(), staff.getUsername(),
-                    staff.getPassword());
+                    hashedPassword);
             try {
                 userService.save(replacement);
             } catch (ValidationException ex) {
@@ -139,6 +146,7 @@ public class UserController {
             return "redirect:/users";
         }
         customer.setId(id);
+        customer.setPassword(SecurityUtils.hashPasswordIfNeeded(customer.getPassword()));
         try {
             userService.save(customer);
         } catch (ValidationException ex) {

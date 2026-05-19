@@ -1,10 +1,8 @@
 package com.sliit.vehiclerentalsystem01.user.repository;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.StorageException;
-import com.sliit.vehiclerentalsystem01.user.entity.AdminStaff;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.entity.Staff;
-import com.sliit.vehiclerentalsystem01.user.entity.SupportStaff;
 import com.sliit.vehiclerentalsystem01.user.entity.User;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -152,7 +150,10 @@ public class UserRepository {
             }
         }
         if (a.length == 7) {
-            return parseStaffCsv(a);
+            Staff staff = Staff.fromCSV(line);
+            if (staff != null) {
+                return staff;
+            }
         }
         throw new IllegalArgumentException("Invalid user record: " + line);
     }
@@ -165,70 +166,48 @@ public class UserRepository {
         }
         return switch (p[0]) {
             case "CUSTOMER" -> {
-                Customer c = new Customer(
-                        p[1],
-                        p.length >= 10 ? p[7] : "",
-                        p[4],
-                        p[2],
-                        p[3],
-                        p.length >= 10 ? p[8] : "N/A",
-                        p[6],
-                        p[5]);
+                String csvLine = String.join(",",
+                        csvSafe(p[1]),
+                        csvSafe(p.length >= 10 ? p[7] : ""),
+                        csvSafe(p[4]),
+                        csvSafe(p[2]),
+                        csvSafe(p[3]),
+                        csvSafe(p.length >= 10 ? p[8] : "N/A"),
+                        csvSafe(p[6]),
+                        csvSafe(p[5]));
+                Customer c = Customer.fromCSV(csvLine);
+                if (c == null) {
+                    throw new IllegalArgumentException("Invalid user record: " + line);
+                }
                 yield c;
             }
             case "STAFF" -> {
                 String role = p.length >= 10 ? p[9].trim() : "SUPPORT";
-                yield parseStaffFromPipe(p, role);
+                String name = p.length >= 10 ? p[7] : p[2];
+                String phone = p.length >= 10 ? p[8] : "";
+                String csvLine = String.join(",",
+                        csvSafe(p[1]),
+                        csvSafe(name),
+                        csvSafe(p[4]),
+                        csvSafe(phone),
+                        csvSafe(p[2]),
+                        csvSafe(p[3]),
+                        csvSafe(role));
+                Staff staff = Staff.fromCSV(csvLine);
+                if (staff == null) {
+                    throw new IllegalArgumentException("Invalid user record: " + line);
+                }
+                yield staff;
             }
             default -> throw new IllegalArgumentException("Unknown user type: " + p[0]);
         };
     }
 
-    private Staff parseStaffFromPipe(String[] p, String role) {
-        String id = p[1];
-        String username = p[2];
-        String password = p[3];
-        String email = p[4];
-        String name = p.length >= 10 ? p[7] : username;
-        String phone = p.length >= 10 ? p[8] : "";
-        if (role.equalsIgnoreCase("ADMIN") || role.equalsIgnoreCase("Admin")) {
-            return new AdminStaff(id, name, email, phone, username, password);
-        }
-        return new SupportStaff(id, name, email, phone, username, password);
-    }
-
-    private Staff parseStaffCsv(String[] a) {
-        String id = a[0].trim();
-        String name = a[1].trim();
-        String email = a[2].trim();
-        String phone = a[3].trim();
-        String username = a[4].trim();
-        String password = a[5].trim();
-        String role = a[6].trim();
-        if ("Admin".equalsIgnoreCase(role) || "ADMIN".equalsIgnoreCase(role)) {
-            return new AdminStaff(id, name, email, phone, username, password);
-        }
-        return new SupportStaff(id, name, email, phone, username, password);
-    }
-
     private String toLine(User user) {
-        if (user instanceof Customer c) {
-            return c.toCSV();
-        }
-        if (user instanceof Staff s) {
-            return String.join(",",
-                    safe(s.getId()),
-                    safe(s.getName()),
-                    safe(s.getEmail()),
-                    safe(s.getPhone()),
-                    safe(s.getUsername()),
-                    safe(s.getPassword()),
-                    safe(s.getRole()).isEmpty() ? "Support" : s.getRole());
-        }
-        throw new IllegalArgumentException("Unsupported user type: " + user.getClass());
+        return user.toCSV();
     }
 
-    private static String safe(String v) {
-        return v == null ? "" : v;
+    private static String csvSafe(String value) {
+        return value == null ? "" : value.replace(",", " ").trim();
     }
 }
