@@ -27,32 +27,61 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Optional<Payment> findById(String id) {
-        return paymentRepository.findAll().stream().filter(p -> id.equals(p.getId())).findFirst();
+        if (id == null || id.isBlank()) {
+            return Optional.empty();
+        }
+
+        String key = id.trim();
+
+        return paymentRepository.findAll()
+                .stream()
+                .filter(payment -> key.equals(payment.getId()))
+                .findFirst();
     }
 
     @Override
     public void save(Payment payment) {
+        if (payment == null) {
+            throw new ValidationException("payment_required");
+        }
+
         if (payment.getAmount() < 0) {
             throw new ValidationException("invalid_amount");
         }
+
         if (payment.getStatus() == null || payment.getStatus().isBlank()) {
             payment.setStatus("PENDING");
         }
+
         if (payment.getId() == null || payment.getId().isBlank()) {
             payment.setId(UUID.randomUUID().toString());
         }
-        List<Payment> list = new ArrayList<>(paymentRepository.findAll());
-        list.removeIf(p -> payment.getId().equals(p.getId()));
-        list.add(payment);
-        paymentRepository.saveAll(list);
+
+        List<Payment> payments = new ArrayList<>(paymentRepository.findAll());
+
+        payments.removeIf(existingPayment ->
+                payment.getId().equals(existingPayment.getId())
+        );
+
+        payments.add(payment);
+
+        paymentRepository.saveAll(payments);
     }
 
     @Override
     public void deleteById(String id) {
-        List<Payment> list = paymentRepository.findAll().stream()
-                .filter(p -> !id.equals(p.getId()))
+        if (id == null || id.isBlank()) {
+            return;
+        }
+
+        String key = id.trim();
+
+        List<Payment> payments = paymentRepository.findAll()
+                .stream()
+                .filter(payment -> !key.equals(payment.getId()))
                 .collect(Collectors.toCollection(ArrayList::new));
-        paymentRepository.saveAll(list);
+
+        paymentRepository.saveAll(payments);
     }
 
     @Override
@@ -60,14 +89,17 @@ public class PaymentServiceImpl implements PaymentService {
         if (bookingId == null || bookingId.isBlank()) {
             return Optional.empty();
         }
+
         String key = bookingId.trim();
-        Payment latest = null;
-        for (Payment p : paymentRepository.findAll()) {
-            if (key.equals(p.getBookingId())) {
-                latest = p;
+        Payment latestPayment = null;
+
+        for (Payment payment : paymentRepository.findAll()) {
+            if (key.equals(payment.getBookingId())) {
+                latestPayment = payment;
             }
         }
-        return Optional.ofNullable(latest);
+
+        return Optional.ofNullable(latestPayment);
     }
 
     @Override
@@ -75,8 +107,12 @@ public class PaymentServiceImpl implements PaymentService {
         if (bookingId == null || bookingId.isBlank()) {
             return false;
         }
+
         String key = bookingId.trim();
-        return paymentRepository.findAll().stream().anyMatch(p -> key.equals(p.getBookingId()));
+
+        return paymentRepository.findAll()
+                .stream()
+                .anyMatch(payment -> key.equals(payment.getBookingId()));
     }
 
     @Override
@@ -84,13 +120,16 @@ public class PaymentServiceImpl implements PaymentService {
         if (bookingId == null || bookingId.isBlank()) {
             return false;
         }
+
         String key = bookingId.trim();
-        return paymentRepository.findAll().stream()
-                .filter(p -> key.equals(p.getBookingId()))
-                .anyMatch(p -> "PAID".equalsIgnoreCase(nullSafe(p.getStatus())));
+
+        return paymentRepository.findAll()
+                .stream()
+                .filter(payment -> key.equals(payment.getBookingId()))
+                .anyMatch(payment -> "PAID".equalsIgnoreCase(nullSafe(payment.getStatus())));
     }
 
-    private static String nullSafe(String s) {
-        return s == null ? "" : s.trim();
+    private static String nullSafe(String value) {
+        return value == null ? "" : value.trim();
     }
 }

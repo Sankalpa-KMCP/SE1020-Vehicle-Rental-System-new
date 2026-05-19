@@ -3,6 +3,7 @@ package com.sliit.vehiclerentalsystem01.user.controller;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
+import com.sliit.vehiclerentalsystem01.payment.entity.CardPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
 import com.sliit.vehiclerentalsystem01.review.entity.CustomerReview;
@@ -213,7 +214,7 @@ public class CustomerPortalController {
     }
 
     @GetMapping("/billing")
-    public String billing(HttpSession session, Model model) {
+    public String billing(HttpSession session, Model model, @RequestParam(required = false) String payment) {
         if (!customer(session)) {
             return "redirect:/";
         }
@@ -253,7 +254,76 @@ public class CustomerPortalController {
         model.addAttribute("pendingTotal", pendingTotal);
         model.addAttribute("refundedTotal", refundedTotal);
         model.addAttribute("totalBilled", totalBilled);
+        model.addAttribute("paymentStatus", payment);
         return "payment/customer-billing";
+    }
+
+    @GetMapping("/billing/gateway")
+    public String billingGateway(HttpSession session, @RequestParam String bookingId, Model model) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        String bid = bookingId == null ? "" : bookingId.trim();
+        String un = username(session);
+        Optional<Booking> ob = reservationService.findById(bid);
+        if (ob.isEmpty()) {
+            return "redirect:/customer/billing?payment=booking_not_found";
+        }
+        Booking booking = ob.get();
+        if (booking.getCustomerName() == null || !un.equalsIgnoreCase(booking.getCustomerName().trim())) {
+            return "redirect:/customer/billing?payment=booking_not_found";
+        }
+        if (!reservationService.isPaymentAllowed(bid)) {
+            return "redirect:/customer/billing?payment=booking_not_confirmed";
+        }
+
+        Payment payment = paymentService.findLatestByBookingId(bid)
+                .orElseGet(() -> createPendingGatewayPayment(booking));
+
+        model.addAttribute("booking", booking);
+        model.addAttribute("payment", payment);
+        model.addAttribute("vehicle", vehicleService.findById(booking.getVehicleId()).orElse(null));
+        return "payment/fake-payment-gateway";
+    }
+
+    @PostMapping("/billing/gateway/complete")
+    public String completeBillingGateway(HttpSession session,
+                                         @RequestParam String bookingId,
+                                         @RequestParam(required = false) String cardNumber,
+                                         @RequestParam(required = false) String cardName,
+                                         @RequestParam(required = false) String expiry,
+                                         @RequestParam(required = false) String cvv) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        String bid = bookingId == null ? "" : bookingId.trim();
+        String un = username(session);
+        Optional<Booking> ob = reservationService.findById(bid);
+        if (ob.isEmpty() || ob.get().getCustomerName() == null
+                || !un.equalsIgnoreCase(ob.get().getCustomerName().trim())) {
+            return "redirect:/customer/billing?payment=booking_not_found";
+        }
+        Payment payment = paymentService.findLatestByBookingId(bid)
+                .orElseGet(() -> createPendingGatewayPayment(ob.get()));
+        payment.setStatus("PAID");
+        try {
+            paymentService.save(payment);
+        } catch (ValidationException ex) {
+            return "redirect:/customer/billing/gateway?bookingId=" + bid + "&error=" + ex.getMessage();
+        }
+        return "redirect:/customer/billing?payment=success";
+    }
+
+    private Payment createPendingGatewayPayment(Booking booking) {
+        double amount = vehicleService.findById(booking.getVehicleId())
+                .map(vehicle -> vehicle.calculateRentalRate() * Math.max(1, booking.getDurationDays()))
+                .orElse(0.0);
+        Payment payment = new CardPayment("PAY-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(),
+                booking.getId(),
+                amount,
+                "PENDING");
+        paymentService.save(payment);
+        return payment;
     }
 
     @GetMapping("/pay")
