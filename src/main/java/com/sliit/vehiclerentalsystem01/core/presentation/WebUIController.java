@@ -28,7 +28,7 @@ public class WebUIController {
     public String index(HttpSession session, Model model) {
         applyLandingNav(session, model);
         model.addAttribute("activeNav", "home");
-        model.addAttribute("pageTitle", "DriveAway | Premium Vehicle Rentals");
+        model.addAttribute("pageTitle", "DriveAway | Car & Motorcycle Rentals");
         model.addAttribute("fleetPreview", buildFleetPreview(3));
         return "landing/index";
     }
@@ -37,7 +37,7 @@ public class WebUIController {
     public String features(HttpSession session, Model model) {
         applyLandingNav(session, model);
         model.addAttribute("activeNav", "features");
-        model.addAttribute("pageTitle", "Features | DriveAway");
+        model.addAttribute("pageTitle", "Why DriveAway | Car & Motorcycle Rentals");
         return "landing/features";
     }
 
@@ -45,7 +45,7 @@ public class WebUIController {
     public String howItWorks(HttpSession session, Model model) {
         applyLandingNav(session, model);
         model.addAttribute("activeNav", "how-it-works");
-        model.addAttribute("pageTitle", "How It Works | DriveAway");
+        model.addAttribute("pageTitle", "How to Rent | DriveAway");
         return "landing/how-it-works";
     }
 
@@ -53,7 +53,7 @@ public class WebUIController {
     public String fleetPage(HttpSession session, Model model) {
         applyLandingNav(session, model);
         model.addAttribute("activeNav", "fleet");
-        model.addAttribute("pageTitle", "Our Fleet | DriveAway");
+        model.addAttribute("pageTitle", "Our Vehicles | DriveAway");
         model.addAttribute("fleetPreview", buildFleetPreview(FLEET_PAGE_MAX));
         return "landing/fleet-page";
     }
@@ -62,7 +62,7 @@ public class WebUIController {
     public String testimonials(HttpSession session, Model model) {
         applyLandingNav(session, model);
         model.addAttribute("activeNav", "testimonials");
-        model.addAttribute("pageTitle", "Reviews | DriveAway");
+        model.addAttribute("pageTitle", "Customer Reviews | DriveAway");
         return "landing/testimonials";
     }
 

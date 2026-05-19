@@ -17,7 +17,7 @@
             <div class="fleet-hero__scrim" aria-hidden="true"></div>
             <div class="fleet-hero__content">
                 <div class="fleet-hero__panel">
-                    <span class="section-label">Featured</span>
+                    <span class="section-label">From our fleet</span>
                     <h1 class="fleet-hero__title">
                         <span th:text="${featured.brand}">Brand</span>
                         <span th:text="${featured.model}">Model</span>
@@ -42,8 +42,8 @@
             <div class="fleet-hero__scrim" aria-hidden="true"></div>
             <div class="fleet-hero__content">
                 <div class="fleet-hero__panel">
-                    <span class="section-label">Our fleet</span>
-                    <h1 class="fleet-hero__title">Vehicles ready when you are</h1>
+                    <span class="section-label">Our vehicles</span>
+                    <h1 class="fleet-hero__title">Cars and motorcycles ready to book</h1>
                 </div>
             </div>
         </section>
@@ -53,18 +53,18 @@
         <div class="container">
             <div class="fleet__head">
                 <header class="page-hero page-hero--left" data-reveal style="padding-top:0;padding-bottom:0;">
-                    <span class="section-label">Collection</span>
-                    <h2 class="section-title">The full <em class="accent-word">fleet</em></h2>
-                    <p class="section-desc">Browse verified cars and motorcycles with transparent daily rates.</p>
+                    <span class="section-label">All vehicles</span>
+                    <h2 class="section-title">Browse our <em class="accent-word">full range</em></h2>
+                    <p class="section-desc">Cars and motorcycles available to hire — daily rate in LKR shown on every vehicle.</p>
                 </header>
                 <a th:if="${#strings.isEmpty(userRole)}"
                    th:href="@{/auth/login}"
                    class="fleet__link"
-                   data-reveal>View all vehicles →</a>
+                   data-reveal>Sign in to book →</a>
                 <a th:if="${!#strings.isEmpty(userRole)}"
                    th:href="@{/customer/fleet}"
                    class="fleet__link"
-                   data-reveal>View all vehicles →</a>
+                   data-reveal>Book a vehicle →</a>
             </div>
 
             <th:block th:replace="~{landing/fragments/fleet-grid :: fleetGrid}"></th:block>
