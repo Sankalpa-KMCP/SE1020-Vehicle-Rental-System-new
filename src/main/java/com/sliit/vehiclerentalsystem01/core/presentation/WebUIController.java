@@ -29,6 +29,7 @@ public class WebUIController {
         applyLandingNav(session, model);
         model.addAttribute("activeNav", "home");
         model.addAttribute("pageTitle", "DriveAway | Premium Vehicle Rentals");
+        model.addAttribute("fleetPreview", buildFleetPreview(3));
         return "landing/index";
     }
 

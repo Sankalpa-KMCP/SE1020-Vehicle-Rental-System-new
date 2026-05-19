@@ -31,6 +31,11 @@
                        th:href="@{/customer/fleet}"
                        class="btn btn--ghost btn--lg">Get Started</a>
                 </div>
+                <ul class="hero__trust" aria-label="Trust highlights">
+                    <li>Verified fleet</li>
+                    <li>Instant booking</li>
+                    <li>Secure payments</li>
+                </ul>
             </div>
 
             <div class="hero__cinema-wrap hero__visual" data-reveal data-reveal-delay="2">
@@ -101,6 +106,207 @@
         </div>
     </section>
 
+    <section class="section home-spotlight band--light" aria-label="Why DriveAway">
+        <div class="container home-spotlight__grid">
+            <div class="home-spotlight__visual" data-reveal>
+                <figure class="home-spotlight__frame">
+                    <img th:src="@{/img/183029172351335752.jpeg}"
+                         src="/img/183029172351335752.jpeg"
+                         alt="Premium vehicle detail"
+                         loading="lazy"
+                         width="800"
+                         height="600"/>
+                </figure>
+            </div>
+            <div class="home-spotlight__copy" data-reveal data-reveal-delay="1">
+                <span class="section-label">Built for modern mobility</span>
+                <h2 class="section-title">Every journey starts with <em class="accent-word">clarity</em></h2>
+                <p class="section-desc home-spotlight__desc">From real-time availability to transparent pricing, DriveAway removes friction at every step — for renters and fleet operators alike.</p>
+                <ul class="home-spotlight__list">
+                    <li>Live fleet status across cars and motorcycles</li>
+                    <li>Encrypted checkout with instant confirmations</li>
+                    <li>Maintenance-aware scheduling for operators</li>
+                </ul>
+                <a th:href="@{/features}" class="btn btn--primary">Explore features <span class="btn__arrow" aria-hidden="true">→</span></a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section home-steps band--light" aria-label="How it works">
+        <div class="container">
+            <header class="section-header" data-reveal>
+                <span class="section-label">How it works</span>
+                <h2 class="section-title">Three steps to the <em class="accent-word">open road</em></h2>
+                <p class="section-desc">Search, book, and drive — a rental flow designed to feel as refined as the vehicles you choose.</p>
+            </header>
+            <div class="steps">
+                <div class="step" data-reveal data-reveal-delay="1">
+                    <div class="step__num">1</div>
+                    <h3>Search</h3>
+                    <p>Browse verified cars and motorcycles with live availability and clear daily rates.</p>
+                </div>
+                <div class="step" data-reveal data-reveal-delay="2">
+                    <div class="step__num">2</div>
+                    <h3>Book</h3>
+                    <p>Pick your dates, confirm instantly, and pay securely in one seamless flow.</p>
+                </div>
+                <div class="step" data-reveal data-reveal-delay="3">
+                    <div class="step__num">3</div>
+                    <h3>Drive</h3>
+                    <p>Collect your vehicle and go. Premium rentals with zero surprises.</p>
+                </div>
+            </div>
+            <p class="home-steps__cta" data-reveal>
+                <a th:href="@{/how-it-works}" class="fleet__link">See the full process →</a>
+            </p>
+        </div>
+    </section>
+
+    <section id="home-fleet" class="section home-fleet band--light" aria-label="Featured fleet">
+        <div class="container">
+            <header class="section-header section-header--row" data-reveal>
+                <div>
+                    <span class="section-label">The collection</span>
+                    <h2 class="section-title">Featured from our <em class="accent-word">fleet</em></h2>
+                    <p class="section-desc home-fleet__desc">Hand-picked vehicles ready for your next trip — transparent rates, verified condition.</p>
+                </div>
+                <a th:href="@{/fleet}" class="btn btn--ghost home-fleet__link">View all vehicles →</a>
+            </header>
+            <div class="fleet__grid fleet__grid--home">
+                <th:block th:if="${fleetPreview != null and !fleetPreview.isEmpty()}">
+                    <article th:each="v : ${fleetPreview}" class="fleet-card" data-reveal>
+                        <div class="fleet-card__img">
+                            <img th:src="${v.imageUrl}"
+                                 th:alt="|${v.brand} ${v.model}|"
+                                 loading="lazy"
+                                 width="800"
+                                 height="500"/>
+                        </div>
+                        <div class="fleet-card__body">
+                            <p class="fleet-card__type" th:text="${v.vehicleType}">Sedan</p>
+                            <h3 class="fleet-card__name">
+                                <span th:text="${v.brand}">Brand</span>
+                                <span th:text="${v.model}">Model</span>
+                            </h3>
+                            <p class="fleet-card__price">
+                                <strong>LKR <span th:text="${v.ratePerDay}">0</span></strong> / day
+                            </p>
+                        </div>
+                    </article>
+                </th:block>
+                <th:block th:if="${fleetPreview == null or fleetPreview.isEmpty()}">
+                    <article class="fleet-card" data-reveal>
+                        <div class="fleet-card__img">
+                            <img th:src="@{/img/183029172351335752.jpeg}"
+                                 src="/img/183029172351335752.jpeg"
+                                 alt="Featured sedan"
+                                 loading="lazy"
+                                 width="800"
+                                 height="500"/>
+                        </div>
+                        <div class="fleet-card__body">
+                            <p class="fleet-card__type">Sedan</p>
+                            <h3 class="fleet-card__name">Premium Sedan</h3>
+                            <p class="fleet-card__price"><strong>LKR 8,500</strong> / day</p>
+                        </div>
+                    </article>
+                </th:block>
+            </div>
+        </div>
+    </section>
+
+    <section class="section home-features band--light" aria-label="Platform highlights">
+        <div class="container">
+            <header class="section-header" data-reveal>
+                <span class="section-label">Platform</span>
+                <h2 class="section-title">Engineered for <em class="accent-word">every side</em> of rental</h2>
+            </header>
+            <div class="home-features__grid">
+                <article class="feature-card" data-reveal>
+                    <span class="feature-card__num">For drivers</span>
+                    <h3>Frictionless booking</h3>
+                    <p>Reserve in minutes with live availability, clear pricing, and instant confirmation emails.</p>
+                </article>
+                <article class="feature-card" data-reveal data-reveal-delay="1">
+                    <span class="feature-card__num">For operators</span>
+                    <h3>Fleet intelligence</h3>
+                    <p>Manage vehicles, pricing, and maintenance from one dashboard built for scale.</p>
+                </article>
+                <article class="feature-card" data-reveal data-reveal-delay="2">
+                    <span class="feature-card__num">Security</span>
+                    <h3>Trust by design</h3>
+                    <p>Encrypted payments, role-based access, and audit-friendly booking records.</p>
+                </article>
+                <article class="feature-card feature-card--accent" data-reveal data-reveal-delay="3">
+                    <span class="feature-card__num">Support</span>
+                    <h3>Human when it matters</h3>
+                    <p>Responsive support for renters and partners — because premium service does not end at checkout.</p>
+                    <a th:href="@{/public/contact}" class="home-features__link">Contact our team →</a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="section home-reviews band--light" aria-label="Customer reviews">
+        <div class="container">
+            <header class="section-header section-header--row" data-reveal>
+                <div>
+                    <span class="section-label">Reviews</span>
+                    <h2 class="section-title">Loved by <em class="accent-word">renters</em> everywhere</h2>
+                </div>
+                <a th:href="@{/testimonials}" class="btn btn--ghost">Read all reviews →</a>
+            </header>
+        </div>
+        <div class="testimonials__stage" data-reveal>
+            <div class="testimonials__ring" role="region" aria-label="Customer review highlights" tabindex="0">
+                <article class="testimonial">
+                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+                    <p class="testimonial__quote">Booking was effortless — I had a sedan confirmed in under two minutes. Crystal clear from start to finish.</p>
+                    <div class="testimonial__author">
+                        <div class="testimonial__avatar" aria-hidden="true">SK</div>
+                        <div>
+                            <p class="testimonial__name">Sarah K.</p>
+                            <p class="testimonial__role">Business Traveler</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="testimonial">
+                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+                    <p class="testimonial__quote">DriveAway transformed how we track maintenance and availability. Downtime dropped significantly.</p>
+                    <div class="testimonial__author">
+                        <div class="testimonial__avatar" aria-hidden="true">RP</div>
+                        <div>
+                            <p class="testimonial__name">Rohan P.</p>
+                            <p class="testimonial__role">Fleet Operations Lead</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="testimonial">
+                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+                    <p class="testimonial__quote">Transparent pricing, smooth pickup, and the bike was in perfect condition. Will rent again.</p>
+                    <div class="testimonial__author">
+                        <div class="testimonial__avatar" aria-hidden="true">AM</div>
+                        <div>
+                            <p class="testimonial__name">Amaya M.</p>
+                            <p class="testimonial__role">Weekend Explorer</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="testimonial">
+                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+                    <p class="testimonial__quote">Secure payments and real-time availability — exactly what I needed. Feels like a premium product.</p>
+                    <div class="testimonial__author">
+                        <div class="testimonial__avatar" aria-hidden="true">JT</div>
+                        <div>
+                            <p class="testimonial__name">James T.</p>
+                            <p class="testimonial__role">Software Engineer</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
     <section id="stats" class="stats section band--light" aria-label="Statistics">
         <div class="container">
             <div class="stats__strip" data-reveal>
@@ -116,6 +322,33 @@
                     <p class="stat__value" data-target="12000" data-suffix="+">0</p>
                     <p class="stat__label">Bookings completed</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section home-faq band--light" aria-label="Frequently asked questions">
+        <div class="container">
+            <header class="section-header" data-reveal>
+                <span class="section-label">FAQ</span>
+                <h2 class="section-title">Questions, <em class="accent-word">answered</em></h2>
+            </header>
+            <div class="home-faq__list" data-reveal>
+                <details class="home-faq__item">
+                    <summary>How do I book a vehicle?</summary>
+                    <p>Browse the fleet, select your dates, and complete checkout. You will receive instant confirmation by email.</p>
+                </details>
+                <details class="home-faq__item">
+                    <summary>What payment methods are supported?</summary>
+                    <p>DriveAway supports secure card payments and cash settlement options, depending on your booking type.</p>
+                </details>
+                <details class="home-faq__item">
+                    <summary>Can fleet operators manage maintenance?</summary>
+                    <p>Yes. Operators use the dashboard to schedule service, track availability, and keep every vehicle road-ready.</p>
+                </details>
+                <details class="home-faq__item">
+                    <summary>Is insurance included?</summary>
+                    <p>Coverage varies by vehicle class. Full policy details are shown before you confirm your reservation.</p>
+                </details>
             </div>
         </div>
     </section>
