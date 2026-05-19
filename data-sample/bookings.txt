@@ -1,2 +1,0 @@
-# transactionId,customerName,rentalDate,vehicleId,durationDays,status,staffMessage
-BK-001,ada,2026-05-10,V-001,3,CONFIRMED,

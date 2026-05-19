@@ -91,4 +91,43 @@ public abstract class Staff extends User {
             setRole("Support");
         }
     }
+
+    private static String safeCsvValue(String value) {
+        return value == null ? "" : value.replace(",", " ").trim();
+    }
+
+    /**
+     * CSV for file storage: ID,Name,Email,Phone,Username,Password,Role
+     */
+    @Override
+    public String toCSV() {
+        String roleValue = getRole();
+        if (roleValue == null || roleValue.isEmpty()) {
+            roleValue = "Support";
+        }
+        return safeCsvValue(getId()) + "," + safeCsvValue(getName()) + "," + safeCsvValue(getEmail()) + ","
+                + safeCsvValue(phone) + "," + safeCsvValue(username) + "," + safeCsvValue(password) + ","
+                + safeCsvValue(roleValue);
+    }
+
+    public static Staff fromCSV(String line) {
+        if (line == null || line.trim().isEmpty()) {
+            return null;
+        }
+        String[] data = line.split(",", -1);
+        if (data.length != 7) {
+            return null;
+        }
+        String id = data[0].trim();
+        String name = data[1].trim();
+        String email = data[2].trim();
+        String phone = data[3].trim();
+        String username = data[4].trim();
+        String password = data[5].trim();
+        String role = data[6].trim();
+        if ("Admin".equalsIgnoreCase(role) || "ADMIN".equalsIgnoreCase(role)) {
+            return new AdminStaff(id, name, email, phone, username, password);
+        }
+        return new SupportStaff(id, name, email, phone, username, password);
+    }
 }

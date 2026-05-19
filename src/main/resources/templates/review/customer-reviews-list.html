@@ -3,83 +3,259 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>My Reviews - DriveAway</title>
+    <title>My Reviews — DriveAway</title>
+    <meta name="description" content="View, edit, or delete your submitted reviews on DriveAway."/>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" th:href="@{/css/review.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 40%, #fff1f2 100%); min-height:100vh; }
+
+        /* ── Page animation ── */
+        .fade-in { animation: fadeIn 0.45s ease-out both; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ── Hero strip ── */
+        .hero-strip {
+            background: linear-gradient(135deg, #f97316 0%, #ef4444 60%, #dc2626 100%);
+            border-radius: 1.75rem;
+            padding: 2.5rem 3rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 16px 48px rgba(239,68,68,0.22);
+        }
+        .hero-strip::after {
+            content: '★';
+            position:absolute; right:-24px; bottom:-48px;
+            font-size:240px; color:rgba(255,255,255,0.07);
+            pointer-events:none; line-height:1; transform:rotate(-12deg);
+        }
+
+        /* ── Notice banners ── */
+        .notice { border-radius:0.875rem; padding:12px 16px; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:10px; }
+        .notice-success { background:#f0fdf4; border:1.5px solid #bbf7d0; color:#166534; }
+        .notice-info    { background:#f8fafc; border:1.5px solid #e2e8f0; color:#475569; }
+        .notice-error   { background:#fef2f2; border:1.5px solid #fecaca; color:#991b1b; }
+
+        /* ── Review card ── */
+        .review-card {
+            background:#fff;
+            border:1.5px solid #f1f5f9;
+            border-radius:1.5rem;
+            padding:1.5rem 1.75rem;
+            transition:box-shadow 0.25s ease, border-color 0.25s ease;
+            box-shadow:0 2px 12px rgba(15,23,42,0.04);
+        }
+        .review-card:hover { box-shadow:0 8px 32px rgba(15,23,42,0.09); border-color:#fed7aa; }
+
+        /* ── Stars ── */
+        .star-row .star      { color:#e2e8f0; font-size:1.1rem; }
+        .star-row .star.fill { color:#f59e0b; }
+
+        /* ── Status badges ── */
+        .badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:999px; font-size:0.7rem; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; }
+        .badge-pub  { background:#dcfce7; color:#166534; }
+        .badge-pend { background:#fef9c3; color:#854d0e; }
+        .badge-flag { background:#fee2e2; color:#991b1b; }
+        .badge-def  { background:#f1f5f9; color:#475569; }
+
+        /* ── Action buttons ── */
+        .btn-edit {
+            display:inline-flex; align-items:center; gap:6px;
+            background:#f8fafc; border:1.5px solid #e2e8f0; color:#475569;
+            font-weight:700; font-size:0.8rem; padding:7px 14px; border-radius:0.75rem;
+            transition:all 0.2s; text-decoration:none;
+        }
+        .btn-edit:hover { background:#f1f5f9; border-color:#cbd5e1; color:#1e293b; }
+
+        .btn-delete {
+            display:inline-flex; align-items:center; gap:6px;
+            background:#fef2f2; border:1.5px solid #fecaca; color:#dc2626;
+            font-weight:700; font-size:0.8rem; padding:7px 14px; border-radius:0.75rem;
+            cursor:pointer; transition:all 0.2s;
+        }
+        .btn-delete:hover { background:#fee2e2; border-color:#fca5a5; }
+
+        /* ── Staff reply bubble ── */
+        .reply-bubble {
+            margin-top:1rem; padding:12px 14px; border-radius:1rem;
+            background:#fffbeb; border:1.5px solid #fde68a;
+            display:flex; align-items:flex-start; gap:10px;
+        }
+
+        /* ── Modal overlay ── */
+        .modal-overlay {
+            display:none; position:fixed; inset:0;
+            background:rgba(15,23,42,0.55); backdrop-filter:blur(4px);
+            z-index:50; align-items:center; justify-content:center;
+        }
+        .modal-overlay.open { display:flex; }
+        .modal-box {
+            background:#fff; border-radius:1.5rem; padding:2rem;
+            max-width:400px; width:calc(100% - 2rem);
+            box-shadow:0 24px 64px rgba(15,23,42,0.2);
+            animation: popIn 0.25s cubic-bezier(0.2,0.8,0.2,1) both;
+        }
+        @keyframes popIn { from { opacity:0; transform:scale(0.92) translateY(12px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    </style>
 </head>
-<body class="min-h-screen review-customer-page pb-16">
-<div class="max-w-5xl mx-auto px-6 pt-10">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
-        <div>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">My reviews</h1>
-            <p class="text-gray-500 font-medium mt-1">View, edit, or remove feedback you have submitted.</p>
+<body>
+
+<!-- ── Delete confirmation modal ── -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <div class="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center mb-4">
+            <i class="ph-fill ph-trash text-red-500 text-2xl"></i>
         </div>
-        <div class="flex flex-wrap gap-3">
-            <a th:href="@{/customer/home}" class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-800 font-bold px-4 py-2.5 rounded-xl shadow-sm hover:bg-gray-50 transition">
-                <i class="ph-bold ph-house"></i> Portal
-            </a>
-            <a th:href="@{/customer/reviews/new}" class="inline-flex items-center gap-2 bg-orange-600 text-white font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-orange-600/25 hover:bg-orange-700 transition">
-                <i class="ph-bold ph-plus"></i> Write review
-            </a>
+        <h2 class="text-lg font-extrabold text-gray-900 mb-2">Delete review?</h2>
+        <p class="text-sm text-gray-500 mb-6">This action cannot be undone. Your review and any staff replies will be permanently removed.</p>
+        <div class="flex gap-3">
+            <button onclick="closeDeleteModal()" class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition">Keep it</button>
+            <form id="deleteForm" method="post" class="flex-1 m-0">
+                <button type="submit" class="w-full py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm transition flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-trash"></i> Yes, delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-3xl mx-auto px-5 pt-10 pb-20 fade-in">
+
+    <!-- ── Hero strip ── -->
+    <div class="hero-strip mb-8 relative z-10">
+        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div>
+                <p class="text-orange-200 text-xs font-bold uppercase tracking-widest mb-2">Customer Portal</p>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-1">My Reviews</h1>
+                <p class="text-orange-100 text-sm font-medium">View, edit, or remove feedback you have submitted.</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <a th:href="@{/customer/home}"
+                   class="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white font-bold text-sm px-4 py-2.5 rounded-xl border border-white/20 transition">
+                    <i class="ph-bold ph-house"></i> Portal
+                </a>
+                <a th:href="@{/customer/reviews/new}"
+                   class="inline-flex items-center gap-2 bg-white text-orange-600 font-bold text-sm px-4 py-2.5 rounded-xl shadow-lg transition hover:shadow-xl">
+                    <i class="ph-bold ph-plus"></i> Write Review
+                </a>
+            </div>
         </div>
     </div>
 
-    <p th:if="${reviewError != null}" class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm font-semibold" th:text="${reviewError}">Error</p>
-    <p th:if="${param.created != null and !#lists.isEmpty(param.created)}" class="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-900 text-sm font-semibold">
-        Your review was submitted successfully.
-    </p>
-    <p th:if="${param.updated != null and !#lists.isEmpty(param.updated)}" class="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-900 text-sm font-semibold">
-        Your review was updated.
-    </p>
-    <p th:if="${param.deleted != null and !#lists.isEmpty(param.deleted)}" class="mb-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-800 text-sm font-semibold">
+    <!-- ── Flash notices ── -->
+    <div th:if="${reviewError != null}" class="notice notice-error mb-5">
+        <i class="ph-fill ph-x-circle text-lg shrink-0"></i>
+        <span th:text="${reviewError}">Error</span>
+    </div>
+    <div th:if="${param.created != null and !#lists.isEmpty(param.created)}" class="notice notice-success mb-5">
+        <i class="ph-fill ph-check-circle text-lg shrink-0"></i>
+        Your review was submitted successfully — thank you!
+    </div>
+    <div th:if="${param.updated != null and !#lists.isEmpty(param.updated)}" class="notice notice-success mb-5">
+        <i class="ph-fill ph-check-circle text-lg shrink-0"></i>
+        Your review has been updated.
+    </div>
+    <div th:if="${param.deleted != null and !#lists.isEmpty(param.deleted)}" class="notice notice-info mb-5">
+        <i class="ph-fill ph-info text-lg shrink-0"></i>
         Your review was deleted.
-    </p>
+    </div>
 
-    <div th:if="${myReviews == null or #lists.isEmpty(myReviews)}" class="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center">
-        <i class="ph-fill ph-star text-5xl text-amber-300 mb-4"></i>
-        <p class="text-gray-600 font-medium mb-6">You have not submitted any reviews yet.</p>
-        <a th:href="@{/customer/reviews/new}" class="inline-flex items-center gap-2 bg-orange-600 text-white font-bold px-5 py-3 rounded-xl hover:bg-orange-700 transition">
+    <!-- ── Empty state ── -->
+    <div th:if="${myReviews == null or #lists.isEmpty(myReviews)}"
+         class="bg-white rounded-3xl border-2 border-dashed border-slate-200 p-14 text-center">
+        <i class="ph-thin ph-star text-6xl text-amber-300 block mb-4"></i>
+        <p class="text-lg font-extrabold text-gray-400 mb-1">No reviews yet</p>
+        <p class="text-sm text-gray-400 mb-6">Be the first to share your DriveAway experience.</p>
+        <a th:href="@{/customer/reviews/new}"
+           class="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-3 rounded-xl transition shadow-lg shadow-orange-500/25">
             Write your first review <i class="ph-bold ph-arrow-right"></i>
         </a>
     </div>
 
-    <div th:unless="${myReviews == null or #lists.isEmpty(myReviews)}" class="grid gap-6">
-        <article th:each="r : ${myReviews}" class="bg-white rounded-3xl border border-slate-200/80 shadow-lg p-6 flex flex-col sm:flex-row sm:items-start gap-4 justify-between">
-            <div class="flex-1 min-w-0">
-                <div class="flex flex-wrap items-center gap-3 mb-3">
-                    <span class="font-mono text-xs font-bold text-slate-500" th:text="${r.id}">id</span>
-                    <span class="inline-flex items-center gap-1 text-amber-600 font-extrabold text-sm">
-                        <i class="ph-fill ph-star"></i>
-                        <span th:text="${r.rating}">5</span>/5
-                    </span>
-                    <span th:if="${r.bookingId != null and !#strings.isEmpty(r.bookingId)}"
-                          class="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">
-                        Booking: <span th:text="${r.bookingId}">—</span>
-                    </span>
+    <!-- ── Review list ── -->
+    <div th:unless="${myReviews == null or #lists.isEmpty(myReviews)}" class="space-y-4">
+
+        <article th:each="r : ${myReviews}" class="review-card">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+
+                <!-- Left: review content -->
+                <div class="flex-1 min-w-0">
+
+                    <!-- Top meta row -->
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-3">
+                        <span class="font-mono text-xs font-bold text-slate-400">#<span th:text="${r.id}">id</span></span>
+
+                        <!-- Stars -->
+                        <div class="star-row flex gap-0.5">
+                            <span th:each="i : ${#numbers.sequence(1,5)}"
+                                  th:class="${i <= r.rating} ? 'star fill' : 'star'">★</span>
+                        </div>
+                        <span class="text-xs font-bold text-slate-500" th:text="${r.rating} + '/5'">5/5</span>
+
+                        <!-- Booking chip -->
+                        <span th:if="${r.bookingId != null and !#strings.isEmpty(r.bookingId)}"
+                              class="text-xs font-semibold bg-amber-50 border border-amber-200 text-amber-800 px-2.5 py-0.5 rounded-full">
+                            <i class="ph-fill ph-receipt"></i>
+                            <span th:text="${r.bookingId}">BK-001</span>
+                        </span>
+
+                        <!-- Status badge -->
+                        <span th:if="${r.status == 'PUBLISHED'}" class="badge badge-pub"><i class="ph-fill ph-check-circle"></i> Published</span>
+                        <span th:if="${r.status == 'PENDING'}"   class="badge badge-pend"><i class="ph-fill ph-clock"></i> Pending</span>
+                        <span th:if="${r.status == 'FLAGGED'}"   class="badge badge-flag"><i class="ph-fill ph-flag"></i> Flagged</span>
+                        <span th:if="${r.status != 'PUBLISHED' and r.status != 'PENDING' and r.status != 'FLAGGED'}"
+                              class="badge badge-def" th:text="${r.status}">Status</span>
+                    </div>
+
+                    <!-- Comment -->
+                    <p class="text-sm text-gray-700 leading-relaxed" th:text="${r.comments}">Comment</p>
+
+                    <!-- Staff reply -->
+                    <div th:if="${r.staffReply != null and !#strings.isEmpty(r.staffReply)}" class="reply-bubble">
+                        <div class="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center shrink-0 font-bold text-amber-900 text-xs"
+                             th:text="${!#strings.isEmpty(r.repliedBy) ? #strings.toUpperCase(#strings.substring(r.repliedBy,0,1)) : 'S'}">S</div>
+                        <div>
+                            <p class="text-xs font-extrabold text-amber-800 mb-0.5">
+                                <span th:text="${r.repliedBy}">Staff</span>
+                                <span class="font-normal text-amber-600 ml-1">· Staff reply</span>
+                            </p>
+                            <p class="text-sm text-slate-700" th:text="${r.staffReply}">Reply</p>
+                        </div>
+                    </div>
                 </div>
-                <p class="text-gray-700 leading-relaxed" th:text="${r.comments}">comment</p>
-                <div th:if="${r.staffReply != null and !#strings.isEmpty(r.staffReply)}" class="mt-4 rounded-xl border border-amber-100 bg-amber-50/80 p-4 text-sm">
-                    <p class="text-xs font-bold text-amber-800 uppercase mb-1">Staff reply</p>
-                    <p class="text-slate-700"><span class="font-semibold text-amber-900" th:text="${r.repliedBy}">staff</span>: <span th:text="${r.staffReply}">reply</span></p>
-                </div>
-            </div>
-            <div class="flex shrink-0 gap-2">
-                <a th:href="@{/customer/reviews/{id}/edit(id=${r.id})}"
-                   class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm px-4 py-2.5 rounded-xl transition">
-                    <i class="ph-bold ph-pencil-simple"></i> Edit
-                </a>
-                <form th:action="@{/customer/reviews/{id}/delete(id=${r.id})}" method="post" class="m-0"
-                      onsubmit="return confirm('Delete this review permanently?');">
-                    <button type="submit"
-                            class="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-sm px-4 py-2.5 rounded-xl transition">
+
+                <!-- Right: action buttons -->
+                <div class="flex sm:flex-col gap-2 shrink-0">
+                    <a th:href="@{/customer/reviews/{id}/edit(id=${r.id})}" class="btn-edit">
+                        <i class="ph-bold ph-pencil-simple"></i> Edit
+                    </a>
+                    <button type="button"
+                            class="btn-delete"
+                            th:attr="data-action=@{/customer/reviews/{id}/delete(id=${r.id})}"
+                            onclick="openDeleteModal(this.dataset.action)">
                         <i class="ph-bold ph-trash"></i> Delete
                     </button>
-                </form>
+                </div>
             </div>
         </article>
+
     </div>
 </div>
+
+<script>
+    function openDeleteModal(action) {
+        document.getElementById('deleteForm').action = action;
+        document.getElementById('deleteModal').classList.add('open');
+    }
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('open');
+    }
+    // Close on backdrop click
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+</script>
 </body>
 </html>

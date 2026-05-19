@@ -3,81 +3,248 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>DriveAway | Write a review</title>
+    <title>DriveAway | Write a Review</title>
+    <meta name="description" content="Share your experience with DriveAway vehicle rentals."/>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 40%, #fff1f2 100%);
+            min-height: 100vh;
+        }
+
+        /* ── Page enter animation ── */
+        .page-card { animation: riseUp 0.45s cubic-bezier(0.2,0.8,0.2,1) both; }
+        @keyframes riseUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ── Interactive star picker ── */
+        .star-picker { display: flex; gap: 6px; }
+        .star-picker .s {
+            font-size: 2.4rem;
+            cursor: pointer;
+            color: #e2e8f0;
+            transition: color 0.15s, transform 0.1s;
+            line-height: 1;
+            user-select: none;
+        }
+        .star-picker .s:hover,
+        .star-picker .s.active { color: #f59e0b; }
+        .star-picker .s:active { transform: scale(0.88); }
+
+        .star-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #92400e;
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-radius: 999px;
+            padding: 2px 10px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        /* ── Form inputs ── */
+        .form-input {
+            width: 100%;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 0.875rem;
+            padding: 11px 16px;
+            font-size: 0.9rem;
+            background: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            color: #1e293b;
+        }
+        .form-input:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+        }
+
+        /* ── Submit button ── */
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #f97316, #ef4444);
+            color: #fff;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 14px;
+            border: none;
+            border-radius: 0.875rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 8px 24px rgba(249,115,22,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .submit-btn:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 12px 32px rgba(249,115,22,0.35); }
+        .submit-btn:active { transform: translateY(0); }
+
+        /* ── Notice banners ── */
+        .notice { border-radius: 0.875rem; padding: 12px 16px; font-size: 0.875rem; font-weight: 600; display:flex; align-items:flex-start; gap:10px; margin-bottom:1rem; }
+        .notice-error   { background:#fef2f2; border:1.5px solid #fecaca; color:#991b1b; }
+        .notice-warning { background:#fffbeb; border:1.5px solid #fde68a; color:#92400e; }
+
+        /* ── Field label ── */
+        .field-label { display:block; font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; }
+
+        /* ── Char counter ── */
+        .char-ok   { color: #94a3b8; }
+        .char-warn { color: #f59e0b; }
+        .char-over { color: #ef4444; }
+    </style>
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900 p-6">
-<div class="max-w-xl mx-auto">
-    <div class="flex gap-3 mb-8">
-        <a th:href="@{/customer/reviews}" class="inline-flex items-center gap-2 text-slate-600 font-semibold hover:text-slate-900">
-            <i class="ph-bold ph-arrow-left"></i> Back to my reviews
-        </a>
-    </div>
+<body>
 
-    <p th:if="${param.error != null and param.error[0] == 'missing_fields'}" class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm">Please choose a rating and enter comments before submitting.</p>
-    <p th:if="${param.error != null and param.error[0] == 'account_limit'}" class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 text-sm">You already submitted a general review. Add a booking ID to review a specific trip.</p>
-    <p th:if="${param.error != null and param.error[0] == 'booking_limit'}" class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 text-sm">You already left two reviews for that booking.</p>
-    <p th:if="${param.error != null and param.error[0] == 'invalid_booking'}" class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm">Booking not found or it does not belong to your account.</p>
-    <p th:if="${param.error != null and param.error[0] == 'invalid_rating'}" class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-900 text-sm">Rating must be between 1 and 5 stars.</p>
+<!-- ── Back nav ── -->
+<div class="max-w-xl mx-auto px-5 pt-8 pb-2">
+    <a th:href="@{/customer/reviews}"
+       class="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 font-semibold text-sm transition">
+        <i class="ph-bold ph-arrow-left"></i> Back to my reviews
+    </a>
+</div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-        <h1 class="text-2xl font-bold mb-2 flex items-center gap-2">
-            <i class="ph-fill ph-star text-amber-500"></i> Write a review
-        </h1>
-        <p class="text-slate-600 text-sm mb-6">Share feedback on a rental. Optionally link your review to one of your bookings below.</p>
+<!-- ── Main card ── -->
+<div class="max-w-xl mx-auto px-5 pb-16">
+    <div class="page-card bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
 
-        <form th:action="@{/customer/reviews}" method="post" class="space-y-5">
-            <input type="hidden" name="source" value="customer"/>
-            <input type="hidden" name="action" value="create"/>
-            <input type="hidden" name="status" value="PUBLISHED"/>
-            <input type="hidden" name="reviewerName" th:value="${reviewerName}"/>
+        <!-- Card header -->
+        <div class="bg-gradient-to-r from-orange-500 to-rose-500 px-8 py-8 text-white relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-36 h-36 bg-white/10 rounded-full pointer-events-none"></div>
+            <div class="relative z-10">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-4">
+                    <i class="ph-fill ph-star text-white text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight mb-1">Write a Review</h1>
+                <p class="text-orange-100 text-sm font-medium">Share your DriveAway experience with the community.</p>
+            </div>
+        </div>
 
-            <div>
-                <label for="bookingId" class="block text-sm font-semibold text-slate-700 mb-1">Booking ID (optional)</label>
-                <select id="bookingId" name="bookingId"
-                        class="w-full rounded-xl border border-slate-200 px-4 py-3 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                    <option value="">No booking — general review</option>
-                    <option th:each="b : ${customerBookings}"
-                            th:value="${b.id}"
-                            th:text="${b.id + ' — ' + b.vehicleId + ' (' + b.rentalDate + ', ' + b.status + ')'}">BK-001</option>
-                </select>
-                <p th:if="${customerBookings == null or #lists.isEmpty(customerBookings)}"
-                   class="mt-2 text-xs text-slate-500">
-                    You have no bookings yet. Leave this as general review, or
-                    <a th:href="@{/customer/bookings}" class="font-semibold text-blue-600 hover:text-blue-800">book a vehicle</a> first.
-                </p>
-                <p th:unless="${customerBookings == null or #lists.isEmpty(customerBookings)}"
-                   class="mt-2 text-xs text-slate-500">
-                    Choose a booking from your account, or leave as general review.
-                </p>
+        <!-- Card body -->
+        <div class="px-8 py-7 space-y-6">
+
+            <!-- Error notices -->
+            <div th:if="${param.error != null and param.error[0] == 'missing_fields'}" class="notice notice-error">
+                <i class="ph-fill ph-x-circle text-lg shrink-0 mt-0.5"></i>
+                Please choose a rating and enter a comment before submitting.
+            </div>
+            <div th:if="${param.error != null and param.error[0] == 'account_limit'}" class="notice notice-warning">
+                <i class="ph-fill ph-warning-circle text-lg shrink-0 mt-0.5"></i>
+                You already submitted a general review. Add a booking ID to review a specific trip.
+            </div>
+            <div th:if="${param.error != null and param.error[0] == 'booking_limit'}" class="notice notice-warning">
+                <i class="ph-fill ph-warning-circle text-lg shrink-0 mt-0.5"></i>
+                You already left two reviews for that booking.
+            </div>
+            <div th:if="${param.error != null and param.error[0] == 'invalid_booking'}" class="notice notice-error">
+                <i class="ph-fill ph-x-circle text-lg shrink-0 mt-0.5"></i>
+                Booking not found or it does not belong to your account.
+            </div>
+            <div th:if="${param.error != null and param.error[0] == 'invalid_rating'}" class="notice notice-error">
+                <i class="ph-fill ph-x-circle text-lg shrink-0 mt-0.5"></i>
+                Rating must be between 1 and 5 stars.
             </div>
 
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1">Rating</label>
-                <select name="rating" required class="w-full rounded-xl border border-slate-200 px-4 py-3 bg-white">
-                    <option value="5">5 — Excellent</option>
-                    <option value="4">4 — Good</option>
-                    <option value="3">3 — OK</option>
-                    <option value="2">2 — Poor</option>
-                    <option value="1">1 — Very poor</option>
-                </select>
-            </div>
+            <form th:action="@{/customer/reviews}" method="post" class="space-y-6" id="reviewForm">
+                <input type="hidden" name="source"       value="customer"/>
+                <input type="hidden" name="action"       value="create"/>
+                <input type="hidden" name="status"       value="PUBLISHED"/>
+                <input type="hidden" name="reviewerName" th:value="${reviewerName}"/>
 
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1">Comments</label>
-                <textarea name="comments" rows="4" required maxlength="2000"
-                          class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                          placeholder="Tell us about your experience"></textarea>
-            </div>
+                <!-- Booking selector -->
+                <div>
+                    <label for="bookingId" class="field-label">Booking (optional)</label>
+                    <select id="bookingId" name="bookingId" class="form-input">
+                        <option value="">✦ No booking — general review</option>
+                        <option th:each="b : ${customerBookings}"
+                                th:value="${b.id}"
+                                th:text="${b.id + ' — ' + b.vehicleId + ' (' + b.rentalDate + ', ' + b.status + ')'}">BK-001</option>
+                    </select>
+                    <p th:if="${customerBookings == null or #lists.isEmpty(customerBookings)}"
+                       class="mt-2 text-xs text-slate-400">
+                        No bookings on record. Leave as general review or
+                        <a th:href="@{/customer/bookings}" class="font-semibold text-orange-600 hover:text-orange-800">book a vehicle</a> first.
+                    </p>
+                    <p th:unless="${customerBookings == null or #lists.isEmpty(customerBookings)}"
+                       class="mt-2 text-xs text-slate-400">
+                        Choose a booking to link this review, or leave blank for a general account review.
+                    </p>
+                </div>
 
-            <button type="submit" class="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 shadow-sm transition">
-                Submit review
-            </button>
-        </form>
+                <!-- Star rating picker -->
+                <div>
+                    <label class="field-label">Your Rating</label>
+                    <div class="flex items-center gap-4">
+                        <div class="star-picker" id="starPicker" role="group" aria-label="Rating">
+                            <span class="s" data-val="1" title="1 — Very poor">★</span>
+                            <span class="s" data-val="2" title="2 — Poor">★</span>
+                            <span class="s" data-val="3" title="3 — OK">★</span>
+                            <span class="s" data-val="4" title="4 — Good">★</span>
+                            <span class="s" data-val="5" title="5 — Excellent">★</span>
+                        </div>
+                        <span class="star-label" id="ratingLabel">5 — Excellent</span>
+                    </div>
+                    <input type="hidden" name="rating" id="ratingInput" value="5"/>
+                </div>
+
+                <!-- Comments -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="field-label mb-0">Comments</label>
+                        <span id="charCount" class="text-xs font-semibold char-ok">0 / 2000</span>
+                    </div>
+                    <textarea id="commentsArea" name="comments" rows="5" required maxlength="2000"
+                              class="form-input resize-none"
+                              placeholder="Tell us about your rental experience — what went well, what could be improved…"></textarea>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="ph-bold ph-paper-plane-right"></i>
+                    Submit Review
+                </button>
+            </form>
+        </div>
     </div>
 </div>
+
+<script>
+    // ── Star picker ──
+    const stars    = document.querySelectorAll('#starPicker .s');
+    const ratingIn = document.getElementById('ratingInput');
+    const ratingLb = document.getElementById('ratingLabel');
+    const labels   = { 1:'Very poor', 2:'Poor', 3:'OK', 4:'Good', 5:'Excellent' };
+    let current    = 5;
+
+    function paint(n) {
+        stars.forEach(s => s.classList.toggle('active', +s.dataset.val <= n));
+        ratingLb.textContent = n + ' — ' + labels[n];
+    }
+    paint(5);
+
+    stars.forEach(s => {
+        s.addEventListener('mouseenter', () => paint(+s.dataset.val));
+        s.addEventListener('mouseleave', () => paint(current));
+        s.addEventListener('click', () => {
+            current = +s.dataset.val;
+            ratingIn.value = current;
+            paint(current);
+        });
+    });
+
+    // ── Character counter ──
+    const textarea  = document.getElementById('commentsArea');
+    const charCount = document.getElementById('charCount');
+    textarea.addEventListener('input', () => {
+        const n = textarea.value.length;
+        charCount.textContent = n + ' / 2000';
+        charCount.className = 'text-xs font-semibold ' +
+            (n > 1900 ? 'char-over' : n > 1600 ? 'char-warn' : 'char-ok');
+    });
+</script>
 </body>
 </html>

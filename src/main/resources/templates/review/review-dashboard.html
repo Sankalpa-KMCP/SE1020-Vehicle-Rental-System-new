@@ -3,155 +3,511 @@
 <head>
     <th:block th:replace="~{fragments/admin-shell :: adminHead('Reviews - DriveAway')}"></th:block>
     <style>
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        /* ── Animations ── */
+        .fade-in { animation: fadeIn 0.5s ease-out both; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── Hero banner ── */
+        .hero-banner {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #dc2626 100%);
+            border-radius: 1.75rem;
+            padding: 3rem 3.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(239,68,68,0.25);
+        }
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('https://www.transparenttextures.com/patterns/cubes.png');
+            opacity: 0.08;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+        }
+        .hero-banner::after {
+            content: '★';
+            position: absolute;
+            right: -40px;
+            bottom: -60px;
+            font-size: 280px;
+            color: rgba(255,255,255,0.08);
+            pointer-events: none;
+            line-height: 1;
+            transform: rotate(-12deg);
+        }
+
+        /* ── Stat cards ── */
+        .stat-card {
+            background: #ffffff;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(15,23,42,0.05);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 45px rgba(15,23,42,0.10);
+        }
+
+        /* ── Star rating ── */
+        .star-display { display: inline-flex; gap: 2px; }
+        .star-display .star { font-size: 1rem; }
+        .star-display .star.filled { color: #f59e0b; }
+        .star-display .star.empty  { color: #e2e8f0; }
+
+        /* ── Status badges ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .badge-published { background: #dcfce7; color: #166534; }
+        .badge-flagged   { background: #fee2e2; color: #991b1b; }
+        .badge-pending   { background: #fef9c3; color: #854d0e; }
+        .badge-default   { background: #f1f5f9; color: #475569; }
+
+        /* ── Review card ── */
+        .review-card {
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 1.25rem;
+            padding: 1.5rem 1.75rem;
+            transition: box-shadow 0.25s ease, border-color 0.25s ease;
+            box-shadow: 0 2px 12px rgba(15,23,42,0.04);
+            position: relative;
+            z-index: 1;
+            opacity: 1;
+            margin-bottom: 1rem;
+        }
+        .review-card:last-child {
+            margin-bottom: 0;
+        }
+        .review-list {
+            position: relative;
+            z-index: 2;
+        }
+        .review-card:hover {
+            box-shadow: 0 8px 32px rgba(15,23,42,0.09);
+            border-color: #fde68a;
+        }
+
+        /* ── Avatar ── */
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .avatar-customer { background: linear-gradient(135deg,#fef3c7,#fde68a); color: #92400e; }
+        .avatar-staff    { background: linear-gradient(135deg,#dbeafe,#bfdbfe); color: #1e40af; }
+
+        /* ── Reply toggle ── */
+        .reply-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #b45309;
+            background: #fef9c3;
+            border: 1px solid #fde68a;
+            border-radius: 0.6rem;
+            padding: 5px 12px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .reply-toggle-btn:hover { background: #fef08a; color: #92400e; }
+
+        .reply-panel {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+        .reply-panel.open { max-height: 500px; opacity: 1; }
+
+        /* ── Reply textarea ── */
+        .reply-textarea {
+            width: 100%;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 10px 14px;
+            font-size: 0.875rem;
+            resize: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        .reply-textarea:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+        }
+
+        /* ── Post-reply button ── */
+        .post-btn {
+            background: linear-gradient(135deg,#f59e0b,#ef4444);
+            color: #fff;
+            font-weight: 800;
+            font-size: 0.85rem;
+            padding: 9px 20px;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .post-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .post-btn:active { transform: translateY(0); }
+
+        /* ── Existing reply bubble ── */
+        .reply-bubble {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 12px 14px;
+        }
+
+        /* ── Empty state ── */
+        .empty-state { text-align: center; padding: 4rem 2rem; color: #94a3b8; }
+        .empty-state i { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+
+        /* ── Filter/search bar ── */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 1rem;
+            padding: 1rem 1.25rem;
+            box-shadow: 0 2px 12px rgba(15,23,42,0.04);
+        }
+        .filter-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all 0.2s;
+        }
+        .filter-pill.active, .filter-pill:hover {
+            border-color: #f59e0b;
+            background: #fffbeb;
+            color: #92400e;
+        }
+        .filter-pill:not(.active) { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
+
+        /* ── Section heading ── */
+        .section-heading {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-heading::after {
+            content: '';
+            flex: 1;
+            height: 1.5px;
+            background: linear-gradient(90deg, #fde68a 0%, transparent 100%);
+        }
     </style>
 </head>
 <body class="admin-shell text-gray-800">
 <th:block th:replace="~{fragments/admin-shell :: shellOpen('reviews', 'Reviews')}"></th:block>
-<div class="fade-in">
+<div class="fade-in" style="max-width:1200px; margin:0 auto;">
 
-<div th:if="${reviewNotice}"
-         class="mb-8 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 text-sm font-semibold shadow-sm flex items-start gap-3">
-        <i class="ph-fill ph-info text-xl shrink-0 mt-0.5"></i>
+    <!-- ── Notice banner ── -->
+    <div th:if="${reviewNotice}"
+         class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900 text-sm font-semibold shadow-sm flex items-start gap-3">
+        <i class="ph-fill ph-warning-circle text-xl shrink-0 mt-0.5"></i>
         <span th:text="${reviewNotice}">Notice</span>
     </div>
-    <div class="bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 rounded-3xl p-10 sm:p-12 text-white shadow-xl mb-10 relative overflow-hidden">
-        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+
+    <!-- ── Hero banner ── -->
+    <div class="hero-banner mb-10 relative z-10">
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-                <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Customer reviews</h1>
-                <p class="text-amber-50 text-lg font-medium max-w-2xl leading-relaxed">View feedback submitted by customers and post staff replies.</p>
+                <p class="text-amber-200 text-xs font-bold uppercase tracking-widest mb-2">Staff Panel</p>
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-3 tracking-tight leading-tight">
+                    Customer Reviews
+                </h1>
+                <p class="text-amber-100 text-base font-medium max-w-xl leading-relaxed opacity-90">
+                    Manage feedback, monitor ratings, and craft professional responses.
+                </p>
             </div>
-            <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
-                <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-amber-100 text-xs font-bold uppercase tracking-wider mb-1">Total</p>
-                    <p class="text-white font-extrabold text-xl" th:text="${totalReviews}">0</p>
+            <!-- Mini stat strip in hero -->
+            <div class="flex flex-wrap gap-0 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden">
+                <div class="text-center px-5 py-4 border-r border-white/20">
+                    <p class="text-amber-200 text-xs font-bold uppercase tracking-wider mb-1">Total</p>
+                    <p class="text-white font-extrabold text-2xl" th:text="${totalReviews}">0</p>
                 </div>
-                <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-amber-100 text-xs font-bold uppercase tracking-wider mb-1">Published</p>
-                    <p class="text-white font-extrabold text-xl" th:text="${publishedCount}">0</p>
+                <div class="text-center px-5 py-4 border-r border-white/20">
+                    <p class="text-amber-200 text-xs font-bold uppercase tracking-wider mb-1">Live</p>
+                    <p class="text-white font-extrabold text-2xl" th:text="${publishedCount}">0</p>
                 </div>
-                <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-amber-100 text-xs font-bold uppercase tracking-wider mb-1">Flagged</p>
-                    <p class="text-white font-extrabold text-xl" th:text="${flaggedCount}">0</p>
+                <div class="text-center px-5 py-4 border-r border-white/20">
+                    <p class="text-amber-200 text-xs font-bold uppercase tracking-wider mb-1">Flagged</p>
+                    <p class="text-white font-extrabold text-2xl" th:text="${flaggedCount}">0</p>
                 </div>
-                <div class="text-center px-4">
-                    <p class="text-amber-100 text-xs font-bold uppercase tracking-wider mb-1">Avg rating</p>
-                    <p class="text-white font-extrabold text-xl" th:text="${#numbers.formatDecimal(avgRating, 1, 2)}">0</p>
+                <div class="text-center px-5 py-4">
+                    <p class="text-amber-200 text-xs font-bold uppercase tracking-wider mb-1">Avg ★</p>
+                    <p class="text-white font-extrabold text-2xl" th:text="${#numbers.formatDecimal(avgRating, 1, 1)}">0</p>
                 </div>
             </div>
-        </div>
-        <i class="ph-fill ph-star absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
-        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
-            <div class="flex items-center justify-between mb-4">
-                <div class="bg-amber-50 p-3 rounded-xl">
-                    <i class="ph-fill ph-chats-circle text-2xl text-amber-600"></i>
-                </div>
-                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">TOTAL</span>
-            </div>
-            <p class="text-3xl font-extrabold text-gray-900" th:text="${totalReviews}">0</p>
-            <p class="text-sm text-gray-500 mt-2">All reviews</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
-            <div class="flex items-center justify-between mb-4">
-                <div class="bg-green-50 p-3 rounded-xl">
-                    <i class="ph-fill ph-check-fat text-2xl text-green-600"></i>
-                </div>
-                <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg">LIVE</span>
-            </div>
-            <p class="text-3xl font-extrabold text-gray-900" th:text="${publishedCount}">0</p>
-            <p class="text-sm text-gray-500 mt-2">Published</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
-            <div class="flex items-center justify-between mb-4">
-                <div class="bg-orange-50 p-3 rounded-xl">
-                    <i class="ph-fill ph-flag text-2xl text-orange-600"></i>
-                </div>
-                <span class="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-lg">FLAGGED</span>
-            </div>
-            <p class="text-3xl font-extrabold text-gray-900" th:text="${flaggedCount}">0</p>
-            <p class="text-sm text-gray-500 mt-2">Needs attention</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
-            <div class="flex items-center justify-between mb-4">
-                <div class="bg-rose-50 p-3 rounded-xl">
-                    <i class="ph-fill ph-star-half text-2xl text-rose-600"></i>
-                </div>
-                <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">AVG</span>
-            </div>
-            <p class="text-3xl font-extrabold text-gray-900" th:text="${#numbers.formatDecimal(avgRating, 1, 2)}">0</p>
-            <p class="text-sm text-gray-500 mt-2">Average rating</p>
         </div>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-3xl p-10 soft-card shadow-lg space-y-10">
-        <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white soft-card">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                <tr class="bg-slate-50 text-gray-500 text-sm uppercase tracking-wider border-b border-slate-200">
-                    <th class="py-4 px-4 font-bold">ID</th>
-                    <th class="py-4 px-4 font-bold">Customer</th>
-                    <th class="py-4 px-4 font-bold">Rating</th>
-                    <th class="py-4 px-4 font-bold">Status</th>
-                    <th class="py-4 px-4 font-bold">Comment</th>
-                    <th class="py-4 px-4 font-bold text-right">Actions</th>
-                </tr>
-                </thead>
-                <tbody class="text-gray-700">
-                <tr th:each="r : ${customerReviews}" class="border-b border-slate-100 align-top hover:bg-amber-50/50 transition-colors">
-                    <td class="py-4 px-4 font-mono text-xs font-bold text-gray-900" th:text="${r.id}">id</td>
-                    <td class="py-4 px-4 font-semibold" th:text="${r.reviewerName}">u</td>
-                    <td class="py-4 px-4 text-amber-500 font-bold" th:text="${r.rating}">5</td>
-                    <td class="py-4 px-4">
-                        <span class="bg-slate-100 text-slate-800 font-bold px-2 py-1 rounded-lg text-xs" th:text="${r.status}">s</span>
-                    </td>
-                    <td class="py-4 px-4 max-w-md text-sm text-gray-600" th:text="${r.comments}">c</td>
-                    <td class="py-4 px-4 text-right whitespace-nowrap">
-                        <a th:href="@{/reviews/{id}(id=${r.id})}"
-                           class="inline-flex items-center gap-1.5 text-amber-700 hover:text-amber-900 font-bold text-sm bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition">
-                            <i class="ph-bold ph-eye"></i> View
-                        </a>
-                    </td>
-                </tr>
-                <tr th:if="${customerReviews == null or customerReviews.isEmpty()}">
-                    <td colspan="6" class="py-12 text-center text-gray-500 font-medium">No customer reviews yet.</td>
-                </tr>
-                </tbody>
-            </table>
+    <!-- ── KPI stat cards ── -->
+    <div class="grid grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+        <div class="stat-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-amber-50 p-3 rounded-xl"><i class="ph-fill ph-chats-circle text-2xl text-amber-600"></i></div>
+                <span class="badge badge-default">Total</span>
+            </div>
+            <p class="text-4xl font-extrabold text-gray-900" th:text="${totalReviews}">0</p>
+            <p class="text-xs text-gray-400 mt-2 font-medium">All reviews submitted</p>
+        </div>
+        <div class="stat-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-green-50 p-3 rounded-xl"><i class="ph-fill ph-check-fat text-2xl text-green-600"></i></div>
+                <span class="badge badge-published">Live</span>
+            </div>
+            <p class="text-4xl font-extrabold text-gray-900" th:text="${publishedCount}">0</p>
+            <p class="text-xs text-gray-400 mt-2 font-medium">Visible to customers</p>
+        </div>
+        <div class="stat-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-red-50 p-3 rounded-xl"><i class="ph-fill ph-flag text-2xl text-red-500"></i></div>
+                <span class="badge badge-flagged">Flagged</span>
+            </div>
+            <p class="text-4xl font-extrabold text-gray-900" th:text="${flaggedCount}">0</p>
+            <p class="text-xs text-gray-400 mt-2 font-medium">Needs your attention</p>
+        </div>
+        <div class="stat-card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="bg-amber-50 p-3 rounded-xl"><i class="ph-fill ph-star-half text-2xl text-amber-500"></i></div>
+                <span class="badge badge-pending">Rating</span>
+            </div>
+            <p class="text-4xl font-extrabold text-gray-900" th:text="${#numbers.formatDecimal(avgRating, 1, 1)}">0</p>
+            <p class="text-xs text-gray-400 mt-2 font-medium">Average customer score</p>
+        </div>
+    </div>
+
+    <!-- ── Main content area ── -->
+    <div class="space-y-5">
+
+        <!-- Section heading -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 class="section-heading mb-0">
+                <i class="ph-bold ph-list-bullets text-amber-500"></i>
+                All Reviews
+                <span th:if="${customerReviews != null and !#lists.isEmpty(customerReviews)}"
+                      class="text-sm font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full"
+                      th:text="'(' + ${#lists.size(customerReviews)} + ')'">(0)</span>
+            </h2>
+            
+            <div class="relative w-full sm:w-72">
+                <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                <input type="text" id="reviewFilter" placeholder="Search reviews, names, ID..." 
+                       class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition shadow-sm">
+            </div>
         </div>
 
-        <th:block th:if="${currentStaffUsername != null and !#strings.isEmpty(currentStaffUsername)}">
-            <h2 class="text-xl font-extrabold text-gray-900 mb-4">Staff replies</h2>
-            <th:block th:each="r : ${customerReviews}">
-                <div class="border border-slate-100 rounded-2xl p-5 bg-slate-50/80 mb-4">
-                    <div class="flex flex-col md:flex-row md:items-start gap-4 justify-between">
-                        <div class="flex-1 min-w-0">
-                            <p class="text-xs font-bold text-gray-500 uppercase mb-1">Reply to <span th:text="${r.id}" class="font-mono text-gray-800">id</span></p>
-                            <p th:if="${r.staffReply != null and !#strings.isEmpty(r.staffReply)}" class="text-sm text-slate-700 bg-white border border-slate-200 rounded-xl p-3">
-                                <span class="font-bold text-amber-700" th:text="${r.repliedBy}">staff</span>:
-                                <span th:text="${r.staffReply}">reply</span>
-                            </p>
-                            <p th:if="${r.staffReply == null or #strings.isEmpty(r.staffReply)}" class="text-xs text-gray-400 italic">No staff reply yet.</p>
+        <!-- ── Review cards ── -->
+        <div th:if="${customerReviews != null and !#lists.isEmpty(customerReviews)}" class="review-list">
+
+            <article th:each="r, stat : ${customerReviews}"
+                     class="review-card"
+                     th:attr="data-review-id=${r.id}">
+
+                <!-- Top row: avatar + name + meta -->
+                <div class="flex items-start gap-4">
+                    <!-- Avatar -->
+                    <div class="avatar avatar-customer"
+                         th:text="${!#strings.isEmpty(r.reviewerName) ? #strings.toUpperCase(#strings.substring(r.reviewerName, 0, 1)) : 'C'}">A</div>
+
+                    <!-- Main info block -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
+                            <span class="font-bold text-gray-900 text-sm" th:text="${r.reviewerName}">Reviewer</span>
+                            <span class="font-mono text-xs text-gray-400">#<span th:text="${r.id}">1</span></span>
+
+                            <!-- Dynamic status badge -->
+                            <span th:if="${r.status == 'PUBLISHED'}" class="badge badge-published">
+                                <i class="ph-fill ph-check-circle"></i> Published
+                            </span>
+                            <span th:if="${r.status == 'FLAGGED'}" class="badge badge-flagged">
+                                <i class="ph-fill ph-flag"></i> Flagged
+                            </span>
+                            <span th:if="${r.status == 'PENDING'}" class="badge badge-pending">
+                                <i class="ph-fill ph-clock"></i> Pending
+                            </span>
+                            <span th:if="${r.status != 'PUBLISHED' and r.status != 'FLAGGED' and r.status != 'PENDING'}"
+                                  class="badge badge-default" th:text="${r.status}">Status</span>
                         </div>
-                        <form th:action="@{/reviews}" method="post" class="w-full md:w-80 shrink-0 space-y-2">
-                            <input type="hidden" name="reviewType" value="STAFF_REPLY"/>
-                            <input type="hidden" name="parentReviewId" th:value="${r.id}"/>
-                            <input type="hidden" name="repliedBy" th:value="${currentStaffUsername}"/>
-                            <label class="block text-xs font-bold text-gray-500 uppercase">Staff reply</label>
-                            <textarea name="staffReply" rows="2" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Type a professional response…"></textarea>
-                            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold py-2 rounded-xl transition">Post reply</button>
-                        </form>
+
+                        <!-- Star rating row -->
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="star-display">
+                                <span th:each="i : ${#numbers.sequence(1,5)}"
+                                      th:class="${i <= r.rating} ? 'star filled' : 'star empty'">★</span>
+                            </div>
+                            <span class="text-xs font-bold text-gray-500"
+                                  th:text="${r.rating} + '/5'">5/5</span>
+                        </div>
+
+                        <!-- Comment text -->
+                        <p class="text-sm text-gray-600 leading-relaxed" th:text="${r.comments}">Comment text</p>
+                    </div>
+
+                    <!-- View button -->
+                    <a th:href="@{/reviews/{id}(id=${r.id})}"
+                       class="shrink-0 inline-flex items-center gap-1.5 text-amber-700 hover:text-amber-900 font-bold text-xs bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-2 rounded-xl transition">
+                        <i class="ph-bold ph-eye"></i> View
+                    </a>
+                </div>
+
+                <!-- Existing staff reply bubble -->
+                <div th:if="${r.staffReply != null and !#strings.isEmpty(r.staffReply)}"
+                     class="mt-4 ml-14">
+                    <div class="reply-bubble">
+                        <div class="avatar avatar-staff" style="width:34px;height:34px;font-size:0.85rem;"
+                             th:text="${!#strings.isEmpty(r.repliedBy) ? #strings.toUpperCase(#strings.substring(r.repliedBy, 0, 1)) : 'S'}">S</div>
+                        <div>
+                            <p class="text-xs font-bold text-blue-700 mb-0.5">
+                                <span th:text="${r.repliedBy}">Staff</span>
+                                <span class="text-gray-400 font-normal ml-1">· Staff reply</span>
+                            </p>
+                            <p class="text-sm text-gray-700 leading-relaxed" th:text="${r.staffReply}">Reply text</p>
+                        </div>
                     </div>
                 </div>
-            </th:block>
-        </th:block>
-    </div>
-</div>
+
+                <!-- Reply toggle & form (staff only) -->
+                <th:block th:if="${currentStaffUsername != null and !#strings.isEmpty(currentStaffUsername)}">
+                    <div class="mt-4 ml-14">
+                        <!-- Toggle button -->
+                        <button type="button"
+                                class="reply-toggle-btn"
+                                th:id="|toggle-${stat.index}|"
+                                th:attr="data-panel-id=|panel-${stat.index}|"
+                                onclick="toggleReply(this.dataset.panelId, this.id)">
+                            <i class="ph-bold ph-chat-centered-text"></i>
+                            <span th:text="${r.staffReply != null and !#strings.isEmpty(r.staffReply)} ? 'Edit reply' : 'Write a reply'">Write a reply</span>
+                        </button>
+
+                        <!-- Collapsible reply panel -->
+                        <div class="reply-panel mt-3" th:id="|panel-${stat.index}|">
+                            <form th:action="@{/reviews}" method="post" class="space-y-3">
+                                <input type="hidden" name="reviewType"     value="STAFF_REPLY"/>
+                                <input type="hidden" name="parentReviewId" th:value="${r.id}"/>
+                                <input type="hidden" name="repliedBy"      th:value="${currentStaffUsername}"/>
+
+                                <!-- Context quote -->
+                                <div class="text-xs text-gray-400 italic border-l-2 border-amber-300 pl-3 py-1 leading-relaxed">
+                                    "<span th:text="${r.comments}">comment</span>"
+                                </div>
+
+                                <textarea name="staffReply"
+                                          rows="3"
+                                          class="reply-textarea"
+                                          placeholder="Type a professional, helpful response…"
+                                          th:text="${r.staffReply}"></textarea>
+
+                                <div class="flex items-center justify-between gap-3">
+                                    <p class="text-xs text-gray-400">
+                                        Replying as <strong class="text-gray-600" th:text="${currentStaffUsername}">staff</strong>
+                                    </p>
+                                    <button type="submit" class="post-btn">
+                                        <i class="ph-bold ph-paper-plane-right"></i>
+                                        Post Reply
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </th:block>
+
+            </article>
+        </div>
+
+        <!-- Empty state -->
+        <div th:if="${customerReviews == null or #lists.isEmpty(customerReviews)}" class="empty-state">
+            <i class="ph-thin ph-chats-circle text-amber-300"></i>
+            <p class="text-lg font-bold text-gray-400">No reviews yet</p>
+            <p class="text-sm text-gray-300 mt-1">Customer feedback will appear here once submitted.</p>
+        </div>
+
+    </div><!-- /space-y-5 -->
+</div><!-- /fade-in -->
 <th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
 <script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+<script>
+    function toggleReply(panelId, btnId) {
+        const panel = document.getElementById(panelId);
+        const btn   = document.getElementById(btnId);
+        if (!panel) return;
+        const isOpen = panel.classList.contains('open');
+        panel.classList.toggle('open', !isOpen);
+        if (btn) {
+            const icon = btn.querySelector('i');
+            const label = btn.querySelector('span');
+            if (!isOpen) {
+                if (icon)  icon.className = 'ph-bold ph-x';
+                if (label) label.textContent = 'Cancel';
+            } else {
+                if (icon)  icon.className = 'ph-bold ph-chat-centered-text';
+                if (label) label.textContent = btn.dataset.original || 'Write a reply';
+            }
+        }
+    }
+    // Store original label for each toggle button
+    document.querySelectorAll('.reply-toggle-btn').forEach(btn => {
+        const span = btn.querySelector('span');
+        if (span) btn.dataset.original = span.textContent;
+    });
+
+    // Real-time filter for reviews
+    document.addEventListener('DOMContentLoaded', () => {
+        const filterInput = document.getElementById('reviewFilter');
+        if (!filterInput) return;
+        
+        filterInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.review-card');
+            
+            cards.forEach(card => {
+                // Get all text content inside the card and convert to lowercase
+                const text = card.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

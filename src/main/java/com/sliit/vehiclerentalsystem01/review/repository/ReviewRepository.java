@@ -35,7 +35,7 @@ public class ReviewRepository {
         try {
             List<Feedback> loaded = new ArrayList<>();
             for (String raw : Files.readAllLines(p, StandardCharsets.UTF_8)) {
-                String line = raw == null ? "" : raw.trim();
+                String line = raw.trim();
                 if (line.isEmpty() || line.startsWith("#")) {
                     continue;
                 }

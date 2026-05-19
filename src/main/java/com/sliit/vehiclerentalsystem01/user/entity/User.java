@@ -51,6 +51,9 @@ public abstract class User {
     /** Role label for polymorphism (e.g. CUSTOMER, STAFF). */
     public abstract String getUserRole();
 
+    /** Serialized form for flat-file storage (CSV). */
+    public abstract String toCSV();
+
     /** Login id; overridden by {@link Customer} and {@link Staff}. */
     public String getUsername() {
         return "";

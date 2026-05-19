@@ -1,6 +1,7 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
+import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
@@ -207,7 +208,7 @@ public class CustomerAdminController {
                         .map(u -> (Customer) u)
                         .orElseThrow();
                 existing.setUsername(username);
-                existing.setPassword(password);
+                existing.setPassword(SecurityUtils.hashPasswordIfNeeded(password));
                 existing.setEmail(email);
                 existing.setPhone(phone);
                 existing.setNic(nic);
@@ -224,7 +225,7 @@ public class CustomerAdminController {
             Customer created = new Customer();
             created.setId(newId);
             created.setUsername(username);
-            created.setPassword(password);
+            created.setPassword(SecurityUtils.hashPasswordIfNeeded(password));
             created.setEmail(email);
             created.setPhone(phone);
             created.setNic(nic);
