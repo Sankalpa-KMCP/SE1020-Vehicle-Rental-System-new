@@ -51,9 +51,10 @@ public class MaintenanceRepository {
     public List<MaintenanceRecord> findAllVehicles() {
         readLock.lock();
         try {
+            boolean fleetFileExists = Files.exists(dataPath(FLEET_FILE_NAME));
             List<MaintenanceRecord> vehicles = readVehiclesFromDiskUnlocked();
 
-            if (vehicles.isEmpty()) {
+            if (!fleetFileExists && vehicles.isEmpty()) {
                 vehicles = readLegacyVehiclesFromDiskUnlocked();
             }
 
