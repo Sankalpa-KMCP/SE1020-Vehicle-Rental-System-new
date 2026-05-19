@@ -1,6 +1,7 @@
 :root {
   /* Typeface — Inter, used for body and display alike */
   --da-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --da-font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --da-font-feature: 'ss01' on, 'cv11' on, 'cv02' on;
 
   /* Monochrome ink scale — single source of color */

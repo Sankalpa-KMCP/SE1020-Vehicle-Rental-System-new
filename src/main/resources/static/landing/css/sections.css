@@ -365,7 +365,7 @@
   max-width: 18ch;
 }
 .da-cinema__title em {
-  font-family: 'Instrument Serif', 'Inter', serif;
+  font-family: var(--da-font-display);
   font-style: italic;
   font-weight: 400;
   color: var(--da-text-secondary);
