@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Vehicle</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/vehicle.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Vehicle</h1>
+    <dl>
+        <dt>ID</dt>
+        <dd th:text="${vehicle.id}">-</dd>
+        <dt>Type</dt>
+        <dd th:text="${vehicle.vehicleType}">-</dd>
+        <dt>Brand / Model</dt>
+        <dd th:text="${vehicle.brand + ' ' + vehicle.model}">-</dd>
+        <dt>Daily rate</dt>
+        <dd th:text="${vehicle.dailyRate}">-</dd>
+        <th:block th:if="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Car)}">
+            <dt>Seats</dt>
+            <dd th:text="${vehicle.seatingCapacity}">-</dd>
+        </th:block>
+        <th:block th:if="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle)}">
+            <dt>Helmet</dt>
+            <dd th:text="${vehicle.helmetIncluded}">-</dd>
+        </th:block>
+    </dl>
+    <p class="actions">
+        <a class="btn btn-ghost" th:href="@{/vehicles}">Back</a>
+        <a class="btn btn-primary" th:href="@{/vehicles/{id}/edit(id=${vehicle.id})}">Edit</a>
+    </p>
+</main>
+</body>
+</html>

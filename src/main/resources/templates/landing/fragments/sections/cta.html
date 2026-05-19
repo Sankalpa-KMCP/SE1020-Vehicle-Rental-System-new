@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="ctaSection">
+<section class="da-scene da-scene--close" aria-label="Get started" data-chapter="13" data-chapter-name="Drive" data-mood="act">
+    <div class="da-container">
+        <div class="da-close da-reveal">
+            <span class="da-eyebrow"><span class="da-eyebrow__num">13</span>Final note</span>
+            <h2 class="da-close__title" data-parallax="0.05">
+                Ready to start<br/>your engine<span class="da-close__dot">.</span>
+            </h2>
+            <p class="da-close__body">
+                Create your account in under 60 seconds and unlock Sri Lanka's premium vehicle network.
+            </p>
+            <div class="da-close__actions">
+                <a th:href="@{/auth/register}" class="da-btn da-btn--primary da-btn--xl da-magnetic transition-link">
+                    Create free account
+                    <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+                </a>
+                <a href="#fleet" class="da-btn da-btn--ghost da-btn--xl">Browse fleet first</a>
+            </div>
+        </div>
+    </div>
+</section>
+</th:block>
+</body>
+</html>

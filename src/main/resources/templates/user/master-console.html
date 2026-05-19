@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <th:block th:replace="~{fragments/admin-shell :: adminHead('Access Requests - DriveAway')}"></th:block>
+</head>
+<body class="admin-shell">
+
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('users', 'Access Requests')}"></th:block>
+
+      <header class="admin-page-header">
+        <h1 class="admin-page-header__title">Access Requests</h1>
+        <p class="admin-page-header__subtitle">Review and manage pending staff/admin access requests.</p>
+        <p class="admin-page-header__hint">Requests submitted by staff users awaiting admin approval.</p>
+      </header>
+
+      <div th:if="${message != null}"
+           class="admin-alert admin-alert--success"
+           role="status"
+           th:text="${message}">Success message</div>
+
+      <div th:if="${error != null}"
+           class="admin-alert admin-alert--warning"
+           role="alert"
+           th:text="${error}">Error message</div>
+
+      <div class="admin-access-panel">
+        <div class="admin-access-header">
+          <h2 class="admin-access-header__title">Pending Requests</h2>
+          <span class="admin-access-count">
+            <span th:text="${pendingAccessCount != null ? pendingAccessCount : 0}">0</span>
+            <span th:text="${pendingAccessCount == 1 ? ' request' : ' requests'}"> requests</span>
+          </span>
+        </div>
+
+        <div class="admin-access-list"
+             th:if="${pendingLines != null and !pendingLines.isEmpty()}">
+          <div th:each="line, iterStat : ${pendingLines}"
+               th:with="parts=${#strings.arraySplit(#strings.trim(line), ',')},
+                        partLen=${#arrays.length(parts)},
+                        displayName=${partLen > 0 ? #strings.trim(parts[0]) : line},
+                        displayId=${partLen > 1 ? #strings.trim(parts[1]) : '—'}"
+               class="admin-access-row"
+               th:style="${'animation-delay:' + (iterStat.index * 0.05) + 's'}">
+            <div class="admin-access-info">
+              <strong class="admin-access-info__name" th:text="${displayName}">username</strong>
+              <span class="admin-access-info__id">ID: <span th:text="${displayId}">0000</span></span>
+              <span class="admin-status-badge admin-status-badge--warning">Pending</span>
+            </div>
+            <div class="admin-access-actions">
+              <form th:action="@{/user/master-console}" method="post" class="admin-access-form">
+                <input type="hidden" name="action" value="approve"/>
+                <input type="hidden" name="request" th:value="${line}"/>
+                <button type="submit" class="admin-btn admin-btn--success admin-btn--compact">
+                  <i class="ph-bold ph-check" aria-hidden="true"></i> Approve
+                </button>
+              </form>
+              <form th:action="@{/user/master-console}" method="post" class="admin-access-form"
+                    onsubmit="return confirm('Reject this request?');">
+                <input type="hidden" name="action" value="reject"/>
+                <input type="hidden" name="request" th:value="${line}"/>
+                <button type="submit" class="admin-btn admin-btn--danger admin-btn--compact">
+                  <i class="ph-bold ph-x" aria-hidden="true"></i> Reject
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div th:if="${pendingLines == null or pendingLines.isEmpty()}"
+             class="admin-empty-state">
+          <i class="ph-bold ph-check-circle" aria-hidden="true"></i>
+          <p>No pending access requests</p>
+        </div>
+      </div>
+
+      <p class="admin-access-footer-note">Approve creates a support-staff account with a generated temporary password.</p>
+
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+</body>
+</html>

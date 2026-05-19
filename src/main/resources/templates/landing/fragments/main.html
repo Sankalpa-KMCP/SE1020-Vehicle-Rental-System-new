@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!--
+        Landing journey (UX-driven, not section-stacked):
+          ACT          hero  — search/book immediately
+          DISCOVER     fleet  — see the product first
+          PULSE        stats  — numbers as scroll-driven punctuation
+          UNDERSTAND   how-it-works → categories
+          TRUST        advantage → testimonials → locations → team → partners
+          RESOLVE      faq → experience (app) → cta → floating-actions
+    -->
+    <th:block th:fragment="landingMain">
+        <th:block th:replace="~{landing/fragments/sections/hero          :: heroSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/fleet         :: fleetSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/stats         :: statsSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/how-it-works  :: howItWorksSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/categories    :: categoriesSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/advantage     :: advantageSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/testimonials  :: testimonialsSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/locations     :: locationsSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/team          :: teamSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/partners      :: partnersSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/faq           :: faqSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/experience    :: experienceSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/cta           :: ctaSection}"/>
+        <th:block th:replace="~{landing/fragments/sections/floating-actions :: floatingActions}"/>
+    </th:block>
+</body>
+</html>

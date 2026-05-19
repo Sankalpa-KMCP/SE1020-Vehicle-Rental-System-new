@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Vehicles</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}"/>
+    <link rel="stylesheet" th:href="@{/css/vehicle.css}"/>
+</head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<main class="container">
+    <h1>Vehicles</h1>
+    <p><a class="btn btn-primary" th:href="@{/vehicles/new}">Add vehicle</a></p>
+    <div class="stack">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Daily rate</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${vehicles}">
+                <td th:text="${v.id}">id</td>
+                <td th:text="${v.vehicleType}">CAR</td>
+                <td th:text="${v.brand}">-</td>
+                <td th:text="${v.model}">-</td>
+                <td th:text="${v.dailyRate}">0</td>
+                <td class="actions">
+                    <a class="btn btn-ghost" th:href="@{/vehicles/{id}(id=${v.id})}">View</a>
+                    <a class="btn btn-ghost" th:href="@{/vehicles/{id}/edit(id=${v.id})}">Edit</a>
+                    <form th:action="@{/vehicles/{id}/delete(id=${v.id})}" method="post" style="display:inline">
+                        <button class="btn btn-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

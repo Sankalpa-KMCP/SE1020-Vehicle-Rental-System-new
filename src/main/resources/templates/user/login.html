@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DriveAway | Customer Sign In</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/auth-portal.css}"/>
+</head>
+<body class="min-h-screen flex bg-white text-gray-900" data-auth-mode="login">
+
+<div th:replace="~{fragments/auth-mascot :: artPanel(false)}"></div>
+
+<div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-16 relative z-50 bg-white shadow-[-20px_0_50px_rgba(0,0,0,0.05)]">
+
+  <div class="absolute top-8 left-8 sm:top-12 sm:left-12">
+    <a th:href="@{/}" class="transition-link flex items-center gap-2 text-base font-bold text-gray-500 hover:text-black transition-colors">
+      <i class="ph-bold ph-arrow-left text-2xl"></i> Back
+    </a>
+  </div>
+
+  <div class="w-full max-w-[520px]">
+    <div class="text-center mb-12 mt-12 sm:mt-8">
+      <div class="flex justify-center mb-4">
+        <div class="bg-gray-100 p-4 rounded-2xl">
+          <i class="ph-fill ph-users-three text-4xl text-[#0D6EFD]"></i>
+        </div>
+      </div>
+      <h2 class="text-[2.5rem] font-extrabold mb-2 tracking-tight leading-tight">DriveAway</h2>
+      <p class="text-gray-500 font-medium text-lg">Customer sign in — book and manage your rentals</p>
+    </div>
+
+    <div th:if="${param.error != null and param.error[0] == '1'}"
+         class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-700 font-bold flex items-center gap-3 mb-8 shadow-sm">
+      <i class="ph-fill ph-warning-circle text-2xl text-red-500"></i>
+      Invalid Credentials
+    </div>
+
+    <div th:if="${param.success != null and param.success[0] == 'registered'}"
+         class="bg-green-50 p-5 rounded-xl border border-green-200 text-base text-green-700 font-bold flex items-center gap-3 mb-8 shadow-sm">
+      <i class="ph-fill ph-check-circle text-2xl text-green-500"></i>
+      Account created! You can now sign in.
+    </div>
+
+    <div th:if="${error}"
+         class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-700 font-bold flex items-center gap-3 mb-8 shadow-sm">
+      <i class="ph-fill ph-warning-circle text-2xl text-red-500"></i>
+      <span th:text="${error}">Error</span>
+    </div>
+
+    <div th:if="${param.logout != null}"
+         class="bg-sky-50 p-5 rounded-xl border border-sky-200 text-base text-sky-800 font-bold flex items-center gap-3 mb-8 shadow-sm">
+      <i class="ph-fill ph-sign-out text-2xl text-sky-500"></i>
+      You have been signed out.
+    </div>
+
+    <form th:action="@{/auth/login}" method="post" class="space-y-8" id="loginForm">
+      <div>
+        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide" for="usernameInput">Customer username or email</label>
+        <input type="text" name="username" id="usernameInput" required autocomplete="username" placeholder="Username or email"
+               class="w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
+      </div>
+
+      <div>
+        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide" for="passwordInput">Password</label>
+        <div class="relative" id="passwordWrapper">
+          <input type="password" name="password" id="passwordInput" required autocomplete="current-password" placeholder="••••••••"
+                 class="w-full border-b-2 border-gray-300 py-3 pr-12 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
+          <i id="togglePasswordBtn" class="ph-bold ph-eye absolute right-2 top-3 text-gray-400 cursor-pointer hover:text-black text-2xl transition-all hover:scale-110" role="button" tabindex="0" aria-label="Show password"></i>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center mt-6">
+        <label class="flex items-center gap-3 cursor-pointer group">
+          <input type="checkbox" class="w-5 h-5 text-[#0D6EFD] border-gray-300 rounded focus:ring-[#0D6EFD] accent-[#0D6EFD]"/>
+          <span class="text-base text-gray-500 font-medium group-hover:text-gray-800 transition-colors">Remember me</span>
+        </label>
+        <a href="#" class="text-base text-[#0D6EFD] hover:text-blue-800 font-bold transition-colors pointer-events-none opacity-60" tabindex="-1" aria-disabled="true">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="w-full bg-[#0D6EFD] text-white font-bold py-5 rounded-2xl hover:bg-blue-700 transition-transform transform hover:-translate-y-1 shadow-lg hover:shadow-[#0D6EFD]/30 mt-8 text-xl tracking-wide flex justify-center items-center gap-3">
+        Sign in <i class="ph-bold ph-arrow-right"></i>
+      </button>
+    </form>
+
+    <div class="mt-12 pt-8 border-t border-gray-100 flex justify-between items-center flex-wrap gap-4">
+      <p class="text-sm font-medium text-gray-500">
+        New user? <a th:href="@{/auth/register}" class="transition-link text-black font-bold hover:underline">Register</a>
+      </p>
+      <a th:href="@{/auth/staff-login}"
+         class="transition-link text-sm text-red-500 font-bold hover:underline bg-red-50 px-4 py-2 rounded-lg inline-flex items-center gap-2"
+         title="Employees and administrators">
+        <i class="ph-bold ph-shield-check"></i> Staff portal
+      </a>
+    </div>
+  </div>
+</div>
+
+<div id="success-overlay">
+  <div class="success-checkmark">
+    <svg class="checkmark-icon" viewBox="0 0 52 52" aria-hidden="true">
+      <path d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+    </svg>
+  </div>
+  <div class="success-text">Login Successful!</div>
+  <div class="success-subtext">Redirecting to dashboard...</div>
+  <div class="loading-dots">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+<script defer th:src="@{/js/auth-portal.js}"></script>
+</body>
+</html>

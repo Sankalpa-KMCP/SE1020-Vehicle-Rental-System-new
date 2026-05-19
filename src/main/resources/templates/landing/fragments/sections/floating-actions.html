@@ -1,0 +1,15 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="floatingActions">
+<div class="da-fab-stack" aria-label="Quick actions">
+    <a th:href="@{/customer/support}" class="da-fab transition-link" title="Customer support" aria-label="Open support">
+        <i class="ph ph-chat-centered-dots" aria-hidden="true"></i>
+    </a>
+    <button id="back-to-top" type="button" class="da-fab da-fab--muted" title="Back to top" aria-label="Back to top">
+        <i class="ph ph-arrow-up" aria-hidden="true"></i>
+    </button>
+</div>
+</th:block>
+</body>
+</html>
