@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Add Vehicle - DriveAway')}"></th:block>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="admin-shell text-gray-800">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('vehicles', 'Add Vehicle')}"></th:block>
+<div class="fade-in">
+
+<div th:replace="~{layout :: navbar}"></div>
+<h1>Add vehicle</h1>
+    <p th:if="${param.error}" th:text="'Error: ' + ${param.error[0]}">err</p>
+    <form class="form-grid" method="post" th:action="@{/vehicles}">
+        <label>Brand <input type="text" name="brand" required/></label>
+        <label>Model <input type="text" name="model" required/></label>
+        <label>Daily rate <input type="number" step="0.01" name="rate" required/></label>
+        <label>Type
+            <select name="vehicleType">
+                <option value="Car">Car</option>
+                <option value="Motorcycle">Motorcycle</option>
+            </select>
+        </label>
+        <label>Capacity (doors, cars) <input type="number" name="capacity" value="4"/></label>
+        <label><input type="checkbox" name="helmetIncluded"/> Helmet included (motorcycles)</label>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a class="btn btn-ghost" th:href="@{/vehicles}">Cancel</a>
+    </form>
+</div>
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+</body>
+</html>

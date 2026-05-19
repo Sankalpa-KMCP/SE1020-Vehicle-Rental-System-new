@@ -1,0 +1,12 @@
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="fontAndUtilities">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    .fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .soft-card { box-shadow: 0 10px 35px rgba(15, 23, 42, 0.06); }
+    .card-hover { transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12); }
+  </style>
+</th:block>

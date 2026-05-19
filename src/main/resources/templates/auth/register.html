@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DriveAway | Register Account</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/auth-portal.css}"/>
+</head>
+<body class="min-h-screen flex flex-col lg:flex-row bg-white text-gray-900 relative" data-auth-mode="register">
+
+<div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-16 relative min-h-screen z-50 shadow-[20px_0_50px_rgba(0,0,0,0.05)]">
+
+  <div class="absolute top-8 left-8 sm:top-12 sm:left-12">
+    <a th:href="${session.adminLoggedIn == true} ? @{/user/admin-dashboard} : @{/}"
+       class="transition-link flex items-center gap-2 text-base font-bold text-gray-500 hover:text-black transition-colors">
+      <i class="ph-bold ph-arrow-left text-2xl"></i> Back
+    </a>
+  </div>
+
+  <div class="w-full max-w-[650px] mt-16 lg:mt-0">
+    <div class="mb-12">
+      <div class="flex mb-4">
+        <div class="bg-gray-100 p-4 rounded-2xl">
+          <i class="ph-fill ph-user-plus text-4xl text-[#0D6EFD]"></i>
+        </div>
+      </div>
+      <h2 class="text-[2.5rem] font-extrabold mb-3 tracking-tight leading-tight">Create an Account</h2>
+      <p class="text-gray-500 font-medium text-lg">Join DriveAway to start booking instantly.</p>
+    </div>
+
+    <div th:if="${param.error != null and param.error[0] == 'username_taken'}"
+         class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-600 font-bold flex items-center gap-3 mb-10 shadow-sm">
+      <i class="ph-bold ph-warning-circle text-2xl"></i>
+      Username is already taken. Please try another.
+    </div>
+    <div th:if="${param.error != null and param.error[0] == 'missing_fields'}"
+         class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-600 font-bold flex items-center gap-3 mb-10 shadow-sm">
+      <i class="ph-bold ph-warning-circle text-2xl"></i>
+      Please fill in all required fields before submitting.
+    </div>
+    <div th:if="${error}"
+         class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-600 font-bold flex items-center gap-3 mb-10 shadow-sm">
+      <i class="ph-bold ph-warning-circle text-2xl"></i>
+      <span th:text="${error}">Error</span>
+    </div>
+
+    <form method="post" th:action="@{/auth/register}" class="space-y-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Full Name <span class="text-red-500">*</span></label>
+          <input type="text" name="name" required placeholder="John Doe"
+                 class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Username <span class="text-red-500">*</span></label>
+          <input type="text" name="username" required placeholder="johndoe123"
+                 class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Email Address <span class="text-red-500">*</span></label>
+          <input type="email" name="email" required placeholder="john@example.com" autocomplete="email"
+                 class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Phone Number <span class="text-red-500">*</span></label>
+          <input type="tel" name="phone" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required placeholder="0712345678"
+                 class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Password <span class="text-red-500">*</span></label>
+        <div class="relative" id="passwordWrapper">
+          <input type="password" name="password" id="passwordInput" required autocomplete="new-password" placeholder="••••••••"
+                 class="w-full border-b-2 border-gray-300 py-3 pr-12 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
+          <i id="togglePasswordBtn" class="ph-bold ph-eye absolute right-2 top-3 text-gray-400 cursor-pointer hover:text-black text-2xl transition-all hover:scale-110" role="button" tabindex="0" aria-label="Show password"></i>
+        </div>
+      </div>
+
+      <div class="mt-10 pt-8 border-t border-gray-100">
+        <p class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-6">Verification (Optional)</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">NIC Number</label>
+            <input type="text" name="nic" placeholder="e.g. 199912345678"
+                   class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Driver's License</label>
+            <input type="text" name="license" placeholder="e.g. B1234567"
+                   class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full bg-[#0D6EFD] text-white font-bold py-5 rounded-2xl hover:bg-blue-700 transition-transform transform hover:-translate-y-1 shadow-lg hover:shadow-[#0D6EFD]/30 mt-10 text-xl tracking-wide flex justify-center items-center gap-3">
+        Register Account <i class="ph-bold ph-arrow-right"></i>
+      </button>
+    </form>
+
+    <div th:if="${session.adminLoggedIn != true}" class="mt-12 pt-8 border-t border-gray-100 text-center flex justify-between items-center flex-wrap gap-4">
+      <p class="text-sm font-medium text-gray-500">
+        Already have an account?
+        <a th:href="@{/auth/login}" class="transition-link text-black font-bold hover:underline">Sign In</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<th:block th:replace="~{fragments/auth-mascot :: artPanel(true)}"/>
+
+<script defer th:src="@{/js/auth-portal.js}"></script>
+</body>
+</html>

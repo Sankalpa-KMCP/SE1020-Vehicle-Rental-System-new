@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Review detail - DriveAway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <th:block th:replace="~{fragments/admin-directory-head :: fontAndUtilities}"></th:block>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at 20% 20%, #fef3c7 0%, #f8fafc 40%, #fff7ed 100%); }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 p-8">
+<div class="max-w-2xl mx-auto">
+    <a th:href="@{/reviews}" class="inline-flex items-center gap-2 text-amber-800 font-semibold hover:text-amber-950 mb-8">
+        <i class="ph-bold ph-arrow-left"></i> Back to customer reviews
+    </a>
+
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-lg p-8 space-y-6" th:if="${review instanceof T(com.sliit.vehiclerentalsystem01.review.entity.CustomerReview)}">
+        <div class="flex items-start justify-between gap-4">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Review ID</p>
+                <p class="font-mono font-extrabold text-lg" th:text="${review.id}">id</p>
+            </div>
+            <span class="bg-slate-100 text-slate-800 font-bold px-3 py-1 rounded-lg text-xs" th:text="${review.status}">status</span>
+        </div>
+
+        <dl class="grid gap-4 text-sm">
+            <div>
+                <dt class="text-xs font-bold text-slate-500 uppercase">Customer</dt>
+                <dd class="font-semibold text-gray-900" th:text="${review.reviewerName}">—</dd>
+            </div>
+            <div th:if="${review.bookingId != null and !#strings.isEmpty(review.bookingId)}">
+                <dt class="text-xs font-bold text-slate-500 uppercase">Booking</dt>
+                <dd class="font-mono font-semibold" th:text="${review.bookingId}">—</dd>
+            </div>
+            <div th:if="${review.vehicleId != null and !#strings.isEmpty(review.vehicleId)}">
+                <dt class="text-xs font-bold text-slate-500 uppercase">Vehicle</dt>
+                <dd class="font-mono font-semibold" th:text="${review.vehicleId}">—</dd>
+            </div>
+            <div>
+                <dt class="text-xs font-bold text-slate-500 uppercase mb-1">Rating</dt>
+                <dd class="text-amber-600 font-extrabold text-lg flex items-center gap-1">
+                    <i class="ph-fill ph-star"></i>
+                    <span th:text="${review.rating}">5</span>/5
+                </dd>
+            </div>
+            <div>
+                <dt class="text-xs font-bold text-slate-500 uppercase mb-1">Comment</dt>
+                <dd class="text-gray-700 leading-relaxed bg-slate-50 rounded-xl p-4 border border-slate-100" th:text="${review.comments}">—</dd>
+            </div>
+            <div th:if="${review.staffReply != null and !#strings.isEmpty(review.staffReply)}">
+                <dt class="text-xs font-bold text-amber-700 uppercase mb-1">Staff reply</dt>
+                <dd class="text-sm bg-amber-50 border border-amber-100 rounded-xl p-4">
+                    <span class="font-bold text-amber-900" th:text="${review.repliedBy}">staff</span>:
+                    <span th:text="${review.staffReply}">reply</span>
+                    <p th:if="${review.repliedAt != null and !#strings.isEmpty(review.repliedAt)}" class="text-xs text-amber-700/80 mt-2" th:text="${review.repliedAt}">time</p>
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
+</body>
+</html>
