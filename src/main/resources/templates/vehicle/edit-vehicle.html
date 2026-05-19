@@ -11,12 +11,12 @@
 <th:block th:replace="~{fragments/admin-shell :: shellOpen('vehicles', 'Edit Vehicle')}"></th:block>
 <div class="fade-in">
 
-<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
-<header class="max-w-3xl mx-auto px-6 pt-10 pb-6">
-    <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Edit <span class="text-indigo-600">Vehicle</span></h1>
-    <p class="text-gray-500 mt-2 font-medium">Update specifications; changes apply immediately after save.</p>
-</header>
-<form method="post" th:action="@{/vehicles}" class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-6" id="vehicleForm">
+    <th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
+    <header class="max-w-3xl mx-auto px-6 pt-10 pb-6">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Edit <span class="text-indigo-600">Vehicle</span></h1>
+        <p class="text-gray-500 mt-2 font-medium">Update specifications; changes apply immediately after save.</p>
+    </header>
+    <form method="post" th:action="@{/vehicles}" enctype="multipart/form-data" class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-6" id="vehicleForm">
         <input type="hidden" name="action" value="update"/>
         <input type="hidden" name="id" th:value="${vehicle.id}"/>
         <div class="grid md:grid-cols-2 gap-5">
@@ -40,6 +40,16 @@
                 <option value="Motorcycle" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle)}">Motorcycle</option>
             </select>
         </label>
+
+        <div class="pt-2">
+            <label class="block">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vehicle Image (Optional - leave blank to keep current)</span>
+                <input type="file" name="imageFile" accept="image/png, image/jpeg, image/webp"
+                       class="mt-1 w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700
+                              file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 file:cursor-pointer cursor-pointer"/>
+                <p class="text-xs text-gray-500 mt-2 font-medium">Accepted formats: JPG, PNG, WEBP. Max size: 2MB.</p>
+            </label>
+        </div>
         <div id="carFields" class="space-y-3">
             <label class="block">
                 <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Seating capacity</span>
@@ -67,30 +77,30 @@
 <th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
 <script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
 <script>
-function toggleVehicleFields() {
-    var sel = document.getElementById('vehicleType');
-    var car = document.getElementById('carFields');
-    var moto = document.getElementById('motorcycleFields');
-    var cap = document.getElementById('capacityInput');
-    var capH = document.getElementById('capacityMotoHidden');
-    var helmetCb = document.getElementById('helmetCb');
-    var helmetFalse = document.getElementById('helmetFalseHidden');
-    if (!sel || !car || !moto) return;
-    var isMoto = sel.value === 'Motorcycle';
-    car.classList.toggle('hidden', isMoto);
-    moto.classList.toggle('hidden', !isMoto);
-    if (cap) cap.disabled = isMoto;
-    if (capH) capH.disabled = !isMoto;
-    if (helmetCb) helmetCb.disabled = !isMoto;
-    if (helmetFalse) {
-        helmetFalse.disabled = isMoto && helmetCb && helmetCb.checked;
+    function toggleVehicleFields() {
+        var sel = document.getElementById('vehicleType');
+        var car = document.getElementById('carFields');
+        var moto = document.getElementById('motorcycleFields');
+        var cap = document.getElementById('capacityInput');
+        var capH = document.getElementById('capacityMotoHidden');
+        var helmetCb = document.getElementById('helmetCb');
+        var helmetFalse = document.getElementById('helmetFalseHidden');
+        if (!sel || !car || !moto) return;
+        var isMoto = sel.value === 'Motorcycle';
+        car.classList.toggle('hidden', isMoto);
+        moto.classList.toggle('hidden', !isMoto);
+        if (cap) cap.disabled = isMoto;
+        if (capH) capH.disabled = !isMoto;
+        if (helmetCb) helmetCb.disabled = !isMoto;
+        if (helmetFalse) {
+            helmetFalse.disabled = isMoto && helmetCb && helmetCb.checked;
+        }
     }
-}
-document.getElementById('helmetCb')?.addEventListener('change', function () {
-    var helmetFalse = document.getElementById('helmetFalseHidden');
-    if (helmetFalse) helmetFalse.disabled = this.checked;
-});
-toggleVehicleFields();
+    document.getElementById('helmetCb')?.addEventListener('change', function () {
+        var helmetFalse = document.getElementById('helmetFalseHidden');
+        if (helmetFalse) helmetFalse.disabled = this.checked;
+    });
+    toggleVehicleFields();
 </script>
 </body>
 </html>
