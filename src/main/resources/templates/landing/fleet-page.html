@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{landing/fragments/layout :: head}"></head>
+<body>
+<th:block th:replace="~{landing/fragments/layout :: shell}"></th:block>
+<header th:replace="~{landing/fragments/nav :: landingNav}"></header>
+
+<main>
+    <th:block th:if="${fleetPreview != null and !fleetPreview.isEmpty()}">
+        <section class="fleet-hero" aria-label="Featured vehicle" th:with="featured=${fleetPreview.get(0)}">
+            <img class="fleet-hero__img"
+                 th:src="${featured.imageUrl}"
+                 th:alt="|${featured.brand} ${featured.model}|"
+                 data-parallax="0.04"
+                 width="1600"
+                 height="900"/>
+            <div class="fleet-hero__scrim" aria-hidden="true"></div>
+            <div class="fleet-hero__content">
+                <div class="fleet-hero__panel">
+                    <span class="section-label">Featured</span>
+                    <h1 class="fleet-hero__title">
+                        <span th:text="${featured.brand}">Brand</span>
+                        <span th:text="${featured.model}">Model</span>
+                    </h1>
+                    <p class="fleet-hero__meta">
+                        <span th:text="${featured.vehicleType}">Type</span>
+                        · LKR <span th:text="${featured.ratePerDay}">0</span> / day
+                    </p>
+                </div>
+            </div>
+        </section>
+    </th:block>
+
+    <th:block th:if="${fleetPreview == null or fleetPreview.isEmpty()}">
+        <section class="fleet-hero" aria-label="Featured vehicle">
+            <img class="fleet-hero__img"
+                 src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=85&amp;w=1400&amp;auto=format&amp;fit=crop"
+                 alt="Featured vehicle"
+                 data-parallax="0.04"
+                 width="1600"
+                 height="900"/>
+            <div class="fleet-hero__scrim" aria-hidden="true"></div>
+            <div class="fleet-hero__content">
+                <div class="fleet-hero__panel">
+                    <span class="section-label">Our fleet</span>
+                    <h1 class="fleet-hero__title">Vehicles ready when you are</h1>
+                </div>
+            </div>
+        </section>
+    </th:block>
+
+    <section id="fleet" class="section band--light" aria-label="Fleet gallery">
+        <div class="container">
+            <div class="fleet__head">
+                <header class="page-hero page-hero--left" data-reveal style="padding-top:0;padding-bottom:0;">
+                    <span class="section-label">Collection</span>
+                    <h2 class="section-title">The full <em class="accent-word">fleet</em></h2>
+                    <p class="section-desc">Browse verified cars and motorcycles with transparent daily rates.</p>
+                </header>
+                <a th:if="${#strings.isEmpty(userRole)}"
+                   th:href="@{/auth/login}"
+                   class="fleet__link"
+                   data-reveal>View all vehicles →</a>
+                <a th:if="${!#strings.isEmpty(userRole)}"
+                   th:href="@{/customer/fleet}"
+                   class="fleet__link"
+                   data-reveal>View all vehicles →</a>
+            </div>
+
+            <th:block th:replace="~{landing/fragments/fleet-grid :: fleetGrid}"></th:block>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{landing/fragments/footer :: landingFooter}"></footer>
+<th:block th:replace="~{landing/fragments/layout :: scripts}"></th:block>
+</body>
+</html>

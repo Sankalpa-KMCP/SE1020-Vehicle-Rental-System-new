@@ -1,47 +1,146 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>DriveAway | Premium Vehicle Rentals</title>
-    <meta name="description" content="DriveAway — premium vehicle rentals in Sri Lanka. Browse verified cars, book exact dates, and skip the counter."/>
-    <meta name="theme-color" content="#050506"/>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" th:href="@{/landing/css/components.css}"/>
-    <link rel="stylesheet" th:href="@{/landing/css/sections.css}"/>
-    <link rel="stylesheet" th:href="@{/landing/css/loader.css}"/>
-    <link rel="stylesheet" th:href="@{/landing/css/motion.css}"/>
-    <link rel="stylesheet" th:href="@{/landing/css/animations.css}"/>
-    <link rel="stylesheet" th:href="@{/landing/css/responsive.css}"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-</head>
-<body class="index-landing lux-landing">
+<head th:replace="~{landing/fragments/layout :: head}"></head>
+<body>
+<th:block th:replace="~{landing/fragments/layout :: shell}"></th:block>
+<header th:replace="~{landing/fragments/nav :: landingNav}"></header>
 
-<th:block th:replace="~{landing/fragments/overlays/welcome :: welcomeOverlay}"></th:block>
-<th:block th:replace="~{landing/fragments/overlays/loader :: pageLoader}"></th:block>
+<main>
 
-<div class="index-landing-shell">
-    <div th:replace="~{landing/fragments/nav :: indexNav}"></div>
+    <section id="hero" class="hero band--light section" aria-label="Hero">
+        <div class="container hero__grid">
+            <div class="hero__content" data-reveal>
+                <div class="glass hero__badge">
+                    <span class="hero__badge-dot" aria-hidden="true"></span>
+                    Premium Fleet Management
+                </div>
+                <h1 class="hero__title">
+                    Premium Vehicle Rentals.<br/>
+                    <em class="accent-word">Simplified.</em>
+                </h1>
+                <p class="hero__sub">
+                    Smart fleet management meets seamless booking. Discover verified vehicles,
+                    transparent pricing, and a rental experience built for modern drivers.
+                </p>
+                <div class="hero__actions">
+                    <a th:href="@{/fleet}" class="btn btn--primary btn--lg">Explore Vehicles <span class="btn__arrow" aria-hidden="true">→</span></a>
+                    <a th:if="${#strings.isEmpty(userRole)}"
+                       th:href="@{/auth/register}"
+                       class="btn btn--ghost btn--lg">Get Started</a>
+                    <a th:if="${!#strings.isEmpty(userRole)}"
+                       th:href="@{/customer/fleet}"
+                       class="btn btn--ghost btn--lg">Get Started</a>
+                </div>
+            </div>
 
-    <aside class="da-chapter" id="chapter-marker" aria-hidden="true">
-        <span class="da-chapter__num" data-chapter-num>01</span>
-        <span class="da-chapter__rule"></span>
-        <span class="da-chapter__label" data-chapter-label>Act</span>
-    </aside>
+            <div class="hero__cinema-wrap hero__visual" data-reveal data-reveal-delay="2">
+                <figure class="hero__cinema">
+                    <img class="hero__cinema-img"
+                         data-parallax="0.06"
+                         th:src="@{/img/183029172351335752.jpeg}"
+                         src="/img/183029172351335752.jpeg"
+                         alt="Premium sedan in cinematic lighting"
+                         width="700"
+                         height="875"
+                         fetchpriority="high"/>
+                </figure>
+                <div class="hero-mockup">
+                    <div class="mockup-card mockup-card--main glass glass--elevated">
+                        <div class="mockup-header">
+                            <span>Fleet Dashboard</span>
+                            <span class="mockup-status">Live</span>
+                        </div>
+                        <div class="mockup-chart" aria-hidden="true">
+                            <div class="mockup-bar"></div>
+                            <div class="mockup-bar"></div>
+                            <div class="mockup-bar"></div>
+                            <div class="mockup-bar"></div>
+                            <div class="mockup-bar"></div>
+                            <div class="mockup-bar"></div>
+                        </div>
+                        <div class="mockup-row">
+                            <div class="mockup-row-text">
+                                <strong>Toyota Camry — Confirmed</strong>
+                                <small>Pickup · Mon 9:00 AM</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <main class="da-canvas" id="top">
-        <th:block th:replace="~{landing/fragments/main :: landingMain}"></th:block>
-    </main>
-    <div th:replace="~{landing/fragments/footer :: indexFooter}"></div>
-</div>
+    <section class="section explore band--light" aria-label="Explore DriveAway">
+        <div class="container">
+            <header class="section-header" data-reveal>
+                <span class="section-label">Explore</span>
+                <h2 class="section-title">Discover DriveAway</h2>
+            </header>
+            <div class="explore__grid">
+                <a th:href="@{/features}" class="explore__card" data-reveal>
+                    <h3>Features</h3>
+                    <p>Smart booking, payments, fleet tools &amp; more</p>
+                    <span class="explore__arrow" aria-hidden="true">→</span>
+                </a>
+                <a th:href="@{/how-it-works}" class="explore__card" data-reveal data-reveal-delay="1">
+                    <h3>How it works</h3>
+                    <p>Search, book, and drive in three simple steps</p>
+                    <span class="explore__arrow" aria-hidden="true">→</span>
+                </a>
+                <a th:href="@{/fleet}" class="explore__card" data-reveal data-reveal-delay="2">
+                    <h3>Fleet</h3>
+                    <p>Browse cars and motorcycles ready to rent</p>
+                    <span class="explore__arrow" aria-hidden="true">→</span>
+                </a>
+                <a th:href="@{/testimonials}" class="explore__card" data-reveal data-reveal-delay="3">
+                    <h3>Reviews</h3>
+                    <p>See what renters and partners are saying</p>
+                    <span class="explore__arrow" aria-hidden="true">→</span>
+                </a>
+            </div>
+        </div>
+    </section>
 
-<script th:src="@{/landing/js/loader.js}"></script>
-<script th:src="@{/landing/js/scroll.js}"></script>
-<script th:src="@{/landing/js/interactions.js}"></script>
-<script th:src="@{/landing/js/motion.js}"></script>
-<script th:src="@{/landing/js/mascots.js}"></script>
+    <section id="stats" class="stats section band--light" aria-label="Statistics">
+        <div class="container">
+            <div class="stats__strip" data-reveal>
+                <div class="stat">
+                    <p class="stat__value" data-target="2500" data-suffix="+">0</p>
+                    <p class="stat__label">Happy customers</p>
+                </div>
+                <div class="stat">
+                    <p class="stat__value" data-target="180" data-suffix="+">0</p>
+                    <p class="stat__label">Vehicles in fleet</p>
+                </div>
+                <div class="stat">
+                    <p class="stat__value" data-target="12000" data-suffix="+">0</p>
+                    <p class="stat__label">Bookings completed</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cta" class="cta section band--light" aria-label="Call to action">
+        <div class="container">
+            <div class="cta__box" data-reveal>
+                <h2 class="cta__title">Start your journey with DriveAway</h2>
+                <p class="cta__desc">Join thousands of drivers who trust DriveAway for premium rentals and seamless fleet management.</p>
+                <div class="cta__actions">
+                    <a th:if="${#strings.isEmpty(userRole)}"
+                       th:href="@{/auth/register}"
+                       class="btn btn--primary btn--lg">Create free account <span class="btn__arrow" aria-hidden="true">→</span></a>
+                    <a th:if="${!#strings.isEmpty(userRole)}"
+                       th:href="@{/customer/fleet}"
+                       class="btn btn--primary btn--lg">Browse fleet <span class="btn__arrow" aria-hidden="true">→</span></a>
+                    <a th:href="@{/public/contact}" class="btn btn--ghost btn--lg">Contact us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer th:replace="~{landing/fragments/footer :: landingFooter}"></footer>
+<th:block th:replace="~{landing/fragments/layout :: scripts}"></th:block>
 </body>
 </html>

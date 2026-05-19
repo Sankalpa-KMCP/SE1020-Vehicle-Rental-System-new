@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head">
+
+    <meta charset="UTF-8"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <title th:text="${pageTitle} ?: 'DriveAway | Premium Vehicle Rentals'">DriveAway</title>
+
+    <meta name="description" content="DriveAway — premium vehicle rentals and smart fleet management. Book seamlessly, drive confidently."/>
+
+    <meta name="theme-color" content="#F5F5F7"/>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+
+    <link rel="stylesheet" th:href="@{/landing/style.css}"/>
+
+</head>
+
+<body>
+
+<th:block th:fragment="shell">
+
+    <div class="bg-orbs bg-orbs--hero" aria-hidden="true">
+
+        <div class="bg-orb bg-orb--blue"></div>
+
+        <div class="bg-orb bg-orb--violet"></div>
+
+        <div class="bg-orb bg-orb--pink"></div>
+
+    </div>
+
+    <div id="canvas-light" class="canvas-light" aria-hidden="true"></div>
+
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+</th:block>
+
+<th:block th:fragment="scripts">
+
+    <script th:src="@{/landing/script.js}" defer></script>
+
+</th:block>
+
+</body>
+
+</html>
+

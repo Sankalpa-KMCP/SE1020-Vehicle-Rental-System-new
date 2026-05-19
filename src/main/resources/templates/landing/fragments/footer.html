@@ -1,38 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<th:block th:fragment="indexFooter">
-<footer class="da-footer">
-    <div class="da-container da-container--wide">
-        <div class="da-footer__top">
-            <div class="da-footer__brand-block">
-                <p class="da-footer__wordmark">DriveAway.</p>
-                <p class="da-footer__pitch">Redefining vehicle rentals through digital innovation. Premium cars, transparent pricing, and instant bookings in Sri Lanka.</p>
-            </div>
-            <div class="da-footer__cols">
-                <div>
-                    <p class="da-footer__title">Company</p>
-                    <ul class="da-footer__links">
-                        <li><a th:href="@{/public/about}" class="transition-link">About us</a></li>
-                        <li><a href="#fleet">Our fleet</a></li>
-                        <li><a th:href="@{/public/contact}" class="transition-link">Contact support</a></li>
-                        <li><a href="#locations">Hub locations</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <p class="da-footer__title">Legal</p>
-                    <ul class="da-footer__links">
-                        <li><a th:href="@{/public/terms}" class="transition-link">Terms of service</a></li>
-                        <li><a th:href="@{/public/privacy}" class="transition-link">Privacy policy</a></li>
-                        <li><a th:href="@{/auth/login}" class="da-footer__admin transition-link">Admin portal</a></li>
-                    </ul>
-                </div>
-            </div>
+<th:block th:fragment="landingFooter">
+<footer class="footer">
+    <div class="container footer__inner">
+        <div>
+            <p class="footer__brand">DriveAway</p>
+            <p class="footer__tagline">Premium Vehicle Rental &amp; Fleet Management</p>
         </div>
-        <div class="da-footer__bottom">
-            <p>&copy; 2026 DriveAway Vehicle Rentals. Built by IT25100142 &amp; Team.</p>
-            <p>Colombo, Sri Lanka</p>
-        </div>
+        <ul class="footer__links">
+            <li><a th:href="@{/public/about}">About</a></li>
+            <li><a th:href="@{/public/contact}">Contact</a></li>
+            <li><a th:href="@{/public/terms}">Terms</a></li>
+            <li><a th:href="@{/public/privacy}">Privacy</a></li>
+        </ul>
+        <p class="footer__copy">&copy; 2026 DriveAway. All rights reserved.</p>
     </div>
 </footer>
 </th:block>

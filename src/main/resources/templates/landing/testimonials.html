@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{landing/fragments/layout :: head}"></head>
+<body>
+<th:block th:replace="~{landing/fragments/layout :: shell}"></th:block>
+<header th:replace="~{landing/fragments/nav :: landingNav}"></header>
+
+<main>
+    <div class="band--light">
+        <div class="page-hero container" data-reveal>
+            <span class="section-label">Testimonials</span>
+            <h1 class="section-title">Loved by <em class="accent-word">renters everywhere</em></h1>
+            <p class="section-desc">Real stories from customers and fleet partners who trust DriveAway.</p>
+        </div>
+    </div>
+
+    <section id="testimonials" class="section band--light" aria-label="Testimonials">
+        <div class="testimonials__stage" data-reveal>
+            <div class="testimonials__ring" role="region" aria-label="Customer reviews" tabindex="0">
+                <article class="testimonial">
+                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+                    <p class="testimonial__quote">Booking was effortless — I had a sedan confirmed in under two minutes. The dashboard made everything crystal clear.</p>
+                    <div class="testimonial__author">
+                        <div class="testimonial__avatar" aria-hidden="true">SK</div>
+                        <div>
+                            <p class="testimonial__name">Sarah K.</p>
+                            <p class="testimonial__role">Business Traveler</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="testimonial">
+                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+                    <p class="testimonial__quote">As a fleet manager, DriveAway transformed how we track maintenance and availability. Our downtime dropped significantly.</p>
+                    <div class="testimonial__author">
+                        <div class="testimonial__avatar" aria-hidden="true">RP</div>
+                        <div>
+                            <p class="testimonial__name">Rohan P.</p>
+                            <p class="testimonial__role">Fleet Operations Lead</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="testimonial">
+                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+                    <p class="testimonial__quote">Rented a motorcycle for a weekend trip — transparent pricing, smooth pickup, and the bike was in perfect condition.</p>
+                    <div class="testimonial__author">
+                        <div class="testimonial__avatar" aria-hidden="true">AM</div>
+                        <div>
+                            <p class="testimonial__name">Amaya M.</p>
+                            <p class="testimonial__role">Weekend Explorer</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="testimonial">
+                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+                    <p class="testimonial__quote">Secure payments and real-time availability — exactly what I needed. DriveAway feels like a premium product.</p>
+                    <div class="testimonial__author">
+                        <div class="testimonial__avatar" aria-hidden="true">JT</div>
+                        <div>
+                            <p class="testimonial__name">James T.</p>
+                            <p class="testimonial__role">Software Engineer</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="testimonial">
+                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
+                    <p class="testimonial__quote">The customer review system helped me pick the right SUV for a family trip. Five stars across the board.</p>
+                    <div class="testimonial__author">
+                        <div class="testimonial__avatar" aria-hidden="true">NL</div>
+                        <div>
+                            <p class="testimonial__name">Nimali L.</p>
+                            <p class="testimonial__role">Family Renter</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{landing/fragments/footer :: landingFooter}"></footer>
+<th:block th:replace="~{landing/fragments/layout :: scripts}"></th:block>
+</body>
+</html>

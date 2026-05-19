@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{landing/fragments/layout :: head}"></head>
+<body>
+<th:block th:replace="~{landing/fragments/layout :: shell}"></th:block>
+<header th:replace="~{landing/fragments/nav :: landingNav}"></header>
+
+<main>
+    <div class="band--light">
+        <div class="page-hero container" data-reveal>
+            <span class="section-label">Simple process</span>
+            <h1 class="section-title">From search to street in <em class="accent-word">three steps</em></h1>
+            <p class="section-desc">Browse, book, and drive — a seamless rental journey from start to finish.</p>
+        </div>
+    </div>
+
+    <section id="how-it-works" class="section band--light timeline" aria-label="How it works">
+        <div class="container">
+            <div class="timeline__progress" aria-hidden="true"></div>
+            <div class="steps">
+                <div class="step" data-reveal data-reveal-delay="1">
+                    <div class="step__num">1</div>
+                    <h3>Search</h3>
+                    <p>Browse our curated fleet of cars and motorcycles. Filter by type, price, and availability.</p>
+                </div>
+                <div class="step" data-reveal data-reveal-delay="2">
+                    <div class="step__num">2</div>
+                    <h3>Book</h3>
+                    <p>Pick your dates, confirm instantly, and pay securely — all in one seamless flow.</p>
+                </div>
+                <div class="step" data-reveal data-reveal-delay="3">
+                    <div class="step__num">3</div>
+                    <h3>Drive</h3>
+                    <p>Collect your vehicle and hit the road. Premium rentals, zero hassle.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{landing/fragments/footer :: landingFooter}"></footer>
+<th:block th:replace="~{landing/fragments/layout :: scripts}"></th:block>
+</body>
+</html>

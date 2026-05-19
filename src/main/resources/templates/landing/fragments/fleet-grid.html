@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="fleetGrid">
+    <div class="fleet__grid fleet__grid--editorial">
+        <th:block th:if="${fleetPreview != null and !fleetPreview.isEmpty()}">
+            <article th:each="v, stat : ${fleetPreview}"
+                     class="fleet-card"
+                     th:attr="data-fleet-index=${stat.index}"
+                     data-reveal>
+                <div class="fleet-card__img">
+                    <img th:src="${v.imageUrl}"
+                         th:alt="|${v.brand} ${v.model}|"
+                         loading="lazy"
+                         width="800"
+                         height="500"/>
+                </div>
+                <div class="fleet-card__body">
+                    <p class="fleet-card__type" th:text="${v.vehicleType}">Sedan</p>
+                    <h3 class="fleet-card__name">
+                        <span th:text="${v.brand}">Brand</span>
+                        <span th:text="${v.model}">Model</span>
+                    </h3>
+                    <p class="fleet-card__price">
+                        <strong>LKR <span th:text="${v.ratePerDay}">0</span></strong> / day
+                    </p>
+                </div>
+            </article>
+        </th:block>
+
+        <th:block th:if="${fleetPreview == null or fleetPreview.isEmpty()}">
+            <article class="fleet-card" data-reveal>
+                <div class="fleet-card__img">
+                    <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=85&amp;w=800&amp;auto=format&amp;fit=crop"
+                         alt="Toyota Camry" loading="lazy" width="800" height="500"/>
+                </div>
+                <div class="fleet-card__body">
+                    <p class="fleet-card__type">Sedan</p>
+                    <h3 class="fleet-card__name">Toyota Camry</h3>
+                    <p class="fleet-card__price"><strong>LKR 8,500</strong> / day</p>
+                </div>
+            </article>
+            <article class="fleet-card" data-reveal data-reveal-delay="1">
+                <div class="fleet-card__img">
+                    <img src="https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=85&amp;w=800&amp;auto=format&amp;fit=crop"
+                         alt="SUV" loading="lazy" width="800" height="500"/>
+                </div>
+                <div class="fleet-card__body">
+                    <p class="fleet-card__type">SUV</p>
+                    <h3 class="fleet-card__name">Range Rover Sport</h3>
+                    <p class="fleet-card__price"><strong>LKR 18,000</strong> / day</p>
+                </div>
+            </article>
+            <article class="fleet-card" data-reveal data-reveal-delay="2">
+                <div class="fleet-card__img">
+                    <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=85&amp;w=800&amp;auto=format&amp;fit=crop"
+                         alt="Motorcycle" loading="lazy" width="800" height="500"/>
+                </div>
+                <div class="fleet-card__body">
+                    <p class="fleet-card__type">Motorcycle</p>
+                    <h3 class="fleet-card__name">Honda CB500</h3>
+                    <p class="fleet-card__price"><strong>LKR 4,500</strong> / day</p>
+                </div>
+            </article>
+        </th:block>
+    </div>
+</th:block>
+</body>
+</html>
