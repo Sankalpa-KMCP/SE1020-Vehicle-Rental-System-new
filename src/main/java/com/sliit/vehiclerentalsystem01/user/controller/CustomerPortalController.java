@@ -397,7 +397,8 @@ public class CustomerPortalController {
     public String reviewCreate(HttpSession session, RedirectAttributes ra,
                                @RequestParam int rating,
                                @RequestParam String comments,
-                               @RequestParam(required = false) String bookingId) {
+                               @RequestParam(required = false) String bookingId,
+                               @RequestParam(value = "image", required = false) org.springframework.web.multipart.MultipartFile image) {
         if (!customer(session)) {
             return "redirect:/auth/login";
         }
@@ -436,6 +437,7 @@ public class CustomerPortalController {
         } else {
             cr.setVehicleId(reservationService.findById(bid).map(Booking::getVehicleId).orElse(""));
         }
+        cr.setImageUrl(saveReviewImage(image));
         try {
             reviewService.save(cr);
         } catch (ValidationException ex) {
@@ -460,7 +462,8 @@ public class CustomerPortalController {
     @PostMapping("/reviews/{id}")
     public String reviewUpdate(HttpSession session, @PathVariable String id,
                                @RequestParam int rating,
-                               @RequestParam String comments) {
+                               @RequestParam String comments,
+                               @RequestParam(value = "image", required = false) org.springframework.web.multipart.MultipartFile image) {
         if (!customer(session)) {
             return "redirect:/auth/login";
         }
@@ -471,6 +474,10 @@ public class CustomerPortalController {
                 .map(cr -> {
                     cr.setRating(rating);
                     cr.setComments(comments.trim());
+                    String imgUrl = saveReviewImage(image);
+                    if (imgUrl != null && !imgUrl.isEmpty()) {
+                        cr.setImageUrl(imgUrl);
+                    }
                     try {
                         reviewService.save(cr);
                     } catch (ValidationException ex) {
@@ -547,5 +554,25 @@ public class CustomerPortalController {
             return "redirect:/customer/bookings/" + id + "/edit?error=" + ex.getMessage();
         }
         return "redirect:/customer/bookings";
+    }
+
+    private String saveReviewImage(org.springframework.web.multipart.MultipartFile image) {
+        if (image == null || image.isEmpty()) {
+            return "";
+        }
+        try {
+            String uploadDir = "uploads/reviews/";
+            java.io.File dir = new java.io.File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            String filename = UUID.randomUUID().toString() + "_" + org.springframework.util.StringUtils.cleanPath(image.getOriginalFilename());
+            java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + filename);
+            java.nio.file.Files.copy(image.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            return "/uploads/reviews/" + filename;
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }

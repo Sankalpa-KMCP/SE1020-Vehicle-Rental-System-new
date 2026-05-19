@@ -212,6 +212,11 @@
                     <!-- Comment -->
                     <p class="text-sm text-gray-700 leading-relaxed" th:text="${r.comments}">Comment</p>
 
+                    <!-- Attached Image -->
+                    <div th:if="${r.imageUrl != null and !#strings.isEmpty(r.imageUrl)}" class="mt-3">
+                        <img th:src="@{${r.imageUrl}}" alt="Review photo" class="h-32 w-auto rounded-xl border border-slate-200 object-cover shadow-sm"/>
+                    </div>
+
                     <!-- Staff reply -->
                     <div th:if="${r.staffReply != null and !#strings.isEmpty(r.staffReply)}" class="reply-bubble">
                         <div class="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center shrink-0 font-bold text-amber-900 text-xs"
