@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,6 +52,9 @@ public class ReviewController {
         List<CustomerReview> customerReviews = all.stream()
                 .filter(r -> r instanceof CustomerReview)
                 .map(r -> (CustomerReview) r)
+                .sorted(Comparator
+                        .comparing((CustomerReview r) -> Objects.toString(r.getRepliedAt(), ""), Comparator.reverseOrder())
+                        .thenComparing((CustomerReview r) -> Objects.toString(r.getReviewId(), ""), Comparator.reverseOrder()))
                 .toList();
         model.addAttribute("customerReviews", customerReviews);
         model.addAttribute("totalReviews", customerReviews.size());
