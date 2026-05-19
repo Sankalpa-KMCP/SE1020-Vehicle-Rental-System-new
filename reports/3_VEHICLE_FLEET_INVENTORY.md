@@ -73,10 +73,36 @@ public void setDailyRate(double dailyRate) {
 
 ### C. Inheritance
 The vehicle module establishes an elegant, extensible type hierarchy:
-```text
-          Vehicle (Abstract)
-          ├── Car (Concrete - encapsulates seatingCapacity)
-          └── Motorcycle (Concrete - encapsulates helmetIncluded flag)
+
+```mermaid
+classDiagram
+    class Vehicle {
+        <<abstract>>
+        -String id
+        -String brand
+        -String model
+        -double dailyRate
+        +getVehicleType()* String
+        +calculateRentalRate()* double
+        +getSpecificDetail()* String
+        +toCSV()* String
+    }
+    class Car {
+        -int seatingCapacity
+        +getVehicleType() String
+        +calculateRentalRate() double
+        +getSpecificDetail() String
+        +toCSV() String
+    }
+    class Motorcycle {
+        -boolean helmetIncluded
+        +getVehicleType() String
+        +calculateRentalRate() double
+        +getSpecificDetail() String
+        +toCSV() String
+    }
+    Vehicle <|-- Car
+    Vehicle <|-- Motorcycle
 ```
 
 ### D. Polymorphism
@@ -97,6 +123,13 @@ Fleet inventory records are stored in a comma-delimited format inside `data/vehi
   `Car,id,brand,model,dailyRate,seatingCapacity`
 * **Motorcycle Record:**
   `Motorcycle,id,brand,model,dailyRate,helmetIncluded`
+
+### 🛡️ Concurrency Controls & Thread-Safety Model
+To preserve inventory accuracy and avoid database integrity issues when administrators add, modify, or retire vehicles while customers are actively checking out, [VehicleRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/repository/VehicleRepository.java) implements a concurrency wrapper:
+* **Shared Catalog Access:** Customer searches, browse filters, and details views obtain a shared `ReadLock`. This guarantees fast catalog loading speeds under massive client load.
+* **Atomic Fleet Updates:** Registering new vehicles, updating rates, or deleting vehicle records takes an exclusive `WriteLock` to serialize changes, protecting `data/vehicles.txt` from parallel write collisions.
+* **Decoupled Architecture (Single Responsibility Principle):** The service layer ([VehicleServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/service/VehicleServiceImpl.java)) validates business boundaries (e.g., ensuring daily rates are strictly positive, blocking vehicle removal if active rentals are present). It delegates all file serialization and delimiter mappings to the repository layer, adhering strictly to SRP.
+* **Fault-Tolerant Skipping:** If the parser encounters a malformed vehicle entry (e.g., incorrect column count or non-numeric rate parsing errors), it skips the line gracefully, logs the anomaly to SLF4J, and returns the valid fleet catalog.
 
 ---
 

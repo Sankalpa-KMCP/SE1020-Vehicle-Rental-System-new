@@ -82,12 +82,40 @@ public void setEmail(String email) {
 
 ### C. Inheritance
 A clean, modular inheritance tree separates access roles and profile details:
-```text
-          User (Abstract)
-          ├── Customer (Concrete - with Nic, Phone, & License)
-          └── Staff (Abstract - with Role label)
-               ├── AdminStaff (Concrete)
-               └── SupportStaff (Concrete)
+
+```mermaid
+classDiagram
+    class User {
+        <<abstract>>
+        -String id
+        -String name
+        -String email
+        +getUserRole()* String
+    }
+    class Customer {
+        -String nic
+        -String license
+        -String phone
+        +getUserRole() String
+        +toCSV() String
+    }
+    class Staff {
+        <<abstract>>
+        -String phone
+        -String username
+        -String password
+        +getUserRole()* String
+    }
+    class AdminStaff {
+        +getUserRole() String
+    }
+    class SupportStaff {
+        +getUserRole() String
+    }
+    User <|-- Customer
+    User <|-- Staff
+    Staff <|-- AdminStaff
+    Staff <|-- SupportStaff
 ```
 
 ### D. Polymorphism
@@ -114,6 +142,13 @@ User records are stored in a comma-delimited format inside `data/users.txt`. Fie
   `id,name,email,username,password,nic,license,phone`
 * **Staff Record (7 fields):**
   `id,name,email,phone,username,password,role` *(role is ADMIN or SUPPORT)*
+
+### 🛡️ Concurrency Controls & Thread-Safety Model
+Because credentials and profiles are queried dynamically during web logins and sessions, [UserRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/repository/UserRepository.java) coordinates user operations via a `ReentrantReadWriteLock` to eliminate concurrency issues:
+* **Concurrent Authentications:** Standard logins take a shared `ReadLock` which permits high-throughput concurrent auth requests without blocking the application.
+* **Atomic Profile Updates & Registrations:** Saving or deleting a user acquires an exclusive `WriteLock`. This serializes all update/registration operations, preventing dirty reads or partial writes in `data/users.txt` during simultaneous client actions.
+* **Decoupled Architecture (Single Responsibility Principle):** The service tier ([UserServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/service/UserServiceImpl.java)) focuses strictly on business validation (e.g., verifying unique usernames, formatting licenses). It relies entirely on the repository layer to encapsulate atomic file parsing, keeping high-level logic completely decoupled from stream configurations.
+* **Fault-Tolerant Skipping:** If the parser encounters a malformed user record or index misalignment, it intercepts the exception, logs a warning via SLF4J, and continues scanning the file safely, preventing login system failures.
 
 ---
 

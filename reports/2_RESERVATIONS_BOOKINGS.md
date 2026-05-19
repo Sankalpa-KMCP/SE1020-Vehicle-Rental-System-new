@@ -72,9 +72,24 @@ public void setDurationDays(int durationDays) {
 
 ### C. Inheritance
 The booking subsystem features a clean parent-child relationship:
-```text
-          Transaction (Abstract)
-          └── Booking (Concrete Subclass - inherits transaction id, date, customer name)
+
+```mermaid
+classDiagram
+    class Transaction {
+        <<abstract>>
+        -String transactionId
+        -String customerName
+        -LocalDate rentalDate
+        +getTransactionType()* String
+    }
+    class Booking {
+        -String vehicleId
+        -int durationDays
+        -String status
+        -String staffMessage
+        +getTransactionType() String
+    }
+    Transaction <|-- Booking
 ```
 
 ### D. Polymorphism
@@ -88,6 +103,13 @@ Booking data is parsed and serialized in a comma-delimited format inside `data/b
   `transactionId,customerName,rentalDate,vehicleId,durationDays,status,staffMessage`
 * **Sample Entry:**
   `TXN-001,customer,2026-05-20,VEH-101,5,CONFIRMED,Enjoy your ride!`
+
+### 🛡️ Concurrency Controls & Thread-Safety Model
+To avoid double booking (overbooking) under high concurrent checkout traffic (e.g. multiple clients attempting to reserve the exact same vehicle for overlapping dates simultaneously), [ReservationRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/repository/ReservationRepository.java) applies robust concurrency rules:
+* **Concurrent Calendar Queries:** Reading active reservations for catalog searches and availability checks acquires a shared `ReadLock`, permitting swift parallel lookups.
+* **Atomic Double-Booking Prevention:** Placing a booking, modifying dates, or processing cancellations demands an exclusive `WriteLock`. This serializes checkout operations, guaranteeing that no two threads can write overlapping booking dates for a single vehicle.
+* **Decoupled Architecture (Single Responsibility Principle):** The service layer ([ReservationServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/service/ReservationServiceImpl.java)) validates overlapping date arrays, duration metrics, and status parameters. It depends entirely on the repository layer to perform atomic database writes, isolating business validations from flat-file storage procedures.
+* **Fault-Tolerant Scanning:** If a single line in `bookings.txt` is incomplete or malformed, the repository intercepts the parsing error, logs it as a warning using SLF4J, and continues processing the rest of the calendar data without crashing the booking interface.
 
 ---
 

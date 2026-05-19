@@ -6,7 +6,9 @@ An enterprise-grade, lightweight **Vehicle Rental and Fleet Management Platform*
 
 ## 🏗️ Core System Architecture
 
-The application adopts a decoupled, layered MVC architecture. Rather than relying on a heavy SQL database, the project utilizes a lightweight **Flat-File Repository Layer** where records are saved in canonical delimited flat-files inside the `data/` directory.
+The application adopts a decoupled, layered MVC architecture. Rather than relying on a heavy SQL database, the project utilizes an enterprise-grade, lightweight **Flat-File Repository Layer** where records are saved in canonical delimited flat-files inside the `data/` directory.
+
+To ensure complete data consistency and eliminate race conditions under concurrent workloads, the Repository Layer is fortified with a custom-engineered, non-blocking thread-safety model using `java.util.concurrent.locks.ReentrantReadWriteLock`. This mechanism coordinates exclusive Write locks and shared Read locks, guaranteeing transactional atomicity during file operations.
 
 ### High-Level Data Flow
 
@@ -39,10 +41,10 @@ graph TD
 
 ## 🛠️ Technology Stack
 
-* **Core Language:** Java 17
+* **Core Language:** Java 17 (utilizing concurrent lock API utilities for operational safety)
 * **Framework:** Spring Boot 3.x (Spring Web, Starter Thymeleaf, Servlet Session handling)
 * **View Engine:** Thymeleaf 3.x (Styled with premium modern CSS, responsive grids, and luxury dynamic dashboards)
-* **Repository Layer:** Custom Object-to-Flat-File serialization system using Java I/O Streams (`BufferedReader`/`BufferedWriter` and `java.nio.file.Files`) inside Repository components.
+* **Repository Layer:** Custom thread-safe Object-to-Flat-File serialization system leveraging `ReentrantReadWriteLock` concurrency controls, high-speed Java NIO.2 file channels (`java.nio.file.Files`), and UTF-8 buffered readers/writers.
 * **Build System:** Apache Maven 3.9+
 
 ---
@@ -99,6 +101,14 @@ Feedback (Abstract)
 ## 🗄️ File Database & Repository Layer Specification
 
 The custom repository engine parses and serializes domain objects using structured delimiters. The database maintains transactional state through comma-delimited (`,`) and pipe-delimited (`|`) text files.
+
+### 🛡️ Enterprise-Grade Concurrency & Fault-Tolerance Engine
+To scale flat-file databases in multi-user environments, we implemented a sophisticated persistence architecture:
+1. **Thread-Safe Access Control (`ReentrantReadWriteLock`):** Every repository class manages its file interactions via explicit reentrant read/write locks.
+   - **Shared Read Lock:** Multiple concurrent read operations (e.g., browsing vehicles, reading user profiles) can access the flat files simultaneously without blocking each other.
+   - **Exclusive Write Lock:** Write operations (e.g., booking checkouts, payment processing, registration updates) acquire an exclusive write lock. This blocks all other read/write threads, ensuring that file write operations are completely serialized and atomic, avoiding dirty reads or database corruption.
+2. **Atomic Transactional Writes:** Update and delete operations operate on an atomic read-modify-write pattern. Files are rewritten as temporary buffers first before being committed (`StandardOpenOption.TRUNCATE_EXISTING`), ensuring that database corruption never occurs during partial write failures.
+3. **Resilient & Fault-Tolerant Parsing:** Flat-file parsers handle dirty datasets gracefully. Malformed rows (e.g., partially corrupted inputs or incomplete CSV columns) are intercepted locally via try-catch bounds, skipped, and logged as warnings via the SLF4J logging framework instead of triggering application crashes or HTTP 500 server errors.
 
 ### Canonical Data Schemas (`data/` directory)
 

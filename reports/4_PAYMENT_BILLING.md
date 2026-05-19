@@ -68,10 +68,25 @@ public void setAmount(double amount) {
 
 ### C. Inheritance
 The payment module adopts a simple, modular class hierarchy:
-```text
-          Payment (Abstract)
-          ├── CardPayment (Concrete - implements Credit/Debit cards)
-          └── CashPayment (Concrete - implements Cash register)
+
+```mermaid
+classDiagram
+    class Payment {
+        <<abstract>>
+        -String id
+        -String bookingId
+        -double amount
+        -String status
+        +getPaymentMethod()* String
+    }
+    class CardPayment {
+        +getPaymentMethod() String
+    }
+    class CashPayment {
+        +getPaymentMethod() String
+    }
+    Payment <|-- CardPayment
+    Payment <|-- CashPayment
 ```
 
 ### D. Polymorphism
@@ -88,6 +103,13 @@ Payment logs are serialized in a comma-delimited format inside `data/payments.tx
 * **Sample Entries:**
   `CARD,PAY-001,TXN-101,250.0,PAID`
   `CASH,PAY-002,TXN-102,120.0,PENDING`
+
+### 🛡️ Concurrency Controls & Thread-Safety Model
+To safeguard financial transaction logs and ledger audits, [PaymentRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/repository/PaymentRepository.java) applies robust concurrent locking mechanics:
+* **Shared Ledger Access:** Accessing audit screens, transaction charts, or administrator logs acquires a shared `ReadLock`, permitting many team members to view payment ledgers simultaneously.
+* **Atomic Transactions & Invoicing:** Processing checkouts, updating payment statuses (e.g. marking a cash payment as `PAID`), or recording refunds takes an exclusive `WriteLock` to serialize changes, protecting `data/payments.txt` from dirty reads or race conditions during peak hours.
+* **Decoupled Architecture (Single Responsibility Principle):** The service layer ([PaymentServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/service/PaymentServiceImpl.java)) focuses strictly on billing engine calculations (e.g., matching daily rates to active booking durations) and credit card validation filters. It depends completely on the repository layer to perform atomic flat-file writing, separating business validations from I/O processing.
+* **Fault-Tolerant Skipping:** If the parser encounters a malformed row or invalid number formats in the transactional history, it skips the line gracefully, logs the anomaly to SLF4J, and returns the valid payment logs.
 
 ---
 

@@ -64,9 +64,27 @@ public void setRating(int rating) {
 
 ### C. Inheritance
 The review module implements a standard class hierarchy:
-```text
-          Feedback (Abstract)
-          └── CustomerReview (Concrete - encapsulates reviewer, score, reply notes, and status)
+
+```mermaid
+classDiagram
+    class Feedback {
+        <<abstract>>
+        -String id
+        -String comments
+        +getReviewType()* String
+    }
+    class CustomerReview {
+        -String reviewerName
+        -int rating
+        -String status
+        -String bookingId
+        -String vehicleId
+        -String staffReply
+        -String repliedBy
+        -LocalDateTime repliedAt
+        +getReviewType() String
+    }
+    Feedback <|-- CustomerReview
 ```
 
 ### D. Polymorphism
@@ -80,6 +98,13 @@ Reviews are serialized in a comma-delimited format inside `data/reviews.txt`:
   `reviewId,reviewerName,rating,comments,status,bookingId,vehicleId,staffReply,repliedBy,repliedAt`
 * **Sample Entry:**
   `REV-001,customer,5,Smooth ride,APPROVED,TXN-101,VEH-101,Thank you!,support,2026-05-21T10:00:00`
+
+### 🛡️ Concurrency Controls & Thread-Safety Model
+To prevent data corruption or dirty reads when customers are writing feedback and support staff are replying or approving reviews in real-time, [ReviewRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/repository/ReviewRepository.java) leverages `ReentrantReadWriteLock` concurrency tools:
+* **Shared Feedback Queries:** Fetching approved reviews to display on the vehicle browser grid takes a shared `ReadLock`, permitting non-blocking reads for catalog grids.
+* **Atomic Moderation & Replies:** Submitting reviews, approving/rejecting a pending review, or posting staff replies takes an exclusive `WriteLock`, guaranteeing complete thread serialization during flat-file writes.
+* **Decoupled Architecture (Single Responsibility Principle):** The service layer ([ReviewServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/service/ReviewServiceImpl.java)) validates business boundaries (e.g., verifying that ratings are strictly between 1 and 5, auditing staff replies). It relies entirely on the repository layer to perform atomic flat-file writing, separating business validations from I/O processing.
+* **Fault-Tolerant Scanning:** If a single line in `reviews.txt` is incomplete or malformed (e.g. invalid date formats), the repository skips it gracefully, logs a warning via SLF4J, and returns the remaining valid feedback stream.
 
 ---
 

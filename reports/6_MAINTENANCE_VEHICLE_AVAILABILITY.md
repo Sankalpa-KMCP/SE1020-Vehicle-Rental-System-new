@@ -59,6 +59,20 @@ private static void validateStatus(String status) {
 ### C. Inheritance & Modularity
 The maintenance component is designed as an independent, decoupled module. It interfaces with the `vehicle` and `reservation` domains while keeping its database concerns cleanly isolated.
 
+```mermaid
+classDiagram
+    class MaintenanceRecord {
+        -String id
+        -String vehicleId
+        -String status
+        -LocalDate lastServiceDate
+        -LocalDate nextServiceDate
+        -String notes
+        +getId() String
+        +getStatus() String
+    }
+```
+
 ---
 
 ## 4. Flat-File Persistence Schema (`data/maintenance.txt`)
@@ -67,6 +81,13 @@ Maintenance logs are saved in a pipe-delimited (`|`) format inside `data/mainten
   `id|vehicleId|status|lastServiceDate|nextServiceDate|notes`
 * **Sample Entry:**
   `MNT-001|VEH-101|MAINTENANCE|2026-04-18|2026-05-18|Routine inspection in progress`
+
+### 🛡️ Concurrency Controls & Thread-Safety Model
+Because fleet availability states and service windows are vital triggers for scheduling booking checkouts and catalog browsing, [MaintenanceRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/repository/MaintenanceRepository.java) applies robust concurrent locking mechanics:
+* **Shared Status Lookups:** Front desk staff checking availability logs or loading vehicle status boards acquire a shared `ReadLock`, permitting fast concurrent read access to status parameters.
+* **Atomic Service Scheduling:** Modifying maintenance records, scheduling inspections, or logging repair notes acquires an exclusive `WriteLock`, coordinating file writes in `data/maintenance.txt` atomically.
+* **Decoupled Architecture (Single Responsibility Principle):** The service layer ([MaintenanceServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/service/MaintenanceServiceImpl.java)) validates business rules (e.g., verifying that next-service dates reside in the future, transitioning status flags safely). It delegates all direct file serialization and pipe parsing logic to the repository layer, upholding SRP.
+* **Fault-Tolerant Scanning:** If a single maintenance log contains corrupted characters or misaligned pipe delimiters, the parser intercepts the exception, logs it as a warning via SLF4J, and returns the valid maintenance logs safely.
 
 ---
 
