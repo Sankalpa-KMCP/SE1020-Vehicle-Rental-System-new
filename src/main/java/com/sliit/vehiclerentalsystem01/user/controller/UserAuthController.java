@@ -1,4 +1,4 @@
-﻿package com.sliit.vehiclerentalsystem01.user.controller;
+package com.sliit.vehiclerentalsystem01.user.controller;
 
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;

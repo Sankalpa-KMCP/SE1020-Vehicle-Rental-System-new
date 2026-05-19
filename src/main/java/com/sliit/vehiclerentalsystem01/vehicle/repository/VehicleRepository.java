@@ -106,7 +106,7 @@ public class VehicleRepository {
                 }
                 try {
                     result.add(parseLine(trimmed));
-                } catch (IllegalArgumentException | NumberFormatException ex) {
+                } catch (IllegalArgumentException ex) {
                     log.warn("Skipping malformed vehicle line: {}", trimmed, ex);
                 }
             }
