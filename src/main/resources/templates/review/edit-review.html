@@ -116,6 +116,7 @@
             <form th:action="@{/customer/reviews/{id}(id=${customerReview.id})}"
                   th:object="${customerReview}"
                   method="post"
+                  enctype="multipart/form-data"
                   class="space-y-6">
 
                 <!-- Hidden select for Thymeleaf binding -->
@@ -152,6 +153,16 @@
                               th:field="*{comments}"
                               class="form-input resize-none"
                               placeholder="Describe your experience…"></textarea>
+                </div>
+
+                <!-- Image Upload -->
+                <div>
+                    <label for="image" class="field-label">Update Photo (optional)</label>
+                    <div th:if="${customerReview.imageUrl != null and !#strings.isEmpty(customerReview.imageUrl)}" class="mb-3">
+                        <img th:src="@{${customerReview.imageUrl}}" alt="Current review photo" class="h-24 w-auto rounded-lg border border-slate-200 object-cover"/>
+                        <p class="text-xs text-slate-500 mt-1">Uploading a new photo will replace this one.</p>
+                    </div>
+                    <input type="file" id="image" name="image" accept="image/*" class="form-input p-2 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"/>
                 </div>
 
                 <!-- Actions -->
