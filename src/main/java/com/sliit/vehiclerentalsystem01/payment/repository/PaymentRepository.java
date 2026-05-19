@@ -4,6 +4,7 @@ import com.sliit.vehiclerentalsystem01.core.exceptions.StorageException;
 import com.sliit.vehiclerentalsystem01.payment.entity.CardPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.CashPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
+import com.sliit.vehiclerentalsystem01.payment.entity.PaymentStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
@@ -15,13 +16,18 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 @Repository
 public class PaymentRepository {
 
     private static final String FILE_NAME = "payments.txt";
-    private static final String FILE_HEADER = "# CARD|CASH,id,bookingId,amount,status";
-    private static final String DEFAULT_LEGACY_PAYMENT_STATUS = "PAID";
+
+    private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final Lock readLock = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
 
     @Value("${app.data.directory:data}")
     private String dataDirectory;
@@ -31,164 +37,91 @@ public class PaymentRepository {
     }
 
     public List<Payment> findAll() {
-        Path paymentFilePath = path();
-
-        if (!Files.exists(paymentFilePath)) {
-            return new ArrayList<>();
-        }
-
+        readLock.lock();
         try {
-            List<String> fileLines = Files.readAllLines(paymentFilePath, StandardCharsets.UTF_8);
-            List<Payment> payments = new ArrayList<>();
-
-            for (String fileLine : fileLines) {
-                if (isDataLine(fileLine)) {
-                    Payment payment = parseLine(fileLine.trim());
-                    payments.add(payment);
-                }
+            Path p = path();
+            if (!Files.exists(p)) {
+                return new ArrayList<>();
             }
-
-            return payments;
+            return Files.readAllLines(p, StandardCharsets.UTF_8).stream()
+                    .map(String::trim)
+                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+                    .map(this::parseLine)
+                    .collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
             throw new StorageException("Payment repository file operation failed", e);
+        } finally {
+            readLock.unlock();
         }
     }
 
     public void saveAll(List<Payment> payments) {
-        Path paymentFilePath = path();
-
+        writeLock.lock();
         try {
-            Files.createDirectories(paymentFilePath.getParent());
-
-            List<String> fileLines = convertPaymentsToFileLines(payments);
-
-            Files.write(paymentFilePath, fileLines, StandardCharsets.UTF_8,
+            Path p = path();
+            Files.createDirectories(p.getParent());
+            List<String> lines = new ArrayList<>();
+            lines.add("# CARD|CASH,id,bookingId,amount,status");
+            lines.addAll(payments.stream().map(this::toLine).toList());
+            Files.write(p, lines, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             throw new StorageException("Payment repository file operation failed", e);
+        } finally {
+            writeLock.unlock();
         }
-    }
-
-    private boolean isDataLine(String line) {
-        if (line == null) {
-            return false;
-        }
-
-        String trimmedLine = line.trim();
-
-        if (trimmedLine.isEmpty()) {
-            return false;
-        }
-
-        return !trimmedLine.startsWith("#");
-    }
-
-    private List<String> convertPaymentsToFileLines(List<Payment> payments) {
-        List<String> fileLines = new ArrayList<>();
-        fileLines.add(FILE_HEADER);
-
-        for (Payment payment : payments) {
-            fileLines.add(toLine(payment));
-        }
-
-        return fileLines;
     }
 
     private Payment parseLine(String line) {
-        if (isLegacyPipeRecord(line)) {
+        if (line.contains("|")) {
             return parseLegacyPipePayment(line);
         }
-
-        String[] columns = line.split(",", -1);
-        validateModernPaymentColumnCount(columns, line);
-
-        String paymentType = columns[0].trim();
-        String paymentId = columns[1].trim();
-        String bookingId = columns[2].trim();
-        double amount = Double.parseDouble(columns[3].trim());
-        String status = columns[4].trim();
-
-        return createPayment(paymentType, paymentId, bookingId, amount, status);
-    }
-
-    private boolean isLegacyPipeRecord(String line) {
-        return line.contains("|");
-    }
-
-    private void validateModernPaymentColumnCount(String[] columns, String originalLine) {
-        if (columns.length < 5) {
-            throw new IllegalArgumentException("Invalid payment record: " + originalLine);
+        String[] a = line.split(",", -1);
+        if (a.length < 5) {
+            throw new IllegalArgumentException("Invalid payment record: " + line);
         }
-    }
-
-    private Payment createPayment(String paymentType,
-                                  String paymentId,
-                                  String bookingId,
-                                  double amount,
-                                  String status) {
-        if (paymentType.equalsIgnoreCase("CARD")) {
-            return new CardPayment(paymentId, bookingId, amount, status);
+        String kind = a[0].trim();
+        String status = PaymentStatus.fromString(a[4].trim()).name();
+        if (kind.equalsIgnoreCase("CARD")) {
+            return new CardPayment(a[1].trim(), a[2].trim(), Double.parseDouble(a[3].trim()), status);
         }
-
-        if (paymentType.equalsIgnoreCase("CASH")) {
-            return new CashPayment(paymentId, bookingId, amount, status);
+        if (kind.equalsIgnoreCase("CASH")) {
+            return new CashPayment(a[1].trim(), a[2].trim(), Double.parseDouble(a[3].trim()), status);
         }
-
-        throw new IllegalArgumentException("Unknown payment type: " + paymentType);
+        throw new IllegalArgumentException("Unknown payment type: " + kind);
     }
 
     private Payment parseLegacyPipePayment(String line) {
-        String[] columns = line.split("\\|", -1);
-        validateLegacyPaymentColumnCount(columns, line);
-
-        String paymentType = columns[0];
-        String paymentId = columns[1];
-        String bookingId = columns[2];
-        double amount = Double.parseDouble(columns[3]);
-
-        return createLegacyPayment(paymentType, paymentId, bookingId, amount);
+        String[] a = line.split("\\|", -1);
+        String status = PaymentStatus.PAID.name();
+        return switch (a[0]) {
+            case "CARD" -> new CardPayment(a[1], a[2], Double.parseDouble(a[3]), status);
+            case "CASH" -> new CashPayment(a[1], a[2], Double.parseDouble(a[3]), status);
+            default -> throw new IllegalArgumentException("Unknown payment type: " + a[0]);
+        };
     }
 
-    private void validateLegacyPaymentColumnCount(String[] columns, String originalLine) {
-        if (columns.length < 4) {
-            throw new IllegalArgumentException("Invalid payment record: " + originalLine);
+    private String toLine(Payment p) {
+        if (p instanceof CardPayment c) {
+            return String.join(",",
+                    "CARD",
+                    esc(c.getId()),
+                    esc(c.getBookingId()),
+                    Double.toString(c.getAmount()),
+                    esc(c.getStatus()));
         }
+        if (p instanceof CashPayment x) {
+            return String.join(",",
+                    "CASH",
+                    esc(x.getId()),
+                    esc(x.getBookingId()),
+                    Double.toString(x.getAmount()),
+                    esc(x.getStatus()));
+        }
+        throw new IllegalArgumentException("Unsupported payment: " + p.getClass());
     }
 
-    private Payment createLegacyPayment(String paymentType, String paymentId, String bookingId, double amount) {
-        if ("CARD".equals(paymentType)) {
-            return new CardPayment(paymentId, bookingId, amount, DEFAULT_LEGACY_PAYMENT_STATUS);
-        }
-
-        if ("CASH".equals(paymentType)) {
-            return new CashPayment(paymentId, bookingId, amount, DEFAULT_LEGACY_PAYMENT_STATUS);
-        }
-
-        throw new IllegalArgumentException("Unknown payment type: " + paymentType);
-    }
-
-    private String toLine(Payment payment) {
-        if (payment instanceof CardPayment cardPayment) {
-            return toModernCsvLine("CARD", cardPayment);
-        }
-
-        if (payment instanceof CashPayment cashPayment) {
-            return toModernCsvLine("CASH", cashPayment);
-        }
-
-        throw new IllegalArgumentException("Unsupported payment: " + payment.getClass());
-    }
-
-    private String toModernCsvLine(String paymentType, Payment payment) {
-        return String.join(",",
-                paymentType,
-                esc(payment.getId()),
-                esc(payment.getBookingId()),
-                Double.toString(payment.getAmount()),
-                esc(payment.getStatus()));
-    }
-
-    private static String esc(String value) {
-        return value == null ? "" : value.replace(",", ";");
+    private static String esc(String s) {
+        return s == null ? "" : s.replace(",", ";");
     }
 }
