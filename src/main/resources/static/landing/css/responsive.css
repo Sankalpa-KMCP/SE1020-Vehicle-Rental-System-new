@@ -1,0 +1,127 @@
+﻿/* ----------------------------------------------------------------------------
+ * responsive.css — breakpoints for asymmetric scene layouts
+ *  small  : default (≤ 639)
+ *  s    640 : tightens bands & rails, opens cinema track
+ *  m    900 : two-column heads / split layouts begin, hero pairs up
+ *  l   1024 : hero asymmetric grid, full editorial cadence
+ *  xl  1280 : optional widening
+ * -------------------------------------------------------------------------- */
+
+/* === ≥ 640 ============================================================== */
+@media (min-width: 640px) {
+  .da-band__numbers   { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .da-rail            { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .da-mosaic          { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2rem; }
+  .da-mosaic .da-member { padding: 2.5rem 0; }
+  .da-footer__top     { grid-template-columns: 1.4fr 1fr; gap: 4rem; }
+
+  /* Cinema track — slightly narrower cards so two peek in */
+  .da-cinema__track { grid-auto-columns: 55vw; }
+  .da-card--lead    { grid-row: span 1; }
+
+  /* Hero signals — three across */
+  .da-hero__signals { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* === ≥ 900 ============================================================== */
+@media (min-width: 900px) {
+  .da-scene__head {
+    grid-template-columns: 1.1fr 1fr;
+    gap: 3rem;
+    align-items: end;
+  }
+
+  .da-cinema__head { grid-template-columns: 1.2fr 1fr; gap: 3rem; }
+
+  .da-prose__row {
+    grid-template-columns: 5rem auto 1fr;
+    gap: 1.5rem 2.5rem;
+  }
+
+  .da-split {
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 4rem;
+  }
+
+  .da-mosaic {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 2.5rem;
+  }
+  .da-mosaic .da-member--offset { transform: translateY(2rem); }
+  .da-mosaic .da-member--lead .da-member__avatar { background: var(--da-ink-900); }
+
+  .da-inset { grid-template-columns: 1.1fr 0.9fr; padding: clamp(3rem, 6vw, 5rem); }
+  .da-faq-layout { grid-template-columns: 0.9fr 1.4fr; gap: 4rem; }
+
+  /* Hero lockup pairs title with action panel */
+  .da-hero__lockup {
+    grid-template-columns: 1.1fr 1fr;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: end;
+  }
+  .da-hero__title-wrap { padding-bottom: 1rem; }
+  .da-hero__signals { grid-column: span 2; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  /* Cinema cards narrower again */
+  .da-cinema__track { grid-auto-columns: 38vw; }
+  .da-act__row--pair { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+}
+
+/* === ≥ 1024 ============================================================= */
+@media (min-width: 1024px) {
+  .da-nav__links,
+  .da-nav__actions { display: flex; }
+  .da-nav__menu-btn { display: none; }
+
+  /* Hero adds the editorial signals stack as a 3rd column */
+  .da-hero__lockup {
+    grid-template-columns: 1.3fr 0.9fr 0.85fr;
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: stretch;
+  }
+  .da-hero__signals {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+    align-self: end;
+    padding-top: 0;
+    border-left: 1px solid var(--da-border);
+    padding-left: clamp(1rem, 2vw, 2rem);
+  }
+  .da-hero__title-wrap { align-self: end; }
+
+  .da-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--da-border);
+  }
+  .da-step {
+    border-bottom: 0;
+    border-right: 1px solid var(--da-border);
+    padding: 2.5rem 2rem 2.5rem 0;
+  }
+  .da-step:last-child { border-right: 0; }
+  .da-step__num { grid-row: auto; align-self: auto; min-width: 0; }
+
+  /* Cinema — cards narrower; lead card wider */
+  .da-cinema__track { grid-auto-columns: 30vw; }
+  .da-card--lead { grid-auto-columns: unset; min-width: 42vw; }
+  .da-card--lead .da-card__title { font-size: var(--da-text-2xl); }
+}
+
+/* === ≥ 1280 ============================================================= */
+@media (min-width: 1280px) {
+  .da-rail              { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .da-rail__item        { min-height: 12rem; }
+  .da-cinema__track     { grid-auto-columns: 26vw; }
+}
+
+/* === Reduced motion — global =========================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .da-reveal { opacity: 1 !important; transform: none !important; }
+  .da-cinema__track .da-card { transform: none !important; opacity: 1 !important; }
+}

@@ -1,392 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head th:replace="~{landing/fragments/layout :: head}"></head>
-<body>
-<th:block th:replace="~{landing/fragments/layout :: shell}"></th:block>
-<header th:replace="~{landing/fragments/nav :: landingNav}"></header>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DriveAway | Premium Vehicle Rentals</title>
+    <meta name="description" content="DriveAway — premium vehicle rentals in Sri Lanka. Browse verified cars, book exact dates, and skip the counter."/>
+    <meta name="theme-color" content="#050506"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" th:href="@{/landing/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/sections.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/loader.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/motion.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/animations.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/responsive.css}"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body class="index-landing lux-landing">
 
-<main>
+<th:block th:replace="~{landing/fragments/overlays/welcome :: welcomeOverlay}"></th:block>
+<th:block th:replace="~{landing/fragments/overlays/loader :: pageLoader}"></th:block>
 
-    <section id="hero" class="hero band--light section" aria-label="Hero">
-        <div class="container hero__grid">
-            <div class="hero__content" data-reveal>
-                <div class="glass hero__badge">
-                    <span class="hero__badge-dot" aria-hidden="true"></span>
-                    Colombo &amp; island-wide rentals
-                </div>
-                <h1 class="hero__title">
-                    Rent the right car<br/>
-                    for <em class="accent-word">every trip.</em>
-                </h1>
-                <p class="hero__sub">
-                    Choose from well-maintained cars and motorcycles with clear LKR daily rates.
-                    Book online in minutes and pick up when it suits you.
-                </p>
-                <div class="hero__actions">
-                    <a th:href="@{/fleet}" class="btn btn--primary btn--lg">View vehicles <span class="btn__arrow" aria-hidden="true">→</span></a>
-                    <a th:if="${#strings.isEmpty(userRole)}"
-                       th:href="@{/auth/register}"
-                       class="btn btn--ghost btn--lg">Create account</a>
-                    <a th:if="${!#strings.isEmpty(userRole)}"
-                       th:href="@{/customer/fleet}"
-                       class="btn btn--ghost btn--lg">Book a vehicle</a>
-                </div>
-                <ul class="hero__trust" aria-label="Trust highlights">
-                    <li>Clear daily rates</li>
-                    <li>Online booking</li>
-                    <li>Secure payments</li>
-                </ul>
-            </div>
+<div class="index-landing-shell">
+    <div th:replace="~{landing/fragments/nav :: indexNav}"></div>
 
-            <div class="hero__showcase hero__visual" data-reveal data-reveal-delay="2">
-                <figure class="hero__cinema hero__cinema--photo">
-                    <img class="hero__cinema-img"
-                         data-parallax="0.06"
-                         th:src="@{/img/183029172351335752.jpeg}"
-                         src="/img/183029172351335752.jpeg"
-                         alt="Silver sedan available for hire"
-                         width="700"
-                         height="875"
-                         fetchpriority="high"/>
-                </figure>
-                <div class="hero__model-stage" aria-label="Interactive 3D vehicle preview">
-                    <model-viewer class="hero__model-viewer"
-                                  th:src="@{/models/sedan.glb}"
-                                  th:attr="poster=@{/img/183029172351335752.jpeg}"
-                                  camera-controls
-                                  touch-action="pan-y"
-                                  auto-rotate
-                                  rotation-per-second="14deg"
-                                  shadow-intensity="0.55"
-                                  exposure="1.08"
-                                  alt="3D vehicle preview">
-                    </model-viewer>
-                    <div class="hero__car-3d" aria-hidden="true">
-                        <div class="hero__car-3d__tilt">
-                            <div class="hero__car-3d__spin">
-                                <div class="hero__car-body">
-                                    <div class="hero__car-cabin"></div>
-                                    <div class="hero__car-hood"></div>
-                                    <div class="hero__car-trunk"></div>
-                                    <div class="hero__car-wheel hero__car-wheel--fl"></div>
-                                    <div class="hero__car-wheel hero__car-wheel--fr"></div>
-                                    <div class="hero__car-wheel hero__car-wheel--rl"></div>
-                                    <div class="hero__car-wheel hero__car-wheel--rr"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <aside class="da-chapter" id="chapter-marker" aria-hidden="true">
+        <span class="da-chapter__num" data-chapter-num>01</span>
+        <span class="da-chapter__rule"></span>
+        <span class="da-chapter__label" data-chapter-label>Act</span>
+    </aside>
 
-    <section class="section explore band--light" aria-label="Explore DriveAway">
-        <div class="container">
-            <header class="section-header" data-reveal>
-                <span class="section-label">Plan your trip</span>
-                <h2 class="section-title">Everything you need before you drive</h2>
-            </header>
-            <div class="explore__grid">
-                <a th:href="@{/features}" class="explore__card" data-reveal>
-                    <h3>Why DriveAway</h3>
-                    <p>Clear rates, easy booking, and cars you can trust</p>
-                    <span class="explore__arrow" aria-hidden="true">→</span>
-                </a>
-                <a th:href="@{/how-it-works}" class="explore__card" data-reveal data-reveal-delay="1">
-                    <h3>How to rent</h3>
-                    <p>Find a vehicle, confirm your dates, and collect the keys</p>
-                    <span class="explore__arrow" aria-hidden="true">→</span>
-                </a>
-                <a th:href="@{/fleet}" class="explore__card" data-reveal data-reveal-delay="2">
-                    <h3>Our vehicles</h3>
-                    <p>Sedans, SUVs, and bikes for city trips and long drives</p>
-                    <span class="explore__arrow" aria-hidden="true">→</span>
-                </a>
-                <a th:href="@{/testimonials}" class="explore__card" data-reveal data-reveal-delay="3">
-                    <h3>Reviews</h3>
-                    <p>Hear from drivers who have rented with us</p>
-                    <span class="explore__arrow" aria-hidden="true">→</span>
-                </a>
-            </div>
-        </div>
-    </section>
+    <main class="da-canvas" id="top">
+        <th:block th:replace="~{landing/fragments/main :: landingMain}"></th:block>
+    </main>
+    <div th:replace="~{landing/fragments/footer :: indexFooter}"></div>
+</div>
 
-    <section class="section home-spotlight band--light" aria-label="Why DriveAway">
-        <div class="container home-spotlight__grid">
-            <div class="home-spotlight__bento" data-reveal>
-                <article class="home-spec-tile">
-                    <span class="home-spec-tile__icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-                    </span>
-                    <h3>See what’s available</h3>
-                    <p>Check which cars and bikes are free for your dates before you book.</p>
-                </article>
-                <article class="home-spec-tile">
-                    <span class="home-spec-tile__icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </span>
-                    <h3>Pay with confidence</h3>
-                    <p>Secure online payment and an instant booking confirmation by email.</p>
-                </article>
-                <article class="home-spec-tile">
-                    <span class="home-spec-tile__icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="1"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                    </span>
-                    <h3>Roadside support</h3>
-                    <p>Help when you need it — before pickup, on the road, and at return.</p>
-                </article>
-            </div>
-            <div class="home-spotlight__copy" data-reveal data-reveal-delay="1">
-                <span class="section-label">Why DriveAway</span>
-                <h2 class="section-title">Renting should feel <em class="accent-word">straightforward</em></h2>
-                <p class="section-desc home-spotlight__desc">No hidden fees, no guesswork. See the daily rate upfront, book in a few clicks, and pick up a vehicle that’s been checked and ready for the road.</p>
-                <ul class="home-spotlight__list">
-                    <li>Upfront LKR pricing on every vehicle</li>
-                    <li>Cars and motorcycles for city, coast, and hill country</li>
-                    <li>Friendly support if your plans change</li>
-                </ul>
-                <a th:href="@{/features}" class="btn btn--primary">Why DriveAway <span class="btn__arrow" aria-hidden="true">→</span></a>
-            </div>
-        </div>
-    </section>
-
-    <section class="section home-steps band--light" aria-label="How it works">
-        <div class="container">
-            <header class="section-header" data-reveal>
-                <span class="section-label">How it works</span>
-                <h2 class="section-title">Three steps to the <em class="accent-word">open road</em></h2>
-                <p class="section-desc">From browsing to pickup, the whole process takes just a few minutes.</p>
-            </header>
-            <div class="steps">
-                <div class="step" data-reveal data-reveal-delay="1">
-                    <div class="step__num">1</div>
-                    <h3>Choose a vehicle</h3>
-                    <p>Filter by type and price, then check availability for your travel dates.</p>
-                </div>
-                <div class="step" data-reveal data-reveal-delay="2">
-                    <div class="step__num">2</div>
-                    <h3>Book &amp; pay</h3>
-                    <p>Select your dates, pay securely online, and receive confirmation straight away.</p>
-                </div>
-                <div class="step" data-reveal data-reveal-delay="3">
-                    <div class="step__num">3</div>
-                    <h3>Collect &amp; drive</h3>
-                    <p>Bring your licence and ID to pickup, then hit the road. Return when your hire ends.</p>
-                </div>
-            </div>
-            <p class="home-steps__cta" data-reveal>
-                <a th:href="@{/how-it-works}" class="fleet__link">See the full process →</a>
-            </p>
-        </div>
-    </section>
-
-    <section id="home-fleet" class="section home-fleet band--light" aria-label="Featured fleet">
-        <div class="container">
-            <header class="section-header section-header--row" data-reveal>
-                <div>
-                    <span class="section-label">Popular this week</span>
-                    <h2 class="section-title">Vehicles ready to <em class="accent-word">book</em></h2>
-                    <p class="section-desc home-fleet__desc">A selection of cars and motorcycles available now — daily rate shown before you confirm.</p>
-                </div>
-                <a th:href="@{/fleet}" class="btn btn--ghost home-fleet__link">View all vehicles →</a>
-            </header>
-            <div class="fleet__grid fleet__grid--home">
-                <th:block th:if="${fleetPreview != null and !fleetPreview.isEmpty()}">
-                    <article th:each="v : ${fleetPreview}" class="fleet-card fleet-card--text" data-reveal>
-                        <div class="fleet-card__body">
-                            <p class="fleet-card__type" th:text="${v.vehicleType}">Sedan</p>
-                            <h3 class="fleet-card__name">
-                                <span th:text="${v.brand}">Brand</span>
-                                <span th:text="${v.model}">Model</span>
-                            </h3>
-                            <p class="fleet-card__price">
-                                <strong>LKR <span th:text="${v.ratePerDay}">0</span></strong> / day
-                            </p>
-                        </div>
-                    </article>
-                </th:block>
-                <th:block th:if="${fleetPreview == null or fleetPreview.isEmpty()}">
-                    <article class="fleet-card fleet-card--text" data-reveal>
-                        <div class="fleet-card__body">
-                            <p class="fleet-card__type">Sedan</p>
-                            <h3 class="fleet-card__name">Premium Sedan</h3>
-                            <p class="fleet-card__price"><strong>LKR 8,500</strong> / day</p>
-                        </div>
-                    </article>
-                </th:block>
-            </div>
-        </div>
-    </section>
-
-    <section class="section home-features band--light" aria-label="Why renters choose us">
-        <div class="container">
-            <header class="section-header" data-reveal>
-                <span class="section-label">Why renters choose us</span>
-                <h2 class="section-title">A rental experience you can <em class="accent-word">rely on</em></h2>
-            </header>
-            <div class="home-features__grid">
-                <article class="feature-card" data-reveal>
-                    <span class="feature-card__num">Booking</span>
-                    <h3>Easy online booking</h3>
-                    <p>Reserve in minutes with clear dates, rates, and instant email confirmation.</p>
-                </article>
-                <article class="feature-card" data-reveal data-reveal-delay="1">
-                    <span class="feature-card__num">Fleet</span>
-                    <h3>Well-maintained vehicles</h3>
-                    <p>Every car and bike is serviced and inspected before it goes out on hire.</p>
-                </article>
-                <article class="feature-card" data-reveal data-reveal-delay="2">
-                    <span class="feature-card__num">Pricing</span>
-                    <h3>Fair, upfront rates</h3>
-                    <p>See the full daily price in LKR before you pay — no surprises at pickup.</p>
-                </article>
-                <article class="feature-card feature-card--accent" data-reveal data-reveal-delay="3">
-                    <span class="feature-card__num">Support</span>
-                    <h3>Help when you need it</h3>
-                    <p>Questions about your booking, pickup, or return? Our team is here to help.</p>
-                    <a th:href="@{/public/contact}" class="home-features__link">Contact us →</a>
-                </article>
-            </div>
-        </div>
-    </section>
-
-    <section class="section home-reviews band--light" aria-label="Customer reviews">
-        <div class="container">
-            <header class="section-header section-header--row" data-reveal>
-                <div>
-                    <span class="section-label">Reviews</span>
-                    <h2 class="section-title">Loved by <em class="accent-word">renters</em> everywhere</h2>
-                </div>
-                <a th:href="@{/testimonials}" class="btn btn--ghost">Read all reviews →</a>
-            </header>
-        </div>
-        <div class="testimonials__stage" data-reveal>
-            <div class="testimonials__ring" role="region" aria-label="Customer review highlights" tabindex="0">
-                <article class="testimonial">
-                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
-                    <p class="testimonial__quote">Booked a sedan for a Colombo meeting — pickup was smooth and the car was spotless. Exactly the daily rate shown online.</p>
-                    <div class="testimonial__author">
-                        <div class="testimonial__avatar" aria-hidden="true">SK</div>
-                        <div>
-                            <p class="testimonial__name">Sarah K.</p>
-                            <p class="testimonial__role">Colombo</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="testimonial">
-                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
-                    <p class="testimonial__quote">Rented an SUV for a family trip to Kandy. Spacious, clean, and the staff walked us through fuel and return without any fuss.</p>
-                    <div class="testimonial__author">
-                        <div class="testimonial__avatar" aria-hidden="true">RP</div>
-                        <div>
-                            <p class="testimonial__name">Rohan P.</p>
-                            <p class="testimonial__role">Kandy weekend trip</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="testimonial">
-                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
-                    <p class="testimonial__quote">Hired a bike for a coastal weekend — fair price, quick handover, and the motorcycle was in great shape.</p>
-                    <div class="testimonial__author">
-                        <div class="testimonial__avatar" aria-hidden="true">AM</div>
-                        <div>
-                            <p class="testimonial__name">Amaya M.</p>
-                            <p class="testimonial__role">Galle coast</p>
-                        </div>
-                    </div>
-                </article>
-                <article class="testimonial">
-                    <div class="testimonial__stars" aria-label="5 stars">★★★★★</div>
-                    <p class="testimonial__quote">Needed a car straight after landing — booked online, paid securely, and collected at the branch without a long wait.</p>
-                    <div class="testimonial__author">
-                        <div class="testimonial__avatar" aria-hidden="true">JT</div>
-                        <div>
-                            <p class="testimonial__name">James T.</p>
-                            <p class="testimonial__role">Airport pickup</p>
-                        </div>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </section>
-
-    <section id="stats" class="stats section band--light" aria-label="Statistics">
-        <div class="container">
-            <div class="stats__strip" data-reveal>
-                <div class="stat">
-                    <p class="stat__value" data-target="50" data-suffix="+">0</p>
-                    <p class="stat__label">Vehicles to rent</p>
-                </div>
-                <div class="stat">
-                    <p class="stat__value" data-target="500" data-suffix="+">0</p>
-                    <p class="stat__label">Rentals completed</p>
-                </div>
-                <div class="stat">
-                    <p class="stat__value" data-target="24" data-suffix="/7">0</p>
-                    <p class="stat__label">Booking support</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section home-faq band--light" aria-label="Frequently asked questions">
-        <div class="container">
-            <header class="section-header" data-reveal>
-                <span class="section-label">FAQ</span>
-                <h2 class="section-title">Questions, <em class="accent-word">answered</em></h2>
-            </header>
-            <div class="home-faq__list" data-reveal>
-                <details class="home-faq__item">
-                    <summary>What do I need to rent a vehicle?</summary>
-                    <p>A valid driving licence, a national ID or passport, and a payment method for your booking. Requirements are confirmed at checkout.</p>
-                </details>
-                <details class="home-faq__item">
-                    <summary>How do I book a car or motorcycle?</summary>
-                    <p>Browse our vehicles, choose your dates, and complete payment online. You will receive a confirmation email with pickup details.</p>
-                </details>
-                <details class="home-faq__item">
-                    <summary>What payment methods do you accept?</summary>
-                    <p>We accept secure card payments online. Cash payment options may be available for certain bookings — details are shown before you confirm.</p>
-                </details>
-                <details class="home-faq__item">
-                    <summary>Can I cancel or change my booking?</summary>
-                    <p>Yes, subject to our rental terms. Contact us as soon as your plans change and we will do our best to help reschedule or cancel.</p>
-                </details>
-                <details class="home-faq__item">
-                    <summary>Is insurance included in the daily rate?</summary>
-                    <p>Coverage depends on the vehicle and hire type. Full details are displayed before you confirm your reservation.</p>
-                </details>
-                <details class="home-faq__item">
-                    <summary>Where can I pick up a vehicle?</summary>
-                    <p>Pickup locations are shown when you book. Bring your licence and booking confirmation to collect your vehicle at the agreed time.</p>
-                </details>
-            </div>
-        </div>
-    </section>
-
-    <section id="cta" class="cta section band--light" aria-label="Call to action">
-        <div class="container">
-            <div class="cta__box" data-reveal>
-                <h2 class="cta__title">Ready for your next drive?</h2>
-                <p class="cta__desc">Create an account, choose your dates, and book a car or motorcycle anywhere in Sri Lanka.</p>
-                <div class="cta__actions">
-                    <a th:if="${#strings.isEmpty(userRole)}"
-                       th:href="@{/auth/register}"
-                       class="btn btn--primary btn--lg">Book a vehicle <span class="btn__arrow" aria-hidden="true">→</span></a>
-                    <a th:if="${!#strings.isEmpty(userRole)}"
-                       th:href="@{/customer/fleet}"
-                       class="btn btn--primary btn--lg">View available vehicles <span class="btn__arrow" aria-hidden="true">→</span></a>
-                    <a th:href="@{/public/contact}" class="btn btn--ghost btn--lg">Contact us</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-</main>
-
-<footer th:replace="~{landing/fragments/footer :: landingFooter}"></footer>
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
-<th:block th:replace="~{landing/fragments/layout :: scripts}"></th:block>
+<script th:src="@{/landing/js/loader.js}"></script>
+<script th:src="@{/landing/js/scroll.js}"></script>
+<script th:src="@{/landing/js/interactions.js}"></script>
+<script th:src="@{/landing/js/motion.js}"></script>
+<script th:src="@{/landing/js/mascots.js}"></script>
 </body>
 </html>
