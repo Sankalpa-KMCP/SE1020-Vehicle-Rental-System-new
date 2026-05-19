@@ -9,8 +9,8 @@ public class Car extends Vehicle {
         this.seatingCapacity = 0;
     }
 
-    public Car(String id, String brand, String model, double dailyRate, int seatingCapacity) {
-        super(id, brand, model, dailyRate);
+    public Car(String id, String brand, String model, double dailyRate, int seatingCapacity, String imagePath) {
+        super(id, brand, model, dailyRate, imagePath);
         this.seatingCapacity = seatingCapacity;
     }
 
@@ -40,6 +40,6 @@ public class Car extends Vehicle {
 
     @Override
     public String toCSV() {
-        return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity;
+        return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity + "," + getImagePath();
     }
 }
