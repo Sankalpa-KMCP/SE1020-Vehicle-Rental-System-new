@@ -2,6 +2,7 @@ package com.sliit.vehiclerentalsystem01.maintenance.controller;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.maintenance.entity.MaintenanceEntry;
 import com.sliit.vehiclerentalsystem01.maintenance.entity.MaintenanceRecord;
 import com.sliit.vehiclerentalsystem01.maintenance.service.MaintenanceService;
 import jakarta.servlet.http.HttpSession;
@@ -43,9 +44,7 @@ public class MaintenanceController {
     }
 
     private static boolean admin(HttpSession session) {
-        boolean sessionExists = session != null;
-
-        if (!sessionExists) {
+        if (session == null) {
             return false;
         }
 
@@ -56,32 +55,28 @@ public class MaintenanceController {
 
     @GetMapping
     public String list(HttpSession session, Model model) {
-        boolean userIsAdmin = admin(session);
-
-        if (!userIsAdmin) {
+        if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
 
-        model.addAttribute("maintenanceList", maintenanceService.findAll());
+        model.addAttribute("fleetList", maintenanceService.findAllVehicles());
+        model.addAttribute("maintenanceEntries", maintenanceService.findAllEntries());
+        model.addAttribute("fleetCount", maintenanceService.findAllVehicles().size());
         model.addAttribute("maintenanceCount", maintenanceService.countInMaintenance());
 
         return "user/maintenance-dashboard";
     }
 
-    @PostMapping("/add")
-    public String addRecord(HttpSession session,
-                            @RequestParam String vehicleId,
-                            @RequestParam String vehicleType,
-                            @RequestParam String vehicleModel,
-                            @RequestParam String mileage,
-                            @RequestParam(required = false) String lastServiceDate,
-                            @RequestParam(required = false) String nextServiceDate,
-                            @RequestParam String maintenanceReason,
-                            @RequestParam(required = false) String notes,
-                            @RequestParam(required = false) MultipartFile vehiclePhoto) {
-        boolean userIsAdmin = admin(session);
-
-        if (!userIsAdmin) {
+    @PostMapping("/vehicles/add")
+    public String addVehicle(HttpSession session,
+                             @RequestParam String vehicleId,
+                             @RequestParam String vehicleType,
+                             @RequestParam String vehicleModel,
+                             @RequestParam String mileage,
+                             @RequestParam(required = false) String lastServiceDate,
+                             @RequestParam(required = false) String nextServiceDate,
+                             @RequestParam(required = false) MultipartFile vehiclePhoto) {
+        if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
 
@@ -91,32 +86,20 @@ public class MaintenanceController {
         record.setVehicleType(vehicleType);
         record.setVehicleModel(vehicleModel);
         record.setMileage(mileage);
-        record.setMaintenanceReason(maintenanceReason);
 
-        boolean lastServiceDateWasProvided = lastServiceDate != null && !lastServiceDate.isBlank();
-
-        if (lastServiceDateWasProvided) {
-            LocalDate parsedLastServiceDate = LocalDate.parse(lastServiceDate);
-
-            record.setLastServiceDate(parsedLastServiceDate);
+        if (lastServiceDate != null && !lastServiceDate.isBlank()) {
+            record.setLastServiceDate(LocalDate.parse(lastServiceDate));
         }
 
-        boolean nextServiceDateWasProvided = nextServiceDate != null && !nextServiceDate.isBlank();
-
-        if (nextServiceDateWasProvided) {
-            LocalDate parsedNextServiceDate = LocalDate.parse(nextServiceDate);
-
-            record.setNextServiceDate(parsedNextServiceDate);
+        if (nextServiceDate != null && !nextServiceDate.isBlank()) {
+            record.setNextServiceDate(LocalDate.parse(nextServiceDate));
         }
-
-        record.setNotes(notes);
 
         try {
             String photoFileName = savePhoto(vehicleId, vehiclePhoto);
 
             record.setPhotoFileName(photoFileName);
-
-            maintenanceService.addRecord(record);
+            maintenanceService.addVehicle(record);
         } catch (ValidationException ex) {
             return "redirect:/maintenance?error=" + ex.getMessage();
         } catch (IOException ex) {
@@ -126,16 +109,55 @@ public class MaintenanceController {
         return "redirect:/maintenance";
     }
 
-    @PostMapping("/delete")
-    public String deleteRecord(HttpSession session,
-                               @RequestParam String vehicleId) {
-        boolean userIsAdmin = admin(session);
-
-        if (!userIsAdmin) {
+    @PostMapping("/entries/add")
+    public String addMaintenanceEntry(HttpSession session,
+                                      @RequestParam String vehicleId,
+                                      @RequestParam String reason,
+                                      @RequestParam(required = false) String maintenanceDate,
+                                      @RequestParam(required = false) String notes) {
+        if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
 
-        maintenanceService.deleteRecord(vehicleId);
+        MaintenanceEntry entry = new MaintenanceEntry();
+
+        entry.setVehicleId(vehicleId);
+        entry.setReason(reason);
+        entry.setNotes(notes);
+
+        if (maintenanceDate != null && !maintenanceDate.isBlank()) {
+            entry.setMaintenanceDate(LocalDate.parse(maintenanceDate));
+        }
+
+        try {
+            maintenanceService.addMaintenanceEntry(entry);
+        } catch (ValidationException ex) {
+            return "redirect:/maintenance?error=" + ex.getMessage();
+        }
+
+        return "redirect:/maintenance";
+    }
+
+    @PostMapping("/vehicles/delete")
+    public String deleteVehicle(HttpSession session,
+                                @RequestParam String vehicleId) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+
+        maintenanceService.deleteVehicle(vehicleId);
+
+        return "redirect:/maintenance";
+    }
+
+    @PostMapping("/entries/delete")
+    public String deleteMaintenanceEntry(HttpSession session,
+                                         @RequestParam String entryId) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+
+        maintenanceService.deleteMaintenanceEntry(entryId);
 
         return "redirect:/maintenance";
     }
@@ -161,8 +183,7 @@ public class MaintenanceController {
             throw new ValidationException("invalid_photo");
         }
 
-        String originalFilename = photo.getOriginalFilename();
-        String extension = extensionOf(originalFilename);
+        String extension = extensionOf(photo.getOriginalFilename());
 
         if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) {
             throw new ValidationException("invalid_photo");

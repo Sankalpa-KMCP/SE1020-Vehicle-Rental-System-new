@@ -16,7 +16,7 @@
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
                 <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Booking directory</h1>
-                <p class="text-cyan-100 text-lg font-medium max-w-2xl leading-relaxed">View, edit, or remove booking records. Use the request queue to approve pending reservations.</p>
+                <p class="text-cyan-100 text-lg font-medium max-w-2xl leading-relaxed">View, edit, or remove booking records.</p>
             </div>
             <div class="flex flex-wrap gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
                 <div class="text-center px-4 border-r border-white/20">
@@ -59,7 +59,7 @@
                 <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">PENDING</span>
             </div>
             <p class="text-3xl font-extrabold text-gray-900" th:text="${pendingBookings}">0</p>
-            <p class="text-sm text-gray-500 mt-2">Awaiting queue action</p>
+            <p class="text-sm text-gray-500 mt-2">Awaiting approval</p>
         </div>
         <div class="bg-white rounded-2xl p-6 border border-slate-100 soft-card card-hover">
             <div class="flex items-center justify-between mb-4">
@@ -70,19 +70,6 @@
             </div>
             <p class="text-3xl font-extrabold text-gray-900" th:text="${updateRequests}">0</p>
             <p class="text-sm text-gray-500 mt-2">Change requests</p>
-        </div>
-        <div class="bg-gradient-to-br from-cyan-600 to-teal-600 rounded-2xl p-6 text-white shadow-lg card-hover">
-            <div class="flex items-center justify-between mb-4">
-                <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
-                    <i class="ph-fill ph-list-numbers text-2xl text-white"></i>
-                </div>
-                <span class="text-xs font-bold text-white bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">ACTION</span>
-            </div>
-            <p class="text-lg font-extrabold mb-2">Request queue</p>
-            <p class="text-sm text-cyan-100 mb-4">Approve or reject reservations</p>
-            <a th:href="@{/admin/reservations}" class="inline-flex items-center gap-2 bg-white text-teal-700 font-bold px-4 py-2 rounded-xl hover:bg-cyan-50 transition-colors text-sm">
-                <i class="ph-bold ph-arrow-right"></i> Open queue
-            </a>
         </div>
     </div>
 

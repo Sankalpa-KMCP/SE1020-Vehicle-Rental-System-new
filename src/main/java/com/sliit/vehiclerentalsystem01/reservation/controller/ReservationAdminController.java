@@ -4,17 +4,21 @@ import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
+import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Admin reservation panel (legacy {@code booking-dashboard.jsp}).
@@ -24,9 +28,12 @@ import java.util.Locale;
 public class ReservationAdminController {
 
     private final ReservationService reservationService;
+    private final VehicleService vehicleService;
 
-    public ReservationAdminController(ReservationService reservationService) {
+    public ReservationAdminController(ReservationService reservationService,
+                                       VehicleService vehicleService) {
         this.reservationService = reservationService;
+        this.vehicleService = vehicleService;
     }
 
     private static boolean admin(HttpSession session) {
@@ -58,6 +65,14 @@ public class ReservationAdminController {
         model.addAttribute("cancellationRequests", cancellationRequests);
         model.addAttribute("pendingBookings", pendingBookings);
         model.addAttribute("updateRequests", updateRequests);
+        
+        // Populate vehicle names map
+        Map<String, String> vehicleNames = new HashMap<>();
+        vehicleService.findAll().forEach(v -> 
+            vehicleNames.put(v.getId(), v.getBrand() + " " + v.getModel())
+        );
+        model.addAttribute("vehicleNames", vehicleNames);
+        
         return "booking/booking-dashboard";
     }
 
@@ -89,6 +104,14 @@ public class ReservationAdminController {
         model.addAttribute("searchQuery", q == null ? "" : q.trim());
         model.addAttribute("useAdminReservationBase", true);
         addViewAllStats(model, all);
+        
+        // Populate vehicle names map
+        Map<String, String> vehicleNames = new HashMap<>();
+        vehicleService.findAll().forEach(v -> 
+            vehicleNames.put(v.getId(), v.getBrand() + " " + v.getModel())
+        );
+        model.addAttribute("vehicleNames", vehicleNames);
+        
         return "booking/view-all-bookings";
     }
 
@@ -168,6 +191,52 @@ public class ReservationAdminController {
             return "redirect:/admin/reservations?error=" + ex.getMessage();
         }
         return "redirect:/admin/reservations";
+    }
+
+    @PostMapping("/{id}/action")
+    public String handleAction(
+            @PathVariable String id,
+            HttpSession session,
+            @RequestParam String action,
+            RedirectAttributes ra) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        Booking b = reservationService.findById(id).orElse(null);
+        if (b == null) {
+            return "redirect:/bookings";
+        }
+        try {
+            switch (action) {
+                case "confirm" -> reservationService.updateStatus(id, "CONFIRMED");
+                case "reject" -> {
+                    b.setStatus("REJECTED");
+                    b.setStaffMessage("Rejected by staff");
+                    reservationService.save(b);
+                }
+                case "approve_update" -> {
+                    b.setStatus("CONFIRMED");
+                    b.setStaffMessage("");
+                    reservationService.save(b);
+                }
+                case "reject_update" -> {
+                    b.setStatus("PENDING");
+                    b.setStaffMessage("");
+                    reservationService.save(b);
+                }
+                case "approve_cancel" -> reservationService.updateStatus(id, "CANCELLED");
+                case "reject_cancel" -> {
+                    b.setStatus("CONFIRMED");
+                    b.setStaffMessage("");
+                    reservationService.save(b);
+                }
+                default -> {
+                }
+            }
+        } catch (ValidationException ex) {
+            return "redirect:/bookings?error=" + ex.getMessage();
+        }
+        return "redirect:/bookings";
     }
 
     private static String norm(String s) {

@@ -141,6 +141,9 @@ public class BookingController {
         return reservationService.findById(id)
                 .map(b -> {
                     model.addAttribute("booking", b);
+                    vehicleService.findById(b.getVehicleId()).ifPresent(v -> {
+                        model.addAttribute("vehicleName", v.getBrand() + " " + v.getModel());
+                    });
                     return "booking/booking-detail";
                 })
                 .orElse("redirect:/bookings");
