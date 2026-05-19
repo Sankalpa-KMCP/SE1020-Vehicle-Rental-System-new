@@ -69,13 +69,13 @@ public class MaintenanceController {
 
     @PostMapping("/vehicles/add")
     public String addVehicle(HttpSession session,
-                             @RequestParam String vehicleId,
-                             @RequestParam String vehicleType,
-                             @RequestParam String vehicleModel,
-                             @RequestParam String mileage,
-                             @RequestParam(required = false) String lastServiceDate,
-                             @RequestParam(required = false) String nextServiceDate,
-                             @RequestParam(required = false) MultipartFile vehiclePhoto) {
+                             @RequestParam("vehicleId") String vehicleId,
+                             @RequestParam("vehicleType") String vehicleType,
+                             @RequestParam("vehicleModel") String vehicleModel,
+                             @RequestParam("mileage") String mileage,
+                             @RequestParam(value = "lastServiceDate", required = false) String lastServiceDate,
+                             @RequestParam(value = "nextServiceDate", required = false) String nextServiceDate,
+                             @RequestParam(value = "vehiclePhoto", required = false) MultipartFile vehiclePhoto) {
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
@@ -111,10 +111,10 @@ public class MaintenanceController {
 
     @PostMapping("/entries/add")
     public String addMaintenanceEntry(HttpSession session,
-                                      @RequestParam String vehicleId,
-                                      @RequestParam String reason,
-                                      @RequestParam(required = false) String maintenanceDate,
-                                      @RequestParam(required = false) String notes) {
+                                      @RequestParam("vehicleId") String vehicleId,
+                                      @RequestParam("reason") String reason,
+                                      @RequestParam(value = "maintenanceDate", required = false) String maintenanceDate,
+                                      @RequestParam(value = "notes", required = false) String notes) {
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
@@ -140,7 +140,7 @@ public class MaintenanceController {
 
     @PostMapping("/vehicles/delete")
     public String deleteVehicle(HttpSession session,
-                                @RequestParam String vehicleId) {
+                                @RequestParam("vehicleId") String vehicleId) {
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
@@ -152,7 +152,7 @@ public class MaintenanceController {
 
     @PostMapping("/entries/delete")
     public String deleteMaintenanceEntry(HttpSession session,
-                                         @RequestParam String entryId) {
+                                         @RequestParam("entryId") String entryId) {
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
@@ -163,7 +163,7 @@ public class MaintenanceController {
     }
 
     @GetMapping("/photos/{fileName}")
-    public ResponseEntity<Resource> vehiclePhoto(@PathVariable String fileName) throws IOException {
+    public ResponseEntity<Resource> vehiclePhoto(@PathVariable("fileName") String fileName) throws IOException {
         Path photoPath = photoDirectory().resolve(fileName).normalize();
 
         if (!photoPath.startsWith(photoDirectory()) || !Files.isRegularFile(photoPath)) {
