@@ -5,6 +5,128 @@
     <style>
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* DriveAway Premium Obsidian Dark theme variables */
+        .admin-shell {
+          --admin-navy: #050506;
+          --admin-navy-mid: #0c0c0e;
+          --admin-charcoal: #f4f2ee;
+          --admin-charcoal-muted: #a8a6a0;
+          --admin-bg: #050506;
+          --admin-canvas: #050506;
+          --admin-surface: #0c0c0e;
+          --admin-glass: rgba(12, 12, 14, 0.85);
+          --admin-text: #f4f2ee;
+          --admin-text-muted: #a8a6a0;
+          --admin-border: rgba(255, 255, 255, 0.08);
+
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            #050506;
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        .admin-main {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            var(--admin-navy);
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        /* Premium Obsidian Black Sidebar override */
+        .admin-sidebar {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 100% 35% at 50% 0%, rgba(201, 169, 98, 0.12), transparent 60%),
+            linear-gradient(180deg, #050506 0%, #0c0c0e 45%, #020203 100%) !important;
+          background-size: 20px 20px, auto, auto !important;
+          border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+
+        /* Sleek buttons and elements in topbar override */
+        .admin-topbar__menu-btn,
+        .admin-topbar__collapse-btn,
+        .admin-topbar__logout,
+        .admin-topbar__user {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          color: #f4f2ee !important;
+        }
+
+        .admin-topbar__menu-btn:hover,
+        .admin-topbar__collapse-btn:hover,
+        .admin-topbar__logout:hover,
+        .admin-topbar__user:hover {
+          background: rgba(255, 255, 255, 0.1) !important;
+          border-color: rgba(201, 169, 98, 0.35) !important;
+          color: #e8d5a3 !important;
+        }
+
+        /* Override Tailwind background classes */
+        .bg-white {
+          background-color: #0c0c0e !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .border-slate-200 {
+          border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Text colors */
+        .text-gray-800,
+        .text-gray-900,
+        .text-gray-700 {
+          color: #f4f2ee !important;
+        }
+
+        .text-gray-500 {
+          color: #a8a6a0 !important;
+        }
+
+        .text-indigo-600 {
+          color: #c9a962 !important;
+        }
+
+        /* Form elements style overrides */
+        #vehicleForm input[type="text"],
+        #vehicleForm input[type="number"],
+        #vehicleForm select {
+          background-color: rgba(255, 255, 255, 0.03) !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          color: #f4f2ee !important;
+        }
+
+        #vehicleForm input[type="text"]:focus,
+        #vehicleForm input[type="number"]:focus,
+        #vehicleForm select:focus {
+          border-color: #c9a962 !important;
+          box-shadow: 0 0 0 2px rgba(201, 169, 98, 0.25) !important;
+        }
+
+        /* Primary and Secondary button overrides */
+        #vehicleForm button[type="submit"] {
+          background: linear-gradient(135deg, #c9a962 0%, #e8d5a3 100%) !important;
+          color: #050506 !important;
+          font-weight: 800 !important;
+          box-shadow: 0 10px 20px rgba(201, 169, 98, 0.18) !important;
+        }
+
+        #vehicleForm button[type="submit"]:hover {
+          box-shadow: 0 12px 24px rgba(201, 169, 98, 0.28) !important;
+        }
+
+        #vehicleForm a.bg-gray-100 {
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          color: #f4f2ee !important;
+        }
+
+        #vehicleForm a.bg-gray-100:hover {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+        }
     </style>
 </head>
 <body class="admin-shell text-gray-800">
