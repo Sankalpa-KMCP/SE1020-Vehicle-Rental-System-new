@@ -11,33 +11,59 @@
 <th:block th:replace="~{fragments/admin-shell :: shellOpen('bookings', 'Booking Form')}"></th:block>
 <div class="fade-in">
 
-<div th:replace="~{layout :: navbar}"></div>
-<h1 th:text="${mode == 'edit'} ? 'Edit booking' : 'New booking'">Booking</h1>
-    <form class="form-grid" method="post"
+<div class="bg-white border border-slate-200 rounded-3xl p-10 soft-card shadow-lg max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-extrabold text-gray-900" th:text="${mode == 'edit'} ? 'Edit Booking' : 'New Booking'">Booking</h1>
+        <a th:href="@{/bookings}" class="text-gray-500 hover:text-gray-700 font-medium">← Back to Bookings</a>
+    </div>
+
+    <form class="space-y-6" method="post"
           th:action="${entityId != null} ? @{/bookings/{id}(id=${entityId})} : @{/bookings}"
           th:object="${booking}">
-        <h2>Reservation</h2>
-        <label>Customer (username)
-            <select th:field="*{customerName}" required>
-                <option value="">—</option>
-                <option th:each="c : ${customers}" th:value="${c.username}"
-                        th:text="${c.username + ' (' + c.id + ')'}">c</option>
-            </select>
-        </label>
-        <label>Vehicle
-            <select th:field="*{vehicleId}" required>
-                <option value="">—</option>
-                <option th:each="v : ${vehicles}" th:value="${v.id}"
-                        th:text="${v.brand + ' ' + v.model + ' (' + v.id + ')'}">v</option>
-            </select>
-        </label>
-        <label>Rental start <input type="date" th:field="*{rentalDate}" required/></label>
-        <label>Duration (days) <input type="number" min="1" th:field="*{durationDays}" required/></label>
-        <label>Status <input type="text" th:field="*{status}" placeholder="CONFIRMED"/></label>
-        <label>Staff message <textarea th:field="*{staffMessage}"></textarea></label>
-        <button class="btn btn-primary" type="submit">Save</button>
-        <a class="btn btn-ghost" th:href="@{/bookings}">Cancel</a>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-slate-50 rounded-2xl p-6">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Customer</label>
+                <select th:field="*{customerName}" required class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-cyan-400 outline-none">
+                    <option value="">Select customer...</option>
+                    <option th:each="c : ${customers}" th:value="${c.username}"
+                            th:text="${c.username + ' (' + c.id + ')'}">c</option>
+                </select>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-6">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Vehicle</label>
+                <select th:field="*{vehicleId}" required class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-cyan-400 outline-none">
+                    <option value="">Select vehicle...</option>
+                    <option th:each="v : ${vehicles}" th:value="${v.id}"
+                            th:text="${v.brand + ' ' + v.model + ' (' + v.id + ')'}">v</option>
+                </select>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-6">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Rental Start Date</label>
+                <input type="date" th:field="*{rentalDate}" required class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-cyan-400 outline-none"/>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-6">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Duration (Days)</label>
+                <input type="number" min="1" th:field="*{durationDays}" required class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-cyan-400 outline-none"/>
+            </div>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-6">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Status</label>
+            <input type="text" th:field="*{status}" placeholder="CONFIRMED" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-cyan-400 outline-none"/>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-6">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Staff Message</label>
+            <textarea th:field="*{staffMessage}" rows="3" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-cyan-400 outline-none resize-none"></textarea>
+        </div>
+        <div class="flex gap-4">
+            <button type="submit" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-8 py-3 rounded-xl transition-all flex items-center gap-2">
+                <i class="ph-bold ph-check"></i> Save Booking
+            </button>
+            <a th:href="@{/bookings}" class="bg-gray-100 text-gray-600 hover:bg-gray-200 font-bold px-8 py-3 rounded-xl transition-all flex items-center gap-2">
+                <i class="ph-bold ph-x"></i> Cancel
+            </a>
+        </div>
     </form>
+</div>
 </div>
 <th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
 <script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
