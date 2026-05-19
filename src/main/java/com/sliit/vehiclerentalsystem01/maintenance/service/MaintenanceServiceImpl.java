@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +20,7 @@ import java.util.regex.Pattern;
 public class MaintenanceServiceImpl implements MaintenanceService {
 
     private static final Pattern ID_PATTERN = Pattern.compile("^MNT-(\\d+)$");
+    private static final Set<String> VEHICLE_TYPES = Set.of("Car", "Bike", "SUV", "Cab");
 
     private final MaintenanceRepository maintenanceRepository;
 
@@ -132,6 +134,8 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             throw new ValidationException("invalid_service_dates");
         }
 
+        String cleanedVehicleType = normalizeVehicleType(record.getVehicleType());
+
         boolean recordIdIsMissing = record.getId() == null || record.getId().isBlank();
 
         if (recordIdIsMissing) {
@@ -149,6 +153,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         }
 
         record.setVehicleId(cleanedVehicleId);
+        record.setVehicleType(cleanedVehicleType);
 
         maintenanceRepository.saveRecord(record);
     }
@@ -192,6 +197,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         MaintenanceRecord firstVehicleRecord = new MaintenanceRecord(
                 "MNT-001",
                 "VEH-101",
+                "Car",
                 MaintenanceStatus.AVAILABLE,
                 today.minusMonths(2),
                 today.plusMonths(4),
@@ -200,6 +206,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         MaintenanceRecord secondVehicleRecord = new MaintenanceRecord(
                 "MNT-002",
                 "VEH-102",
+                "SUV",
                 MaintenanceStatus.IN_USE,
                 today.minusMonths(1),
                 today.plusMonths(5),
@@ -208,6 +215,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         MaintenanceRecord thirdVehicleRecord = new MaintenanceRecord(
                 "MNT-003",
                 "VEH-103",
+                "Cab",
                 MaintenanceStatus.MAINTENANCE,
                 today.minusMonths(3),
                 today.minusDays(14),
@@ -216,6 +224,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         MaintenanceRecord fourthVehicleRecord = new MaintenanceRecord(
                 "MNT-004",
                 "VEH-104",
+                "Bike",
                 MaintenanceStatus.AVAILABLE,
                 today.minusWeeks(3),
                 today.plusMonths(3),
@@ -224,6 +233,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         MaintenanceRecord fifthVehicleRecord = new MaintenanceRecord(
                 "MNT-005",
                 "VEH-105",
+                "Car",
                 MaintenanceStatus.IN_USE,
                 today.minusMonths(4),
                 today.plusMonths(2),
@@ -284,6 +294,19 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         if (!statusIsValid) {
             throw new ValidationException("invalid_status");
         }
+    }
+
+    private static String normalizeVehicleType(String vehicleType) {
+        if (vehicleType == null || vehicleType.isBlank()) {
+            throw new ValidationException("invalid_vehicle_type");
+        }
+
+        String cleanedVehicleType = vehicleType.trim();
+
+        return VEHICLE_TYPES.stream()
+                .filter(type -> type.equalsIgnoreCase(cleanedVehicleType))
+                .findFirst()
+                .orElseThrow(() -> new ValidationException("invalid_vehicle_type"));
     }
 
     private static boolean statusMatches(MaintenanceRecord record, String status) {

@@ -306,7 +306,7 @@
       }
 
       table[aria-label="Vehicle maintenance and availability records"] {
-        min-width: 780px;
+        min-width: 880px;
       }
 
       .admin-maintenance-panel {
@@ -328,6 +328,10 @@
 <p th:if="${param.error != null and param.error[0] == 'invalid_status'}"
    class="admin-alert admin-alert--warning mb-6"
    role="alert">Invalid status. Choose Available, In Use, or Maintenance.</p>
+
+<p th:if="${param.error != null and param.error[0] == 'invalid_vehicle_type'}"
+   class="admin-alert admin-alert--warning mb-6"
+   role="alert">Invalid vehicle type. Choose Car, Bike, SUV, or Cab.</p>
 
 <p th:if="${param.error != null and param.error[0] == 'invalid_service_dates'}"
    class="admin-alert admin-alert--warning mb-6"
@@ -448,6 +452,16 @@
                class="admin-maintenance-form__control"
                aria-label="Vehicle ID" />
 
+        <select name="vehicleType"
+                required
+                class="admin-maintenance-form__control"
+                aria-label="Vehicle type">
+          <option value="Car">Car</option>
+          <option value="Bike">Bike</option>
+          <option value="SUV">SUV</option>
+          <option value="Cab">Cab</option>
+        </select>
+
         <select name="status"
                 required
                 class="admin-maintenance-form__control"
@@ -481,6 +495,7 @@
       <thead>
       <tr>
         <th scope="col">Vehicle ID</th>
+        <th scope="col">Type</th>
         <th scope="col">Status</th>
         <th scope="col">Last Service Date</th>
         <th scope="col">Next Service Date</th>
@@ -499,6 +514,7 @@
                    data-next-service=${record.nextServiceDate != null ? #temporals.format(record.nextServiceDate, 'yyyy-MM-dd') : ''}">
 
         <td th:text="${record.vehicleId}">VEH-000</td>
+        <td th:text="${record.vehicleType != null and !#strings.isEmpty(record.vehicleType) ? record.vehicleType : '-'}">Car</td>
 
         <td>
           <span class="admin-maintenance-status-cell">
@@ -548,7 +564,7 @@
 
       <tr th:if="${maintenanceList == null or maintenanceList.isEmpty()}"
           class="admin-maintenance-empty-row">
-        <td colspan="6" class="admin-maintenance-empty">No maintenance records available.</td>
+        <td colspan="7" class="admin-maintenance-empty">No maintenance records available.</td>
       </tr>
       </tbody>
     </table>

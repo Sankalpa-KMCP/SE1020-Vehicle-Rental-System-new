@@ -26,7 +26,8 @@ public class MaintenanceRepository {
 
     private static final String FILE_NAME = "maintenance.txt";
     private static final String DELIMITER = "\\|";
-    private static final int FIELD_COUNT = 6;
+    private static final int MIN_FIELD_COUNT = 6;
+    private static final int FIELD_COUNT = 7;
 
     private static final Logger log = LoggerFactory.getLogger(MaintenanceRepository.class);
 
@@ -139,7 +140,7 @@ public class MaintenanceRepository {
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING)) {
 
-                writer.write("# id|vehicleId|status|lastServiceDate|nextServiceDate|notes");
+                writer.write("# id|vehicleId|vehicleType|status|lastServiceDate|nextServiceDate|notes");
                 writer.newLine();
 
                 for (MaintenanceRecord record : records) {
@@ -155,30 +156,33 @@ public class MaintenanceRepository {
     private MaintenanceRecord parseLine(String line) {
         String[] parts = line.split(DELIMITER, -1);
 
-        if (parts.length < FIELD_COUNT) {
-            throw new IllegalArgumentException("Expected " + FIELD_COUNT + " fields, got " + parts.length);
+        if (parts.length < MIN_FIELD_COUNT) {
+            throw new IllegalArgumentException("Expected at least " + MIN_FIELD_COUNT + " fields, got " + parts.length);
         }
 
         String id = nullSafeTrim(parts[0]);
         String vehicleId = nullSafeTrim(parts[1]);
-        String status = nullSafeTrim(parts[2]);
+        boolean hasVehicleType = parts.length >= FIELD_COUNT;
+        String vehicleType = hasVehicleType ? nullSafeTrim(parts[2]) : "";
+        String status = hasVehicleType ? nullSafeTrim(parts[3]) : nullSafeTrim(parts[2]);
 
-        LocalDate lastServiceDate = parseDate(parts[3]);
-        LocalDate nextServiceDate = parseDate(parts[4]);
+        LocalDate lastServiceDate = parseDate(hasVehicleType ? parts[4] : parts[3]);
+        LocalDate nextServiceDate = parseDate(hasVehicleType ? parts[5] : parts[4]);
 
-        String notes = parts.length > 5 ? nullSafeTrim(parts[5]) : "";
+        String notes = hasVehicleType ? nullSafeTrim(parts[6]) : nullSafeTrim(parts[5]);
 
         if (id.isEmpty() || vehicleId.isEmpty()) {
             throw new IllegalArgumentException("id and vehicleId are required");
         }
 
-        return new MaintenanceRecord(id, vehicleId, status, lastServiceDate, nextServiceDate, notes);
+        return new MaintenanceRecord(id, vehicleId, vehicleType, status, lastServiceDate, nextServiceDate, notes);
     }
 
     private String formatLine(MaintenanceRecord record) {
         return String.join("|",
                 nullSafe(record.getId()),
                 nullSafe(record.getVehicleId()),
+                nullSafe(record.getVehicleType()),
                 nullSafe(record.getStatus()),
                 formatDate(record.getLastServiceDate()),
                 formatDate(record.getNextServiceDate()),
