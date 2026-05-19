@@ -5,10 +5,7 @@
 
   <style>
     .admin-shell {
-      background:
-              radial-gradient(circle at top left, rgba(20, 184, 166, 0.12), transparent 32rem),
-              radial-gradient(circle at top right, rgba(245, 158, 11, 0.13), transparent 30rem),
-              linear-gradient(135deg, #f8fafc 0%, #eef4ff 45%, #fff7ed 100%);
+      background: linear-gradient(135deg, #f8fafc 0%, #eef4ff 48%, #fff7ed 100%);
     }
 
     .admin-page-header {
@@ -33,8 +30,8 @@
 
     .admin-section-heading {
       color: #0f172a;
-      font-weight: 800;
-      margin-bottom: 1rem;
+      font-weight: 900;
+      margin: 0 0 1rem;
       font-size: 1.15rem;
     }
 
@@ -42,9 +39,13 @@
       overflow: hidden;
       border: 1px solid rgba(148, 163, 184, 0.24);
       border-radius: 18px;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.92);
       box-shadow: 0 20px 48px rgba(15, 23, 42, 0.1);
       backdrop-filter: blur(10px);
+    }
+
+    .admin-maintenance-panel + .admin-maintenance-panel {
+      margin-top: 1.5rem;
     }
 
     .admin-maintenance-panel__header {
@@ -102,10 +103,6 @@
       grid-column: span 2;
     }
 
-    .admin-maintenance-form__control--file {
-      padding: 0.52rem 0.8rem;
-    }
-
     .admin-btn--primary {
       border: none;
       font-size: 0.9rem;
@@ -113,11 +110,6 @@
       color: #ffffff;
       font-weight: 900;
       box-shadow: 0 12px 24px rgba(180, 83, 9, 0.24);
-    }
-
-    .admin-btn--primary:hover {
-      filter: brightness(1.04);
-      transform: translateY(-1px);
     }
 
     .admin-btn--danger {
@@ -135,35 +127,35 @@
       font-weight: 800;
     }
 
-    table[aria-label="Vehicle maintenance records"] {
+    .admin-maintenance-table-wrap {
+      overflow-x: auto;
+    }
+
+    .admin-maintenance-table {
       width: 100%;
-      min-width: 1080px;
+      min-width: 980px;
       border-collapse: separate;
       border-spacing: 0;
       background: #ffffff;
     }
 
-    table[aria-label="Vehicle maintenance records"] thead {
-      background: linear-gradient(135deg, #f1f5f9 0%, #e0f2fe 100%);
-    }
-
-    table[aria-label="Vehicle maintenance records"] th {
-      color: #475569;
-      font-weight: 900;
-      letter-spacing: 0;
-      text-transform: uppercase;
-    }
-
-    table[aria-label="Vehicle maintenance records"] th,
-    table[aria-label="Vehicle maintenance records"] td {
+    .admin-maintenance-table th,
+    .admin-maintenance-table td {
       padding: 0.95rem 1rem;
       text-align: left;
       vertical-align: middle;
       border-bottom: 1px solid rgba(148, 163, 184, 0.16);
     }
 
-    .admin-maintenance-row {
-      transition: background 160ms ease;
+    .admin-maintenance-table thead {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e0f2fe 100%);
+    }
+
+    .admin-maintenance-table th {
+      color: #475569;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-transform: uppercase;
     }
 
     .admin-maintenance-row:hover {
@@ -201,7 +193,7 @@
     }
 
     .admin-maintenance-notes {
-      max-width: 18rem;
+      max-width: 22rem;
       color: #475569;
       line-height: 1.45;
     }
@@ -242,10 +234,6 @@
       .admin-maintenance-form__control--wide {
         grid-column: span 1;
       }
-
-      .admin-maintenance-panel {
-        overflow-x: auto;
-      }
     }
   </style>
 </head>
@@ -256,7 +244,7 @@
 
 <header class="admin-page-header">
   <h1 class="admin-page-header__title">Maintenance Register</h1>
-  <p class="admin-page-header__subtitle">Register fleet vehicles and record why each vehicle is in maintenance.</p>
+  <p class="admin-page-header__subtitle">Keep fleet vehicle details separate from maintenance incidents.</p>
 </header>
 
 <p th:if="${param.error != null and param.error[0] == 'invalid_vehicle_type'}"
@@ -281,25 +269,29 @@
 
 <p th:if="${param.error != null and param.error[0] == 'duplicate_vehicle'}"
    class="admin-alert admin-alert--warning mb-6"
-   role="alert">A maintenance record already exists for this vehicle ID.</p>
+   role="alert">A fleet record already exists for this vehicle ID.</p>
 
-<section class="admin-dashboard-section" aria-label="Maintenance records">
-  <h2 class="admin-section-heading">Fleet maintenance records</h2>
+<p th:if="${param.error != null and param.error[0] == 'vehicle_not_found'}"
+   class="admin-alert admin-alert--warning mb-6"
+   role="alert">Add the vehicle to the fleet first, then create its maintenance entry.</p>
+
+<section class="admin-dashboard-section" aria-label="Fleet vehicles">
+  <h2 class="admin-section-heading">Part 1: Fleet vehicles</h2>
 
   <div class="admin-maintenance-panel">
     <div class="admin-maintenance-panel__header">
       <p class="admin-maintenance-count"
-         th:text="|${maintenanceCount} maintenance record${maintenanceCount == 1 ? '' : 's'}|">0 maintenance records</p>
+         th:text="|${fleetCount} vehicle${fleetCount == 1 ? '' : 's'} in fleet|">0 vehicles in fleet</p>
     </div>
 
     <div class="admin-maintenance-form">
-      <h3 class="admin-maintenance-form__title">Add vehicle maintenance record</h3>
+      <h3 class="admin-maintenance-form__title">Add vehicle to fleet</h3>
 
       <form method="post"
-            th:action="@{/maintenance/add}"
+            th:action="@{/maintenance/vehicles/add}"
             enctype="multipart/form-data"
             class="admin-maintenance-form__grid"
-            id="maintenance-add-form">
+            id="fleet-add-form">
 
         <input type="text"
                name="vehicleId"
@@ -345,7 +337,105 @@
                class="admin-maintenance-form__control"
                aria-label="Next service date" />
 
-        <select name="maintenanceReason"
+        <input type="file"
+               name="vehiclePhoto"
+               accept="image/png,image/jpeg,image/webp"
+               required
+               class="admin-maintenance-form__control"
+               aria-label="Vehicle photo" />
+
+        <button type="submit" class="admin-btn admin-btn--primary">Add Vehicle</button>
+      </form>
+    </div>
+
+    <div class="admin-maintenance-table-wrap">
+      <table role="table" class="admin-maintenance-table" aria-label="Fleet vehicle records">
+        <thead>
+        <tr>
+          <th scope="col">Photo</th>
+          <th scope="col">Vehicle ID</th>
+          <th scope="col">Type</th>
+          <th scope="col">Model</th>
+          <th scope="col">Mileage</th>
+          <th scope="col">Last Service</th>
+          <th scope="col">Next Service</th>
+          <th scope="col">Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="vehicle : ${fleetList != null ? fleetList : T(java.util.Collections).emptyList()}"
+            class="admin-maintenance-row">
+          <td>
+            <img th:if="${vehicle.photoFileName != null and !#strings.isEmpty(vehicle.photoFileName)}"
+                 th:src="@{/maintenance/photos/{fileName}(fileName=${vehicle.photoFileName})}"
+                 th:alt="|Photo of ${vehicle.vehicleId}|"
+                 class="admin-maintenance-photo" />
+            <span th:unless="${vehicle.photoFileName != null and !#strings.isEmpty(vehicle.photoFileName)}"
+                  class="admin-maintenance-photo admin-maintenance-photo--empty">No photo</span>
+          </td>
+          <td th:text="${vehicle.vehicleId}">VEH-000</td>
+          <td th:text="${vehicle.vehicleType != null and !#strings.isEmpty(vehicle.vehicleType) ? vehicle.vehicleType : '-'}">Car</td>
+          <td th:text="${vehicle.vehicleModel != null and !#strings.isEmpty(vehicle.vehicleModel) ? vehicle.vehicleModel : '-'}">Toyota</td>
+          <td th:text="${vehicle.mileage != null and !#strings.isEmpty(vehicle.mileage) ? vehicle.mileage : '-'}">42500</td>
+          <td>
+            <span th:if="${vehicle.lastServiceDate != null}"
+                  th:text="${#temporals.format(vehicle.lastServiceDate, 'dd MMM yyyy')}">-</span>
+            <span th:unless="${vehicle.lastServiceDate != null}">-</span>
+          </td>
+          <td>
+            <span th:if="${vehicle.nextServiceDate != null}"
+                  th:text="${#temporals.format(vehicle.nextServiceDate, 'dd MMM yyyy')}">-</span>
+            <span th:unless="${vehicle.nextServiceDate != null}">-</span>
+          </td>
+          <td class="admin-maintenance-actions">
+            <form method="post"
+                  th:action="@{/maintenance/vehicles/delete}"
+                  class="admin-maintenance-delete-form"
+                  onsubmit="return confirm('Delete this fleet vehicle and its maintenance entries?');">
+              <input type="hidden" name="vehicleId" th:value="${vehicle.vehicleId}" />
+              <button type="submit" class="admin-btn admin-btn--danger admin-btn--compact">Delete</button>
+            </form>
+          </td>
+        </tr>
+
+        <tr th:if="${fleetList == null or fleetList.isEmpty()}">
+          <td colspan="8" class="admin-maintenance-empty">No fleet vehicles available.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="admin-dashboard-section" aria-label="Maintenance entries">
+  <h2 class="admin-section-heading">Part 2: Maintenance entries</h2>
+
+  <div class="admin-maintenance-panel">
+    <div class="admin-maintenance-panel__header">
+      <p class="admin-maintenance-count"
+         th:text="|${maintenanceCount} maintenance entr${maintenanceCount == 1 ? 'y' : 'ies'}|">0 maintenance entries</p>
+    </div>
+
+    <div class="admin-maintenance-form">
+      <h3 class="admin-maintenance-form__title">Add maintenance entry</h3>
+
+      <form method="post"
+            th:action="@{/maintenance/entries/add}"
+            class="admin-maintenance-form__grid"
+            id="maintenance-entry-form">
+
+        <select name="vehicleId"
+                required
+                class="admin-maintenance-form__control"
+                aria-label="Vehicle ID">
+          <option value="">Select vehicle</option>
+          <option th:each="vehicle : ${fleetList != null ? fleetList : T(java.util.Collections).emptyList()}"
+                  th:value="${vehicle.vehicleId}"
+                  th:text="|${vehicle.vehicleId} - ${vehicle.vehicleModel}|">VEH-000</option>
+        </select>
+
+        <select name="reason"
                 required
                 class="admin-maintenance-form__control"
                 aria-label="Maintenance reason">
@@ -355,86 +445,63 @@
           <option value="General Service">General Service</option>
         </select>
 
-        <input type="file"
-               name="vehiclePhoto"
-               accept="image/png,image/jpeg,image/webp"
-               required
-               class="admin-maintenance-form__control admin-maintenance-form__control--file"
-               aria-label="Vehicle photo" />
+        <input type="date"
+               name="maintenanceDate"
+               class="admin-maintenance-form__control"
+               aria-label="Maintenance date" />
 
         <input type="text"
                name="notes"
-               placeholder="Maintenance notes"
+               placeholder="Notes about the work"
                class="admin-maintenance-form__control admin-maintenance-form__control--wide"
                aria-label="Maintenance notes" />
 
-        <button type="submit" class="admin-btn admin-btn--primary">Add Record</button>
+        <button type="submit" class="admin-btn admin-btn--primary">Add Entry</button>
       </form>
     </div>
 
-    <table role="table" aria-label="Vehicle maintenance records">
-      <thead>
-      <tr>
-        <th scope="col">Photo</th>
-        <th scope="col">Vehicle ID</th>
-        <th scope="col">Type</th>
-        <th scope="col">Model</th>
-        <th scope="col">Mileage</th>
-        <th scope="col">Last Service</th>
-        <th scope="col">Next Service</th>
-        <th scope="col">Reason</th>
-        <th scope="col">Notes</th>
-        <th scope="col">Actions</th>
-      </tr>
-      </thead>
+    <div class="admin-maintenance-table-wrap">
+      <table role="table" class="admin-maintenance-table" aria-label="Maintenance entry records">
+        <thead>
+        <tr>
+          <th scope="col">Entry ID</th>
+          <th scope="col">Vehicle ID</th>
+          <th scope="col">Reason</th>
+          <th scope="col">Date</th>
+          <th scope="col">Notes</th>
+          <th scope="col">Actions</th>
+        </tr>
+        </thead>
 
-      <tbody>
-      <tr th:each="record : ${maintenanceList != null ? maintenanceList : T(java.util.Collections).emptyList()}"
-          class="admin-maintenance-row">
-        <td>
-          <img th:if="${record.photoFileName != null and !#strings.isEmpty(record.photoFileName)}"
-               th:src="@{/maintenance/photos/{fileName}(fileName=${record.photoFileName})}"
-               th:alt="|Photo of ${record.vehicleId}|"
-               class="admin-maintenance-photo" />
-          <span th:unless="${record.photoFileName != null and !#strings.isEmpty(record.photoFileName)}"
-                class="admin-maintenance-photo admin-maintenance-photo--empty">No photo</span>
-        </td>
-        <td th:text="${record.vehicleId}">VEH-000</td>
-        <td th:text="${record.vehicleType != null and !#strings.isEmpty(record.vehicleType) ? record.vehicleType : '-'}">Car</td>
-        <td th:text="${record.vehicleModel != null and !#strings.isEmpty(record.vehicleModel) ? record.vehicleModel : '-'}">Toyota</td>
-        <td th:text="${record.mileage != null and !#strings.isEmpty(record.mileage) ? record.mileage : '-'}">42500</td>
-        <td>
-          <span th:if="${record.lastServiceDate != null}"
-                th:text="${#temporals.format(record.lastServiceDate, 'dd MMM yyyy')}">-</span>
-          <span th:unless="${record.lastServiceDate != null}">-</span>
-        </td>
-        <td>
-          <span th:if="${record.nextServiceDate != null}"
-                th:text="${#temporals.format(record.nextServiceDate, 'dd MMM yyyy')}">-</span>
-          <span th:unless="${record.nextServiceDate != null}">-</span>
-        </td>
-        <td>
-          <span class="admin-maintenance-reason"
-                th:text="${record.maintenanceReason != null and !#strings.isEmpty(record.maintenanceReason) ? record.maintenanceReason : '-'}">Accident</span>
-        </td>
-        <td class="admin-maintenance-notes" th:text="${record.notes != null and !#strings.isEmpty(record.notes) ? record.notes : '-'}">-</td>
-        <td class="admin-maintenance-actions">
-          <form method="post"
-                th:action="@{/maintenance/delete}"
-                class="admin-maintenance-delete-form"
-                onsubmit="return confirm('Delete this maintenance record?');">
-            <input type="hidden" name="vehicleId" th:value="${record.vehicleId}" />
-            <button type="submit" class="admin-btn admin-btn--danger admin-btn--compact">Delete</button>
-          </form>
-        </td>
-      </tr>
+        <tbody>
+        <tr th:each="entry : ${maintenanceEntries != null ? maintenanceEntries : T(java.util.Collections).emptyList()}"
+            class="admin-maintenance-row">
+          <td th:text="${entry.id}">MLG-001</td>
+          <td th:text="${entry.vehicleId}">VEH-000</td>
+          <td><span class="admin-maintenance-reason" th:text="${entry.reason}">Accident</span></td>
+          <td>
+            <span th:if="${entry.maintenanceDate != null}"
+                  th:text="${#temporals.format(entry.maintenanceDate, 'dd MMM yyyy')}">-</span>
+            <span th:unless="${entry.maintenanceDate != null}">-</span>
+          </td>
+          <td class="admin-maintenance-notes" th:text="${entry.notes != null and !#strings.isEmpty(entry.notes) ? entry.notes : '-'}">-</td>
+          <td class="admin-maintenance-actions">
+            <form method="post"
+                  th:action="@{/maintenance/entries/delete}"
+                  class="admin-maintenance-delete-form"
+                  onsubmit="return confirm('Delete this maintenance entry?');">
+              <input type="hidden" name="entryId" th:value="${entry.id}" />
+              <button type="submit" class="admin-btn admin-btn--danger admin-btn--compact">Delete</button>
+            </form>
+          </td>
+        </tr>
 
-      <tr th:if="${maintenanceList == null or maintenanceList.isEmpty()}"
-          class="admin-maintenance-empty-row">
-        <td colspan="10" class="admin-maintenance-empty">No maintenance records available.</td>
-      </tr>
-      </tbody>
-    </table>
+        <tr th:if="${maintenanceEntries == null or maintenanceEntries.isEmpty()}">
+          <td colspan="6" class="admin-maintenance-empty">No maintenance entries available.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 
@@ -477,20 +544,29 @@
       });
     });
 
-    var addForm = document.getElementById('maintenance-add-form');
+    var fleetForm = document.getElementById('fleet-add-form');
+    var entryForm = document.getElementById('maintenance-entry-form');
 
-    if (addForm) {
-      addForm.addEventListener('submit', function () {
-        sessionStorage.setItem('maintenanceToast', 'added');
+    if (fleetForm) {
+      fleetForm.addEventListener('submit', function () {
+        sessionStorage.setItem('maintenanceToast', 'vehicle-added');
+      });
+    }
+
+    if (entryForm) {
+      entryForm.addEventListener('submit', function () {
+        sessionStorage.setItem('maintenanceToast', 'entry-added');
       });
     }
 
     var flashToast = sessionStorage.getItem('maintenanceToast');
 
-    if (flashToast === 'added') {
-      showToast('Maintenance record added');
+    if (flashToast === 'vehicle-added') {
+      showToast('Vehicle added to fleet');
+    } else if (flashToast === 'entry-added') {
+      showToast('Maintenance entry added');
     } else if (flashToast === 'deleted') {
-      showToast('Maintenance record deleted');
+      showToast('Record deleted');
     }
 
     sessionStorage.removeItem('maintenanceToast');
