@@ -280,8 +280,10 @@
 
   <div class="admin-maintenance-panel">
     <div class="admin-maintenance-panel__header">
-      <p class="admin-maintenance-count"
-         th:text="|${fleetCount} vehicle${fleetCount == 1 ? '' : 's'} in fleet|">0 vehicles in fleet</p>
+      <p class="admin-maintenance-count">
+        <span th:text="${fleetCount}">0</span>
+        <span th:text="${fleetCount == 1 ? 'vehicle in fleet' : 'vehicles in fleet'}">vehicles in fleet</span>
+      </p>
     </div>
 
     <div class="admin-maintenance-form">
@@ -413,8 +415,10 @@
 
   <div class="admin-maintenance-panel">
     <div class="admin-maintenance-panel__header">
-      <p class="admin-maintenance-count"
-         th:text="|${maintenanceCount} maintenance entr${maintenanceCount == 1 ? 'y' : 'ies'}|">0 maintenance entries</p>
+      <p class="admin-maintenance-count">
+        <span th:text="${maintenanceCount}">0</span>
+        <span th:text="${maintenanceCount == 1 ? 'maintenance entry' : 'maintenance entries'}">maintenance entries</span>
+      </p>
     </div>
 
     <div class="admin-maintenance-form">
