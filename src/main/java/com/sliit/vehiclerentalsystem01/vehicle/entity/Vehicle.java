@@ -20,7 +20,7 @@ public abstract class Vehicle {
         this.status = "AVAILABLE";
     }
 
-    // THE 6-PARAMETER CONSTRUCTOR:
+    // PARAMETERIZED CONSTRUCTOR:
     protected Vehicle(String id, String brand, String model, double dailyRate, String imagePath, String status) {
         this.id = id;
         this.brand = brand;
