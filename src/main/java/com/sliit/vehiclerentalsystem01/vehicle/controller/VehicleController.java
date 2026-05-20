@@ -18,11 +18,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +37,9 @@ import java.util.UUID;
 public class VehicleController {
 
     private final VehicleService vehicleService;
+
+    @Value("${app.data.directory:data}")
+    private String dataDirectory;
 
     public VehicleController(VehicleService vehicleService) {
         this.vehicleService = vehicleService;
@@ -190,10 +197,9 @@ public class VehicleController {
 
                 if (imageFile != null && !imageFile.isEmpty()) {
                     try {
-                        String folderPath = "src/main/resources/static/images/vehicles/";
-                        Path uploadDir = Paths.get(folderPath);
-                        if (!Files.exists(uploadDir)) {
-                            Files.createDirectories(uploadDir);
+                        File uploadDir = new File(dataDirectory, "vehicles");
+                        if (!uploadDir.exists()) {
+                            uploadDir.mkdirs();
                         }
 
                         String originalName = imageFile.getOriginalFilename();
@@ -202,9 +208,16 @@ public class VehicleController {
                                 : ".jpg";
 
                         String fileName = targetId + extension;
-                        Path filePath = uploadDir.resolve(fileName);
+                        File targetFile = new File(uploadDir, fileName);
 
-                        Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                        try (InputStream in = imageFile.getInputStream();
+                             FileOutputStream out = new FileOutputStream(targetFile)) {
+                            byte[] buffer = new byte[4096];
+                            int bytesRead;
+                            while ((bytesRead = in.read(buffer)) != -1) {
+                                out.write(buffer, 0, bytesRead);
+                            }
+                        }
                         imagePath = "/images/vehicles/" + fileName;
                     } catch (IOException e) {
                         e.printStackTrace();
