@@ -190,17 +190,20 @@ public class CustomerAdminController {
         String email = normalized(params.get("email"));
         String username = normalized(params.get("username"));
         String password = normalized(params.get("password"));
+        String currentPassword = normalized(params.get("currentPassword"));
+        String newPassword = normalized(params.get("newPassword"));
+        String confirmPassword = normalized(params.get("confirmPassword"));
         String phone = normalized(params.get("phone"));
         String nic = normalizeOptionalDoc(params.get("nic"));
         String license = normalizeOptionalDoc(params.get("license"));
 
-        if (isBlank(name) || isBlank(email) || isBlank(username) || isBlank(password) || isBlank(phone)) {
-            if ("update".equals(action)) {
-                boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
-                return isAdmin
-                        ? "redirect:/customers?action=edit&id=" + id + "&error=missing_fields"
-                        : "redirect:/customers?action=editSelf&error=missing_fields";
+        boolean isAdmin = adminSession(session);
+
+        if ("update".equals(action)) {
+            if (isBlank(name) || isBlank(email) || isBlank(username) || isBlank(phone)) {
+                return profileUpdateRedirect(isAdmin, id, "missing_fields");
             }
+        } else if (isBlank(name) || isBlank(email) || isBlank(username) || isBlank(password) || isBlank(phone)) {
             if ("create".equals(action)) {
                 return "redirect:/customers?action=view_directory&error=missing_fields";
             }
@@ -213,8 +216,23 @@ public class CustomerAdminController {
                         .filter(u -> u instanceof Customer)
                         .map(u -> (Customer) u)
                         .orElseThrow();
+
+                if (!isAdmin) {
+                    String sessionUser = normalized((String) session.getAttribute(UserSessionKeys.USERNAME));
+                    boolean ownsProfile = userService.findByUsername(sessionUser)
+                            .filter(u -> u instanceof Customer c && existing.getId().equals(c.getId()))
+                            .isPresent();
+                    if (!ownsProfile) {
+                        return "redirect:/auth/login?error=unauthorized";
+                    }
+                }
+
+                String passwordError = applyPasswordChange(existing, isAdmin, password, currentPassword, newPassword, confirmPassword);
+                if (passwordError != null) {
+                    return profileUpdateRedirect(isAdmin, id, passwordError);
+                }
+
                 existing.setUsername(username);
-                existing.setPassword(SecurityUtils.hashPasswordIfNeeded(password));
                 existing.setEmail(email);
                 existing.setPhone(phone);
                 existing.setNic(nic);
@@ -222,7 +240,6 @@ public class CustomerAdminController {
                 existing.setFullName(name);
                 imageStorageService.attachAvatar(existing, avatarImage);
                 userService.save(existing);
-                boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
                 return isAdmin
                         ? "redirect:/customers?action=view_directory&msg=updated"
                         : "redirect:/customer/home?msg=updated";
@@ -247,15 +264,52 @@ public class CustomerAdminController {
             return "redirect:/auth/login?success=registered";
         } catch (ValidationException ex) {
             if ("update".equals(action)) {
-                boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
-                return isAdmin
-                        ? "redirect:/customers?action=edit&id=" + id + "&error=" + ex.getMessage()
-                        : "redirect:/customers?action=editSelf&error=" + ex.getMessage();
+                return profileUpdateRedirect(adminSession(session), id, ex.getMessage());
             }
             if ("create".equals(action)) {
                 return "redirect:/customers?action=view_directory&error=" + ex.getMessage();
             }
             return "redirect:/auth/register?error=" + ex.getMessage();
         }
+    }
+
+    private static String profileUpdateRedirect(boolean isAdmin, String id, String error) {
+        if (isAdmin) {
+            return "redirect:/customers?action=edit&id=" + id + "&error=" + error;
+        }
+        return "redirect:/customers?action=editSelf&error=" + error;
+    }
+
+    /**
+     * @return error code for redirect, or null when password is unchanged or updated successfully
+     */
+    private static String applyPasswordChange(Customer existing, boolean isAdmin,
+                                              String adminPassword, String currentPassword,
+                                              String newPassword, String confirmPassword) {
+        if (isAdmin) {
+            if (!isBlank(adminPassword)) {
+                existing.setPassword(SecurityUtils.hashPasswordIfNeeded(adminPassword));
+            }
+            return null;
+        }
+
+        if (isBlank(newPassword)) {
+            return null;
+        }
+
+        if (isBlank(currentPassword)) {
+            return "current_password_required";
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            return "password_mismatch";
+        }
+        if (newPassword.length() < 6) {
+            return "password_too_short";
+        }
+        if (!SecurityUtils.verifyPassword(currentPassword, existing.getPassword())) {
+            return "wrong_current_password";
+        }
+        existing.setPassword(SecurityUtils.hashPassword(newPassword));
+        return null;
     }
 }

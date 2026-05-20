@@ -127,7 +127,6 @@ public class UserServiceImpl implements UserService {
         if (u.isEmpty() || p.isEmpty()) {
             return Optional.empty();
         }
-        String hashedInput = SecurityUtils.hashPassword(p);
         return userRepository.findAll().stream()
                 .filter(user -> {
                     String storedUser = "";
@@ -137,12 +136,12 @@ public class UserServiceImpl implements UserService {
                         String storedEmail = c.getEmail() == null ? "" : c.getEmail().trim();
                         storedPass = c.getPassword() == null ? "" : c.getPassword().trim();
                         boolean idMatches = u.equalsIgnoreCase(storedUser) || u.equalsIgnoreCase(storedEmail);
-                        return idMatches && passwordsMatch(p, hashedInput, storedPass);
+                        return idMatches && SecurityUtils.verifyPassword(p, storedPass);
                     } else if (user instanceof Staff s) {
                         storedUser = s.getUsername() == null ? "" : s.getUsername().trim();
                         storedPass = s.getPassword() == null ? "" : s.getPassword().trim();
                     }
-                    return u.equalsIgnoreCase(storedUser) && passwordsMatch(p, hashedInput, storedPass);
+                    return u.equalsIgnoreCase(storedUser) && SecurityUtils.verifyPassword(p, storedPass);
                 })
                 .findFirst();
     }
@@ -184,10 +183,4 @@ public class UserServiceImpl implements UserService {
         return "";
     }
 
-    private static boolean passwordsMatch(String plainPassword, String hashedInput, String storedPass) {
-        if (SecurityUtils.isSha256Hex(storedPass)) {
-            return hashedInput.equalsIgnoreCase(storedPass);
-        }
-        return plainPassword.equals(storedPass);
-    }
 }

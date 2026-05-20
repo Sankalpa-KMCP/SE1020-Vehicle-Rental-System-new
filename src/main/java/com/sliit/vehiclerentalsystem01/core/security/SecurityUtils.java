@@ -59,4 +59,21 @@ public final class SecurityUtils {
         }
         return hashPassword(password);
     }
+
+    /** Returns true when {@code plainPassword} matches {@code storedPassword} (plain or SHA-256 hex). */
+    public static boolean verifyPassword(String plainPassword, String storedPassword) {
+        if (plainPassword == null || storedPassword == null) {
+            return false;
+        }
+        String plain = plainPassword.trim();
+        String stored = storedPassword.trim();
+        if (plain.isEmpty() || stored.isEmpty()) {
+            return false;
+        }
+        String hashedInput = hashPassword(plain);
+        if (isSha256Hex(stored)) {
+            return hashedInput.equalsIgnoreCase(stored);
+        }
+        return plain.equals(stored);
+    }
 }

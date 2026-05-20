@@ -23,5 +23,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
         }
         registry.addResourceHandler("/avatars/**")
                 .addResourceLocations(location);
+
+        Path vehicleDir = Paths.get(dataDirectory).toAbsolutePath().normalize().resolve("vehicles");
+        String vehicleLocation = vehicleDir.toUri().toString();
+        if (!vehicleLocation.endsWith("/")) {
+            vehicleLocation = vehicleLocation + "/";
+        }
+        registry.addResourceHandler("/images/vehicles/**")
+                .addResourceLocations(vehicleLocation);
     }
 }

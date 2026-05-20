@@ -21,7 +21,7 @@ This component's responsibilities are divided across standard Spring Boot MVC ti
 
 * **Entities (Domain Entities):**
   * [Feedback.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/Feedback.java): Abstract base class defining common metadata and declaring the abstract method `getReviewType()`.
-  * [CustomerReview.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/CustomerReview.java): Concrete subclass representing reviews. It captures reviewer name, star rating (1-5), comments, approval status, and staff reply fields.
+  * [CustomerReview.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/CustomerReview.java): Concrete subclass representing reviews. It captures reviewer name, star rating (1-5), comments, approval status, staff reply fields, and an optional **review image URL** (`imageUrl`) when present in the CSV.
 * **Repositories (Data Access Layer):**
   * [ReviewRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/repository/ReviewRepository.java): Coordinates CSV file operations, parsing, and serialization of rating comments.
 * **Services (Business Logic):**
@@ -82,6 +82,7 @@ classDiagram
         -String staffReply
         -String repliedBy
         -LocalDateTime repliedAt
+        -String imageUrl
         +getReviewType() String
     }
     Feedback <|-- CustomerReview
@@ -94,34 +95,31 @@ Polymorphism is demonstrated through dynamic dispatch of `getReviewType()` and b
 
 ## 4. Flat-File Persistence Schema (`data/reviews.txt`)
 Reviews are serialized in a comma-delimited format inside `data/reviews.txt`:
-* **Record Schema:**
+* **Record Schema (10 columns, minimum):**
   `reviewId,reviewerName,rating,comments,status,bookingId,vehicleId,staffReply,repliedBy,repliedAt`
-* **Sample Entry:**
-  `REV-001,customer,5,Smooth ride,APPROVED,TXN-101,VEH-101,Thank you!,support,2026-05-21T10:00:00`
+* **Optional 11th column:** `imageUrl` (parsed by `CustomerReview.fromCsvLine` when present).
+* **Sample Entry (with optional image URL):**
+  `REV-001,customer,5,Smooth ride,PUBLISHED,TXN-101,VEH-101,Thank you!,support,2026-05-21T10:00:00,/uploads/reviews/sample.jpg`
 
-### 🛡️ Concurrency Controls & Thread-Safety Model
-To prevent data corruption or dirty reads when customers are writing feedback and support staff are replying or approving reviews in real-time, [ReviewRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/repository/ReviewRepository.java) leverages `ReentrantReadWriteLock` concurrency tools:
-* **Atomic Moderation, Replies, & CSV/Pipe Review Parsing:** Submitting a review, moderating states (`APPROVED` or `REJECTED`), or adding a staff reply acquires an exclusive `WriteLock`. This serializes all operations targeting `data/reviews.txt`. Under this lock, the parsing layer executes securely, supporting modern CSV columns as well as legacy pipe-separated fields and timestamp objects. The complete read-modify-write flow is fully atomic, preventing concurrent write collisions.
-* **Shared Feedback Queries:** Fetching approved reviews to display on the vehicle browser catalog takes a shared `ReadLock`. This allows for fast, concurrent, non-blocking reads across high-volume customer browse networks.
-* **Decoupled Architecture (Single Responsibility Principle):** The service layer ([ReviewServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/service/ReviewServiceImpl.java)) manages business-tier validations (e.g., verifying that rating values fall strictly within the [1-5] star boundary, assembling reviewer usernames). It is fully isolated from direct flat-file channels and parsing arrays, ensuring compliance with the Single Responsibility Principle.
-* **Fault-Tolerant Scanning & SLF4J Warnings:** If a feedback record contains broken delimiters or corrupt date parameters, the parser catches the local exception, prints a warning to SLF4J, and skips the corrupted row, ensuring the remaining active comments continue to load smoothly.
+### Persistence & concurrency notes
+[ReviewRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/repository/ReviewRepository.java) reads and writes `data/reviews.txt` with `java.nio.file.Files` (full rewrite on `saveAll`). Unlike some other repositories in this project, it **does not** currently use `ReentrantReadWriteLock`; concurrent updates should be treated as best-effort at the file level.
+
+* **Decoupled architecture (Single Responsibility Principle):** [ReviewServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/service/ReviewServiceImpl.java) validates ratings and orchestrates saves; the repository handles CSV encoding, optional legacy pipe rows, and the header comment line documented in code.
+* **Fault tolerance:** Malformed lines are skipped during load so one bad row does not break the reviews UI.
 
 ---
 
 ## 5. Component Workflows
 
-### A. Customer Feedback Submission Sequence
+### A. Customer feedback submission sequence
 ```text
-[Customer Submits Star Rating] ──(HTTP POST /reviews)──> [ReviewController]
-                                                                │
-                                                     (validate rating bounds)
-                                                                ▼
-   [ReviewRepository] <──(call saveReview())── [ReviewServiceImpl]
-            │
-   (saves with PENDING state)
-            ▼
- [Appends review CSV line] ──> [Save to reviews.txt]
+[Customer submits review] ──(HTTP POST /customer/reviews)──> [CustomerPortalController]
+                                                                    │
+                                                         (validate booking / limits, optional image upload)
+                                                                    ▼
+       [ReviewServiceImpl.save] ──> [ReviewRepository.saveAll] ──> [Truncate + rewrite reviews.txt]
 ```
+New customer reviews are created with status **`PUBLISHED`** in [CustomerPortalController](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/CustomerPortalController.java). Staff use [ReviewController](../src/main/java/com/sliit/vehiclerentalsystem01/review/controller/ReviewController.java) under `/reviews` for listing/detail and staff-reply updates.
 
 ---
 

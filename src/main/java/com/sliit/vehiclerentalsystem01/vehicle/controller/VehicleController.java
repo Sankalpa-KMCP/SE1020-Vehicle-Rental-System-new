@@ -18,11 +18,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +38,9 @@ public class VehicleController {
 
     private final VehicleService vehicleService;
 
+    @Value("${app.data.directory:data}")
+    private String dataDirectory;
+
     public VehicleController(VehicleService vehicleService) {
         this.vehicleService = vehicleService;
     }
@@ -42,10 +49,6 @@ public class VehicleController {
         return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
     }
 
-    /**
-     * Legacy query-param flow ({@code action=delete|edit|list}) and dashboard, plus default fleet view.
-     * Admin-only: redirects to the staff login if no admin session is present.
-     */
     @GetMapping
     public String vehiclesEntry(
             @RequestParam(required = false) String action,
@@ -93,7 +96,6 @@ public class VehicleController {
         model.addAttribute("totalVehicles", all.size());
         model.addAttribute("carCount", carCount);
         model.addAttribute("motorcycleCount", motorcycleCount);
-
         model.addAttribute("avgCarRate", avgCarRate);
         model.addAttribute("avgMotoRate", avgMotoRate);
 
@@ -121,7 +123,6 @@ public class VehicleController {
         return "vehicle/vehicle-entity-form";
     }
 
-    /** Public detail view: used by both staff dashboard and customer fleet browse. */
     @GetMapping("/{id}")
     public String detail(@PathVariable String id, Model model) {
         return vehicleService.findById(id)
@@ -171,7 +172,6 @@ public class VehicleController {
         String action = params.get("action");
         String idParam = params.get("id");
 
-        // 1. Handle Delete Actions
         if ("delete".equals(action)) {
             if (idParam != null && !idParam.isBlank()) {
                 try {
@@ -183,7 +183,6 @@ public class VehicleController {
             return "redirect:/vehicles?action=list";
         }
 
-        // 2. Handle Add OR Update with the modern parameter extraction
         if (isModernVehicleType(vehicleType)) {
             try {
                 String targetId;
@@ -194,16 +193,13 @@ public class VehicleController {
                     targetId = "V-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
                 }
 
-                // --- IMAGE UPLOAD & RETENTION LOGIC ---
                 String imagePath = "/images/default-vehicle.png";
 
                 if (imageFile != null && !imageFile.isEmpty()) {
-                    // Save new file if one was uploaded
                     try {
-                        String folderPath = "src/main/resources/static/images/vehicles/";
-                        Path uploadDir = Paths.get(folderPath);
-                        if (!Files.exists(uploadDir)) {
-                            Files.createDirectories(uploadDir);
+                        File uploadDir = new File(dataDirectory, "vehicles");
+                        if (!uploadDir.exists()) {
+                            uploadDir.mkdirs();
                         }
 
                         String originalName = imageFile.getOriginalFilename();
@@ -212,26 +208,32 @@ public class VehicleController {
                                 : ".jpg";
 
                         String fileName = targetId + extension;
-                        Path filePath = uploadDir.resolve(fileName);
+                        File targetFile = new File(uploadDir, fileName);
 
-                        Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                        try (InputStream in = imageFile.getInputStream();
+                             FileOutputStream out = new FileOutputStream(targetFile)) {
+                            byte[] buffer = new byte[4096];
+                            int bytesRead;
+                            while ((bytesRead = in.read(buffer)) != -1) {
+                                out.write(buffer, 0, bytesRead);
+                            }
+                        }
                         imagePath = "/images/vehicles/" + fileName;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 } else if ("update".equals(action) && idParam != null && !idParam.isBlank()) {
-                    // CRITICAL: Retain existing image if no new file is uploaded during an edit
                     Optional<Vehicle> existingVehicle = vehicleService.findById(targetId);
                     if (existingVehicle.isPresent()) {
                         imagePath = existingVehicle.get().getImagePath();
                     }
                 }
-                // --- END IMAGE LOGIC ---
 
                 Vehicle toSave = buildVehicleLegacy(targetId, params, imagePath);
                 try {
                     vehicleService.save(toSave);
                 } catch (ValidationException ex) {
+                    // CAUGHT DUPLICATE: Redirect back to form with error message!
                     if ("update".equals(action) && idParam != null && !idParam.isBlank()) {
                         return "redirect:/vehicles/" + idParam.trim() + "/edit?error=" + ex.getMessage();
                     }
@@ -243,7 +245,6 @@ public class VehicleController {
             }
         }
 
-        // 3. Fallback for older query paths
         return handleLegacyPost(params);
     }
 
@@ -257,8 +258,6 @@ public class VehicleController {
         try {
             if ("update".equals(action)) {
                 String id = normalized(params.get("id"));
-
-                // Retain existing image for legacy updates
                 String existingImage = vehicleService.findById(id).map(Vehicle::getImagePath).orElse("/images/default-vehicle.png");
 
                 try {
@@ -286,14 +285,20 @@ public class VehicleController {
         double rate = Double.parseDouble(normalized(params.get("rate")));
         String vType = normalized(params.get("vehicleType"));
 
+        // GRAB STATUS FROM HTML DROPDOWN
+        String status = normalized(params.get("status"));
+        if (status.isEmpty()) {
+            status = "AVAILABLE"; // Fallback safety
+        }
+
         if ("Motorcycle".equalsIgnoreCase(vType)) {
             String helmetValue = params.get("helmetIncluded");
             boolean helmetIncluded = "on".equalsIgnoreCase(helmetValue) || "true".equalsIgnoreCase(helmetValue);
-            return new Motorcycle(id, brand, model, rate, helmetIncluded, imagePath);
+            return new Motorcycle(id, brand, model, rate, helmetIncluded, imagePath, status);
         }
 
         int capacity = Integer.parseInt(normalized(params.get("capacity")));
-        return new Car(id, brand, model, rate, capacity, imagePath);
+        return new Car(id, brand, model, rate, capacity, imagePath, status);
     }
 
     private static String normalized(String value) {
@@ -313,8 +318,13 @@ public class VehicleController {
         Vehicle toSave = "MOTORCYCLE".equalsIgnoreCase(vehicleType) ? motorcycle : car;
         toSave.setId(id);
 
-        // Retain existing image path
-        vehicleService.findById(id).ifPresent(existing -> toSave.setImagePath(existing.getImagePath()));
+        vehicleService.findById(id).ifPresent(existing -> {
+            toSave.setImagePath(existing.getImagePath());
+            // If the HTML form didn't pass a status during an edit, keep the old one
+            if (toSave.getStatus() == null || toSave.getStatus().isBlank()) {
+                toSave.setStatus(existing.getStatus());
+            }
+        });
 
         try {
             vehicleService.save(toSave);

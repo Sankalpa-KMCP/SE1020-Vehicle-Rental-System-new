@@ -5,262 +5,619 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>My Reviews — DriveAway</title>
     <meta name="description" content="View, edit, or delete your submitted reviews on DriveAway."/>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/landing/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/sections.css}"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 40%, #fff1f2 100%); min-height:100vh; }
+        /* ── Scroll progress bar ── */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; right: 0; height: 2px;
+            z-index: 9999; pointer-events: none;
+            background: linear-gradient(90deg, var(--lux-gold), var(--lux-cyan));
+            transform-origin: left; transform: scaleX(0);
+            transition: transform 80ms linear;
+        }
 
-        /* ── Page animation ── */
-        .fade-in { animation: fadeIn 0.45s ease-out both; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        /* ── Ambient orbs ── */
+        .orb {
+            position: fixed; border-radius: 50%; pointer-events: none;
+            filter: blur(90px); opacity: 0; z-index: 0;
+            animation: orbFade 1.2s var(--da-ease-out) forwards;
+        }
+        .orb-1 { width: 520px; height: 520px; top: -180px; right: -100px;
+                  background: radial-gradient(circle, rgba(201,169,98,0.14), transparent 70%); animation-delay: 0.1s; }
+        .orb-2 { width: 420px; height: 420px; bottom: -100px; left: -80px;
+                  background: radial-gradient(circle, rgba(34,211,238,0.07), transparent 70%); animation-delay: 0.3s; }
+        @keyframes orbFade { to { opacity: 1; } }
 
-        /* ── Hero strip ── */
-        .hero-strip {
-            background: linear-gradient(135deg, #f97316 0%, #ef4444 60%, #dc2626 100%);
-            border-radius: 1.75rem;
+        /* ── Sticky mini nav ── */
+        .page-nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(5,5,6,0.78);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border-bottom: 1px solid rgba(201,169,98,0.12);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+        .page-nav__inner {
+            max-width: 980px; margin: 0 auto;
+            padding: 0.9rem clamp(1.25rem,4.5vw,2.75rem);
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+        }
+        .page-nav__brand {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            font-family: var(--da-font-display); font-size: 1.1rem;
+            font-weight: 500; letter-spacing: -0.02em; color: var(--lux-ink-soft);
+            text-decoration: none;
+        }
+        .page-nav__mark {
+            width: 1.85rem; height: 1.85rem; border-radius: var(--da-radius);
+            background: linear-gradient(135deg, var(--lux-gold), var(--lux-gold-light));
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 700; color: var(--lux-obsidian);
+            box-shadow: 0 0 12px var(--lux-gold-glow);
+        }
+        .page-nav__actions { display: flex; align-items: center; gap: 0.65rem; }
+
+        /* ── Page wrapper ── */
+        body.index-landing {
+            background-color: var(--lux-obsidian);
+            background-image: var(--da-mood-act);
+            min-height: 100vh; position: relative;
+        }
+        .page-shell {
+            position: relative; z-index: 1;
+            max-width: 980px; margin: 0 auto;
+            padding: 2.5rem clamp(1.25rem,4.5vw,2.75rem) 5rem;
+        }
+
+        /* ── Hero Banner ── */
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(201, 169, 98, 0.08) 0%, rgba(201, 169, 98, 0.02) 100%);
+            border: 1px solid rgba(201, 169, 98, 0.15);
+            border-radius: var(--da-radius-xl);
             padding: 2.5rem 3rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 16px 48px rgba(239,68,68,0.22);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(201, 169, 98, 0.2);
+            animation: fadeUp 0.6s var(--da-ease-out) both;
         }
-        .hero-strip::after {
-            content: '★';
-            position:absolute; right:-24px; bottom:-48px;
-            font-size:240px; color:rgba(255,255,255,0.07);
-            pointer-events:none; line-height:1; transform:rotate(-12deg);
+        
+        .hero-banner::after {
+            content: '';
+            position: absolute;
+            right: -5%;
+            top: -50%;
+            width: 50%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(201, 169, 98, 0.08), transparent 60%);
+            transform: rotate(-15deg);
+            pointer-events: none;
         }
 
-        /* ── Notice banners ── */
-        .notice { border-radius:0.875rem; padding:12px 16px; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:10px; }
-        .notice-success { background:#f0fdf4; border:1.5px solid #bbf7d0; color:#166534; }
-        .notice-info    { background:#f8fafc; border:1.5px solid #e2e8f0; color:#475569; }
-        .notice-error   { background:#fef2f2; border:1.5px solid #fecaca; color:#991b1b; }
+        .hero-banner__content {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
 
-        /* ── Review card ── */
+        .hero-banner__eyebrow {
+            font-size: var(--da-text-2xs); font-weight: 600;
+            letter-spacing: var(--da-track-micro); text-transform: uppercase;
+            color: var(--lux-gold);
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .hero-banner__eyebrow::before {
+            content: ''; width: 1.25rem; height: 1px;
+            background: var(--lux-gold); opacity: 0.7;
+        }
+        
+        .hero-banner__title {
+            font-family: var(--da-font-display);
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 500;
+            letter-spacing: -0.03em;
+            color: var(--lux-ink-soft);
+            margin: 0 0 0.5rem 0;
+            line-height: 1.05;
+        }
+        
+        .hero-banner__sub {
+            font-size: 1.05rem;
+            color: var(--lux-ink-muted);
+            margin: 0;
+            max-width: 460px;
+            line-height: 1.6;
+        }
+
+        .hero-banner__stats {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--da-radius-lg);
+            padding: 1.5rem 2.25rem;
+            display: flex;
+            gap: 3rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transition: transform var(--da-duration) var(--da-ease-out);
+        }
+        
+        .hero-banner__stats:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            border-color: rgba(201, 169, 98, 0.25);
+        }
+        
+        .hero-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            text-align: center;
+        }
+        
+        .hero-stat__label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--lux-ink-muted);
+        }
+        
+        .hero-stat__val {
+            font-family: var(--da-font-display);
+            font-size: 2.25rem;
+            font-weight: 600;
+            line-height: 1;
+            letter-spacing: -0.02em;
+            color: var(--lux-ink-soft);
+        }
+        
+        .hero-stat--accent .hero-stat__val {
+            background: linear-gradient(135deg, var(--lux-gold-light) 0%, var(--lux-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .hero-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 2rem;
+            }
+            .hero-banner__stats {
+                width: 100%;
+                justify-content: space-around;
+                gap: 1.5rem;
+                padding: 1.25rem;
+            }
+        }
+
+        /* ── Notices ── */
+        .notice {
+            border-radius: var(--da-radius-lg); padding: 0.85rem 1rem;
+            font-size: var(--da-text-sm); font-weight: 500;
+            display: flex; align-items: center; gap: 10px;
+            border: 1px solid transparent; margin-bottom: 1.25rem;
+            animation: noticeIn 0.4s var(--da-ease-out) both;
+        }
+        @keyframes noticeIn { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: translateY(0); } }
+        .notice-success { background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.2); color: #a7f3d0; }
+        .notice-info    { background: rgba(34,211,238,0.06); border-color: rgba(34,211,238,0.2); color: #cffafe; }
+        .notice-error   { background: rgba(239,68,68,0.06);  border-color: rgba(239,68,68,0.2);  color: #fecaca; }
+
+        /* ── Empty state ── */
+        .empty-state {
+            background: rgba(255, 255, 255, 0.015);
+            border: 2px dashed rgba(201, 169, 98, 0.2);
+            border-radius: var(--da-radius-xl);
+            padding: 5rem 2rem;
+            text-align: center;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+            transition: all var(--da-duration) var(--da-ease-out);
+            position: relative;
+            overflow: hidden;
+        }
+        .empty-state:hover {
+            border-color: rgba(201, 169, 98, 0.4);
+            background: rgba(201, 169, 98, 0.03);
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+        }
+        .empty-state__icon {
+            width: 80px; height: 80px; margin: 0 auto 1.5rem;
+            background: rgba(201, 169, 98, 0.08);
+            border: 1px solid rgba(201, 169, 98, 0.25);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.25rem; color: var(--lux-gold);
+            box-shadow: 0 0 20px rgba(201, 169, 98, 0.15);
+            transition: transform var(--da-duration-slow) var(--da-ease-out);
+        }
+        .empty-state:hover .empty-state__icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 30px rgba(201, 169, 98, 0.3);
+        }
+        .empty-state__title {
+            font-family: var(--da-font-display); font-size: 1.5rem;
+            font-weight: 500; color: var(--lux-ink-soft); margin-bottom: 0.5rem;
+        }
+        .empty-state__sub { font-size: 0.95rem; color: var(--lux-ink-muted); margin-bottom: 2rem; }
+
+        /* ── Review cards ── */
+        .reviews-list { display: flex; flex-direction: column; gap: 1rem; }
+
         .review-card {
-            background:#fff;
-            border:1.5px solid #f1f5f9;
-            border-radius:1.5rem;
-            padding:1.5rem 1.75rem;
-            transition:box-shadow 0.25s ease, border-color 0.25s ease;
-            box-shadow:0 2px 12px rgba(15,23,42,0.04);
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--da-radius-xl);
+            padding: 1.75rem 2rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all var(--da-duration-slow) var(--da-ease-out);
+            position: relative; overflow: hidden;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
         }
-        .review-card:hover { box-shadow:0 8px 32px rgba(15,23,42,0.09); border-color:#fed7aa; }
-
-        /* ── Stars ── */
-        .star-row .star      { color:#e2e8f0; font-size:1.1rem; }
-        .star-row .star.fill { color:#f59e0b; }
-
-        /* ── Status badges ── */
-        .badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:999px; font-size:0.7rem; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; }
-        .badge-pub  { background:#dcfce7; color:#166534; }
-        .badge-pend { background:#fef9c3; color:#854d0e; }
-        .badge-flag { background:#fee2e2; color:#991b1b; }
-        .badge-def  { background:#f1f5f9; color:#475569; }
-
-        /* ── Action buttons ── */
-        .btn-edit {
-            display:inline-flex; align-items:center; gap:6px;
-            background:#f8fafc; border:1.5px solid #e2e8f0; color:#475569;
-            font-weight:700; font-size:0.8rem; padding:7px 14px; border-radius:0.75rem;
-            transition:all 0.2s; text-decoration:none;
+        .review-card::after {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 100% 0%, rgba(201, 169, 98, 0.1), transparent 50%);
+            pointer-events: none; z-index: 0;
+            opacity: 0; transition: opacity var(--da-duration-slow) var(--da-ease-out);
         }
-        .btn-edit:hover { background:#f1f5f9; border-color:#cbd5e1; color:#1e293b; }
-
-        .btn-delete {
-            display:inline-flex; align-items:center; gap:6px;
-            background:#fef2f2; border:1.5px solid #fecaca; color:#dc2626;
-            font-weight:700; font-size:0.8rem; padding:7px 14px; border-radius:0.75rem;
-            cursor:pointer; transition:all 0.2s;
+        .review-card:hover { 
+            border-color: rgba(201, 169, 98, 0.4); 
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 0 40px rgba(201, 169, 98, 0.15); 
+            background: rgba(255, 255, 255, 0.02);
         }
-        .btn-delete:hover { background:#fee2e2; border-color:#fca5a5; }
+        .review-card:hover::after { opacity: 1; }
+        .review-card > * { position: relative; z-index: 1; }
 
-        /* ── Staff reply bubble ── */
+        .review-card:nth-child(1) { animation-delay: 0.05s; }
+        .review-card:nth-child(2) { animation-delay: 0.1s; }
+        .review-card:nth-child(3) { animation-delay: 0.15s; }
+        .review-card:nth-child(4) { animation-delay: 0.2s; }
+        .review-card:nth-child(5) { animation-delay: 0.25s; }
+
+        @keyframes fadeUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform: translateY(0); } }
+
+        /* ── Card meta row ── */
+        .card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-bottom: 0.85rem; }
+        .card-id {
+            font-family: 'Courier New', monospace; font-size: 0.7rem;
+            color: var(--lux-ink-muted); letter-spacing: 0.04em;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 4px; padding: 2px 6px;
+        }
+        .star-row { display: flex; gap: 2px; }
+        .star-row .star { color: rgba(255,255,255,0.12); font-size: 1rem; }
+        .star-row .star.fill { color: var(--lux-gold); text-shadow: 0 0 8px rgba(201,169,98,0.4); }
+        .rating-text { font-size: 0.72rem; font-weight: 600; color: var(--lux-ink-muted); }
+
+        /* Badges */
+        .badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px; border-radius: var(--da-radius-full);
+            font-size: 0.62rem; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            border: 1px solid transparent;
+        }
+        .badge-pub  { background: rgba(34,211,238,0.06); border-color: rgba(34,211,238,0.2); color: var(--lux-cyan); }
+        .badge-pend { background: rgba(201,169,98,0.06); border-color: rgba(201,169,98,0.2); color: var(--lux-gold); }
+        .badge-flag { background: rgba(239,68,68,0.06);  border-color: rgba(239,68,68,0.2);  color: #ef4444; }
+        .badge-def  { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); color: var(--lux-ink-muted); }
+        .badge-booking { background: rgba(201,169,98,0.05); border-color: rgba(201,169,98,0.15); color: var(--lux-gold); }
+
+        /* ── Card body ── */
+        .card-comment {
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.65;
+            color: var(--lux-ink-soft);
+            margin: 1.25rem 0 1.5rem 0;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(90deg, rgba(201, 169, 98, 0.06) 0%, transparent 100%);
+            border-left: 3px solid var(--lux-gold);
+            border-radius: 0 var(--da-radius-lg) var(--da-radius-lg) 0;
+            letter-spacing: 0.01em;
+        }
+        .card-image img {
+            max-height: 160px; width: auto; max-width: 100%;
+            border-radius: var(--da-radius-lg);
+            border: 1px solid rgba(255,255,255,0.07);
+            object-fit: cover;
+            transition: transform var(--da-duration-slow) var(--da-ease-out),
+                        border-color var(--da-duration) var(--da-ease-out);
+            cursor: zoom-in;
+        }
+        .card-image img:hover { transform: scale(1.02); border-color: rgba(201,169,98,0.3); }
+
+        /* ── Reply bubble ── */
         .reply-bubble {
-            margin-top:1rem; padding:12px 14px; border-radius:1rem;
-            background:#fffbeb; border:1.5px solid #fde68a;
-            display:flex; align-items:flex-start; gap:10px;
+            margin-top: 1rem; padding: 0.9rem 1rem;
+            border-radius: var(--da-radius-lg);
+            background: rgba(201,169,98,0.03);
+            border: 1px solid rgba(201,169,98,0.12);
+            display: flex; align-items: flex-start; gap: 10px;
+        }
+        .reply-avatar {
+            width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+            background: rgba(201,169,98,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.7rem; color: var(--lux-gold);
         }
 
-        /* ── Modal overlay ── */
+        /* ── Card footer ── */
+        .card-footer {
+            display: flex; align-items: center; justify-content: flex-end;
+            gap: 0.5rem; margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .btn-edit, .btn-delete {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            padding: 8px 16px; border-radius: var(--da-radius-full);
+            transition: all var(--da-duration) var(--da-ease-out);
+            border: 1px solid transparent; cursor: pointer; text-decoration: none;
+        }
+        .btn-edit {
+            background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.09);
+            color: var(--lux-ink-muted);
+        }
+        .btn-edit:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.2); color: var(--lux-ink-soft); }
+        .btn-delete {
+            background: rgba(239,68,68,0.05); border-color: rgba(239,68,68,0.15);
+            color: #fca5a5;
+        }
+        .btn-delete:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.35); color: #ffffff; }
+
+        /* ── Delete modal ── */
         .modal-overlay {
-            display:none; position:fixed; inset:0;
-            background:rgba(15,23,42,0.55); backdrop-filter:blur(4px);
-            z-index:50; align-items:center; justify-content:center;
+            display: none; position: fixed; inset: 0;
+            background: rgba(3,3,4,0.82);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            z-index: 800; align-items: center; justify-content: center;
         }
-        .modal-overlay.open { display:flex; }
+        .modal-overlay.open { display: flex; }
         .modal-box {
-            background:#fff; border-radius:1.5rem; padding:2rem;
-            max-width:400px; width:calc(100% - 2rem);
-            box-shadow:0 24px 64px rgba(15,23,42,0.2);
-            animation: popIn 0.25s cubic-bezier(0.2,0.8,0.2,1) both;
+            background: var(--lux-carbon);
+            border: 1px solid rgba(201,169,98,0.22);
+            border-radius: var(--da-radius-xl);
+            padding: 2.25rem 2rem;
+            max-width: 420px; width: calc(100% - 2.5rem);
+            box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 40px rgba(201,169,98,0.07);
+            animation: modalIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
         }
-        @keyframes popIn { from { opacity:0; transform:scale(0.92) translateY(12px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        @keyframes modalIn { from { opacity:0; transform: scale(0.94) translateY(12px); } to { opacity:1; transform: scale(1) translateY(0); } }
+        .modal-icon {
+            width: 52px; height: 52px; margin-bottom: 1.25rem;
+            background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+            border-radius: var(--da-radius-lg);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-title { font-family: var(--da-font-display); font-size: 1.25rem; font-weight: 500; color: var(--lux-ink-soft); margin-bottom: 0.5rem; }
+        .modal-body { font-size: var(--da-text-sm); color: var(--lux-ink-muted); line-height: 1.55; margin-bottom: 1.75rem; }
+        .modal-actions { display: flex; gap: 0.75rem; }
+        .modal-keep {
+            flex: 1; padding: 0.8rem; border-radius: var(--da-radius-lg);
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
+            color: var(--lux-ink-muted); font-weight: 600; font-size: 0.85rem;
+            cursor: pointer; transition: all var(--da-duration) var(--da-ease-out);
+        }
+        .modal-keep:hover { background: rgba(255,255,255,0.08); color: var(--lux-ink-soft); }
+        .modal-confirm {
+            flex: 1.5; padding: 0.8rem; border-radius: var(--da-radius-lg);
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fff; font-weight: 700; font-size: 0.85rem;
+            cursor: pointer; transition: all var(--da-duration) var(--da-ease-out);
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            box-shadow: 0 4px 16px rgba(220,38,38,0.25);
+        }
+        .modal-confirm:hover { box-shadow: 0 6px 24px rgba(220,38,38,0.4); transform: translateY(-1px); }
     </style>
 </head>
-<body>
+<body class="index-landing lux-landing">
+
+<!-- Scroll progress -->
+<div class="scroll-progress" id="scrollProg"></div>
+
+<!-- Ambient orbs -->
+<div class="orb orb-1" aria-hidden="true"></div>
+<div class="orb orb-2" aria-hidden="true"></div>
 
 <!-- ── Delete confirmation modal ── -->
-<div class="modal-overlay" id="deleteModal">
+<div class="modal-overlay" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-box">
-        <div class="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center mb-4">
-            <i class="ph-fill ph-trash text-red-500 text-2xl"></i>
-        </div>
-        <h2 class="text-lg font-extrabold text-gray-900 mb-2">Delete review?</h2>
-        <p class="text-sm text-gray-500 mb-6">This action cannot be undone. Your review and any staff replies will be permanently removed.</p>
-        <div class="flex gap-3">
-            <button onclick="closeDeleteModal()" class="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition">Keep it</button>
-            <form id="deleteForm" method="post" class="flex-1 m-0">
-                <button type="submit" class="w-full py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm transition flex items-center justify-center gap-2">
-                    <i class="ph-bold ph-trash"></i> Yes, delete
+        <div class="modal-icon"><i class="ph ph-trash" style="color:#ef4444;font-size:1.4rem;"></i></div>
+        <h2 class="modal-title" id="modalTitle">Delete review?</h2>
+        <p class="modal-body">This action is permanent. Your review and any staff replies will be removed immediately.</p>
+        <div class="modal-actions">
+            <button onclick="closeDeleteModal()" class="modal-keep">Keep it</button>
+            <form id="deleteForm" method="post" style="flex:1.5;margin:0;">
+                <button type="submit" class="modal-confirm" style="width:100%;">
+                    <i class="ph ph-trash-simple"></i> Yes, delete
                 </button>
             </form>
         </div>
     </div>
 </div>
 
-<div class="max-w-3xl mx-auto px-5 pt-10 pb-20 fade-in">
-
-    <!-- ── Hero strip ── -->
-    <div class="hero-strip mb-8 relative z-10">
-        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-            <div>
-                <p class="text-orange-200 text-xs font-bold uppercase tracking-widest mb-2">Customer Portal</p>
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-1">My Reviews</h1>
-                <p class="text-orange-100 text-sm font-medium">View, edit, or remove feedback you have submitted.</p>
-            </div>
-            <div class="flex flex-wrap gap-3">
-                <a th:href="@{/customer/home}"
-                   class="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white font-bold text-sm px-4 py-2.5 rounded-xl border border-white/20 transition">
-                    <i class="ph-bold ph-house"></i> Portal
-                </a>
-                <a th:href="@{/customer/reviews/new}"
-                   class="inline-flex items-center gap-2 bg-white text-orange-600 font-bold text-sm px-4 py-2.5 rounded-xl shadow-lg transition hover:shadow-xl">
-                    <i class="ph-bold ph-plus"></i> Write Review
-                </a>
-            </div>
+<!-- ── Sticky nav ── -->
+<nav class="page-nav">
+    <div class="page-nav__inner">
+        <a th:href="@{/customer/home}" class="page-nav__brand">
+            <span class="page-nav__mark">D</span>
+            DriveAway
+        </a>
+        <div class="page-nav__actions">
+            <a th:href="@{/customer/home}" class="da-btn da-btn--secondary" style="font-size:0.72rem;padding:0.5rem 1rem;">
+                <i class="ph ph-house"></i> Portal
+            </a>
+            <a th:href="@{/customer/reviews/new}" class="da-btn da-btn--primary" style="font-size:0.72rem;padding:0.5rem 1rem;">
+                <i class="ph ph-plus"></i> Write Review
+            </a>
         </div>
     </div>
+</nav>
 
-    <!-- ── Flash notices ── -->
-    <div th:if="${reviewError != null}" class="notice notice-error mb-5">
-        <i class="ph-fill ph-x-circle text-lg shrink-0"></i>
+<!-- ── Page content ── -->
+<div class="page-shell">
+
+    <!-- Hero Banner -->
+    <header class="hero-banner">
+        <div class="hero-banner__content">
+            <p class="hero-banner__eyebrow">Customer Portal</p>
+            <h1 class="hero-banner__title">My Reviews</h1>
+            <p class="hero-banner__sub">View, manage and track feedback you have submitted.</p>
+        </div>
+
+        <!-- Stats Block -->
+        <div class="hero-banner__stats" th:if="${myReviews != null and !#lists.isEmpty(myReviews)}">
+            <div class="hero-stat">
+                <span class="hero-stat__label">REVIEWS</span>
+                <span class="hero-stat__val" th:text="${#lists.size(myReviews)}">0</span>
+            </div>
+            <div class="hero-stat hero-stat--accent">
+                <span class="hero-stat__label">AVG RATING</span>
+                <span class="hero-stat__val" th:text="${#numbers.formatDecimal(#aggregates.avg(myReviews.![rating]), 1, 'POINT', 1, 'POINT')}">—</span>
+            </div>
+            <div class="hero-stat hero-stat--accent">
+                <span class="hero-stat__label">MEMBER</span>
+                <span class="hero-stat__val" style="font-size: 1.65rem; margin-top: 0.35rem;">Gold <i class="ph-fill ph-star" style="font-size: 1.1rem; margin-left:6px; transform:translateY(-2px);"></i></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash notices -->
+    <div th:if="${reviewError != null}" class="notice notice-error">
+        <i class="ph-fill ph-x-circle" style="font-size:1.1rem;flex-shrink:0;"></i>
         <span th:text="${reviewError}">Error</span>
     </div>
-    <div th:if="${param.created != null and !#lists.isEmpty(param.created)}" class="notice notice-success mb-5">
-        <i class="ph-fill ph-check-circle text-lg shrink-0"></i>
+    <div th:if="${param.created != null and !#lists.isEmpty(param.created)}" class="notice notice-success">
+        <i class="ph-fill ph-check-circle" style="font-size:1.1rem;flex-shrink:0;"></i>
         Your review was submitted successfully — thank you!
     </div>
-    <div th:if="${param.updated != null and !#lists.isEmpty(param.updated)}" class="notice notice-success mb-5">
-        <i class="ph-fill ph-check-circle text-lg shrink-0"></i>
+    <div th:if="${param.updated != null and !#lists.isEmpty(param.updated)}" class="notice notice-success">
+        <i class="ph-fill ph-check-circle" style="font-size:1.1rem;flex-shrink:0;"></i>
         Your review has been updated.
     </div>
-    <div th:if="${param.deleted != null and !#lists.isEmpty(param.deleted)}" class="notice notice-info mb-5">
-        <i class="ph-fill ph-info text-lg shrink-0"></i>
+    <div th:if="${param.deleted != null and !#lists.isEmpty(param.deleted)}" class="notice notice-info">
+        <i class="ph-fill ph-info" style="font-size:1.1rem;flex-shrink:0;"></i>
         Your review was deleted.
     </div>
 
-    <!-- ── Empty state ── -->
-    <div th:if="${myReviews == null or #lists.isEmpty(myReviews)}"
-         class="bg-white rounded-3xl border-2 border-dashed border-slate-200 p-14 text-center">
-        <i class="ph-thin ph-star text-6xl text-amber-300 block mb-4"></i>
-        <p class="text-lg font-extrabold text-gray-400 mb-1">No reviews yet</p>
-        <p class="text-sm text-gray-400 mb-6">Be the first to share your DriveAway experience.</p>
-        <a th:href="@{/customer/reviews/new}"
-           class="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-3 rounded-xl transition shadow-lg shadow-orange-500/25">
-            Write your first review <i class="ph-bold ph-arrow-right"></i>
+    <!-- Empty state -->
+    <div th:if="${myReviews == null or #lists.isEmpty(myReviews)}" class="empty-state">
+        <div class="empty-state__icon"><i class="ph ph-star"></i></div>
+        <p class="empty-state__title">No reviews yet</p>
+        <p class="empty-state__sub">Share your DriveAway experience and help other customers.</p>
+        <a th:href="@{/customer/reviews/new}" class="da-btn da-btn--primary">
+            Write your first review <i class="ph ph-arrow-right"></i>
         </a>
     </div>
 
-    <!-- ── Review list ── -->
-    <div th:unless="${myReviews == null or #lists.isEmpty(myReviews)}" class="space-y-4">
-
+    <!-- Review list -->
+    <div class="reviews-list" th:unless="${myReviews == null or #lists.isEmpty(myReviews)}">
         <article th:each="r : ${myReviews}" class="review-card">
-            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
 
-                <!-- Left: review content -->
-                <div class="flex-1 min-w-0">
-
-                    <!-- Top meta row -->
-                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-3">
-                        <span class="font-mono text-xs font-bold text-slate-400">#<span th:text="${r.id}">id</span></span>
-
-                        <!-- Stars -->
-                        <div class="star-row flex gap-0.5">
-                            <span th:each="i : ${#numbers.sequence(1,5)}"
-                                  th:class="${i <= r.rating} ? 'star fill' : 'star'">★</span>
-                        </div>
-                        <span class="text-xs font-bold text-slate-500" th:text="${r.rating} + '/5'">5/5</span>
-
-                        <!-- Booking chip -->
-                        <span th:if="${r.bookingId != null and !#strings.isEmpty(r.bookingId)}"
-                              class="text-xs font-semibold bg-amber-50 border border-amber-200 text-amber-800 px-2.5 py-0.5 rounded-full">
-                            <i class="ph-fill ph-receipt"></i>
-                            <span th:text="${r.bookingId}">BK-001</span>
-                        </span>
-
-                        <!-- Status badge -->
-                        <span th:if="${r.status == 'PUBLISHED'}" class="badge badge-pub"><i class="ph-fill ph-check-circle"></i> Published</span>
-                        <span th:if="${r.status == 'PENDING'}"   class="badge badge-pend"><i class="ph-fill ph-clock"></i> Pending</span>
-                        <span th:if="${r.status == 'FLAGGED'}"   class="badge badge-flag"><i class="ph-fill ph-flag"></i> Flagged</span>
-                        <span th:if="${r.status != 'PUBLISHED' and r.status != 'PENDING' and r.status != 'FLAGGED'}"
-                              class="badge badge-def" th:text="${r.status}">Status</span>
-                    </div>
-
-                    <!-- Comment -->
-                    <p class="text-sm text-gray-700 leading-relaxed" th:text="${r.comments}">Comment</p>
-
-                    <!-- Attached Image -->
-                    <div th:if="${r.imageUrl != null and !#strings.isEmpty(r.imageUrl)}" class="mt-3">
-                        <img th:src="@{${r.imageUrl}}" alt="Review photo" class="h-32 w-auto rounded-xl border border-slate-200 object-cover shadow-sm"/>
-                    </div>
-
-                    <!-- Staff reply -->
-                    <div th:if="${r.staffReply != null and !#strings.isEmpty(r.staffReply)}" class="reply-bubble">
-                        <div class="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center shrink-0 font-bold text-amber-900 text-xs"
-                             th:text="${!#strings.isEmpty(r.repliedBy) ? #strings.toUpperCase(#strings.substring(r.repliedBy,0,1)) : 'S'}">S</div>
-                        <div>
-                            <p class="text-xs font-extrabold text-amber-800 mb-0.5">
-                                <span th:text="${r.repliedBy}">Staff</span>
-                                <span class="font-normal text-amber-600 ml-1">· Staff reply</span>
-                            </p>
-                            <p class="text-sm text-slate-700" th:text="${r.staffReply}">Reply</p>
-                        </div>
-                    </div>
+            <!-- Meta row -->
+            <div class="card-meta">
+                <span class="card-id">#<span th:text="${r.id}">id</span></span>
+                <div class="star-row">
+                    <span th:each="i : ${#numbers.sequence(1,5)}"
+                          th:class="${i <= r.rating} ? 'star fill' : 'star'">★</span>
                 </div>
+                <span class="rating-text" th:text="${r.rating} + ' / 5'">5/5</span>
 
-                <!-- Right: action buttons -->
-                <div class="flex sm:flex-col gap-2 shrink-0">
-                    <a th:href="@{/customer/reviews/{id}/edit(id=${r.id})}" class="btn-edit">
-                        <i class="ph-bold ph-pencil-simple"></i> Edit
-                    </a>
-                    <button type="button"
-                            class="btn-delete"
-                            th:attr="data-action=@{/customer/reviews/{id}/delete(id=${r.id})}"
-                            onclick="openDeleteModal(this.dataset.action)">
-                        <i class="ph-bold ph-trash"></i> Delete
-                    </button>
+                <!-- Booking chip -->
+                <span th:if="${r.bookingId != null and !#strings.isEmpty(r.bookingId)}"
+                      class="badge badge-booking">
+                    <i class="ph ph-receipt"></i>
+                    <span th:text="${r.bookingId}">BK-001</span>
+                </span>
+
+                <!-- Status badge -->
+                <span th:if="${r.status == 'PUBLISHED'}" class="badge badge-pub"><i class="ph ph-check-circle"></i> Published</span>
+                <span th:if="${r.status == 'PENDING'}"   class="badge badge-pend"><i class="ph ph-clock"></i> Pending</span>
+                <span th:if="${r.status == 'FLAGGED'}"   class="badge badge-flag"><i class="ph ph-flag"></i> Flagged</span>
+                <span th:if="${r.status != 'PUBLISHED' and r.status != 'PENDING' and r.status != 'FLAGGED'}"
+                      class="badge badge-def" th:text="${r.status}">Status</span>
+            </div>
+
+            <!-- Comment -->
+            <p class="card-comment" th:text="${r.comments}">Review comment…</p>
+
+            <!-- Attached image -->
+            <div class="card-image" th:if="${r.imageUrl != null and !#strings.isEmpty(r.imageUrl)}" style="margin-bottom:0.75rem;">
+                <img th:src="@{${r.imageUrl}}" alt="Review photo"/>
+            </div>
+
+            <!-- Staff reply -->
+            <div class="reply-bubble" th:if="${r.staffReply != null and !#strings.isEmpty(r.staffReply)}">
+                <div class="reply-avatar"
+                     th:text="${!#strings.isEmpty(r.repliedBy) ? #strings.toUpperCase(#strings.substring(r.repliedBy,0,1)) : 'S'}">S</div>
+                <div>
+                    <p style="font-size:0.72rem;font-weight:700;color:var(--lux-gold);margin:0 0 3px 0;">
+                        <span th:text="${r.repliedBy}">Staff</span>
+                        <span style="font-weight:400;color:var(--lux-ink-muted);margin-left:4px;">· Staff reply</span>
+                    </p>
+                    <p style="font-size:0.85rem;color:var(--lux-ink-muted);margin:0;line-height:1.55;" th:text="${r.staffReply}">Reply</p>
                 </div>
             </div>
-        </article>
 
+            <!-- Card footer actions -->
+            <div class="card-footer">
+                <a th:href="@{/customer/reviews/{id}/edit(id=${r.id})}" class="btn-edit">
+                    <i class="ph ph-pencil-simple"></i> Edit
+                </a>
+                <button type="button" class="btn-delete"
+                        th:attr="data-action=@{/customer/reviews/{id}/delete(id=${r.id})}"
+                        onclick="openDeleteModal(this.dataset.action)">
+                    <i class="ph ph-trash"></i> Delete
+                </button>
+            </div>
+        </article>
     </div>
 </div>
 
 <script>
+    // Scroll progress
+    const prog = document.getElementById('scrollProg');
+    window.addEventListener('scroll', () => {
+        const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+        prog.style.transform = `scaleX(${Math.min(1, pct)})`;
+    }, { passive: true });
+
+    // Delete modal
     function openDeleteModal(action) {
         document.getElementById('deleteForm').action = action;
         document.getElementById('deleteModal').classList.add('open');
+        document.body.style.overflow = 'hidden';
     }
     function closeDeleteModal() {
         document.getElementById('deleteModal').classList.remove('open');
+        document.body.style.overflow = '';
     }
-    // Close on backdrop click
     document.getElementById('deleteModal').addEventListener('click', function(e) {
         if (e.target === this) closeDeleteModal();
     });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDeleteModal(); });
 </script>
 </body>
 </html>

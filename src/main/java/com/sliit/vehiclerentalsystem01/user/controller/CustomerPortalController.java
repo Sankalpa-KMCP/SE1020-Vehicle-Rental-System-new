@@ -563,6 +563,16 @@ public class CustomerPortalController {
                     cr.setComments(comments.trim());
                     String imgUrl = saveReviewImage(image);
                     if (imgUrl != null && !imgUrl.isEmpty()) {
+                        String oldImgUrl = cr.getImageUrl();
+                        if (oldImgUrl != null && !oldImgUrl.isBlank()) {
+                            try {
+                                String pathStr = oldImgUrl.startsWith("/") ? oldImgUrl.substring(1) : oldImgUrl;
+                                java.nio.file.Path path = java.nio.file.Paths.get(pathStr);
+                                java.nio.file.Files.deleteIfExists(path);
+                            } catch (java.io.IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         cr.setImageUrl(imgUrl);
                     }
                     try {
