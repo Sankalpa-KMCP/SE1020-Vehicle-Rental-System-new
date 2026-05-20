@@ -11,6 +11,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <style>
         body { font-family: 'Inter', sans-serif; background: #F4F7F6; }
+        
+        /* Premium Obsidian Dark theme overrides matching Central Dashboard */
+        body {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            #050506 !important;
+          background-size: 24px 24px, auto, auto, auto;
+          color: #f4f2ee !important;
+        }
+
+        .bg-white, .bg-slate-\[50\], .bg-gray-100 { background: #0c0c0e !important; border-color: rgba(255,255,255,0.08) !important; color: #f4f2ee !important; }
+        .text-gray-900, .text-gray-800, .text-gray-700 { color: #f4f2ee !important; }
+        .text-gray-500, .text-gray-600, .text-slate-500 { color: #a8a6a0 !important; }
+        .bg-slate-50, .bg-gray-50 { background: #050506 !important; border-color: rgba(255,255,255,0.08) !important; color: #f4f2ee !important; }
+        .border-slate-100, .border-slate-200, .border-slate-600, .border-gray-200, .border-gray-100 { border-color: rgba(255,255,255,0.05) !important; }
+        
+        td, th, span:not(.font-bold):not(.text-blue-600), div, label, p, h1, h2, h3, select, input, dt, dd { color: #f4f2ee !important; }
+        
+        input, select { background-color: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #f4f2ee !important; }
+        input:focus, select:focus { border-color: #c9a962 !important; box-shadow: 0 0 0 2px rgba(201,169,98,0.2) !important; }
+        
+        button[type="submit"], .btn-primary, .bg-blue-600, .bg-slate-800, .bg-slate-700, .bg-sky-600 { background: #c9a962 !important; color: #050506 !important; border: none !important; }
+        button[type="submit"]:hover, .btn-primary:hover { background: #e8d5a3 !important; }
+        
+        .text-emerald-700, .text-blue-700, .text-green-700 { color: #f4f2ee !important; }
+        .bg-green-50, .bg-blue-50 { background-color: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
+        .bg-gradient-to-br.from-blue-600 { background: linear-gradient(135deg, #0a0a0b 0%, #141418 100%) !important; border: 1px solid rgba(201, 169, 98, 0.2) !important; }
     </style>
 </head>
 <body class="min-h-screen text-gray-800">
