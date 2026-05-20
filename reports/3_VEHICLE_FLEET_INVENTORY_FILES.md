@@ -34,7 +34,7 @@ com.sliit.vehiclerentalsystem01.vehicle/
 
 ### B. Entity Tier (`entity/`)
 * **[Vehicle.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Vehicle.java)**:
-  Abstract base class defining fields (brand, model, daily rate) and declaring abstract methods `getVehicleType()`, `calculateRentalRate()`, `getSpecificDetail()`, and `toCSV()`.
+  Abstract base class defining fields (brand, model, daily rate, **`imagePath`**) and declaring abstract methods `getVehicleType()`, `calculateRentalRate()`, `getSpecificDetail()`, and `toCSV()`.
 * **[Car.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Car.java)**:
   Concrete subclass representing cars. Encapsulates `seatingCapacity` and overrides pricing rate structures.
 * **[Motorcycle.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Motorcycle.java)**:
@@ -42,7 +42,7 @@ com.sliit.vehiclerentalsystem01.vehicle/
 
 ### C. Repository Tier (`repository/`)
 * **[VehicleRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/repository/VehicleRepository.java)**:
-  Encapsulates data access. Reads and parses lines from `data/vehicles.txt`. Detects polymorphic subclass types via the line discriminator prefix (`Car` or `Motorcycle`) and serializes list items.
+  Encapsulates data access. Reads and parses lines from `data/vehicles.txt`. Detects polymorphic subclass types via the line discriminator prefix (`Car` or `Motorcycle`), including the trailing **`imagePath`** column (with defaults for older rows), and serializes list items.
 
 ### D. Service Tier (`service/`)
 * **[VehicleService.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/service/VehicleService.java)**:

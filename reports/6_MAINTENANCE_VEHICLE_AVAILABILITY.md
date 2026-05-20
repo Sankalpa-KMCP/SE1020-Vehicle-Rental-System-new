@@ -25,7 +25,7 @@ This component's responsibilities are divided across standard Spring Boot MVC ti
   * [MaintenanceRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/repository/MaintenanceRepository.java): Coordinates file database operations, parsing, and serialization of maintenance and fleet status records using a custom pipe-separated format.
 * **Services (Business Logic):**
   * [MaintenanceService.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/service/MaintenanceService.java): Core maintenance tracking interface.
-  * [MaintenanceServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/service/MaintenanceServiceImpl.java): Enforces status transitions and handles default seeding for fleet availability status checks.
+  * [MaintenanceServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/service/MaintenanceServiceImpl.java): Enforces status transitions. On startup (`@PostConstruct`), if the maintenance module’s **vehicle roster** in storage is empty, it persists a built-in list from `seedVehicles()` so availability checks have baseline fleet rows (this is **not** user-account seeding).
 * **Controllers (Request Routers):**
   * [MaintenanceController.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/controller/MaintenanceController.java): Coordinates staff service dashboards and routine checkup log creation routes.
 * **Thymeleaf HTML Templates (`templates/user` folder):**
