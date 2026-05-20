@@ -13,6 +13,7 @@ public class CustomerReview extends Feedback {
     private String staffReply;
     private String repliedBy;
     private String repliedAt;
+    private String imageUrl;
 
     public CustomerReview() {
         super();
@@ -22,6 +23,7 @@ public class CustomerReview extends Feedback {
         this.staffReply = "";
         this.repliedBy = "";
         this.repliedAt = "";
+        this.imageUrl = "";
     }
 
     public CustomerReview(String reviewId, String reviewerName, int rating, String comments, String status) {
@@ -98,6 +100,14 @@ public class CustomerReview extends Feedback {
         this.repliedAt = repliedAt;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     @Override
     public String getReviewType() {
         return "Verified Customer";
@@ -132,7 +142,8 @@ public class CustomerReview extends Feedback {
                 escape(vehicleId),
                 escape(staffReply),
                 escape(repliedBy),
-                escape(repliedAt));
+                escape(repliedAt),
+                escape(imageUrl));
     }
 
     private static String escape(String s) {
@@ -150,7 +161,7 @@ public class CustomerReview extends Feedback {
         if (a.length < 10) {
             return null;
         }
-        return new CustomerReview(
+        CustomerReview cr = new CustomerReview(
                 a[0].trim(),
                 a[1].trim(),
                 Integer.parseInt(a[2].trim()),
@@ -161,5 +172,9 @@ public class CustomerReview extends Feedback {
                 a[7].trim(),
                 a[8].trim(),
                 a[9].trim());
+        if (a.length > 10) {
+            cr.setImageUrl(a[10].trim());
+        }
+        return cr;
     }
 }

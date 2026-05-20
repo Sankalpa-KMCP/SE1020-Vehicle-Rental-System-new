@@ -3,63 +3,343 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Review detail - DriveAway</title>
+    <title>Review Detail — DriveAway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <th:block th:replace="~{fragments/admin-directory-head :: fontAndUtilities}"></th:block>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet"/>
     <style>
-        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at 20% 20%, #fef3c7 0%, #f8fafc 40%, #fff7ed 100%); }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        :root {
+            --accent: #c9a227;
+            --accent-dim: rgba(201,162,39,0.15);
+            --surface: rgba(16,16,22,0.8);
+            --border: rgba(255,255,255,0.07);
+            --text: #f3f4f6;
+            --muted: #9ca3af;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            background-color: #050506;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0),
+                radial-gradient(ellipse 70% 55% at 50% -10%, rgba(201,162,39,0.10), transparent 60%);
+            background-size: 24px 24px, auto;
+            color: var(--text);
+        }
+
+        /* ── Top nav bar ── */
+        .topbar {
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(5,5,6,0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.875rem 2rem;
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.8rem; font-weight: 700; color: var(--accent);
+            background: rgba(201,162,39,0.08); border: 1px solid rgba(201,162,39,0.2);
+            border-radius: 0.6rem; padding: 7px 16px; text-decoration: none;
+            transition: all 0.2s; letter-spacing: 0.03em;
+        }
+        .back-btn:hover { background: rgba(201,162,39,0.18); color: #fff; transform: translateX(-2px); }
+        .topbar-title {
+            font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.5);
+            letter-spacing: 0.05em; text-transform: uppercase;
+        }
+        .topbar-sep { color: rgba(255,255,255,0.2); font-size: 0.75rem; }
+
+        /* ── Page wrapper ── */
+        .page { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+        /* ── Reviewer hero ── */
+        .reviewer-hero {
+            background: radial-gradient(ellipse 110% 110% at 0% 0%, #15151c 0%, #0a0a0f 100%);
+            border: 1px solid rgba(201,162,39,0.18);
+            border-radius: 1.75rem;
+            padding: 2.5rem 2.5rem 2rem;
+            position: relative; overflow: hidden;
+            box-shadow: 0 24px 56px rgba(0,0,0,0.55);
+            margin-bottom: 1.5rem;
+            display: flex; align-items: center; gap: 1.75rem; flex-wrap: wrap;
+        }
+        .reviewer-hero::after {
+            content: '★';
+            position: absolute; right: -30px; bottom: -55px;
+            font-size: 240px; color: rgba(201,162,39,0.04);
+            pointer-events: none; line-height: 1; transform: rotate(-10deg);
+        }
+        .reviewer-avatar {
+            width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.75rem; font-weight: 900;
+            background: linear-gradient(135deg, #2e2a1e, #1a160d);
+            color: var(--accent); border: 2px solid rgba(201,162,39,0.35);
+            box-shadow: 0 0 20px rgba(201,162,39,0.15);
+        }
+        .reviewer-info { flex: 1; min-width: 0; }
+        .reviewer-name { font-size: 1.75rem; font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 0.4rem; }
+        .reviewer-sub { font-size: 0.78rem; color: var(--muted); font-weight: 600; letter-spacing: 0.05em; }
+
+        /* ── Status badge ── */
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 14px; border-radius: 999px;
+            font-size: 0.7rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
+        }
+        .s-published { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.22); }
+        .s-flagged   { background: rgba(239,68,68,0.1);  color: #ef4444; border: 1px solid rgba(239,68,68,0.22); }
+        .s-pending   { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.22); }
+        .s-default   { background: rgba(255,255,255,0.05); color: #9ca3af; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* ── Stars ── */
+        .stars { display: inline-flex; gap: 3px; }
+        .stars .s { font-size: 1.4rem; }
+        .stars .s.on  { color: var(--accent); }
+        .stars .s.off { color: rgba(255,255,255,0.12); }
+
+        /* ── Info grid ── */
+        .info-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 560px) { .info-grid { grid-template-columns: 1fr; } }
+        .info-cell {
+            background: rgba(14,14,20,0.9);
+            padding: 1.25rem 1.5rem;
+            display: flex; align-items: flex-start; gap: 12px;
+        }
+        .info-cell-icon {
+            width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(201,162,39,0.08); border: 1px solid rgba(201,162,39,0.15);
+            color: var(--accent); font-size: 1rem;
+        }
+        .info-label { font-size: 0.65rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+        .info-val   { font-size: 0.9rem; font-weight: 700; color: #fff; }
+        .info-val.mono { font-family: 'Courier New', monospace; font-size: 0.82rem; color: rgba(255,255,255,0.8); }
+
+        /* ── Content card ── */
+        .content-card {
+            background: rgba(14,14,20,0.9);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .content-card-head {
+            display: flex; align-items: center; gap: 10px;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.015);
+        }
+        .content-card-head-icon {
+            width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(201,162,39,0.1); border: 1px solid rgba(201,162,39,0.2);
+            color: var(--accent); font-size: 0.9rem;
+        }
+        .content-card-title { font-size: 0.78rem; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.08em; }
+        .content-card-body { padding: 1.5rem; }
+
+        /* ── Comment text ── */
+        .comment-text {
+            font-size: 0.95rem; line-height: 1.75; color: #e5e7eb; font-weight: 500;
+        }
+
+        /* ── Photo ── */
+        .photo-wrap {
+            border-radius: 1rem; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+            display: inline-block; max-width: 100%;
+        }
+        .photo-wrap img { display: block; width: 100%; height: auto; object-fit: cover; transition: transform 0.5s ease; }
+        .photo-wrap:hover img { transform: scale(1.03); }
+
+        /* ── Staff reply card ── */
+        .reply-card {
+            background: rgba(201,162,39,0.04);
+            border: 1px solid rgba(201,162,39,0.18);
+            border-radius: 1.25rem;
+            overflow: hidden;
+        }
+        .reply-card-head {
+            display: flex; align-items: center; gap: 10px;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(201,162,39,0.12);
+            background: rgba(201,162,39,0.03);
+        }
+        .reply-avatar {
+            width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; font-weight: 900;
+            background: linear-gradient(135deg, #101a2c, #0a101d);
+            color: #60a5fa; border: 1px solid rgba(59,130,246,0.3);
+        }
+        .reply-meta-name { font-size: 0.8rem; font-weight: 800; color: #fff; }
+        .reply-meta-label { font-size: 0.68rem; color: var(--muted); font-weight: 600; }
+        .reply-body { padding: 1.25rem 1.5rem; }
+        .reply-text { font-size: 0.9rem; line-height: 1.7; color: #e5e7eb; }
+        .reply-time { font-size: 0.68rem; color: rgba(201,162,39,0.6); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.75rem; }
+
+        /* ── Fade-in animation ── */
+        .fade-up { animation: fadeUp 0.45s ease-out both; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .delay-1 { animation-delay: 0.05s; }
+        .delay-2 { animation-delay: 0.12s; }
+        .delay-3 { animation-delay: 0.20s; }
+        .delay-4 { animation-delay: 0.28s; }
     </style>
 </head>
-<body class="min-h-screen text-gray-800 p-8">
-<div class="max-w-2xl mx-auto">
-    <a th:href="@{/reviews}" class="inline-flex items-center gap-2 text-amber-800 font-semibold hover:text-amber-950 mb-8">
-        <i class="ph-bold ph-arrow-left"></i> Back to customer reviews
-    </a>
+<body>
 
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-lg p-8 space-y-6" th:if="${review instanceof T(com.sliit.vehiclerentalsystem01.review.entity.CustomerReview)}">
-        <div class="flex items-start justify-between gap-4">
-            <div>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Review ID</p>
-                <p class="font-mono font-extrabold text-lg" th:text="${review.id}">id</p>
+<!-- Top navigation bar -->
+<nav class="topbar">
+    <a th:href="@{/reviews}" class="back-btn">
+        <i class="ph-bold ph-arrow-left"></i> Reviews
+    </a>
+    <span class="topbar-sep">/</span>
+    <span class="topbar-title">Review Detail</span>
+</nav>
+
+<div class="page" th:if="${review instanceof T(com.sliit.vehiclerentalsystem01.review.entity.CustomerReview)}">
+
+    <!-- ── Reviewer hero card ── -->
+    <div class="reviewer-hero fade-up">
+        <!-- Avatar -->
+        <div class="reviewer-avatar"
+             th:text="${!#strings.isEmpty(review.reviewerName) ? #strings.toUpperCase(#strings.substring(review.reviewerName,0,1)) : 'C'}">C</div>
+
+        <!-- Info -->
+        <div class="reviewer-info">
+            <p class="reviewer-name" th:text="${review.reviewerName}">Reviewer Name</p>
+            <p class="reviewer-sub">
+                Review ID: &nbsp;<span style="font-family:monospace;color:rgba(201,162,39,0.85);" th:text="'#' + ${review.id}">#ID</span>
+            </p>
+
+            <!-- Stars + rating number -->
+            <div class="flex items-center gap-3 mt-3">
+                <div class="stars">
+                    <span th:each="i : ${#numbers.sequence(1,5)}"
+                          th:class="${i <= review.rating} ? 's on' : 's off'">★</span>
+                </div>
+                <span style="font-weight:900;color:var(--accent);font-size:1.05rem;" th:text="${review.rating} + '.0 / 5'">5.0 / 5</span>
             </div>
-            <span class="bg-slate-100 text-slate-800 font-bold px-3 py-1 rounded-lg text-xs" th:text="${review.status}">status</span>
         </div>
 
-        <dl class="grid gap-4 text-sm">
-            <div>
-                <dt class="text-xs font-bold text-slate-500 uppercase">Customer</dt>
-                <dd class="font-semibold text-gray-900" th:text="${review.reviewerName}">—</dd>
-            </div>
-            <div th:if="${review.bookingId != null and !#strings.isEmpty(review.bookingId)}">
-                <dt class="text-xs font-bold text-slate-500 uppercase">Booking</dt>
-                <dd class="font-mono font-semibold" th:text="${review.bookingId}">—</dd>
-            </div>
-            <div th:if="${review.vehicleId != null and !#strings.isEmpty(review.vehicleId)}">
-                <dt class="text-xs font-bold text-slate-500 uppercase">Vehicle</dt>
-                <dd class="font-mono font-semibold" th:text="${review.vehicleId}">—</dd>
-            </div>
-            <div>
-                <dt class="text-xs font-bold text-slate-500 uppercase mb-1">Rating</dt>
-                <dd class="text-amber-600 font-extrabold text-lg flex items-center gap-1">
-                    <i class="ph-fill ph-star"></i>
-                    <span th:text="${review.rating}">5</span>/5
-                </dd>
-            </div>
-            <div>
-                <dt class="text-xs font-bold text-slate-500 uppercase mb-1">Comment</dt>
-                <dd class="text-gray-700 leading-relaxed bg-slate-50 rounded-xl p-4 border border-slate-100" th:text="${review.comments}">—</dd>
-            </div>
-            <div th:if="${review.staffReply != null and !#strings.isEmpty(review.staffReply)}">
-                <dt class="text-xs font-bold text-amber-700 uppercase mb-1">Staff reply</dt>
-                <dd class="text-sm bg-amber-50 border border-amber-100 rounded-xl p-4">
-                    <span class="font-bold text-amber-900" th:text="${review.repliedBy}">staff</span>:
-                    <span th:text="${review.staffReply}">reply</span>
-                    <p th:if="${review.repliedAt != null and !#strings.isEmpty(review.repliedAt)}" class="text-xs text-amber-700/80 mt-2" th:text="${review.repliedAt}">time</p>
-                </dd>
-            </div>
-        </dl>
+        <!-- Status badge -->
+        <div style="margin-left:auto;">
+            <span th:if="${review.status == 'PUBLISHED'}" class="status-badge s-published">
+                <i class="ph-fill ph-check-circle"></i> Published
+            </span>
+            <span th:if="${review.status == 'FLAGGED'}" class="status-badge s-flagged">
+                <i class="ph-fill ph-flag"></i> Flagged
+            </span>
+            <span th:if="${review.status == 'PENDING'}" class="status-badge s-pending">
+                <i class="ph-fill ph-clock"></i> Pending
+            </span>
+            <span th:if="${review.status != 'PUBLISHED' and review.status != 'FLAGGED' and review.status != 'PENDING'}"
+                  class="status-badge s-default" th:text="${review.status}">Status</span>
+        </div>
     </div>
+
+    <!-- ── Info grid ── -->
+    <div class="info-grid fade-up delay-1">
+        <div class="info-cell">
+            <div class="info-cell-icon"><i class="ph-bold ph-user"></i></div>
+            <div>
+                <p class="info-label">Customer</p>
+                <p class="info-val" th:text="${review.reviewerName}">—</p>
+            </div>
+        </div>
+        <div class="info-cell">
+            <div class="info-cell-icon"><i class="ph-bold ph-star"></i></div>
+            <div>
+                <p class="info-label">Rating</p>
+                <p class="info-val" th:text="${review.rating} + ' out of 5'">— out of 5</p>
+            </div>
+        </div>
+        <div class="info-cell" th:if="${review.bookingId != null and !#strings.isEmpty(review.bookingId)}">
+            <div class="info-cell-icon"><i class="ph-bold ph-calendar-check"></i></div>
+            <div>
+                <p class="info-label">Booking</p>
+                <p class="info-val mono" th:text="${review.bookingId}">—</p>
+            </div>
+        </div>
+        <div class="info-cell" th:if="${review.vehicleId != null and !#strings.isEmpty(review.vehicleId)}">
+            <div class="info-cell-icon"><i class="ph-bold ph-car"></i></div>
+            <div>
+                <p class="info-label">Vehicle</p>
+                <p class="info-val mono" th:text="${review.vehicleId}">—</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Comment ── -->
+    <div class="content-card fade-up delay-2">
+        <div class="content-card-head">
+            <div class="content-card-head-icon"><i class="ph-bold ph-chat-centered-text"></i></div>
+            <span class="content-card-title">Customer Comment</span>
+        </div>
+        <div class="content-card-body">
+            <p class="comment-text" th:text="${review.comments}">No comment provided.</p>
+        </div>
+    </div>
+
+    <!-- ── Attached Photo ── -->
+    <div class="content-card fade-up delay-2" th:if="${review.imageUrl != null and !#strings.isEmpty(review.imageUrl)}">
+        <div class="content-card-head">
+            <div class="content-card-head-icon"><i class="ph-bold ph-image"></i></div>
+            <span class="content-card-title">Attached Photo</span>
+        </div>
+        <div class="content-card-body">
+            <div class="photo-wrap" style="max-width:480px;">
+                <img th:src="@{${review.imageUrl}}" alt="Review photo"/>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Staff Reply ── -->
+    <div class="reply-card fade-up delay-3" th:if="${review.staffReply != null and !#strings.isEmpty(review.staffReply)}">
+        <div class="reply-card-head">
+            <div class="reply-avatar"
+                 th:text="${!#strings.isEmpty(review.repliedBy) ? #strings.toUpperCase(#strings.substring(review.repliedBy,0,1)) : 'S'}">S</div>
+            <div>
+                <p class="reply-meta-name" th:text="${review.repliedBy}">Staff</p>
+                <p class="reply-meta-label">Official Staff Response</p>
+            </div>
+            <div style="margin-left:auto;">
+                <span style="font-size:0.68rem;font-weight:800;color:var(--accent);background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.2);padding:4px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.07em;">
+                    <i class="ph-fill ph-shield-check" style="margin-right:4px;"></i>Staff Reply
+                </span>
+            </div>
+        </div>
+        <div class="reply-body">
+            <p class="reply-text" th:text="${review.staffReply}">Reply text.</p>
+            <p class="reply-time" th:if="${review.repliedAt != null and !#strings.isEmpty(review.repliedAt)}"
+               th:text="'Replied: ' + ${review.repliedAt}">Replied: —</p>
+        </div>
+    </div>
+
+    <!-- No-reply placeholder -->
+    <div class="content-card fade-up delay-3" th:if="${review.staffReply == null or #strings.isEmpty(review.staffReply)}"
+         style="border-style:dashed;opacity:0.6;">
+        <div class="content-card-body" style="text-align:center;padding:2rem;">
+            <i class="ph-thin ph-chat-centered-dots" style="font-size:2.5rem;color:var(--muted);display:block;margin-bottom:.75rem;"></i>
+            <p style="font-size:0.82rem;font-weight:700;color:var(--muted);">No staff response yet</p>
+            <p style="font-size:0.74rem;color:rgba(255,255,255,0.3);margin-top:.25rem;">Reply from the reviews dashboard.</p>
+        </div>
+    </div>
+
 </div>
 </body>
 </html>

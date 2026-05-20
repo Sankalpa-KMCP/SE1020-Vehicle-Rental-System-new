@@ -5,6 +5,7 @@ import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
 import com.sliit.vehiclerentalsystem01.payment.entity.CardPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.CashPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
+import com.sliit.vehiclerentalsystem01.payment.entity.PaymentStatus;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import jakarta.servlet.http.HttpSession;
@@ -33,7 +34,8 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final ReservationService reservationService;
 
-    public PaymentController(PaymentService paymentService, ReservationService reservationService) {
+    public PaymentController(PaymentService paymentService,
+                             ReservationService reservationService) {
         this.paymentService = paymentService;
         this.reservationService = reservationService;
     }
@@ -47,17 +49,18 @@ public class PaymentController {
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
+
         List<Payment> payments = paymentService.findAll();
         model.addAttribute("payments", payments);
         model.addAttribute("totalTransactions", payments.size());
         long paidCount = payments.stream()
-                .filter(p -> statusMatches(p.getStatus(), "PAID", "COMPLETED", "SETTLED"))
+                .filter(p -> PaymentStatus.fromString(p.getStatus()).isPaid())
                 .count();
         long pendingCount = payments.stream()
-                .filter(p -> statusMatches(p.getStatus(), "PENDING", "DUE", "AWAITING"))
+                .filter(p -> PaymentStatus.fromString(p.getStatus()).isPending())
                 .count();
         long refundedCount = payments.stream()
-                .filter(p -> statusMatches(p.getStatus(), "REFUND", "REFUNDED"))
+                .filter(p -> PaymentStatus.fromString(p.getStatus()).isRefunded())
                 .count();
         double totalAmount = payments.stream().mapToDouble(Payment::getAmount).sum();
         model.addAttribute("paidCount", paidCount);
@@ -65,19 +68,6 @@ public class PaymentController {
         model.addAttribute("refundedCount", refundedCount);
         model.addAttribute("totalAmount", totalAmount);
         return "payment/payment-dashboard";
-    }
-
-    private static boolean statusMatches(String status, String... tokens) {
-        if (status == null || status.isBlank()) {
-            return false;
-        }
-        String s = status.trim().toUpperCase();
-        for (String t : tokens) {
-            if (s.contains(t.toUpperCase())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @GetMapping("/new")
@@ -273,6 +263,25 @@ public class PaymentController {
         return "redirect:/payments";
     }
 
+    @PostMapping("/{id}/confirm")
+    public String confirmPayment(@PathVariable String id, HttpSession session) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        Optional<Payment> payment = paymentService.findById(id);
+        if (payment.isEmpty()) {
+            return "redirect:/payments";
+        }
+        Payment confirmedPayment = payment.get();
+        confirmedPayment.setStatus("PAID");
+        try {
+            paymentService.save(confirmedPayment);
+        } catch (ValidationException ex) {
+            return "redirect:/payments/" + id + "/edit?error=" + ex.getMessage();
+        }
+        return "redirect:/payments";
+    }
+
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable String id, HttpSession session) {
         if (!admin(session)) {
@@ -280,5 +289,51 @@ public class PaymentController {
         }
         paymentService.deleteById(id);
         return "redirect:/payments";
+    }
+
+    private static boolean customer(HttpSession session) {
+        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN));
+    }
+
+    @PostMapping("/customer/gateway/complete")
+    public String customerGatewayComplete(HttpSession session,
+                                          @RequestParam String bookingId,
+                                          RedirectAttributes ra) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        Optional<Payment> payment = paymentService.findLatestByBookingId(bookingId);
+        if (payment.isPresent()) {
+            Payment p = payment.get();
+            p.setStatus("VERIFYING");
+            try {
+                paymentService.save(p);
+            } catch (ValidationException ex) {
+                return "redirect:/customer/billing/gateway?bookingId=" + bookingId + "&error=" + ex.getMessage();
+            }
+        }
+        ra.addFlashAttribute("paymentMessage", "Your payment is pending for staff approval.");
+        return "redirect:/customer/billing?payment=pending_approval";
+    }
+
+    @PostMapping("/customer/pay")
+    public String customerPay(HttpSession session,
+                              @RequestParam String bookingId,
+                              RedirectAttributes ra) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        Optional<Payment> latest = paymentService.findLatestByBookingId(bookingId);
+        if (latest.isPresent()) {
+            Payment p = latest.get();
+            p.setStatus("VERIFYING");
+            try {
+                paymentService.save(p);
+            } catch (ValidationException ex) {
+                return "redirect:/customer/pay?bookingId=" + bookingId + "&error=" + ex.getMessage();
+            }
+        }
+        ra.addFlashAttribute("paymentMessage", "Your payment is pending for staff approval.");
+        return "redirect:/customer/billing?payment=pending_approval";
     }
 }

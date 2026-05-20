@@ -1,0 +1,153 @@
+:root {
+  /* Typeface — Inter, used for body and display alike */
+  --da-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --da-font-feature: 'ss01' on, 'cv11' on, 'cv02' on;
+
+  /* Monochrome ink scale — single source of color */
+  --da-ink-0:    #ffffff;
+  --da-ink-50:   #fafaf9;
+  --da-ink-100:  #f4f4f3;
+  --da-ink-200:  #e7e7e5;
+  --da-ink-300:  #c9c9c5;
+  --da-ink-400:  #94948f;
+  --da-ink-500:  #6b6b66;
+  --da-ink-600:  #4a4a45;
+  --da-ink-700:  #2a2a27;
+  --da-ink-800:  #18181a;
+  --da-ink-900:  #0a0a0b;
+
+  /* Semantic surfaces */
+  --da-bg:                #ffffff;
+  --da-surface:           #ffffff;
+  --da-surface-muted:     var(--da-ink-50);
+  --da-surface-elevated:  #ffffff;
+  --da-surface-dark:      var(--da-ink-900);
+
+  /* Text */
+  --da-text:           var(--da-ink-900);
+  --da-text-secondary: var(--da-ink-500);
+  --da-text-muted:     var(--da-ink-400);
+  --da-text-inverse:   #ffffff;
+
+  /* Hairline borders */
+  --da-border:         var(--da-ink-200);
+  --da-border-strong:  var(--da-ink-300);
+  --da-border-quiet:   rgba(10, 10, 11, 0.06);
+
+  /* Accent — used only on primary actions, focus, active states */
+  --da-accent:         var(--da-ink-900);
+  --da-accent-hover:   var(--da-ink-700);
+  --da-accent-muted:   var(--da-ink-100);
+  --da-accent-subtle:  rgba(10, 10, 11, 0.04);
+
+  /* Optional indigo signal — reserved for emphasis only (focus ring, active dot) */
+  --da-signal:         #3a3aff;
+  --da-signal-soft:    rgba(58, 58, 255, 0.10);
+
+  /* Electric indigo accent family — single bold accent used surgically */
+  --da-accent:         #3a3aff;
+  --da-accent-hover:   #2727d6;
+  --da-accent-press:   #1f1fa8;
+  --da-accent-glow:    rgba(58, 58, 255, 0.32);
+  --da-accent-soft:    rgba(58, 58, 255, 0.08);
+  --da-accent-wash:    rgba(58, 58, 255, 0.04);
+  --da-accent-ring:    rgba(58, 58, 255, 0.22);
+
+  /* Per-scene atmospheric moods — radial gradients at very low opacity.
+     Used as ::before pseudo on .da-scene[data-mood]. Layered, never solid. */
+  --da-mood-act:       radial-gradient(ellipse 90% 65% at 50% 0%,    rgba(58,58,255,0.08), transparent 70%);
+  --da-mood-discover:  radial-gradient(ellipse 70% 55% at 85% 25%,   rgba(217,119,6,0.05), transparent 70%);
+  --da-mood-trust:     radial-gradient(ellipse 85% 60% at 20% 70%,   rgba(76,29,149,0.05), transparent 70%);
+  --da-mood-resolve:   radial-gradient(ellipse 65% 45% at 50% 100%,  rgba(10,10,11,0.04), transparent 70%);
+
+  /* Editorial type scale */
+  --da-text-2xs:  0.6875rem;   /* 11px — eyebrow / chapter */
+  --da-text-xs:   0.75rem;     /* 12px */
+  --da-text-sm:   0.875rem;    /* 14px */
+  --da-text-base: 1rem;        /* 16px */
+  --da-text-lg:   1.125rem;    /* 18px */
+  --da-text-xl:   1.375rem;    /* 22px */
+  --da-text-2xl:  1.75rem;     /* 28px */
+
+  /* Display tier — used by hero, chapter openers */
+  --da-display:    clamp(2.75rem, 7vw, 5.5rem);
+  --da-title:      clamp(2rem, 4vw, 3.25rem);
+  --da-subtitle:   clamp(1.375rem, 2.4vw, 1.875rem);
+
+  /* Line heights */
+  --da-leading-tight:  1.02;
+  --da-leading-snug:   1.18;
+  --da-leading:        1.6;
+  --da-leading-relax:  1.75;
+
+  /* Letter-spacing presets — tight on display, open on micro labels */
+  --da-track-display: -0.035em;
+  --da-track-title:   -0.025em;
+  --da-track-body:    -0.005em;
+  --da-track-micro:   0.12em;
+
+  /* Spacing / rhythm — used as page tempo */
+  --da-space-1:   0.25rem;
+  --da-space-2:   0.5rem;
+  --da-space-3:   0.75rem;
+  --da-space-4:   1rem;
+  --da-space-6:   1.5rem;
+  --da-space-8:   2rem;
+  --da-space-10:  2.5rem;
+  --da-space-12:  3rem;
+  --da-space-16:  4rem;
+  --da-space-24:  6rem;
+  --da-space-32:  8rem;
+
+  /* Section tempo — sections breathe differently */
+  --da-scene-y-tight:    clamp(3.5rem, 6vw, 5rem);
+  --da-scene-y:          clamp(5rem,  9vw, 8rem);
+  --da-scene-y-air:      clamp(7rem, 13vw, 12rem);
+
+  /* Geometry */
+  --da-radius-xs:   2px;
+  --da-radius-sm:   4px;
+  --da-radius:      6px;
+  --da-radius-lg:   10px;
+  --da-radius-xl:   14px;
+  --da-radius-2xl:  22px;
+  --da-radius-full: 9999px;
+
+  /* Shadows — minimal, almost imperceptible */
+  --da-shadow-none:   none;
+  --da-shadow-hair:   0 0 0 1px var(--da-border);
+  --da-shadow-soft:   0 1px 0 rgba(10, 10, 11, 0.02), 0 1px 2px rgba(10, 10, 11, 0.03);
+  --da-shadow-lift:   0 24px 60px -28px rgba(10, 10, 11, 0.18);
+  --da-shadow-focus:  0 0 0 3px rgba(58, 58, 255, 0.18);
+
+  /* Layout */
+  --da-container:        1240px;
+  --da-container-narrow: 980px;
+  --da-container-wide:   1440px;
+  --da-gutter:           clamp(1.25rem, 4.5vw, 2.75rem);
+  --da-page-x:           clamp(1.25rem, 4.5vw, 2.75rem);
+  --da-rule:             1px;
+
+  /* Motion */
+  --da-ease:         cubic-bezier(0.22, 0.61, 0.36, 1);
+  --da-ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+  --da-ease-soft:    cubic-bezier(0.4, 0, 0.2, 1);
+  --da-ease-spring:  cubic-bezier(0.34, 1.32, 0.64, 1);
+  --da-ease-curtain: cubic-bezier(0.65, 0, 0.35, 1);
+  --da-duration:     220ms;
+  --da-duration-slow: 480ms;
+  --da-duration-cinema: 900ms;
+
+  /* Motion vocabulary — used by motion.js for lerp smoothing */
+  --da-lerp-strong:    0.16;   /* parallax / cinema depth */
+  --da-lerp-soft:      0.08;   /* magnetic / eye tracking */
+  --da-duration-breath: 4200ms;
+  --da-duration-float:  6000ms;
+
+  /* z-index */
+  --da-z-base:     1;
+  --da-z-nav:      80;
+  --da-z-fab:      85;
+  --da-z-loader:   9999;
+  --da-z-welcome:  10000;
+}

@@ -5,18 +5,140 @@
     <style>
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* DriveAway Premium Obsidian Dark theme variables */
+        .admin-shell {
+          --admin-navy: #050506;
+          --admin-navy-mid: #0c0c0e;
+          --admin-charcoal: #f4f2ee;
+          --admin-charcoal-muted: #a8a6a0;
+          --admin-bg: #050506;
+          --admin-canvas: #050506;
+          --admin-surface: #0c0c0e;
+          --admin-glass: rgba(12, 12, 14, 0.85);
+          --admin-text: #f4f2ee;
+          --admin-text-muted: #a8a6a0;
+          --admin-border: rgba(255, 255, 255, 0.08);
+
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            #050506;
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        .admin-main {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            var(--admin-navy);
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        /* Premium Obsidian Black Sidebar override */
+        .admin-sidebar {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 100% 35% at 50% 0%, rgba(201, 169, 98, 0.12), transparent 60%),
+            linear-gradient(180deg, #050506 0%, #0c0c0e 45%, #020203 100%) !important;
+          background-size: 20px 20px, auto, auto !important;
+          border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+
+        /* Sleek buttons and elements in topbar override */
+        .admin-topbar__menu-btn,
+        .admin-topbar__collapse-btn,
+        .admin-topbar__logout,
+        .admin-topbar__user {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          color: #f4f2ee !important;
+        }
+
+        .admin-topbar__menu-btn:hover,
+        .admin-topbar__collapse-btn:hover,
+        .admin-topbar__logout:hover,
+        .admin-topbar__user:hover {
+          background: rgba(255, 255, 255, 0.1) !important;
+          border-color: rgba(201, 169, 98, 0.35) !important;
+          color: #e8d5a3 !important;
+        }
+
+        /* Override Tailwind background classes */
+        .bg-white {
+          background-color: #0c0c0e !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .border-slate-200 {
+          border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Text colors */
+        .text-gray-800,
+        .text-gray-900,
+        .text-gray-700 {
+          color: #f4f2ee !important;
+        }
+
+        .text-gray-500 {
+          color: #a8a6a0 !important;
+        }
+
+        .text-indigo-600 {
+          color: #c9a962 !important;
+        }
+
+        /* Form elements style overrides */
+        #vehicleForm input[type="text"],
+        #vehicleForm input[type="number"],
+        #vehicleForm select {
+          background-color: rgba(255, 255, 255, 0.03) !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          color: #f4f2ee !important;
+        }
+
+        #vehicleForm input[type="text"]:focus,
+        #vehicleForm input[type="number"]:focus,
+        #vehicleForm select:focus {
+          border-color: #c9a962 !important;
+          box-shadow: 0 0 0 2px rgba(201, 169, 98, 0.25) !important;
+        }
+
+        /* Primary and Secondary button overrides */
+        #vehicleForm button[type="submit"] {
+          background: linear-gradient(135deg, #c9a962 0%, #e8d5a3 100%) !important;
+          color: #050506 !important;
+          font-weight: 800 !important;
+          box-shadow: 0 10px 20px rgba(201, 169, 98, 0.18) !important;
+        }
+
+        #vehicleForm button[type="submit"]:hover {
+          box-shadow: 0 12px 24px rgba(201, 169, 98, 0.28) !important;
+        }
+
+        #vehicleForm a.bg-gray-100 {
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          color: #f4f2ee !important;
+        }
+
+        #vehicleForm a.bg-gray-100:hover {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+        }
     </style>
 </head>
 <body class="admin-shell text-gray-800">
 <th:block th:replace="~{fragments/admin-shell :: shellOpen('vehicles', 'Edit Vehicle')}"></th:block>
 <div class="fade-in">
 
-<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
-<header class="max-w-3xl mx-auto px-6 pt-10 pb-6">
-    <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Edit <span class="text-indigo-600">Vehicle</span></h1>
-    <p class="text-gray-500 mt-2 font-medium">Update specifications; changes apply immediately after save.</p>
-</header>
-<form method="post" th:action="@{/vehicles}" class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-6" id="vehicleForm">
+    <th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
+    <header class="max-w-3xl mx-auto px-6 pt-10 pb-6">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Edit <span class="text-indigo-600">Vehicle</span></h1>
+        <p class="text-gray-500 mt-2 font-medium">Update specifications; changes apply immediately after save.</p>
+    </header>
+    <form method="post" th:action="@{/vehicles}" enctype="multipart/form-data" class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-6" id="vehicleForm">
         <input type="hidden" name="action" value="update"/>
         <input type="hidden" name="id" th:value="${vehicle.id}"/>
         <div class="grid md:grid-cols-2 gap-5">
@@ -40,6 +162,16 @@
                 <option value="Motorcycle" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle)}">Motorcycle</option>
             </select>
         </label>
+
+        <div class="pt-2">
+            <label class="block">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vehicle Image (Optional - leave blank to keep current)</span>
+                <input type="file" name="imageFile" accept="image/png, image/jpeg, image/webp"
+                       class="mt-1 w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700
+                              file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 file:cursor-pointer cursor-pointer"/>
+                <p class="text-xs text-gray-500 mt-2 font-medium">Accepted formats: JPG, PNG, WEBP. Max size: 2MB.</p>
+            </label>
+        </div>
         <div id="carFields" class="space-y-3">
             <label class="block">
                 <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Seating capacity</span>
@@ -67,30 +199,30 @@
 <th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
 <script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
 <script>
-function toggleVehicleFields() {
-    var sel = document.getElementById('vehicleType');
-    var car = document.getElementById('carFields');
-    var moto = document.getElementById('motorcycleFields');
-    var cap = document.getElementById('capacityInput');
-    var capH = document.getElementById('capacityMotoHidden');
-    var helmetCb = document.getElementById('helmetCb');
-    var helmetFalse = document.getElementById('helmetFalseHidden');
-    if (!sel || !car || !moto) return;
-    var isMoto = sel.value === 'Motorcycle';
-    car.classList.toggle('hidden', isMoto);
-    moto.classList.toggle('hidden', !isMoto);
-    if (cap) cap.disabled = isMoto;
-    if (capH) capH.disabled = !isMoto;
-    if (helmetCb) helmetCb.disabled = !isMoto;
-    if (helmetFalse) {
-        helmetFalse.disabled = isMoto && helmetCb && helmetCb.checked;
+    function toggleVehicleFields() {
+        var sel = document.getElementById('vehicleType');
+        var car = document.getElementById('carFields');
+        var moto = document.getElementById('motorcycleFields');
+        var cap = document.getElementById('capacityInput');
+        var capH = document.getElementById('capacityMotoHidden');
+        var helmetCb = document.getElementById('helmetCb');
+        var helmetFalse = document.getElementById('helmetFalseHidden');
+        if (!sel || !car || !moto) return;
+        var isMoto = sel.value === 'Motorcycle';
+        car.classList.toggle('hidden', isMoto);
+        moto.classList.toggle('hidden', !isMoto);
+        if (cap) cap.disabled = isMoto;
+        if (capH) capH.disabled = !isMoto;
+        if (helmetCb) helmetCb.disabled = !isMoto;
+        if (helmetFalse) {
+            helmetFalse.disabled = isMoto && helmetCb && helmetCb.checked;
+        }
     }
-}
-document.getElementById('helmetCb')?.addEventListener('change', function () {
-    var helmetFalse = document.getElementById('helmetFalseHidden');
-    if (helmetFalse) helmetFalse.disabled = this.checked;
-});
-toggleVehicleFields();
+    document.getElementById('helmetCb')?.addEventListener('change', function () {
+        var helmetFalse = document.getElementById('helmetFalseHidden');
+        if (helmetFalse) helmetFalse.disabled = this.checked;
+    });
+    toggleVehicleFields();
 </script>
 </body>
 </html>

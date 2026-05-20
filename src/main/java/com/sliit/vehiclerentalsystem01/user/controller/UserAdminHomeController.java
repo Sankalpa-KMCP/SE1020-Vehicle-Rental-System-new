@@ -66,7 +66,6 @@ public class UserAdminHomeController {
         model.addAttribute("bookingCount", reservationService.findAll().size());
         model.addAttribute("paymentCount", paymentService.findAll().size());
         model.addAttribute("reviewCount", reviewService.findAll().size());
-        model.addAttribute("availableCount", maintenanceService.countAvailable());
         model.addAttribute("maintenanceCount", maintenanceService.countInMaintenance());
 
         int pendingAccessCount = 0;

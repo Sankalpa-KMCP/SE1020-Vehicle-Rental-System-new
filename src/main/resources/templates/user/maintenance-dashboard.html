@@ -1,522 +1,632 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-  <th:block th:replace="~{fragments/admin-shell :: adminHead('Maintenance & Availability - DriveAway')}"></th:block>
+  <th:block th:replace="~{fragments/admin-shell :: adminHead('Maintenance Register - DriveAway')}"></th:block>
+
+  <style>
+    .admin-shell {
+      /* DriveAway Premium Obsidian Dark theme variables */
+      --admin-navy: #050506;
+      --admin-navy-mid: #0c0c0e;
+      --admin-charcoal: #f4f2ee;
+      --admin-charcoal-muted: #a8a6a0;
+      --admin-bg: #050506;
+      --admin-canvas: #050506;
+      --admin-surface: #0c0c0e;
+      --admin-glass: rgba(12, 12, 14, 0.85);
+      --admin-text: #f4f2ee;
+      --admin-text-muted: #a8a6a0;
+      --admin-border: rgba(255, 255, 255, 0.08);
+
+      background:
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+        radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+        #050506;
+      background-size: 24px 24px, auto, auto, auto;
+    }
+
+    .admin-main {
+      background:
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+        radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+        var(--admin-canvas);
+      background-size: 24px 24px, auto, auto, auto;
+    }
+
+    .admin-page-header {
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.4rem;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #0a0a0b 0%, #141418 100%);
+      color: #f4f2ee;
+      border: 1px solid rgba(201, 169, 98, 0.15);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .admin-page-header__title {
+      font-family: var(--da-font-display, 'Playfair Display', Georgia, serif);
+      color: #f4f2ee;
+      letter-spacing: -0.02em;
+      font-size: 2.1rem;
+    }
+
+    .admin-page-header__subtitle {
+      color: #a8a6a0;
+      font-size: 1rem;
+    }
+
+    .admin-section-heading {
+      font-family: var(--da-font-display, 'Playfair Display', Georgia, serif);
+      color: #e8d5a3;
+      font-weight: 700;
+      margin: 0 0 1rem;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+    }
+
+    .admin-maintenance-panel {
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      background: #0c0c0e;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(10px);
+    }
+
+    .admin-maintenance-panel + .admin-maintenance-panel {
+      margin-top: 1.5rem;
+    }
+
+    .admin-maintenance-panel__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.2rem;
+      background: #141418;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .admin-maintenance-count {
+      color: #a8a6a0;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .admin-maintenance-form {
+      padding: 1rem 1.2rem;
+      background: #0c0c0e;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .admin-maintenance-form__title {
+      font-family: var(--da-font-display, 'Playfair Display', Georgia, serif);
+      color: #e8d5a3;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+    }
+
+    .admin-maintenance-form__grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .admin-maintenance-form__control {
+      min-height: 2.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      background: #141418;
+      color: #f4f2ee;
+      padding: 0.65rem 0.8rem;
+      font-weight: 600;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .admin-maintenance-form__control option {
+      background: #0c0c0e;
+      color: #f4f2ee;
+    }
+
+    .admin-maintenance-form__control:focus {
+      outline: none;
+      border-color: #c9a962;
+      box-shadow: 0 0 0 4px rgba(201, 169, 98, 0.18);
+    }
+
+    .admin-maintenance-form__control--wide {
+      grid-column: span 2;
+    }
+
+    .admin-btn--primary {
+      border: 1px solid rgba(232, 213, 163, 0.3);
+      font-size: 0.9rem;
+      background: linear-gradient(135deg, #c9a962 0%, #e8d5a3 100%);
+      color: #050506;
+      font-weight: 800;
+      box-shadow: 0 12px 24px rgba(201, 169, 98, 0.18);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .admin-btn--primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(201, 169, 98, 0.28);
+    }
+
+    .admin-btn--danger {
+      border: none;
+      background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 10px 20px rgba(239, 68, 68, 0.15);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .admin-btn--danger:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(239, 68, 68, 0.25);
+    }
+
+    .admin-alert--warning {
+      border-color: rgba(245, 158, 11, 0.3);
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .admin-maintenance-table-wrap {
+      overflow-x: auto;
+    }
+
+    .admin-maintenance-table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: #0c0c0e;
+    }
+
+    .admin-maintenance-table th,
+    .admin-maintenance-table td {
+      padding: 0.95rem 1rem;
+      text-align: left;
+      vertical-align: middle;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      color: #f4f2ee;
+    }
+
+    .admin-maintenance-table thead {
+      background: #141418;
+    }
+
+    .admin-maintenance-table th {
+      color: #a8a6a0;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+
+    .admin-maintenance-row:hover {
+      background: #141418;
+    }
+
+    .admin-maintenance-reason {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 0.34rem 0.7rem;
+      background: rgba(34, 211, 238, 0.1);
+      color: #22d3ee;
+      border: 1px solid rgba(34, 211, 238, 0.2);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .admin-maintenance-notes {
+      max-width: 22rem;
+      color: #a8a6a0;
+      line-height: 1.45;
+    }
+
+    .admin-maintenance-empty {
+      text-align: center;
+      color: #a8a6a0;
+      font-weight: 700;
+      padding: 2.5rem;
+    }
+
+    .admin-maintenance-actions {
+      white-space: nowrap;
+    }
+
+    .admin-toast {
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0c0c0e 0%, #141418 100%);
+      color: #f4f2ee;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Sleek buttons and elements in topbar override */
+    .admin-topbar__menu-btn,
+    .admin-topbar__collapse-btn,
+    .admin-topbar__logout,
+    .admin-topbar__user {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      color: #f4f2ee !important;
+    }
+
+    .admin-topbar__menu-btn:hover,
+    .admin-topbar__collapse-btn:hover,
+    .admin-topbar__logout:hover,
+    .admin-topbar__user:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      border-color: rgba(201, 169, 98, 0.35) !important;
+      color: #e8d5a3 !important;
+    }
+
+    /* Premium Obsidian Black Sidebar override */
+    .admin-sidebar {
+      background:
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+        radial-gradient(ellipse 100% 35% at 50% 0%, rgba(201, 169, 98, 0.12), transparent 60%),
+        linear-gradient(180deg, #050506 0%, #0c0c0e 45%, #020203 100%) !important;
+      background-size: 20px 20px, auto, auto !important;
+      border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+    }
+
+    @media (max-width: 1024px) {
+      .admin-maintenance-form__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .admin-page-header {
+        border-radius: 14px;
+      }
+
+      .admin-maintenance-form__grid {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-maintenance-form__control--wide {
+        grid-column: span 1;
+      }
+    }
+  </style>
 </head>
+
 <body class="admin-shell">
 
-<th:block th:replace="~{fragments/admin-shell :: shellOpen('maintenance', 'Maintenance & Availability')}"></th:block>
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('maintenance', 'Maintenance Register')}"></th:block>
 
-      <!-- Page header -->
-      <header class="admin-page-header">
-        <h1 class="admin-page-header__title">Maintenance &amp; Availability</h1>
-        <p class="admin-page-header__subtitle">Monitor vehicle service status and fleet availability in real-time.</p>
-      </header>
+<header class="admin-page-header">
+  <h1 class="admin-page-header__title">Maintenance Register</h1>
+  <p class="admin-page-header__subtitle">Keep fleet vehicle details separate from maintenance incidents.</p>
+</header>
 
-      <p th:if="${param.error != null and param.error[0] == 'invalid_status'}"
-         class="admin-alert admin-alert--warning mb-6"
-         role="alert">Invalid status. Choose Available, In Use, or Maintenance.</p>
-      <p th:if="${param.error != null and param.error[0] == 'invalid_service_dates'}"
-         class="admin-alert admin-alert--warning mb-6"
-         role="alert">Next service date cannot be before the last service date.</p>
+<p th:if="${param.error != null and param.error[0] == 'invalid_vehicle_type'}"
+   class="admin-alert admin-alert--warning mb-6"
+   role="alert">Invalid vehicle type. Choose Car, Van, Bike, Cab, or SUV.</p>
 
-      <!-- Status overview -->
-      <section class="admin-dashboard-section" aria-label="Fleet status overview">
-        <h2 class="admin-section-heading">Status overview</h2>
-        <div class="admin-stat-grid admin-stat-grid--triple">
-          <div class="admin-stat-card admin-stat-card--success">
-            <div class="admin-stat-card__icon">
-              <i class="ph-bold ph-check-circle" aria-hidden="true"></i>
-            </div>
-            <div class="admin-stat-card__body">
-              <span class="admin-stat-card__value"
-                    th:text="${availableCount}"
-                    th:attr="data-count-target=${availableCount}">0</span>
-              <span class="admin-stat-card__label">Available Vehicles</span>
-            </div>
-          </div>
-          <div class="admin-stat-card admin-stat-card--warning">
-            <div class="admin-stat-card__icon">
-              <i class="ph-bold ph-car" aria-hidden="true"></i>
-            </div>
-            <div class="admin-stat-card__body">
-              <span class="admin-stat-card__value"
-                    th:text="${inUseCount}"
-                    th:attr="data-count-target=${inUseCount}">0</span>
-              <span class="admin-stat-card__label">In Use</span>
-            </div>
-          </div>
-          <div class="admin-stat-card admin-stat-card--danger">
-            <div class="admin-stat-card__icon">
-              <i class="ph-bold ph-wrench" aria-hidden="true"></i>
-            </div>
-            <div class="admin-stat-card__body">
-              <span class="admin-stat-card__value"
-                    th:text="${maintenanceCount}"
-                    th:attr="data-count-target=${maintenanceCount}">0</span>
-              <span class="admin-stat-card__label">Under Maintenance</span>
-            </div>
-          </div>
-        </div>
-      </section>
+<p th:if="${param.error != null and param.error[0] == 'invalid_maintenance_reason'}"
+   class="admin-alert admin-alert--warning mb-6"
+   role="alert">Invalid maintenance reason. Choose Accident, Interior Clean, New Paint, or General Service.</p>
 
-      <!-- Maintenance table -->
-      <section class="admin-dashboard-section" aria-label="Maintenance records">
-        <h2 class="admin-section-heading">Fleet maintenance records</h2>
-        <div class="admin-maintenance-panel">
-          <div class="admin-maintenance-panel__header">
-            <p class="admin-maintenance-filter-hint">Filter vehicles by status</p>
-            <p id="maintenance-filter-summary"
-               class="admin-maintenance-filter-summary"
-               aria-live="polite"
-               th:text="|Showing ${maintenanceList != null ? #lists.size(maintenanceList) : 0} vehicles|">Showing all vehicles</p>
+<p th:if="${param.error != null and param.error[0] == 'invalid_service_dates'}"
+   class="admin-alert admin-alert--warning mb-6"
+   role="alert">Next service date cannot be before the last service date.</p>
 
-            <div class="admin-maintenance-tabs" role="tablist" aria-label="Filter by vehicle status">
-              <button type="button"
-                      class="admin-tab is-active"
-                      role="tab"
-                      id="tab-all"
-                      data-filter="all"
-                      aria-selected="true"
-                      aria-controls="maintenance-table-body"
-                      th:text="|All (${maintenanceList != null ? #lists.size(maintenanceList) : 0})|">All</button>
-              <button type="button"
-                      class="admin-tab"
-                      role="tab"
-                      id="tab-available"
-                      data-filter="AVAILABLE"
-                      aria-selected="false"
-                      aria-controls="maintenance-table-body"
-                      th:text="|Available (${availableCount})|">Available</button>
-              <button type="button"
-                      class="admin-tab"
-                      role="tab"
-                      id="tab-in-use"
-                      data-filter="IN_USE"
-                      aria-selected="false"
-                      aria-controls="maintenance-table-body"
-                      th:text="|In Use (${inUseCount})|">In Use</button>
-              <button type="button"
-                      class="admin-tab"
-                      role="tab"
-                      id="tab-maintenance"
-                      data-filter="MAINTENANCE"
-                      aria-selected="false"
-                      aria-controls="maintenance-table-body"
-                      th:text="|Maintenance (${maintenanceCount})|">Maintenance</button>
-            </div>
-          </div>
 
-          <div th:if="${maintenanceCount != null and maintenanceCount > 0}"
-               class="admin-alert admin-alert--warning"
-               role="status"
-               th:text="|${maintenanceCount} vehicle${maintenanceCount == 1 ? '' : 's'} require${maintenanceCount == 1 ? 's' : ''} maintenance attention|">
-            1 vehicle requires maintenance attention
-          </div>
 
-          <div class="admin-maintenance-form">
-            <h3 class="admin-maintenance-form__title">Add maintenance record</h3>
-            <form method="post" th:action="@{/maintenance/add}" class="admin-maintenance-form__grid" id="maintenance-add-form">
-              <input type="text" name="vehicleId" placeholder="Vehicle ID" required
-                     class="admin-maintenance-form__control" aria-label="Vehicle ID" />
-              <select name="status" required class="admin-maintenance-form__control" aria-label="Status">
-                <option value="AVAILABLE">Available</option>
-                <option value="IN_USE">In Use</option>
-                <option value="MAINTENANCE">Maintenance</option>
-              </select>
-              <input type="date" name="lastServiceDate" class="admin-maintenance-form__control" aria-label="Last service date" />
-              <input type="date" name="nextServiceDate" class="admin-maintenance-form__control" aria-label="Next service date" />
-              <input type="text" name="notes" placeholder="Notes" class="admin-maintenance-form__control" aria-label="Notes" />
-              <button type="submit" class="admin-btn admin-btn--primary">Add Record</button>
+<p th:if="${param.error != null and param.error[0] == 'duplicate_vehicle'}"
+   class="admin-alert admin-alert--warning mb-6"
+   role="alert">A fleet record already exists for this vehicle ID.</p>
+
+<p th:if="${param.error != null and param.error[0] == 'vehicle_not_found'}"
+   class="admin-alert admin-alert--warning mb-6"
+   role="alert">Add the vehicle to the fleet first, then create its maintenance entry.</p>
+
+<section class="admin-dashboard-section" aria-label="Fleet vehicles">
+  <h2 class="admin-section-heading">Part 1: Fleet vehicles</h2>
+
+  <div class="admin-maintenance-panel">
+    <div class="admin-maintenance-panel__header">
+      <p class="admin-maintenance-count">
+        <span th:text="${fleetCount}">0</span>
+        <span th:text="${fleetCount == 1 ? 'vehicle in fleet' : 'vehicles in fleet'}">vehicles in fleet</span>
+      </p>
+    </div>
+
+    <div class="admin-maintenance-form">
+      <h3 class="admin-maintenance-form__title">Add vehicle to fleet</h3>
+
+      <form method="post"
+            th:action="@{/maintenance/vehicles/add}"
+            class="admin-maintenance-form__grid"
+            id="fleet-add-form">
+
+        <input type="text"
+               name="vehicleId"
+               placeholder="Vehicle ID"
+               required
+               class="admin-maintenance-form__control"
+               aria-label="Vehicle ID" />
+
+        <select name="vehicleType"
+                required
+                class="admin-maintenance-form__control"
+                aria-label="Vehicle type">
+          <option value="Car">Car</option>
+          <option value="Van">Van</option>
+          <option value="Bike">Bike</option>
+          <option value="Cab">Cab</option>
+          <option value="SUV">SUV</option>
+        </select>
+
+        <input type="text"
+               name="vehicleModel"
+               placeholder="Vehicle model"
+               required
+               class="admin-maintenance-form__control"
+               aria-label="Vehicle model" />
+
+        <input type="number"
+               name="mileage"
+               placeholder="Mileage"
+               min="0"
+               step="1"
+               required
+               class="admin-maintenance-form__control"
+               aria-label="Mileage" />
+
+        <input type="text"
+               name="lastServiceDate"
+               placeholder="Last service date"
+               onfocus="this.type='date'"
+               onblur="if(!this.value)this.type='text'"
+               class="admin-maintenance-form__control"
+               aria-label="Last service date" />
+
+        <input type="text"
+               name="nextServiceDate"
+               placeholder="Next service date"
+               onfocus="this.type='date'"
+               onblur="if(!this.value)this.type='text'"
+               class="admin-maintenance-form__control"
+               aria-label="Next service date" />
+
+        <button type="submit" class="admin-btn admin-btn--primary">Add Vehicle</button>
+      </form>
+    </div>
+
+    <div class="admin-maintenance-table-wrap">
+      <table role="table" class="admin-maintenance-table" aria-label="Fleet vehicle records">
+        <thead>
+        <tr>
+          <th scope="col">Vehicle ID</th>
+          <th scope="col">Type</th>
+          <th scope="col">Model</th>
+          <th scope="col">Mileage</th>
+          <th scope="col">Last Service</th>
+          <th scope="col">Next Service</th>
+          <th scope="col">Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="vehicle : ${fleetList != null ? fleetList : T(java.util.Collections).emptyList()}"
+            class="admin-maintenance-row">
+          <td th:text="${vehicle.vehicleId}">VEH-000</td>
+          <td th:text="${vehicle.vehicleType != null and !#strings.isEmpty(vehicle.vehicleType) ? vehicle.vehicleType : '-'}">Car</td>
+          <td th:text="${vehicle.vehicleModel != null and !#strings.isEmpty(vehicle.vehicleModel) ? vehicle.vehicleModel : '-'}">Toyota</td>
+          <td th:text="${vehicle.mileage != null and !#strings.isEmpty(vehicle.mileage) ? vehicle.mileage : '-'}">42500</td>
+          <td>
+            <span th:if="${vehicle.lastServiceDate != null}"
+                  th:text="${#temporals.format(vehicle.lastServiceDate, 'dd MMM yyyy')}">-</span>
+            <span th:unless="${vehicle.lastServiceDate != null}">-</span>
+          </td>
+          <td>
+            <span th:if="${vehicle.nextServiceDate != null}"
+                  th:text="${#temporals.format(vehicle.nextServiceDate, 'dd MMM yyyy')}">-</span>
+            <span th:unless="${vehicle.nextServiceDate != null}">-</span>
+          </td>
+          <td class="admin-maintenance-actions">
+            <form method="post"
+                  th:action="@{/maintenance/vehicles/delete}"
+                  class="admin-maintenance-delete-form"
+                  onsubmit="return confirm('Delete this fleet vehicle and its maintenance entries?');">
+              <input type="hidden" name="vehicleId" th:value="${vehicle.vehicleId}" />
+              <button type="submit" class="admin-btn admin-btn--danger admin-btn--compact">Delete</button>
             </form>
-          </div>
+          </td>
+        </tr>
 
-          <table role="table" aria-label="Vehicle maintenance and availability records">
-            <thead>
-              <tr>
-                <th scope="col">Vehicle ID</th>
-                <th scope="col">Status</th>
-                <th scope="col">Last Service Date</th>
-                <th scope="col">Next Service Date</th>
-                <th scope="col">Notes</th>
-                <th scope="col">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="maintenance-table-body">
-              <tr th:each="record : ${maintenanceList != null ? maintenanceList : T(java.util.Collections).emptyList()}"
-                  th:with="isOverdue=${record.nextServiceDate != null ? record.nextServiceDate.isBefore(#temporals.createToday()) : false}"
-                  class="admin-maintenance-row"
-                  th:classappend="|${isOverdue ? ' admin-maintenance--overdue' : ''}${record.status != null and record.status == 'MAINTENANCE' ? ' admin-maintenance-row--maintenance' : ''}|"
-                  th:attr="data-status=${record.status},
-                           data-vehicle-id=${record.vehicleId},
-                           data-next-service=${record.nextServiceDate != null ? #temporals.format(record.nextServiceDate, 'yyyy-MM-dd') : ''}">
-                <td th:text="${record.vehicleId}">VEH-000</td>
-                <td>
-                  <span class="admin-maintenance-status-cell">
-                    <span class="admin-status-badge js-maintenance-status-badge"
-                          th:classappend="${record.status != null and record.status == 'AVAILABLE'} ? ' admin-status-badge--available' : (${record.status != null and record.status == 'IN_USE'} ? ' admin-status-badge--in-use' : (${record.status != null and record.status == 'MAINTENANCE'} ? ' admin-status-badge--maintenance' : ''))"
-                          th:text="${record.status != null and record.status == 'AVAILABLE'} ? 'Available' : (${record.status != null and record.status == 'IN_USE'} ? 'In Use' : (${record.status != null and record.status == 'MAINTENANCE'} ? 'Maintenance' : (record.status != null ? record.status : '—')))">Status</span>
-                    <span th:if="${isOverdue}"
-                          class="admin-status-badge admin-status-badge--danger admin-maintenance-overdue-badge">Overdue</span>
-                  </span>
-                </td>
-                <td>
-                  <span th:if="${record.lastServiceDate != null}"
-                        th:text="${#temporals.format(record.lastServiceDate, 'dd MMM yyyy')}">—</span>
-                  <span th:unless="${record.lastServiceDate != null}">—</span>
-                </td>
-                <td>
-                  <span th:if="${record.nextServiceDate != null}"
-                        th:text="${#temporals.format(record.nextServiceDate, 'dd MMM yyyy')}">—</span>
-                  <span th:unless="${record.nextServiceDate != null}">—</span>
-                </td>
-                <td class="admin-maintenance-notes" th:text="${record.notes != null ? record.notes : '—'}">—</td>
-                <td class="admin-maintenance-actions">
-                  <select class="admin-maintenance-status-select"
-                          onclick="event.stopPropagation()"
-                          th:attr="aria-label=|'Update status for vehicle ${record.vehicleId}'|">
-                    <option value="AVAILABLE" th:selected="${record.status != null and record.status == 'AVAILABLE'}">AVAILABLE</option>
-                    <option value="IN_USE" th:selected="${record.status != null and record.status == 'IN_USE'}">IN_USE</option>
-                    <option value="MAINTENANCE" th:selected="${record.status != null and record.status == 'MAINTENANCE'}">MAINTENANCE</option>
-                  </select>
-                  <form method="post" th:action="@{/maintenance/delete}"
-                        class="admin-maintenance-delete-form"
-                        onsubmit="return confirm('Delete this maintenance record?');">
-                    <input type="hidden" name="vehicleId" th:value="${record.vehicleId}" />
-                    <button type="submit" class="admin-btn admin-btn--danger admin-btn--compact"
-                            onclick="event.stopPropagation()">Delete</button>
-                  </form>
-                </td>
-              </tr>
-              <tr th:if="${maintenanceList == null or maintenanceList.isEmpty()}"
-                  class="admin-maintenance-empty-row">
-                <td colspan="6" class="admin-maintenance-empty">No maintenance records available.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+        <tr th:if="${fleetList == null or fleetList.isEmpty()}">
+          <td colspan="7" class="admin-maintenance-empty">No fleet vehicles available.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="admin-dashboard-section" aria-label="Maintenance entries">
+  <h2 class="admin-section-heading">Part 2: Maintenance entries</h2>
+
+  <div class="admin-maintenance-panel">
+    <div class="admin-maintenance-panel__header">
+      <p class="admin-maintenance-count">
+        <span th:text="${maintenanceCount}">0</span>
+        <span th:text="${maintenanceCount == 1 ? 'maintenance entry' : 'maintenance entries'}">maintenance entries</span>
+      </p>
+    </div>
+
+    <div class="admin-maintenance-form">
+      <h3 class="admin-maintenance-form__title">Add maintenance entry</h3>
+
+      <form method="post"
+            th:action="@{/maintenance/entries/add}"
+            class="admin-maintenance-form__grid"
+            id="maintenance-entry-form">
+
+        <select name="vehicleId"
+                required
+                class="admin-maintenance-form__control"
+                aria-label="Vehicle ID">
+          <option value="">Select vehicle</option>
+          <option th:each="vehicle : ${fleetList != null ? fleetList : T(java.util.Collections).emptyList()}"
+                  th:value="${vehicle.vehicleId}"
+                  th:text="|${vehicle.vehicleId} - ${vehicle.vehicleModel}|">VEH-000</option>
+        </select>
+
+        <select name="reason"
+                required
+                class="admin-maintenance-form__control"
+                aria-label="Maintenance reason">
+          <option value="Accident">Accident</option>
+          <option value="Interior Clean">Interior Clean</option>
+          <option value="New Paint">New Paint</option>
+          <option value="General Service">General Service</option>
+        </select>
+
+        <input type="text"
+               name="maintenanceDate"
+               placeholder="Date put into maintenance"
+               onfocus="this.type='date'"
+               onblur="if(!this.value)this.type='text'"
+               class="admin-maintenance-form__control"
+               aria-label="Maintenance date" />
+
+        <input type="text"
+               name="notes"
+               placeholder="Notes about the work"
+               class="admin-maintenance-form__control admin-maintenance-form__control--wide"
+               aria-label="Maintenance notes" />
+
+        <button type="submit" class="admin-btn admin-btn--primary">Add Entry</button>
+      </form>
+    </div>
+
+    <div class="admin-maintenance-table-wrap">
+      <table role="table" class="admin-maintenance-table" aria-label="Maintenance entry records">
+        <thead>
+        <tr>
+          <th scope="col">Entry ID</th>
+          <th scope="col">Vehicle ID</th>
+          <th scope="col">Reason</th>
+          <th scope="col">Date</th>
+          <th scope="col">Notes</th>
+          <th scope="col">Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="entry : ${maintenanceEntries != null ? maintenanceEntries : T(java.util.Collections).emptyList()}"
+            class="admin-maintenance-row">
+          <td th:text="${entry.id}">MLG-001</td>
+          <td th:text="${entry.vehicleId}">VEH-000</td>
+          <td><span class="admin-maintenance-reason" th:text="${entry.reason}">Accident</span></td>
+          <td>
+            <span th:if="${entry.maintenanceDate != null}"
+                  th:text="${#temporals.format(entry.maintenanceDate, 'dd MMM yyyy')}">-</span>
+            <span th:unless="${entry.maintenanceDate != null}">-</span>
+          </td>
+          <td class="admin-maintenance-notes" th:text="${entry.notes != null and !#strings.isEmpty(entry.notes) ? entry.notes : '-'}">-</td>
+          <td class="admin-maintenance-actions">
+            <form method="post"
+                  th:action="@{/maintenance/entries/delete}"
+                  class="admin-maintenance-delete-form"
+                  onsubmit="return confirm('Delete this maintenance entry?');">
+              <input type="hidden" name="entryId" th:value="${entry.id}" />
+              <button type="submit" class="admin-btn admin-btn--danger admin-btn--compact">Delete</button>
+            </form>
+          </td>
+        </tr>
+
+        <tr th:if="${maintenanceEntries == null or maintenanceEntries.isEmpty()}">
+          <td colspan="6" class="admin-maintenance-empty">No maintenance entries available.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
 <div id="admin-toast-container" class="admin-toast-container" aria-live="assertive" aria-atomic="true"></div>
 
 <th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
 <script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
-<script th:inline="javascript">
+
+<script>
   (function () {
-    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var fadeMs = 150;
-    var tabs = document.querySelectorAll('.admin-maintenance-tabs .admin-tab');
-    var rows = document.querySelectorAll('.admin-maintenance-row');
-    var summary = document.getElementById('maintenance-filter-summary');
-    var tabList = document.querySelector('.admin-maintenance-tabs');
     var toastContainer = document.getElementById('admin-toast-container');
-    var activeFilter = 'all';
-    var toastTimer = null;
-
-    function summaryForFilter(filter, visibleCount) {
-      if (filter === 'all') {
-        return 'Showing ' + visibleCount + (visibleCount === 1 ? ' vehicle' : ' vehicles');
-      }
-      if (filter === 'AVAILABLE') {
-        return 'Showing ' + visibleCount + (visibleCount === 1 ? ' available vehicle' : ' available vehicles');
-      }
-      if (filter === 'IN_USE') {
-        return 'Showing ' + visibleCount + (visibleCount === 1 ? ' vehicle in use' : ' vehicles in use');
-      }
-      if (filter === 'MAINTENANCE') {
-        return 'Showing ' + visibleCount + (visibleCount === 1 ? ' vehicle under maintenance' : ' vehicles under maintenance');
-      }
-      return 'Showing ' + visibleCount + ' vehicles';
-    }
-
-    function setRowVisible(row, show) {
-      if (show) {
-        row.removeAttribute('hidden');
-        row.classList.remove('is-filtered-out');
-        if (!prefersReducedMotion) {
-          requestAnimationFrame(function () {
-            row.classList.add('is-revealed');
-            row.addEventListener('transitionend', function onEnd() {
-              row.classList.remove('is-revealed');
-              row.removeEventListener('transitionend', onEnd);
-            }, { once: true });
-          });
-        }
-      } else {
-        row.classList.remove('is-revealed');
-        row.classList.add('is-filtered-out');
-        window.setTimeout(function () {
-          if (row.classList.contains('is-filtered-out')) {
-            row.setAttribute('hidden', 'hidden');
-          }
-        }, fadeMs);
-      }
-    }
-
-    function applyFilter(filter) {
-      activeFilter = filter || 'all';
-      var visibleCount = 0;
-
-      document.querySelectorAll('.admin-maintenance-row').forEach(function (row) {
-        var status = row.getAttribute('data-status');
-        var match = activeFilter === 'all' || status === activeFilter;
-
-        if (match) {
-          visibleCount++;
-          if (row.hasAttribute('hidden') || row.classList.contains('is-filtered-out')) {
-            setRowVisible(row, true);
-          }
-        } else {
-          row.classList.remove('is-selected');
-          if (!row.hasAttribute('hidden')) {
-            setRowVisible(row, false);
-          }
-        }
-      });
-
-      if (summary) {
-        summary.textContent = summaryForFilter(activeFilter, visibleCount);
-      }
-    }
-
-    function activateTab(tab) {
-      tabs.forEach(function (t) {
-        var isActive = t === tab;
-        t.classList.toggle('is-active', isActive);
-        t.setAttribute('aria-selected', isActive ? 'true' : 'false');
-      });
-      applyFilter(tab.dataset.filter || 'all');
-    }
 
     function showToast(message) {
       if (!toastContainer) {
         return;
       }
-      if (toastTimer) {
-        window.clearTimeout(toastTimer);
-        toastTimer = null;
-      }
-      var existing = toastContainer.querySelector('.admin-toast');
-      if (existing) {
-        existing.remove();
-      }
+
       var toast = document.createElement('div');
       toast.className = 'admin-toast';
       toast.setAttribute('role', 'status');
       toast.textContent = message;
       toastContainer.appendChild(toast);
+
       requestAnimationFrame(function () {
         toast.classList.add('is-visible');
       });
-      toastTimer = window.setTimeout(function () {
+
+      window.setTimeout(function () {
         toast.classList.remove('is-visible');
         toast.classList.add('is-hiding');
-        toast.addEventListener('transitionend', function () {
-          toast.remove();
-        }, { once: true });
         window.setTimeout(function () {
-          if (toast.parentNode) {
-            toast.remove();
-          }
-        }, prefersReducedMotion ? 0 : 350);
-        toastTimer = null;
+          toast.remove();
+        }, 350);
       }, 2500);
     }
 
-    function statusBadgeClass(status) {
-      if (status === 'AVAILABLE') {
-        return 'admin-status-badge admin-status-badge--available js-maintenance-status-badge';
-      }
-      if (status === 'IN_USE') {
-        return 'admin-status-badge admin-status-badge--in-use js-maintenance-status-badge';
-      }
-      if (status === 'MAINTENANCE') {
-        return 'admin-status-badge admin-status-badge--maintenance js-maintenance-status-badge';
-      }
-      return 'admin-status-badge js-maintenance-status-badge';
-    }
-
-    function statusLabel(status) {
-      if (status === 'AVAILABLE') {
-        return 'Available';
-      }
-      if (status === 'IN_USE') {
-        return 'In Use';
-      }
-      if (status === 'MAINTENANCE') {
-        return 'Maintenance';
-      }
-      return status;
-    }
-
-    function persistMaintenanceStatus(vehicleId, status) {
-      if (!vehicleId || !status) {
-        return;
-      }
-      var body = new URLSearchParams();
-      body.append('vehicleId', vehicleId);
-      body.append('status', status);
-      fetch('/maintenance/update-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body.toString()
-      }).then(function (res) {
-        if (!res.ok) {
-          throw new Error('Update failed');
-        }
-        return res.text();
-      }).catch(function () {
-        showToast('Failed to save status. Please refresh and try again.');
-      });
-    }
-
-    function updateRowStatus(row, status) {
-      row.setAttribute('data-status', status);
-      row.classList.toggle('admin-maintenance-row--maintenance', status === 'MAINTENANCE');
-      var badge = row.querySelector('.js-maintenance-status-badge');
-      if (badge) {
-        badge.className = statusBadgeClass(status);
-        badge.textContent = statusLabel(status);
-      }
-      var select = row.querySelector('.admin-maintenance-status-select');
-      if (select && select.value !== status) {
-        select.value = status;
-      }
-      persistMaintenanceStatus(row.getAttribute('data-vehicle-id'), status);
-      showToast('Status updated to ' + status);
-      applyFilter(activeFilter);
-    }
-
-    function animateStatValues() {
-      var values = document.querySelectorAll('.admin-stat-grid--triple .admin-stat-card__value[data-count-target]');
-      values.forEach(function (el) {
-        var target = parseInt(el.getAttribute('data-count-target'), 10);
-        if (isNaN(target)) {
-          target = parseInt(el.textContent, 10) || 0;
-        }
-        if (prefersReducedMotion) {
-          el.textContent = String(target);
-          return;
-        }
-        var start = performance.now();
-        var duration = 600;
-        function easeOutCubic(t) {
-          return 1 - Math.pow(1 - t, 3);
-        }
-        function tick(now) {
-          var progress = Math.min((now - start) / duration, 1);
-          var value = Math.round(easeOutCubic(progress) * target);
-          el.textContent = String(value);
-          if (progress < 1) {
-            requestAnimationFrame(tick);
-          } else {
-            el.textContent = String(target);
-          }
-        }
-        el.textContent = '0';
-        requestAnimationFrame(tick);
-      });
-    }
-
-    if (tabs.length && summary) {
-      tabs.forEach(function (tab) {
-        tab.addEventListener('click', function () {
-          activateTab(tab);
-        });
-      });
-
-      if (tabList) {
-        tabList.addEventListener('keydown', function (e) {
-          if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
-            return;
-          }
-          var list = Array.prototype.slice.call(tabs);
-          var index = list.indexOf(document.activeElement);
-          if (index < 0) {
-            return;
-          }
-          e.preventDefault();
-          var next = e.key === 'ArrowRight' ? index + 1 : index - 1;
-          if (next < 0) {
-            next = list.length - 1;
-          }
-          if (next >= list.length) {
-            next = 0;
-          }
-          list[next].focus();
-          activateTab(list[next]);
-        });
-      }
-
-      document.querySelectorAll('.admin-maintenance-row').forEach(function (row) {
-        row.addEventListener('click', function (e) {
-          if (e.target.closest('.admin-maintenance-status-select, .admin-maintenance-delete-form, .admin-maintenance-form')) {
-            return;
-          }
-          if (row.hasAttribute('hidden') || row.classList.contains('is-filtered-out')) {
-            return;
-          }
-          document.querySelectorAll('.admin-maintenance-row').forEach(function (r) {
-            r.classList.remove('is-selected');
-          });
-          row.classList.add('is-selected');
-        });
-      });
-
-      applyFilter('all');
-    }
-
-    document.querySelectorAll('.admin-maintenance-status-select').forEach(function (select) {
-      select.addEventListener('mousedown', function (e) {
-        e.stopPropagation();
-      });
-      select.addEventListener('click', function (e) {
-        e.stopPropagation();
-      });
-      select.addEventListener('change', function (e) {
-        e.stopPropagation();
-        var row = select.closest('.admin-maintenance-row');
-        if (!row) {
-          return;
-        }
-        updateRowStatus(row, select.value);
-      });
-    });
-
     document.querySelectorAll('.admin-maintenance-delete-form').forEach(function (form) {
-      form.addEventListener('mousedown', function (e) {
-        e.stopPropagation();
-      });
-      form.addEventListener('click', function (e) {
-        e.stopPropagation();
-      });
       form.addEventListener('submit', function () {
         sessionStorage.setItem('maintenanceToast', 'deleted');
       });
     });
 
-    var addForm = document.getElementById('maintenance-add-form');
-    if (addForm) {
-      addForm.addEventListener('submit', function () {
-        sessionStorage.setItem('maintenanceToast', 'added');
+    var fleetForm = document.getElementById('fleet-add-form');
+    var entryForm = document.getElementById('maintenance-entry-form');
+
+    if (fleetForm) {
+      fleetForm.addEventListener('submit', function () {
+        sessionStorage.setItem('maintenanceToast', 'vehicle-added');
+      });
+    }
+
+    if (entryForm) {
+      entryForm.addEventListener('submit', function () {
+        sessionStorage.setItem('maintenanceToast', 'entry-added');
       });
     }
 
     var flashToast = sessionStorage.getItem('maintenanceToast');
-    if (flashToast === 'added') {
-      showToast('Record added successfully');
+
+    if (flashToast === 'vehicle-added') {
+      showToast('Vehicle added to fleet');
+    } else if (flashToast === 'entry-added') {
+      showToast('Maintenance entry added');
     } else if (flashToast === 'deleted') {
       showToast('Record deleted');
     }
+
     sessionStorage.removeItem('maintenanceToast');
-
-    animateStatValues();
-
-    window.__maintenanceDashboard = {
-      applyFilter: applyFilter,
-      showToast: showToast
-    };
   })();
 </script>
+
 </body>
 </html>

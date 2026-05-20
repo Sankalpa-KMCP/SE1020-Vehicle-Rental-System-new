@@ -110,18 +110,27 @@
                     <td class="py-5 px-6"><span class="bg-gray-100 px-2 py-1 rounded text-sm font-mono" th:text="${p.bookingId}">b</span></td>
                     <td class="py-5 px-6 font-bold" th:text="${#numbers.formatDecimal(p.amount, 1, 2)}">0</td>
                     <td class="py-5 px-6">
-                        <span class="bg-slate-100 text-slate-800 font-bold px-3 py-1 rounded-lg text-xs" th:text="${p.status}">s</span>
+                        <span th:if="${#strings.equalsIgnoreCase(p.status, 'PAID')}" class="bg-green-50 text-green-700 border border-green-200 font-bold px-3 py-1 rounded-lg text-xs">PAID</span>
+                        <span th:if="${#strings.equalsIgnoreCase(p.status, 'PENDING')}" class="bg-amber-50 text-amber-700 border border-amber-200 font-bold px-3 py-1 rounded-lg text-xs">PENDING</span>
+                        <span th:if="${#strings.equalsIgnoreCase(p.status, 'VERIFYING')}" class="bg-blue-50 text-blue-700 border border-blue-200 font-bold px-3 py-1 rounded-lg text-xs">VERIFYING</span>
+                        <span th:if="${#strings.equalsIgnoreCase(p.status, 'REFUNDED')}" class="bg-red-50 text-red-700 border border-red-200 font-bold px-3 py-1 rounded-lg text-xs">REFUNDED</span>
+                        <span th:if="${!#strings.equalsIgnoreCase(p.status, 'PAID') and !#strings.equalsIgnoreCase(p.status, 'PENDING') and !#strings.equalsIgnoreCase(p.status, 'VERIFYING') and !#strings.equalsIgnoreCase(p.status, 'REFUNDED')}" class="bg-slate-100 text-slate-800 font-bold px-3 py-1 rounded-lg text-xs" th:text="${p.status}">s</span>
                     </td>
                     <td class="py-5 px-6 text-right space-x-2">
                         <a th:href="@{/payments/{id}(id=${p.id})}" class="inline-flex items-center gap-1 text-gray-500 hover:text-gray-800 font-bold text-sm">
-                            <i class="ph-bold ph-eye"></i>
+                            <i class="ph-bold ph-eye"></i> View
                         </a>
+                        <form th:if="${#strings.equalsIgnoreCase(p.status, 'VERIFYING') or #strings.equalsIgnoreCase(p.status, 'PENDING')}" th:action="@{/payments/{id}/confirm(id=${p.id})}" method="post" class="inline" onsubmit="return confirm('Confirm this payment as PAID?');">
+                            <button type="submit" class="inline-flex items-center gap-1 text-blue-500 hover:text-blue-700 font-bold text-sm align-middle">
+                                <i class="ph-bold ph-check-circle"></i> Confirm
+                            </button>
+                        </form>
                         <a th:href="@{/payments/{id}/edit(id=${p.id})}" class="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-800 font-bold text-sm">
-                            <i class="ph-bold ph-pencil-simple"></i>
+                            <i class="ph-bold ph-pencil-simple"></i> Edit
                         </a>
                         <form th:action="@{/payments/{id}/delete(id=${p.id})}" method="post" class="inline" onsubmit="return confirm('Delete this payment record?');">
                             <button type="submit" class="inline-flex items-center gap-1 text-red-500 hover:text-red-700 font-bold text-sm align-middle">
-                                <i class="ph-bold ph-trash"></i>
+                                <i class="ph-bold ph-trash"></i> Delete
                             </button>
                         </form>
                     </td>

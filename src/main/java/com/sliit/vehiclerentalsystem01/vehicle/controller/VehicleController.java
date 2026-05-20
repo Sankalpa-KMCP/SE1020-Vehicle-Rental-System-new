@@ -15,10 +15,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Controller
@@ -73,7 +80,6 @@ public class VehicleController {
         long carCount = all.stream().filter(v -> v instanceof Car).count();
         long motorcycleCount = all.stream().filter(v -> v instanceof Motorcycle).count();
 
-        // --- NEW SPLIT AVERAGE LOGIC STARTS HERE ---
         double avgCarRate = all.stream()
                 .filter(v -> v instanceof Car)
                 .mapToDouble(Vehicle::calculateRentalRate)
@@ -88,10 +94,8 @@ public class VehicleController {
         model.addAttribute("carCount", carCount);
         model.addAttribute("motorcycleCount", motorcycleCount);
 
-        // Send the split averages to the HTML page
         model.addAttribute("avgCarRate", avgCarRate);
         model.addAttribute("avgMotoRate", avgMotoRate);
-        // --- NEW SPLIT AVERAGE LOGIC ENDS HERE ---
 
         return "vehicle/vehicle-dashboard";
     }
@@ -101,7 +105,7 @@ public class VehicleController {
         if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
-        return "vehicle/vehicle-form";
+        return "vehicle/add-vehicle";
     }
 
     @GetMapping("/new")
@@ -155,6 +159,7 @@ public class VehicleController {
             HttpSession session,
             @RequestParam Map<String, String> params,
             @RequestParam(required = false) String vehicleType,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
             @ModelAttribute Car car,
             @ModelAttribute Motorcycle motorcycle,
             RedirectAttributes ra) {
@@ -183,14 +188,47 @@ public class VehicleController {
             try {
                 String targetId;
 
-                // CRITICAL FIX: If editing, keep the original ID. If adding, generate a new one.
                 if ("update".equals(action) && idParam != null && !idParam.isBlank()) {
                     targetId = idParam.trim();
                 } else {
                     targetId = "V-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
                 }
 
-                Vehicle toSave = buildVehicleLegacy(targetId, params);
+                // --- IMAGE UPLOAD & RETENTION LOGIC ---
+                String imagePath = "/images/default-vehicle.png";
+
+                if (imageFile != null && !imageFile.isEmpty()) {
+                    // Save new file if one was uploaded
+                    try {
+                        String folderPath = "src/main/resources/static/images/vehicles/";
+                        Path uploadDir = Paths.get(folderPath);
+                        if (!Files.exists(uploadDir)) {
+                            Files.createDirectories(uploadDir);
+                        }
+
+                        String originalName = imageFile.getOriginalFilename();
+                        String extension = originalName != null && originalName.contains(".")
+                                ? originalName.substring(originalName.lastIndexOf("."))
+                                : ".jpg";
+
+                        String fileName = targetId + extension;
+                        Path filePath = uploadDir.resolve(fileName);
+
+                        Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                        imagePath = "/images/vehicles/" + fileName;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else if ("update".equals(action) && idParam != null && !idParam.isBlank()) {
+                    // CRITICAL: Retain existing image if no new file is uploaded during an edit
+                    Optional<Vehicle> existingVehicle = vehicleService.findById(targetId);
+                    if (existingVehicle.isPresent()) {
+                        imagePath = existingVehicle.get().getImagePath();
+                    }
+                }
+                // --- END IMAGE LOGIC ---
+
+                Vehicle toSave = buildVehicleLegacy(targetId, params, imagePath);
                 try {
                     vehicleService.save(toSave);
                 } catch (ValidationException ex) {
@@ -219,15 +257,19 @@ public class VehicleController {
         try {
             if ("update".equals(action)) {
                 String id = normalized(params.get("id"));
+
+                // Retain existing image for legacy updates
+                String existingImage = vehicleService.findById(id).map(Vehicle::getImagePath).orElse("/images/default-vehicle.png");
+
                 try {
-                    vehicleService.save(buildVehicleLegacy(id, params));
+                    vehicleService.save(buildVehicleLegacy(id, params, existingImage));
                 } catch (ValidationException ex) {
                     return "redirect:/vehicles/" + id + "/edit?error=" + ex.getMessage();
                 }
             } else {
                 String id = "V-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
                 try {
-                    vehicleService.save(buildVehicleLegacy(id, params));
+                    vehicleService.save(buildVehicleLegacy(id, params, "/images/default-vehicle.png"));
                 } catch (ValidationException ex) {
                     return "redirect:/vehicles/new?error=" + ex.getMessage();
                 }
@@ -238,7 +280,7 @@ public class VehicleController {
         }
     }
 
-    private Vehicle buildVehicleLegacy(String id, Map<String, String> params) {
+    private Vehicle buildVehicleLegacy(String id, Map<String, String> params, String imagePath) {
         String brand = normalized(params.get("brand"));
         String model = normalized(params.get("model"));
         double rate = Double.parseDouble(normalized(params.get("rate")));
@@ -247,11 +289,11 @@ public class VehicleController {
         if ("Motorcycle".equalsIgnoreCase(vType)) {
             String helmetValue = params.get("helmetIncluded");
             boolean helmetIncluded = "on".equalsIgnoreCase(helmetValue) || "true".equalsIgnoreCase(helmetValue);
-            return new Motorcycle(id, brand, model, rate, helmetIncluded);
+            return new Motorcycle(id, brand, model, rate, helmetIncluded, imagePath);
         }
 
         int capacity = Integer.parseInt(normalized(params.get("capacity")));
-        return new Car(id, brand, model, rate, capacity);
+        return new Car(id, brand, model, rate, capacity, imagePath);
     }
 
     private static String normalized(String value) {
@@ -270,17 +312,16 @@ public class VehicleController {
         }
         Vehicle toSave = "MOTORCYCLE".equalsIgnoreCase(vehicleType) ? motorcycle : car;
         toSave.setId(id);
+
+        // Retain existing image path
+        vehicleService.findById(id).ifPresent(existing -> toSave.setImagePath(existing.getImagePath()));
+
         try {
             vehicleService.save(toSave);
         } catch (ValidationException ex) {
             return "redirect:/vehicles/" + id + "/edit?error=" + ex.getMessage();
         }
         return "redirect:/vehicles";
-    }
-
-    private void createModern(String vehicleType, Car car, Motorcycle motorcycle) {
-        Vehicle toSave = "MOTORCYCLE".equalsIgnoreCase(vehicleType) ? motorcycle : car;
-        vehicleService.save(toSave);
     }
 
     @PostMapping("/{id}/delete")
