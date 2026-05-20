@@ -453,7 +453,15 @@ public class CustomerPortalController {
             myReviews = List.of();
             model.addAttribute("reviewError", "Could not load your reviews. Please try again later.");
         }
+        double avgRating = 0.0;
+        if (!myReviews.isEmpty()) {
+            avgRating = myReviews.stream()
+                    .mapToInt(CustomerReview::getRating)
+                    .average()
+                    .orElse(0.0);
+        }
         model.addAttribute("myReviews", myReviews);
+        model.addAttribute("avgRating", avgRating);
         return "review/customer-reviews-list";
     }
 
