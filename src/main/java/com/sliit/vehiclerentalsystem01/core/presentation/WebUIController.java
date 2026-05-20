@@ -172,7 +172,8 @@ public class WebUIController {
                     v.getSpecificDetail(),
                     category,
                     imageUrl,
-                    rate
+                    rate,
+                    v.getStatus()
             ));
         }
         return fleetPreview;

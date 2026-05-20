@@ -46,8 +46,9 @@
                         <div class="lux-card__media">
                             <img th:src="${v.imageUrl}" th:alt="|${v.brand} ${v.model}|" loading="lazy" width="800" height="500"/>
                             <span class="lux-card__badge">
-                                <span class="da-tag__dot" aria-hidden="true"></span>
-                                Available
+                                <span class="da-tag__dot" aria-hidden="true"
+                                      th:style="${v.status == 'MAINTENANCE'} ? 'background: #eab308; box-shadow: 0 0 8px rgba(234,179,8,0.6);' : (${v.status == 'RENTED'} ? 'background: #8b5cf6; box-shadow: 0 0 8px rgba(139,92,246,0.6);' : '')"></span>
+                                <span th:text="${v.status == 'MAINTENANCE'} ? 'Maintenance' : (${v.status == 'RENTED'} ? 'Rented' : 'Available')">Available</span>
                             </span>
                             <span class="lux-card__index" aria-hidden="true" th:text="${'0' + (vStat.index + 1)}">01</span>
                         </div>

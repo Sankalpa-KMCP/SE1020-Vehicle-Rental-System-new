@@ -6,6 +6,8 @@ import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
 import com.sliit.vehiclerentalsystem01.reservation.repository.ReservationRepository;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
+import com.sliit.vehiclerentalsystem01.vehicle.entity.Vehicle;
+import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +27,16 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserService userService;
     private final PaymentService paymentService;
+    private final VehicleService vehicleService;
 
     public ReservationServiceImpl(ReservationRepository reservationRepository,
                                   UserService userService,
-                                  @Lazy PaymentService paymentService) {
+                                  @Lazy PaymentService paymentService,
+                                  @Lazy VehicleService vehicleService) {
         this.reservationRepository = reservationRepository;
         this.userService = userService;
         this.paymentService = paymentService;
+        this.vehicleService = vehicleService;
     }
 
     @Override
@@ -82,6 +87,8 @@ public class ReservationServiceImpl implements ReservationService {
         list.removeIf(b -> booking.getId().equals(b.getId()));
         list.add(booking);
         reservationRepository.saveAll(list);
+
+        syncVehicleStatus(booking.getVehicleId(), booking.getStatus());
     }
 
     @Override
@@ -102,15 +109,20 @@ public class ReservationServiceImpl implements ReservationService {
         }
         List<Booking> list = new ArrayList<>(reservationRepository.findAll());
         boolean changed = false;
+        String vehicleIdToUpdate = null;
         for (Booking b : list) {
             if (bookingId.equals(b.getId())) {
                 b.setStatus(newStatus);
                 changed = true;
+                vehicleIdToUpdate = b.getVehicleId();
                 break;
             }
         }
         if (changed) {
             reservationRepository.saveAll(list);
+            if (vehicleIdToUpdate != null) {
+                syncVehicleStatus(vehicleIdToUpdate, newStatus);
+            }
         }
     }
 
@@ -212,6 +224,26 @@ public class ReservationServiceImpl implements ReservationService {
         }
     }
 
+    private void syncVehicleStatus(String vehicleId, String bookingStatus) {
+        if (vehicleId != null && !vehicleId.isBlank()) {
+            vehicleService.findById(vehicleId.trim()).ifPresent(v -> {
+                String normStatus = normalized(bookingStatus);
+                if ("RENTED".equalsIgnoreCase(normStatus)) {
+                    v.setStatus("RENTED");
+                    vehicleService.save(v);
+                } else if ("MAINTENANCE".equalsIgnoreCase(normStatus)) {
+                    v.setStatus("MAINTENANCE");
+                    vehicleService.save(v);
+                } else {
+                    if ("RENTED".equalsIgnoreCase(v.getStatus())) {
+                        v.setStatus("AVAILABLE");
+                        vehicleService.save(v);
+                    }
+                }
+            });
+        }
+    }
+
     private void validateBeforeSave(Booking booking) {
         int days = booking.getDurationDays();
         if (days < 1) {
@@ -231,6 +263,22 @@ public class ReservationServiceImpl implements ReservationService {
         String vehicleId = normalized(booking.getVehicleId());
         if (vehicleId.isEmpty()) {
             throw new ValidationException("vehicle_unavailable");
+        }
+
+        boolean isNewBooking = true;
+        if (booking.getId() != null && !booking.getId().isBlank()) {
+            isNewBooking = reservationRepository.findAll().stream().noneMatch(b -> booking.getId().equals(b.getId()));
+        }
+        if (isNewBooking) {
+            Optional<Vehicle> vOpt = vehicleService.findById(vehicleId);
+            if (vOpt.isEmpty() || !"AVAILABLE".equalsIgnoreCase(vOpt.get().getStatus())) {
+                throw new ValidationException("vehicle_unavailable");
+            }
+        } else {
+            Optional<Vehicle> vOpt = vehicleService.findById(vehicleId);
+            if (vOpt.isPresent() && "MAINTENANCE".equalsIgnoreCase(vOpt.get().getStatus())) {
+                throw new ValidationException("vehicle_unavailable");
+            }
         }
 
         String selfId = booking.getId() == null ? "" : booking.getId();
