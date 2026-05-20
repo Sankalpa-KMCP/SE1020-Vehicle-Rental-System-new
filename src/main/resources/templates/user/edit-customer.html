@@ -2,114 +2,197 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DriveAway | Profile Settings</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at top right, #dbeafe 0%, #f8fafc 45%, #f1f5f9 100%); }
-    .fade-in { animation: fadeIn 0.4s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-    .card-hover { transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
-    .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(13, 110, 253, 0.15); }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: #f4f7fc;
+      background-image:
+        radial-gradient(ellipse 70% 50% at 100% 0%, rgba(99, 102, 241, 0.14), transparent 50%),
+        radial-gradient(ellipse 60% 40% at 0% 100%, rgba(59, 130, 246, 0.12), transparent 45%);
+    }
+    .fade-in { animation: fadeIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    .nav-glass {
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
+    }
+    .avatar-glow {
+      padding: 4px;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+      border-radius: 9999px;
+      box-shadow: 0 12px 40px rgba(79, 70, 229, 0.28);
+    }
+    .avatar-glow-inner { background: #fff; border-radius: 9999px; padding: 3px; }
+    .panel {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(226, 232, 240, 0.95);
+      box-shadow: 0 8px 40px rgba(15, 23, 42, 0.06), 0 1px 0 rgba(255,255,255,0.9) inset;
+    }
+    .field-input {
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .field-input:focus {
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+    }
+    .upload-zone {
+      background: linear-gradient(145deg, #f8fafc 0%, #eff6ff 100%);
+      border: 2px dashed rgba(99, 102, 241, 0.35);
+      transition: border-color 0.25s ease, background 0.25s ease;
+    }
+    .upload-zone:hover {
+      border-color: rgba(79, 70, 229, 0.55);
+      background: linear-gradient(145deg, #f0f9ff 0%, #eef2ff 100%);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .fade-in { animation: none; }
+    }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6 text-gray-800">
+<body class="min-h-screen text-slate-800 flex flex-col">
 
-<div class="max-w-2xl w-full bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sm:p-10 fade-in relative overflow-hidden card-hover">
-
-  <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
-
-  <div class="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
-    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg">
-      <i class="ph-fill ph-user-circle-gear text-4xl"></i>
+<nav class="nav-glass sticky top-0 z-30">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+    <a th:href="${isCustomerMode} ? @{/customer/home} : @{/customers(action=view_directory)}"
+       class="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">
+      <i class="ph-bold ph-arrow-left text-lg"></i>
+      <span th:text="${isCustomerMode} ? 'Back to portal' : 'Customer directory'}">Back</span>
+    </a>
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/20">
+        <i class="ph-fill ph-car-profile text-lg text-white"></i>
+      </div>
+      <span class="font-extrabold text-slate-900 hidden sm:inline">Drive<span class="text-indigo-600">Away</span></span>
     </div>
-    <div>
-      <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight" th:text="${isCustomerMode ? 'My Profile Settings' : 'Edit Guest Profile'}">Profile Settings</h2>
-      <p class="text-gray-500 font-medium mt-1">Update contact details and identity verification documents.</p>
+  </div>
+</nav>
+
+<main class="flex-grow px-4 sm:px-6 py-8 sm:py-12 fade-in">
+  <div class="max-w-3xl mx-auto">
+
+    <header class="text-center mb-8 sm:mb-10">
+      <div class="avatar-glow inline-block mb-5">
+        <div class="avatar-glow-inner" th:replace="~{fragments/user-avatar :: avatar(user=${customer}, size=96)}"></div>
+      </div>
+      <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-indigo-600 mb-2">Your account</p>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight"
+          th:text="${isCustomerMode ? 'My Profile Settings' : 'Edit Guest Profile'}">Profile Settings</h1>
+      <p class="text-slate-500 font-medium mt-2 max-w-md mx-auto text-sm sm:text-base">
+        Update your photo, contact details, and verification documents.
+      </p>
+    </header>
+
+    <div th:if="${param.msg != null and param.msg[0] == 'updated'}"
+         class="mb-6 panel rounded-2xl p-4 border-emerald-200/80 bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-800 font-semibold flex items-center gap-3">
+      <span class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0">
+        <i class="ph-bold ph-check text-xl"></i>
+      </span>
+      Profile updated successfully.
     </div>
-  </div>
 
-  <div th:if="${param.msg != null and param.msg[0] == 'updated'}" class="mb-6 bg-green-50 p-4 rounded-xl border border-green-200 text-green-700 font-semibold flex items-center gap-2 shadow-sm">
-    <i class="ph-bold ph-check-circle text-xl"></i> Profile updated successfully.
-  </div>
+    <div th:if="${param.error != null and param.error[0] == 'missing_fields'}"
+         class="mb-6 panel rounded-2xl p-4 border-red-200/80 bg-red-50 text-red-700 font-semibold flex items-center gap-3">
+      <i class="ph-bold ph-warning-circle text-2xl shrink-0"></i>
+      Please fill in all required fields.
+    </div>
 
-  <div th:if="${param.error != null and param.error[0] == 'missing_fields'}" class="mb-6 bg-red-50 p-4 rounded-xl border border-red-200 text-red-700 font-semibold flex items-center gap-2 shadow-sm">
-    <i class="ph-bold ph-warning-circle text-xl"></i> Please fill in all required fields.
-  </div>
+    <form th:action="@{/customers}" method="post" enctype="multipart/form-data" class="panel rounded-[1.75rem] p-6 sm:p-8 lg:p-10 space-y-8">
 
-  <form th:action="@{/customers}" method="post" enctype="multipart/form-data" class="space-y-6">
-    <div class="flex justify-center mb-6" th:replace="~{fragments/user-avatar :: avatar(user=${customer}, size=80)}"></div>
-    <th:block th:replace="~{fragments/user-avatar :: avatarInput}"></th:block>
-    <input type="hidden" name="action" value="update"/>
-    <input type="hidden" name="id" th:value="${customer.id}"/>
+      <section class="upload-zone rounded-2xl p-5 sm:p-6">
+        <th:block th:replace="~{fragments/user-avatar :: avatarInput}"></th:block>
+      </section>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <input type="hidden" name="action" value="update"/>
+      <input type="hidden" name="id" th:value="${customer.id}"/>
 
-      <div class="md:col-span-2 bg-gradient-to-r from-slate-50 to-blue-50 p-5 rounded-xl border border-slate-200 flex items-center justify-between">
-        <div>
-          <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Account Username</p>
-          <p class="text-lg font-bold text-gray-900" th:text="'@' + ${customer.username}">@user</p>
+      <section class="rounded-2xl bg-gradient-to-r from-slate-50 via-blue-50/80 to-indigo-50/60 border border-slate-200/90 p-5 flex items-center justify-between gap-4">
+        <div class="min-w-0">
+          <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">Account username</p>
+          <p class="text-lg font-extrabold text-slate-900 truncate" th:text="'@' + ${customer.username}">@user</p>
           <input type="hidden" name="username" th:value="${customer.username}"/>
         </div>
-        <div class="bg-white p-2 rounded-lg shadow-sm">
-          <i class="ph-fill ph-lock-key text-2xl text-blue-500" title="Username cannot be changed"></i>
+        <div class="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 border border-slate-100">
+          <i class="ph-fill ph-lock-key text-2xl text-indigo-500" title="Username cannot be changed"></i>
         </div>
+      </section>
+
+      <section>
+        <h2 class="text-sm font-extrabold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i class="ph-fill ph-address-book text-indigo-500"></i> Contact information
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2">Full name</label>
+            <input type="text" name="name" th:value="${customer.name}" required
+                   class="field-input w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-medium bg-white"/>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">Email address</label>
+            <input type="email" name="email" th:value="${customer.email}" required
+                   class="field-input w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-medium bg-white"/>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">Phone number</label>
+            <input type="text" name="phone" th:value="${customer.phoneNumber}" required
+                   class="field-input w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-medium bg-white"/>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-bold text-slate-700 mb-2">Account password</label>
+            <input type="password" name="password" th:value="${customer.password}" required
+                   class="field-input w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-medium bg-white"/>
+            <p class="text-xs text-slate-500 mt-2 font-medium">Stored securely as a hash when saved.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-sm font-extrabold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+          <i class="ph-fill ph-shield-check text-emerald-500"></i> Verification documents
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">NIC number</label>
+            <input type="text" name="nic"
+                   th:value="${(customer.nic != null and !#strings.equalsIgnoreCase(customer.nic, 'N/A')) ? customer.nic : ''}"
+                   placeholder="Leave blank if none"
+                   class="field-input w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-medium bg-white"/>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2">Driver's license</label>
+            <input type="text" name="license"
+                   th:value="${(customer.licenseNumber != null and !#strings.equalsIgnoreCase(customer.licenseNumber, 'N/A')) ? customer.licenseNumber : ''}"
+                   placeholder="Leave blank if none"
+                   class="field-input w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-medium bg-white"/>
+          </div>
+        </div>
+      </section>
+
+      <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100">
+        <a th:if="${isCustomerMode}" th:href="@{/customer/home}"
+           class="sm:flex-1 order-2 sm:order-1 bg-white border-2 border-slate-200 text-slate-700 font-bold py-3.5 px-4 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-center inline-flex items-center justify-center gap-2">
+          <i class="ph-bold ph-x"></i> Cancel
+        </a>
+        <a th:unless="${isCustomerMode}" th:href="@{/customers(action=view_directory)}"
+           class="sm:flex-1 order-2 sm:order-1 bg-white border-2 border-slate-200 text-slate-700 font-bold py-3.5 px-4 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-center inline-flex items-center justify-center gap-2">
+          <i class="ph-bold ph-x"></i> Cancel
+        </a>
+        <button type="submit"
+                class="sm:flex-[2] order-1 sm:order-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white font-bold py-3.5 px-4 rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-violet-700 transition-all inline-flex justify-center items-center gap-2 shadow-lg shadow-indigo-500/25">
+          <i class="ph-bold ph-floppy-disk"></i> Save changes
+        </button>
       </div>
-
-      <div>
-        <label class="block text-sm font-bold text-gray-700 mb-2">Full Name</label>
-        <input type="text" name="name" th:value="${customer.name}" required class="w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-gray-800 transition-shadow"/>
-      </div>
-
-      <div>
-        <label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
-        <input type="email" name="email" th:value="${customer.email}" required class="w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-gray-800 transition-shadow"/>
-      </div>
-
-      <div>
-        <label class="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
-        <input type="text" name="phone" th:value="${customer.phoneNumber}" required class="w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-gray-800 transition-shadow"/>
-      </div>
-
-      <div>
-        <label class="block text-sm font-bold text-gray-700 mb-2">Account Password</label>
-        <input type="password" name="password" th:value="${customer.password}" required class="w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-gray-800 transition-shadow"/>
-      </div>
-
-      <div class="md:col-span-2 pt-4">
-        <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2 flex items-center gap-2">
-          <i class="ph-fill ph-shield-check text-blue-500"></i> Verification Documents
-        </h4>
-      </div>
-
-      <div>
-        <label class="block text-sm font-bold text-gray-700 mb-2">NIC Number</label>
-        <input type="text" name="nic" th:value="${(customer.nic != null and !#strings.equalsIgnoreCase(customer.nic, 'N/A')) ? customer.nic : ''}" placeholder="Leave blank if none" class="w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-gray-800 transition-shadow"/>
-      </div>
-
-      <div>
-        <label class="block text-sm font-bold text-gray-700 mb-2">Driver's License</label>
-        <input type="text" name="license" th:value="${(customer.licenseNumber != null and !#strings.equalsIgnoreCase(customer.licenseNumber, 'N/A')) ? customer.licenseNumber : ''}" placeholder="Leave blank if none" class="w-full border border-slate-300 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-gray-800 transition-shadow"/>
-      </div>
-
-    </div>
-
-    <div class="pt-6 flex gap-4 mt-8 border-t border-slate-100">
-      <a th:if="${isCustomerMode}" th:href="@{/customer/home}" class="flex-1 bg-white border-2 border-slate-200 text-gray-700 font-bold py-4 px-4 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-center flex items-center justify-center gap-2 text-lg shadow-sm">
-        <i class="ph-bold ph-x"></i> Cancel
-      </a>
-      <a th:unless="${isCustomerMode}" th:href="@{/customers(action=view_directory)}" class="flex-1 bg-white border-2 border-slate-200 text-gray-700 font-bold py-4 px-4 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-center flex items-center justify-center gap-2 text-lg shadow-sm">
-        <i class="ph-bold ph-x"></i> Cancel
-      </a>
-      <button type="submit" class="flex-[2] bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 px-4 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all flex justify-center items-center gap-2 shadow-lg shadow-blue-500/30 text-lg">
-        <i class="ph-bold ph-floppy-disk"></i> Save Changes
-      </button>
-    </div>
-  </form>
-</div>
+    </form>
+  </div>
+</main>
 
 </body>
 </html>
