@@ -29,7 +29,7 @@ This component's responsibilities are divided across standard Spring Boot MVC ti
   * [UserRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/repository/UserRepository.java): Manages file storage serialization and CSV line parsing of user records.
 * **Services (Business Logic):**
   * [UserService.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/service/UserService.java): Base user operations interface.
-  * [UserServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/service/UserServiceImpl.java): Coordinates authentication logic, customer profile updates, password matching, and default admin/customer seeding.
+  * [UserServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/service/UserServiceImpl.java): Coordinates authentication logic, customer profile updates, password matching, and registration flows. User rows are read and written via `UserRepository`; there is **no automatic seeding** of `data/users.txt` in this service.
   * [MasterAdminPendingService.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/service/MasterAdminPendingService.java): Onboards and approves new staff access request cards.
 * **Controllers (Request Routers):**
   * [UserAuthController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAuthController.java): Manages credentials verification, logins, registration forms, and session lifecycles.
@@ -39,7 +39,7 @@ This component's responsibilities are divided across standard Spring Boot MVC ti
   * [StaffAdminController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/StaffAdminController.java): Admin panel listing and creating new staff members.
   * [UserAdminHomeController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAdminHomeController.java): Root admin path dashboard routers.
   * [UserManagementController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserManagementController.java): Admin direct REST CRUD APIs for user records.
-  * [MasterConsoleController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/MasterConsoleController.java): System override utilities and seed reset configurations.
+  * [MasterConsoleController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/MasterConsoleController.java): Master-admin console routes (privileged operations as implemented in code).
 * **Thymeleaf HTML Templates:**
   * `auth/register.html`: Customer account registration form.
   * `user/login.html`: Unified customer login form.

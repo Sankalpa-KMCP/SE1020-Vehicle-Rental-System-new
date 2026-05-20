@@ -6,26 +6,41 @@ public class MaintenanceRecord {
 
     private String id;
     private String vehicleId;
-    private String status;
+    private String vehicleType;
+    private String vehicleModel;
+    private String mileage;
+    private String photoFileName;
     private LocalDate lastServiceDate;
     private LocalDate nextServiceDate;
-    private String notes;
 
     public MaintenanceRecord() {
     }
 
     public MaintenanceRecord(String id,
                              String vehicleId,
-                             String status,
+                             String vehicleType,
+                             String vehicleModel,
+                             String mileage,
+                             String photoFileName,
+                             LocalDate lastServiceDate,
+                             LocalDate nextServiceDate) {
+        this.id = id;
+        this.vehicleId = vehicleId;
+        this.vehicleType = vehicleType;
+        this.vehicleModel = vehicleModel;
+        this.mileage = mileage;
+        this.photoFileName = photoFileName;
+        this.lastServiceDate = lastServiceDate;
+        this.nextServiceDate = nextServiceDate;
+    }
+
+    public MaintenanceRecord(String id,
+                             String vehicleId,
+                             String vehicleType,
                              LocalDate lastServiceDate,
                              LocalDate nextServiceDate,
                              String notes) {
-        this.id = id;
-        this.vehicleId = vehicleId;
-        this.status = status;
-        this.lastServiceDate = lastServiceDate;
-        this.nextServiceDate = nextServiceDate;
-        this.notes = notes;
+        this(id, vehicleId, vehicleType, "", "", "", lastServiceDate, nextServiceDate);
     }
 
     public String getId() {
@@ -44,12 +59,36 @@ public class MaintenanceRecord {
         this.vehicleId = vehicleId;
     }
 
-    public String getStatus() {
-        return status;
+    public String getVehicleType() {
+        return vehicleType;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setVehicleType(String vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
+    public String getVehicleModel() {
+        return vehicleModel;
+    }
+
+    public void setVehicleModel(String vehicleModel) {
+        this.vehicleModel = vehicleModel;
+    }
+
+    public String getMileage() {
+        return mileage;
+    }
+
+    public void setMileage(String mileage) {
+        this.mileage = mileage;
+    }
+
+    public String getPhotoFileName() {
+        return photoFileName;
+    }
+
+    public void setPhotoFileName(String photoFileName) {
+        this.photoFileName = photoFileName;
     }
 
     public LocalDate getLastServiceDate() {
@@ -68,11 +107,4 @@ public class MaintenanceRecord {
         this.nextServiceDate = nextServiceDate;
     }
 
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
 }

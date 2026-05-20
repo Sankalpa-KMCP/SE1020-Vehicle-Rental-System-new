@@ -20,7 +20,7 @@ The **Vehicle Fleet Inventory** component manages all physical assets of the ren
 This component's responsibilities are divided across standard Spring Boot MVC tiers:
 
 * **Entities (Domain Entities):**
-  * [Vehicle.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Vehicle.java): Abstract base class defining common fields (`id`, `brand`, `model`, `dailyRate`) and declaring abstract methods `getVehicleType()`, `calculateRentalRate()`, `getSpecificDetail()`, and `toCSV()`.
+  * [Vehicle.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Vehicle.java): Abstract base class defining common fields (`id`, `brand`, `model`, `dailyRate`, `imagePath`) and declaring abstract methods `getVehicleType()`, `calculateRentalRate()`, `getSpecificDetail()`, and `toCSV()`.
   * [Car.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Car.java): Concrete subclass representing cars, adding `seatingCapacity` encapsulation.
   * [Motorcycle.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Motorcycle.java): Concrete subclass representing motorcycles, adding a `helmetIncluded` flag.
 * **Repositories (Data Access Layer):**
@@ -52,6 +52,7 @@ public abstract class Vehicle {
     private String brand;
     private String model;
     private double dailyRate;
+    private String imagePath;
 
     public abstract String getVehicleType();
     public abstract double calculateRentalRate();
@@ -82,6 +83,7 @@ classDiagram
         -String brand
         -String model
         -double dailyRate
+        -String imagePath
         +getVehicleType()* String
         +calculateRentalRate()* double
         +getSpecificDetail()* String
@@ -89,6 +91,7 @@ classDiagram
     }
     class Car {
         -int seatingCapacity
+        -String imagePath
         +getVehicleType() String
         +calculateRentalRate() double
         +getSpecificDetail() String
@@ -96,6 +99,7 @@ classDiagram
     }
     class Motorcycle {
         -boolean helmetIncluded
+        -String imagePath
         +getVehicleType() String
         +calculateRentalRate() double
         +getSpecificDetail() String
@@ -107,11 +111,11 @@ classDiagram
 
 ### D. Polymorphism
 Polymorphism is demonstrated through dynamic method overriding and dispatch:
-* **Overridden Rate Calculations:** `Car.calculateRentalRate()` returns the base rate, while `Motorcycle.calculateRentalRate()` dynamically adds a flat fee ($5/day) if a helmet rental is selected.
+* **Overridden Rate Calculations:** `Car.calculateRentalRate()` returns the base daily rate. `Motorcycle.calculateRentalRate()` applies a type-specific multiplier (see `Motorcycle.java`); helmet inclusion is reflected in `getSpecificDetail()`, not as a separate per-day surcharge in the current implementation.
 * **Polymorphic CSV Serialization:** [VehicleRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/repository/VehicleRepository.java) iterates over a list of `Vehicle` objects and writes each record by calling `toCSV()`. Dynamic dispatch executes the overridden `toCSV()` method in the correct subclass at runtime:
 ```java
 public String toCSV() { // In Car.java
-    return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity;
+    return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity + "," + getImagePath();
 }
 ```
 
@@ -120,9 +124,11 @@ public String toCSV() { // In Car.java
 ## 4. Flat-File Persistence Schema (`data/vehicles.txt`)
 Fleet inventory records are stored in a comma-delimited format inside `data/vehicles.txt`. The first column acts as the **Polymorphic Type Discriminator**:
 * **Car Record:**
-  `Car,id,brand,model,dailyRate,seatingCapacity`
+  `Car,id,brand,model,dailyRate,seatingCapacity,imagePath`
 * **Motorcycle Record:**
-  `Motorcycle,id,brand,model,dailyRate,helmetIncluded`
+  `Motorcycle,id,brand,model,dailyRate,helmetIncluded,imagePath`
+
+The trailing `imagePath` field may be empty; [VehicleRepository](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/repository/VehicleRepository.java) supplies a default when omitted so older rows remain loadable.
 
 ### 🛡️ Concurrency Controls & Thread-Safety Model
 To preserve inventory accuracy and avoid database integrity issues when administrators add, modify, or retire vehicles while customers are actively checking out, [VehicleRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/repository/VehicleRepository.java) implements a concurrency wrapper using `ReentrantReadWriteLock`:

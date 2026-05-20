@@ -1,77 +1,70 @@
 # 🚗 DriveAway: Premium Vehicle Rental & Fleet Management System
 
-An enterprise-grade, lightweight **Vehicle Rental and Fleet Management Platform** built with **Spring Boot 3.x**, **Java 17**, and **Thymeleaf**. Designed as an academic-grade project for **SLIIT (Sri Lanka Institute of Information Technology)**, this system showcases robust architectural patterns, non-blocking page controls, and a custom-built, thread-safe **Flat-File Database Repository Layer** that exemplifies advanced I/O streams and the core pillars of Object-Oriented Programming (OOP).
+An enterprise-grade, lightweight **Vehicle Rental and Fleet Management Platform** built with **Spring Boot 3.4.5**, **Java 17 (language level / bytecode target)**, and **Thymeleaf**. The project is configured for **JDK 17** as the reference toolchain; it can also be run on newer JDKs (for example **JDK 21 or 24**) with the same Maven setup. Designed as an academic-grade project for **SLIIT (Sri Lanka Institute of Information Technology)**, this system showcases layered MVC, servlet-session–based access checks, and a custom **thread-safe flat-file repository layer** that exemplifies I/O streams and the core pillars of Object-Oriented Programming (OOP).
 
 ---
 
 ## 🏗️ Core System Architecture
 
-The application adopts a decoupled, layered MVC architecture. Rather than relying on a heavy SQL database, the project utilizes an enterprise-grade, lightweight **Flat-File Repository Layer** where records are saved in canonical delimited flat-files inside the `data/` directory.
+The application adopts a decoupled, layered MVC architecture. Rather than relying on a heavy SQL database, the project uses a **flat-file repository layer** where records are saved in canonical delimited flat files under the `data/` directory (path controlled by `app.data.directory`).
 
-To ensure complete data consistency and eliminate race conditions under concurrent workloads, the Repository Layer is fortified with a custom-engineered, non-blocking thread-safety model using `java.util.concurrent.locks.ReentrantReadWriteLock`. This mechanism coordinates exclusive Write locks and shared Read locks, guaranteeing transactional atomicity during file operations.
+To reduce race conditions under concurrent access, **most** repositories use **`java.util.concurrent.locks.ReentrantReadWriteLock`**: shared read locks for queries and exclusive write locks for read-modify-write persistence to disk. (The reviews repository currently uses `Files` read/write without that lock; see [ReviewRepository](../src/main/java/com/sliit/vehiclerentalsystem01/review/repository/ReviewRepository.java).)
 
 ### High-Level Data Flow
 
 ```mermaid
 graph TD
-    classDef client fill:#eef,stroke:#333,stroke-width:2px;
-    classDef filter fill:#ffe,stroke:#333,stroke-width:2px;
-    classDef controller fill:#e8f4fc,stroke:#333,stroke-width:2px;
-    classDef service fill:#eafaf1,stroke:#333,stroke-width:2px;
-    classDef repository fill:#fdf2e9,stroke:#333,stroke-width:2px;
-    classDef db fill:#f2f4f4,stroke:#333,stroke-width:2px;
+    Client["Client Web Browser"]
+    SessionAuth["HttpSession and controller-side auth checks"]
+    Controller["Spring MVC controllers"]
+    Service["Business service layer"]
+    Repository["Polymorphic file repositories"]
+    DataFiles["Flat files under data directory"]
 
-    Client["Client Web Browser"]:::client
-    AuthSession["Session Auth Interceptors & Security Filters"]:::filter
-    Controller["Spring MVC Controllers"]:::controller
-    Service["Business Service Layer"]:::service
-    Repository["Polymorphic File Repositories (Repository Layer)"]:::repository
-    DataFiles["Canonical Flat-File Databases (*.txt)"]:::db
-
-    Client -->|HTTP Request| AuthSession
-    AuthSession -->|Allows Public/Authorized| Controller
-    AuthSession -->|Redirects Unauthorized| Client
-    Controller -->|Thymeleaf Templates| Client
-    Controller -->|Process Business Request| Service
-    Service -->|Read / Write CRUD Operations| Repository
-    Repository -->|Parse / Serialize CSV & Pipe Records| DataFiles
+    Client -->|HTTP request| SessionAuth
+    SessionAuth -->|Public or authorized routes| Controller
+    Controller -->|Thymeleaf views| Client
+    Controller -->|Business calls| Service
+    Service -->|CRUD| Repository
+    Repository -->|Parse and serialize CSV or legacy pipe rows| DataFiles
 ```
 
 ---
 
 ## 🛠️ Technology Stack
 
-* **Core Language:** Java 17 (utilizing concurrent lock API utilities for operational safety)
-* **Framework:** Spring Boot 3.x (Spring Web, Starter Thymeleaf, Servlet Session handling)
-* **View Engine:** Thymeleaf 3.x (Styled with premium modern CSS, responsive grids, and luxury dynamic dashboards)
-* **Repository Layer:** Custom thread-safe Object-to-Flat-File serialization system leveraging `ReentrantReadWriteLock` concurrency controls, high-speed Java NIO.2 file channels (`java.nio.file.Files`), and UTF-8 buffered readers/writers.
-* **Build System:** Apache Maven 3.9+
+* **Language / bytecode:** Java **17** (`java.version` in Maven); run with **JDK 17+** (team may use JDK 21 or 24).
+* **Framework:** **Spring Boot 3.4.5** (Spring Web MVC, Spring context, validation).
+* **Embedded server:** **Undertow** (`spring-boot-starter-undertow`); default **Tomcat** starter is excluded in `pom.xml`.
+* **View engine:** **Thymeleaf 3.1.x** (via Spring Boot BOM), HTML under `src/main/resources/templates/`.
+* **Repository layer:** Custom serialization with **`ReentrantReadWriteLock`** on most mutating repositories, **`java.nio.file.Files`**, UTF-8 text, SLF4J logging; tolerant parsing skips bad lines where implemented.
+* **Build:** **Apache Maven** (3.9+ recommended).
 
 ### 🗄️ Custom Thread-Safe Flat-File Database Engine
-A defining architectural component of this application is its custom, enterprise-grade flat-file database engine implemented within the Repository layer. Moving beyond traditional relational databases, this system achieves bulletproof data integrity in concurrent web environments by employing `java.util.concurrent.locks.ReentrantReadWriteLock`. This mechanism distinguishes between shared read operations and exclusive write operations, guaranteeing that multiple threads can safely read data simultaneously while ensuring that modify-write transactions are executed as serializable, atomic operations. Furthermore, the engine is built with high resilience and fault-tolerant parsing; malformed lines or incomplete CSV records are gracefully intercepted, logged using the SLF4J API framework, and skipped without throwing HTTP 500 server errors. This ensures maximum system uptime and a smooth user experience.
+
+Repositories buffer in memory, mutate domain lists, and rewrite whole files (often under a write lock) so readers see consistent snapshots. Malformed lines are typically skipped and logged rather than failing the entire load (behavior is per-repository).
 
 ---
 
 ## 🎨 Academic OOP Rubric Mapping
 
-This codebase is specifically engineered to demonstrate the **Four Pillars of Object-Oriented Programming (OOP)** in a highly transparent, rigorous, and academically sound manner:
+This codebase is structured to demonstrate the **four pillars of OOP** in a transparent way.
 
 ### 1. Abstraction (Base Contracts)
-The system isolates complex subsystems by defining abstract classes with polymorphic method contracts. Client modules interact with high-level abstractions without knowing the underlying concrete classes:
-* [User.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/entity/User.java): The high-level abstraction for all authenticated users. It defines core properties (`id`, `name`, `email`) and exposes the abstract contract `getUserRole()`.
-* [Vehicle.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Vehicle.java): Declares abstract contracts `getVehicleType()`, `calculateRentalRate()`, `getSpecificDetail()`, and `toCSV()`.
-* [Transaction.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Transaction.java): Exposes the abstract contract `getTransactionType()` to represent transactional records.
-* [Payment.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/Payment.java): Declares the abstract method `getPaymentMethod()` to encapsulate multiple transactional ledger flows.
-* [Feedback.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/Feedback.java): Declares the abstract method `getReviewType()` to support polymorphic display layouts.
 
-### 2. Encapsulation (Access & Domain Integrity)
-* **State Protection:** All fields in the entity/model classes are declared `private` or `protected`. State transitions are strictly controlled via public getter and setter methods.
-* **Domain Validation:** Setters and services enforce business boundaries. For example, [ReservationServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/service/ReservationServiceImpl.java) contains temporal logic and overlap checks to prevent temporal and double-booking conflicts.
-* **Deletion Protection:** Deletions are guarded with transactional integrity. The services ensure that a customer cannot be deleted if they have active rentals, and vehicles under active bookings cannot be removed from the fleet.
-* **Self-Contained File Parsing:** All file I/O operations are strictly encapsulated inside the respective repository layers (`UserRepository`, `VehicleRepository`, etc.). Controllers and Services never manipulate the underlying raw files directly.
+* [User.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/entity/User.java): Abstraction for authenticated users; contract `getUserRole()`.
+* [Vehicle.java](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/entity/Vehicle.java): `getVehicleType()`, `calculateRentalRate()`, `getSpecificDetail()`, `toCSV()`.
+* [Transaction.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/entity/Transaction.java): `getTransactionType()`.
+* [Payment.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/Payment.java): `getPaymentMethod()` (and related helpers).
+* [Feedback.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/Feedback.java): `getReviewType()`.
+
+### 2. Encapsulation (Access and Domain Integrity)
+
+* Private/protected fields with getters/setters; validation in services (for example overlap checks in [ReservationServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/service/ReservationServiceImpl.java)).
+* File I/O confined to repository classes.
 
 ### 3. Inheritance (Class Hierarchies)
-The project demonstrates clean, deep subclass hierarchies to maximize code reuse, domain separation, and logical organization:
+
 ```text
 User (Abstract)
  ├── Customer (Concrete)
@@ -80,128 +73,138 @@ User (Abstract)
       └── SupportStaff (Concrete)
 
 Vehicle (Abstract)
- ├── Car (Concrete - encapsulates seatingCapacity)
- └── Motorcycle (Concrete - encapsulates helmetIncluded flag)
+ ├── Car (Concrete — seatingCapacity, imagePath)
+ └── Motorcycle (Concrete — helmetIncluded, imagePath)
 
 Transaction (Abstract)
- └── Booking (Concrete - captures vehicleId, rentalDate, durationDays, and status)
+ └── Booking (Concrete)
 
 Payment (Abstract)
- ├── CardPayment (Concrete - Credit/Debit processing)
- └── CashPayment (Concrete - Cash tender and ledger tracking)
+ ├── CardPayment (Concrete)
+ └── CashPayment (Concrete)
 
 Feedback (Abstract)
- └── CustomerReview (Concrete - encapsulates star rating, comments, status, and staff reply trails)
+ └── CustomerReview (Concrete)
 ```
 
 ### 4. Polymorphism (Dynamic Dispatch)
-* **Polymorphic Serialization:** Overriding `toCSV()` (or `toCsvLine()`) enables writing domain objects directly to flat-files. The application calls `toCSV()` on a list of `Vehicle` objects, and JVM's dynamic dispatch serializes `Car` and `Motorcycle` instances with their specific fields natively.
-* **Polymorphic UI Rendering:** When rendering HTML pages via Thymeleaf, the template invokes high-level getters (e.g. `vehicle.getSpecificDetail()`, `payment.getPaymentMethod()`, `user.getUserRole()`). The JVM dynamically dispatches to the correct subclass method at runtime, ensuring distinct vehicle types display custom properties.
-* **Polymorphic Action Handlers:** Methods accept base abstraction types (e.g., saving a `User` or `Vehicle`), dynamically invoking overridden methods corresponding to the concrete subtype subclass.
+
+* **`toCSV()` / `toCsvLine()`** on concrete entities for persistence.
+* Thymeleaf views call polymorphic getters (`getSpecificDetail()`, `getPaymentMethod()`, etc.).
 
 ---
 
-## 🗄️ File Database & Repository Layer Specification
+## 🗄️ File Database and Repository Layer Specification
 
-The custom repository engine parses and serializes domain objects using structured delimiters. The database maintains transactional state through comma-delimited (`,`) and pipe-delimited (`|`) text files.
+Delimiters are primarily **comma** (`,`) with **legacy pipe** (`|`) support in several parsers.
 
-### 🏛️ The Concurrency Architecture of the Flat-File Database Engine
-At the heart of the system is a highly structured and decoupled Flat-File Database Engine, designed to simulate a professional relational transaction processor without the overhead of external SQL engines. To prevent critical concurrency bugs—such as race conditions, lost updates, and dirty reads when multiple online customers attempt to check out vehicles simultaneously—the engine relies on explicit lock separation via `java.util.concurrent.locks.ReentrantReadWriteLock`. 
+### Concurrency and Fault Tolerance (Summary)
 
-Every read transaction (e.g., retrieving vehicles, loading profiles, displaying booking histories) acquires a non-blocking shared read lock, maximizing read throughput. Conversely, modifying transactions (e.g., saving user profiles, updating vehicle inventories, registering bookings) acquire an exclusive write lock, which suspends all other read/write access until the memory state is completely flushed to disk. Operating on a strict read-modify-write pattern, the engine buffers records in memory, performs transactional mutations, and serializes the complete state back to flat-files. In tandem, the engine integrates a fault-tolerant parser: rather than allowing corrupted file entries to trigger general application crashes or bubble up as HTTP 500 internal server exceptions, the repository utilizes localized try-catch blocks to skip malformed lines, log descriptive warnings via SLF4J, and continue loading valid records unimpeded.
-
-### 🛡️ Enterprise-Grade Concurrency & Fault-Tolerance Engine
-To scale flat-file databases in multi-user environments, we implemented a sophisticated persistence architecture:
-1. **Thread-Safe Access Control (`ReentrantReadWriteLock`):** Every repository class manages its file interactions via explicit reentrant read/write locks.
-   - **Shared Read Lock:** Multiple concurrent read operations (e.g., browsing vehicles, reading user profiles) can access the flat files simultaneously without blocking each other.
-   - **Exclusive Write Lock:** Write operations (e.g., booking checkouts, payment processing, registration updates) acquire an exclusive write lock. This blocks all other read/write threads, ensuring that file write operations are completely serialized and atomic, avoiding dirty reads or database corruption.
-2. **Atomic Transactional Writes:** Update and delete operations operate on an atomic read-modify-write pattern. Files are rewritten as temporary buffers first before being committed (`StandardOpenOption.TRUNCATE_EXISTING`), ensuring that database corruption never occurs during partial write failures.
-3. **Resilient & Fault-Tolerant Parsing:** Flat-file parsers handle dirty datasets gracefully. Malformed rows (e.g., partially corrupted inputs or incomplete CSV columns) are intercepted locally via try-catch bounds, skipped, and logged as warnings via the SLF4J logging framework instead of triggering application crashes or HTTP 500 server errors.
+1. **`ReentrantReadWriteLock`** on **most** repositories that perform file updates (reviews are the notable exception today).
+2. **Read-modify-write** of full file content for atomic saves where implemented.
+3. **Skip-and-log** for bad lines in parsers that support it (see each repository).
 
 ### Canonical Data Schemas (`data/` directory)
 
-| Data File | Delimiter | Record Types / Prefixes | Schema Fields | Description |
+| Data File | Delimiter | Record types / prefixes | Schema fields | Description |
 | :--- | :---: | :--- | :--- | :--- |
-| **[users.txt](../data/users.txt)** | `,` | `Customer` / `Staff` | **Customer (8 fields):** `id,name,email,username,password,nic,license,phone`<br>**Staff (7 fields):** `id,name,email,phone,username,password,role` | Managed by `UserRepository`. Stores credentials, user profiles, and active access roles. Role defaults to `Support` or `Admin`. |
-| **[vehicles.txt](../data/vehicles.txt)** | `,` | `Car` / `Motorcycle` | **Car:** `Car,id,brand,model,dailyRate,seatingCapacity`<br>**Motorcycle:** `Motorcycle,id,brand,model,dailyRate,helmetIncluded` | Managed by `VehicleRepository`. Tracks vehicle fleet. First column acts as the polymorphic discriminator. |
-| **[bookings.txt](../data/bookings.txt)** | `,` | *None* | `transactionId,customerName,rentalDate,vehicleId,durationDays,status,staffMessage` | Managed by `ReservationRepository`. Maintains active bookings. Connects customers to vehicles with date boundaries. |
-| **[payments.txt](../data/payments.txt)** | `,` | `CARD` / `CASH` | `CARD/CASH,id,bookingId,amount,status` | Managed by `PaymentRepository`. Financial records ledger tracking invoice payment totals and statuses. |
-| **[reviews.txt](../data/reviews.txt)** | `,` | *None* | `reviewId,reviewerName,rating,comments,status,bookingId,vehicleId,staffReply,repliedBy,repliedAt` | Managed by `ReviewRepository`. Keeps user reviews, star ratings, and administrator feedback loops. |
-| **[maintenance.txt](../data/maintenance.txt)** | `\|` | *None* | `id\|vehicleId\|status\|lastServiceDate\|nextServiceDate\|notes` | Managed by `MaintenanceRepository`. Stores vehicle logs. Interacts with vehicle service to restrict double booking of vehicles in maintenance. |
+| **[users.txt](../data/users.txt)** | `,` | Customer / Staff rows (no type prefix column) | **Customer (9 fields):** `id,name,email,username,password,nic,license,phone,profilePicture`<br>**Staff (8 fields):** `id,name,email,phone,username,password,role,profilePicture` | [UserRepository](../src/main/java/com/sliit/vehiclerentalsystem01/user/repository/UserRepository.java). Legacy `CUSTOMER\|...` / `STAFF\|...` lines are converted on read paths where applicable. |
+| **[vehicles.txt](../data/vehicles.txt)** | `,` | `Car` / `Motorcycle` | **Car:** `Car,id,brand,model,dailyRate,seatingCapacity,imagePath`<br>**Motorcycle:** `Motorcycle,id,brand,model,dailyRate,helmetIncluded,imagePath` | [VehicleRepository](../src/main/java/com/sliit/vehiclerentalsystem01/vehicle/repository/VehicleRepository.java). `imagePath` may be omitted in older rows; parser supplies a default. |
+| **[bookings.txt](../data/bookings.txt)** | `,` | — | `transactionId,customerName,rentalDate,vehicleId,durationDays,status,staffMessage` | [ReservationRepository](../src/main/java/com/sliit/vehiclerentalsystem01/reservation/repository/ReservationRepository.java). |
+| **[payments.txt](../data/payments.txt)** | `,` | `CARD` / `CASH` | `CARD` or `CASH`, then id, bookingId, amount, status (and card-specific columns per line format) | [PaymentRepository](../src/main/java/com/sliit/vehiclerentalsystem01/payment/repository/PaymentRepository.java). Status strings are normalized in code via [PaymentStatus](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/PaymentStatus.java) where used. |
+| **[reviews.txt](../data/reviews.txt)** | `,` | — | Base: `reviewId,reviewerName,rating,comments,status,bookingId,vehicleId,staffReply,repliedBy,repliedAt` plus optional **`imageUrl`** as an 11th field | [ReviewRepository](../src/main/java/com/sliit/vehiclerentalsystem01/review/repository/ReviewRepository.java) / [CustomerReview](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/CustomerReview.java). |
+| **[maintenance.txt](../data/maintenance.txt)** | `\|` | — | `id\|vehicleId\|status\|lastServiceDate\|nextServiceDate\|notes` | [MaintenanceRepository](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/repository/MaintenanceRepository.java). |
 
 > [!IMPORTANT]
-> **Polymorphic CSV Discriminators & Backward Compatibility:**
-> The `*Repository` layers implement smart parsers that support backward compatibility. When the parser encounters a line containing pipe (`|`) boundaries in legacy files (e.g. legacy `DAILY\|...` bookings or `CUSTOMER\|...` users), it seamlessly routes parsing to dedicated polymorphic legacy converters, updating them on the subsequent save to modern, uniform comma-separated formats.
+> **Legacy pipe formats:** Several repositories still accept older `|`-based lines and normalize toward comma formats on save. Exact legacy shapes are defined in the corresponding repository and entity `fromCsv` / `fromCSV` helpers.
 
 ---
 
 ## 👥 Student Contributions Table (SLIIT Assignment Rubric)
 
-Six distinct components were assigned to student group members, ensuring modular separation of concerns and individual code-level ownership:
+Six components map to group members. **Per-author commit counts change over time**; use `git shortlog -sn` (or your Git host) for current statistics instead of fixed numbers.
 
-| Student Reg No. | Dedicated Git Branch | Assigned Component | Key Responsibilities & Implementations | Commit Contribution |
-| :---: | :--- | :--- | :--- | :---: |
-| **IT25100142** | `IT25100142---User-Management` | **User Management** | **Lead Developer / Core Integrator.** Developed the base abstractions and entities for users (`User`, `Customer`, `Staff`), password hashing, the Unified Session Auth rules ([UserAuthController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAuthController.java)), the primary `UserRepository.java` and `UserServiceImpl.java`, dynamic dashboard routing, and general layouts. | **106 Commits** |
-| **IT25100445** | `IT25100445---Reservations-&-Bookings` | **Reservations & Bookings** | Developed the transaction entity layers (`Transaction`, `Booking`), built the `ReservationRepository.java` and `ReservationServiceImpl.java`, dynamic date conflict prevention, vehicle availability validations, booking request panels, and active rental status managers. | **29 Commits** |
-| **IT24100879** | `IT24100879---Vehicle-Fleet-Inventory` | **Vehicle Fleet Inventory** | Created polymorphic vehicle hierarchies (`Vehicle`, `Car`, `Motorcycle`), built `VehicleRepository.java` and `VehicleServiceImpl.java`, the admin vehicle configuration forms, vehicle listing preview cards, dynamic catalog page, and vehicle usage check filters. | **31 Commits** |
-| **IT25100385** | `IT25100385---Payment-&-Billing` | **Payment & Billing** | Developed the polymorphic payment structures (`CardPayment`, `CashPayment`), billing calculator logic based on duration, `PaymentRepository.java` and `PaymentServiceImpl.java` ledgers, credit card verification flows, and printable receipts. | **14 Commits** |
-| **IT25100565** | `IT25100565--Customer-Reviews` | **Customer Reviews** | Developed reviews inheritance system (`Feedback` abstract base class with concrete `CustomerReview` subclass), `ReviewRepository.java` and `ReviewServiceImpl.java`, star rating controls, reviewer verification rules, and staff response panels. | **33 Commits** |
-| **IT25100429** | `IT25100429---Maintenance-&_Vehicle-Availability` | **Maintenance & Vehicle Availability** | Built the administrative maintenance record tracking engine (`MaintenanceRecord`, `MaintenanceStatus`), `MaintenanceRepository.java` and `MaintenanceServiceImpl.java`, status logs (`AVAILABLE`, `IN_USE`, `MAINTENANCE`), next-service date validators, and staff directories. | **15 Commits** |
+| Student Reg No. | Dedicated Git Branch | Assigned Component | Key responsibilities (summary) |
+| :---: | :--- | :--- | :--- |
+| **IT25100142** | `IT25100142---User-Management` | **User Management** | User entities, auth controllers, `UserRepository`, `UserServiceImpl`, dashboards, layouts. |
+| **IT25100445** | `IT25100445---Reservations-&-Bookings` | **Reservations & Bookings** | `Transaction` / `Booking`, reservation repository and service, booking flows and admin views. |
+| **IT24100879** | `IT24100879---Vehicle-Fleet-Inventory` | **Vehicle Fleet Inventory** | Vehicle hierarchy, `VehicleRepository`, fleet UI and admin vehicle management. |
+| **IT25100385** | `IT25100385---Payment-&-Billing` | **Payment & Billing** | `CardPayment` / `CashPayment`, payment repository and service, billing and receipts. |
+| **IT25100565** | `IT25100565--Customer-Reviews` | **Customer Reviews** | `Feedback` / `CustomerReview`, review repository and service, moderation and replies. |
+| **IT25100429** | `IT25100429---Maintenance-&_Vehicle-Availability` | **Maintenance & Vehicle Availability** | `MaintenanceRecord`, maintenance repository and service, fleet maintenance views. |
 
 ---
 
-## 🚀 Setup & Running Guide
-
-Follow these instructions to configure and execute the application locally.
+## 🚀 Setup and Running Guide
 
 ### Prerequisites
-* **Java Development Kit (JDK):** Version 17+
-* **Apache Maven:** Version 3.9+
 
-### 1. Configure the Data Storage Location
-Configure the persistent flat-file directory in [src/main/resources/application.properties](../src/main/resources/application.properties):
+* **JDK:** 17 or newer (project targets Java 17 bytecode).
+* **Maven:** 3.9+ on `PATH`, or use the Maven bundled with your IDE.
+
+### 1. Configuration ([application.properties](../src/main/resources/application.properties))
+
+Committed defaults include server port **8081**, Thymeleaf locations, multipart limits, and optional import of a **gitignored** root file for personal overrides:
+
 ```properties
-# Canonical data storage directory (defaults to 'data' in the project root)
+spring.application.name=Vehicle Rental System
+server.port=8081
+spring.thymeleaf.cache=false
+spring.thymeleaf.prefix=classpath:/templates/
+spring.thymeleaf.suffix=.html
+spring.mvc.format.date=iso
+spring.mvc.format.date-time=iso
 app.data.directory=data
-server.port=8080
+spring.servlet.multipart.max-file-size=2MB
+spring.servlet.multipart.max-request-size=2MB
+spring.config.import=optional:file:./application-local.properties
 ```
 
-### 2. Compile & Package the Project
-Compile the Java source files and package them into a runnable jar:
+Create **`application-local.properties`** in the **project root** only on your machine (it is listed in `.gitignore`) to override port or other keys without affecting teammates.
+
+### 2. Build output and Thymeleaf
+
+Spring serves Thymeleaf templates and `application.properties` from the **classpath**, normally `target/classes` after a Maven build. If the IDE runs the app without copying `src/main/resources` into `target/classes`, you may see warnings about missing `classpath:/templates/` and HTTP 500s on view names.
+
+**Recommended:** run **`mvn clean compile`** or **`mvn clean package`** before running, or enable your IDE’s option to **delegate build/run actions to Maven** so resources stay in sync.
+
+### 3. Compile and package
+
 ```bash
 mvn clean package
 ```
 
-### 3. Run the Spring Boot Application
-Launch the dev web server:
+### 4. Run the application
+
 ```bash
 mvn spring-boot:run
 ```
-Once started, open your browser and navigate to: **`http://localhost:8080/`**
 
-### 4. Admin Seeding & Test Credentials
-On initial system boot, `UserRepository` detects if `data/users.txt` is empty or missing, seeding default credentials for demonstration and grading purposes:
+Then open **`http://localhost:8081/`** (or the port set in `application-local.properties` if you override it).
 
-* **Master Administrator Profile:**
-  * **Username:** `admin` (or Email: `admin@driveaway.com`)
-  * **Password:** `admin123`
-  * **Permissions:** Access to user management, staff registry, vehicle registration, and payments console.
-* **Customer Profile:**
-  * **Username:** `customer` (or Email: `customer@gmail.com`)
-  * **Password:** `customer123`
-  * **Permissions:** Browse available vehicles, place active bookings, make payments, and write ratings/reviews.
-* **Support / Maintenance Staff Profile:**
-  * **Username:** `support` (or Email: `support@driveaway.com`)
-  * **Password:** `support123`
-  * **Permissions:** Log vehicle maintenance entries, edit fleet schedules, and respond to reviews.
+---
+
+## 🔐 Sample users (from repository `data/users.txt`)
+
+The application **does not auto-seed** `users.txt` inside [UserRepository](../src/main/java/com/sliit/vehiclerentalsystem01/user/repository/UserRepository.java). Users and passwords come from whatever is stored in **`data/users.txt`** in your working copy.
+
+The **committed sample file** (as of this documentation refresh) includes for example:
+
+| Role | Example username | Example password | Notes |
+| :--- | :--- | :--- | :--- |
+| Staff / Admin | `admin` | `admin123` | Row `EMP-01,...` — staff login flow. |
+| Staff / Admin | `master1` | `master123` | Row `EMP-MA1,...` — master admin. |
+| Customer | `ada` | `pass123` | Row `C-1001,...` — customer portal. |
+| Customer | `test1` | *(stored hash)* | Password is a hash string in the sample file; use registration or replace with a known test password for local demos. |
+
+Always treat `data/users.txt` as **environment-specific**: your team may replace rows for coursework or demos. Staff sign-in uses **`/auth/staff-login`**; customers use **`/auth/login`** (see [UserAuthController](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserAuthController.java)).
 
 ---
 
 ## 🧪 Testing and Verification
 
-The repository is configured to support automated unit testing modules that assert correct flat-file serialization, temporal date validations, and polymorphic dispatch configurations using Spring Boot's test framework.
+```bash
+mvn test
+```
 
-* **To compile and test:**
-  ```bash
-  mvn test
-  ```
+The project includes `spring-boot-starter-test` for unit and integration style tests under `src/test/java` (extend as needed).

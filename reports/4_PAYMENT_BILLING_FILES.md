@@ -39,6 +39,8 @@ com.sliit.vehiclerentalsystem01.payment/
   Concrete subclass representing credit/debit card transactions.
 * **[CashPayment.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/CashPayment.java)**:
   Concrete subclass representing cash register ledger entries.
+* **[PaymentStatus.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/PaymentStatus.java)**:
+  Enum of canonical payment lifecycle values; the repository maps raw CSV status strings through `fromString` when parsing.
 
 ### C. Repository Tier (`repository/`)
 * **[PaymentRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/repository/PaymentRepository.java)**:

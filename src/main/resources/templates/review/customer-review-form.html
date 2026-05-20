@@ -5,215 +5,448 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>DriveAway | Write a Review</title>
     <meta name="description" content="Share your experience with DriveAway vehicle rentals."/>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/landing/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/sections.css}"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
     <style>
-        * { font-family: 'Inter', sans-serif; }
-
-        body {
-            background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 40%, #fff1f2 100%);
+        body.index-landing {
+            background-color: var(--lux-obsidian);
+            background-image:
+                radial-gradient(ellipse 85% 55% at 50% 0%, rgba(201,169,98,0.09), transparent 60%),
+                radial-gradient(ellipse 60% 45% at 90% 80%, rgba(34,211,238,0.05), transparent 60%);
             min-height: 100vh;
         }
 
-        /* ── Page enter animation ── */
-        .page-card { animation: riseUp 0.45s cubic-bezier(0.2,0.8,0.2,1) both; }
-        @keyframes riseUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+        /* ── Ambient orbs ── */
+        .orb { position: fixed; border-radius: 50%; pointer-events: none; filter: blur(80px); z-index: 0; }
+        .orb-gold { width: 480px; height: 480px; top: -150px; right: -60px;
+                    background: radial-gradient(circle, rgba(201,169,98,0.12), transparent 70%); }
+        .orb-cyan { width: 360px; height: 360px; bottom: -80px; left: -60px;
+                    background: radial-gradient(circle, rgba(34,211,238,0.06), transparent 70%); }
 
-        /* ── Interactive star picker ── */
-        .star-picker { display: flex; gap: 6px; }
+        /* ── Page layout ── */
+        .page-wrap {
+            position: relative; z-index: 1;
+            min-height: 100vh;
+            display: grid; grid-template-rows: auto 1fr;
+        }
+
+        /* ── Top nav ── */
+        .top-nav {
+            padding: 1.1rem clamp(1.25rem,4.5vw,2.75rem);
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .top-nav__brand {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            font-family: var(--da-font-display); font-size: 1.05rem;
+            font-weight: 500; color: var(--lux-ink-soft); text-decoration: none;
+        }
+        .top-nav__mark {
+            width: 1.75rem; height: 1.75rem; border-radius: var(--da-radius);
+            background: linear-gradient(135deg, var(--lux-gold), var(--lux-gold-light));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 700; color: var(--lux-obsidian);
+            box-shadow: 0 0 10px var(--lux-gold-glow);
+        }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 7px;
+            font-size: var(--da-text-xs); font-weight: 600;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--lux-ink-muted); text-decoration: none;
+            transition: color var(--da-duration) var(--da-ease-out);
+        }
+        .back-link:hover { color: var(--lux-ink-soft); }
+        .back-link i { font-size: 0.9rem; }
+
+        /* ── Content centring ── */
+        .form-shell {
+            display: flex; align-items: flex-start; justify-content: center;
+            padding: 2.5rem clamp(1.25rem,4.5vw,2.75rem) 5rem;
+        }
+        .form-card {
+            width: 100%; max-width: 580px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(201,169,98,0.2);
+            border-radius: var(--da-radius-xl);
+            overflow: hidden;
+            box-shadow: 0 24px 72px rgba(0,0,0,0.55), 0 0 40px rgba(201,169,98,0.05),
+                        inset 0 1px 0 rgba(201,169,98,0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            animation: formRise 0.55s var(--da-ease-out) both;
+        }
+        @keyframes formRise { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+
+        /* ── Card header ── */
+        .form-card__header {
+            padding: 2rem 2rem 1.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: relative; overflow: hidden;
+        }
+        .form-card__header::before {
+            content: ''; position: absolute; right: -40px; top: -40px;
+            width: 180px; height: 180px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,169,98,0.08), transparent 70%);
+            pointer-events: none;
+        }
+        .header-icon {
+            width: 48px; height: 48px; margin-bottom: 1.1rem;
+            background: rgba(201,169,98,0.08);
+            border: 1px solid rgba(201,169,98,0.22);
+            border-radius: var(--da-radius-lg);
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 1;
+        }
+        .form-card__title {
+            font-family: var(--da-font-display);
+            font-size: 1.6rem; font-weight: 500;
+            letter-spacing: -0.025em; color: var(--lux-ink-soft);
+            margin: 0 0 0.25rem; position: relative; z-index: 1;
+        }
+        .form-card__sub {
+            font-size: var(--da-text-sm); color: var(--lux-ink-muted);
+            position: relative; z-index: 1; margin: 0;
+        }
+
+        /* ── Step indicators ── */
+        .form-steps {
+            display: flex; align-items: center; gap: 0;
+            padding: 1rem 2rem;
+            background: rgba(255,255,255,0.015);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .form-step {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.68rem; font-weight: 600;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--lux-ink-muted);
+            flex: 1;
+        }
+        .form-step__num {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; font-weight: 700; flex-shrink: 0;
+        }
+        .form-step.active { color: var(--lux-gold); }
+        .form-step.active .form-step__num {
+            background: rgba(201,169,98,0.12); border-color: rgba(201,169,98,0.35); color: var(--lux-gold);
+        }
+        .form-step-sep { width: 1.5rem; height: 1px; background: rgba(255,255,255,0.08); flex-shrink: 0; }
+
+        /* ── Card body ── */
+        .form-card__body { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+        /* ── Notices ── */
+        .notice {
+            border-radius: var(--da-radius-lg); padding: 0.8rem 1rem;
+            font-size: var(--da-text-sm); font-weight: 500;
+            display: flex; align-items: flex-start; gap: 10px;
+            border: 1px solid transparent;
+            animation: noticeIn 0.35s var(--da-ease-out) both;
+        }
+        @keyframes noticeIn { from { opacity:0; transform: translateX(-6px); } to { opacity:1; transform: translateX(0); } }
+        .notice-error   { background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.2); color: #fecaca; }
+        .notice-warning { background: rgba(201,169,98,0.06); border-color: rgba(201,169,98,0.2); color: #fde68a; }
+
+        /* ── Field group ── */
+        .field-group { display: flex; flex-direction: column; gap: 0.45rem; }
+        .field-label {
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 0.09em; text-transform: uppercase;
+            color: var(--lux-ink-muted);
+        }
+
+        /* ── Input wrappers ── */
+        .input-wrap {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--da-radius-lg);
+            transition: all var(--da-duration) var(--da-ease-out);
+            overflow: hidden;
+            position: relative;
+        }
+        .input-wrap:hover { 
+            background: rgba(255, 255, 255, 0.03); 
+            border-color: rgba(255, 255, 255, 0.15); 
+        }
+        .input-wrap:focus-within {
+            background: rgba(255, 255, 255, 0.035);
+            border-color: rgba(201, 169, 98, 0.6);
+            box-shadow: 0 0 0 4px rgba(201, 169, 98, 0.1), inset 0 2px 12px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+        .form-input {
+            width: 100%; border: none; outline: none;
+            background: transparent; color: var(--lux-ink-soft);
+            font: inherit; font-size: 0.9rem;
+            padding: 0.85rem 1rem;
+        }
+        .form-input::placeholder { color: var(--lux-ink-muted); }
+
+        select.form-input {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a7872' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 1rem center;
+            padding-right: 2.5rem; cursor: pointer;
+        }
+        select.form-input option { background-color: #0c0c0e; color: #fff; }
+
+        textarea.form-input { resize: none; min-height: 130px; line-height: 1.6; }
+
+        /* ── Char counter ── */
+        .char-row { display: flex; justify-content: space-between; align-items: center; }
+        .char-count { font-size: 0.7rem; font-weight: 600; }
+        .char-ok   { color: var(--lux-ink-muted); }
+        .char-warn { color: var(--lux-gold); }
+        .char-over { color: #ef4444; }
+
+        /* ── Star picker ── */
+        .star-section { padding: 1rem 0; }
+        .star-picker { display: flex; gap: 4px; align-items: center; }
         .star-picker .s {
-            font-size: 2.4rem;
-            cursor: pointer;
-            color: #e2e8f0;
-            transition: color 0.15s, transform 0.1s;
-            line-height: 1;
-            user-select: none;
+            font-size: 2.4rem; cursor: pointer; line-height: 1;
+            color: rgba(255,255,255,0.1); user-select: none;
+            transition: color 0.12s ease, transform 0.1s ease, text-shadow 0.12s ease;
         }
         .star-picker .s:hover,
-        .star-picker .s.active { color: #f59e0b; }
-        .star-picker .s:active { transform: scale(0.88); }
+        .star-picker .s.active {
+            color: var(--lux-gold);
+            text-shadow: 0 0 14px rgba(201,169,98,0.6);
+        }
+        .star-picker .s:active { transform: scale(0.85); }
 
         .star-label {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #92400e;
-            background: #fef3c7;
-            border: 1px solid #fde68a;
-            border-radius: 999px;
-            padding: 2px 10px;
-            display: inline-block;
-            transition: all 0.2s;
+            margin-left: 0.75rem;
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--lux-gold);
+            background: rgba(201,169,98,0.07);
+            border: 1px solid rgba(201,169,98,0.22);
+            border-radius: var(--da-radius-full);
+            padding: 4px 14px;
+            transition: all 0.15s ease;
         }
 
-        /* ── Form inputs ── */
-        .form-input {
-            width: 100%;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 0.875rem;
-            padding: 11px 16px;
-            font-size: 0.9rem;
-            background: #ffffff;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            outline: none;
-            color: #1e293b;
+        /* ── File upload zone ── */
+        .file-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.12);
+            border-radius: var(--da-radius-lg);
+            padding: 2rem 1.25rem;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 0.75rem; text-align: center; cursor: pointer;
+            background: rgba(255, 255, 255, 0.015);
+            transition: all var(--da-duration) var(--da-ease-out);
+            position: relative; overflow: hidden;
         }
-        .form-input:focus {
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+        .file-zone:hover, .file-zone.dragover {
+            border-color: rgba(201, 169, 98, 0.5);
+            background: rgba(201, 169, 98, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
         }
+        .file-zone input[type="file"] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+        }
+        .file-zone__icon {
+            width: 48px; height: 48px;
+            background: rgba(201, 169, 98, 0.08); 
+            border: 1px solid rgba(201, 169, 98, 0.25);
+            border-radius: var(--da-radius-lg);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--lux-gold); font-size: 1.4rem;
+            transition: transform var(--da-duration-slow) var(--da-ease-out);
+        }
+        .file-zone:hover .file-zone__icon, .file-zone.dragover .file-zone__icon {
+            transform: scale(1.1) translateY(-3px);
+            background: rgba(201, 169, 98, 0.15);
+        }
+        .file-zone__label { font-size: var(--da-text-sm); color: var(--lux-ink-soft); font-weight: 500; }
+        .file-zone__hint  { font-size: 0.72rem; color: var(--lux-ink-muted); }
+        .file-zone__chosen { font-size: 0.8rem; color: var(--lux-gold); font-weight: 600; }
 
         /* ── Submit button ── */
         .submit-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #f97316, #ef4444);
-            color: #fff;
-            font-weight: 800;
-            font-size: 1rem;
-            padding: 14px;
-            border: none;
-            border-radius: 0.875rem;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-            box-shadow: 0 8px 24px rgba(249,115,22,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            width: 100%; padding: 1rem;
+            background: linear-gradient(135deg, var(--lux-gold) 0%, var(--lux-gold-light) 100%);
+            border: 1px solid rgba(232,213,163,0.4);
+            border-radius: var(--da-radius-lg);
+            color: var(--lux-obsidian);
+            font-family: inherit; font-size: 0.85rem; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            cursor: pointer; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 0 24px var(--lux-gold-glow), 0 4px 16px rgba(0,0,0,0.35);
+            transition: all var(--da-duration) var(--da-ease-out);
         }
-        .submit-btn:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 12px 32px rgba(249,115,22,0.35); }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 36px var(--lux-gold-glow), 0 8px 24px rgba(0,0,0,0.45);
+        }
         .submit-btn:active { transform: translateY(0); }
-
-        /* ── Notice banners ── */
-        .notice { border-radius: 0.875rem; padding: 12px 16px; font-size: 0.875rem; font-weight: 600; display:flex; align-items:flex-start; gap:10px; margin-bottom:1rem; }
-        .notice-error   { background:#fef2f2; border:1.5px solid #fecaca; color:#991b1b; }
-        .notice-warning { background:#fffbeb; border:1.5px solid #fde68a; color:#92400e; }
-
-        /* ── Field label ── */
-        .field-label { display:block; font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; }
-
-        /* ── Char counter ── */
-        .char-ok   { color: #94a3b8; }
-        .char-warn { color: #f59e0b; }
-        .char-over { color: #ef4444; }
     </style>
 </head>
-<body>
+<body class="index-landing lux-landing">
 
-<!-- ── Back nav ── -->
-<div class="max-w-xl mx-auto px-5 pt-8 pb-2">
-    <a th:href="@{/customer/reviews}"
-       class="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 font-semibold text-sm transition">
-        <i class="ph-bold ph-arrow-left"></i> Back to my reviews
-    </a>
-</div>
+<!-- Ambient orbs -->
+<div class="orb orb-gold" aria-hidden="true"></div>
+<div class="orb orb-cyan" aria-hidden="true"></div>
 
-<!-- ── Main card ── -->
-<div class="max-w-xl mx-auto px-5 pb-16">
-    <div class="page-card bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+<div class="page-wrap">
 
-        <!-- Card header -->
-        <div class="bg-gradient-to-r from-orange-500 to-rose-500 px-8 py-8 text-white relative overflow-hidden">
-            <div class="absolute -right-8 -top-8 w-36 h-36 bg-white/10 rounded-full pointer-events-none"></div>
-            <div class="relative z-10">
-                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-4">
-                    <i class="ph-fill ph-star text-white text-2xl"></i>
+    <!-- Top nav -->
+    <nav class="top-nav">
+        <a th:href="@{/customer/home}" class="top-nav__brand">
+            <span class="top-nav__mark">D</span>
+            DriveAway
+        </a>
+        <a th:href="@{/customer/reviews}" class="back-link">
+            <i class="ph ph-arrow-left"></i> My Reviews
+        </a>
+    </nav>
+
+    <!-- Form shell -->
+    <div class="form-shell">
+        <div class="form-card">
+
+            <!-- Card header -->
+            <div class="form-card__header">
+                <div class="header-icon">
+                    <i class="ph ph-star" style="color:var(--lux-gold);font-size:1.4rem;"></i>
                 </div>
-                <h1 class="text-2xl font-extrabold tracking-tight mb-1">Write a Review</h1>
-                <p class="text-orange-100 text-sm font-medium">Share your DriveAway experience with the community.</p>
-            </div>
-        </div>
-
-        <!-- Card body -->
-        <div class="px-8 py-7 space-y-6">
-
-            <!-- Error notices -->
-            <div th:if="${param.error != null and param.error[0] == 'missing_fields'}" class="notice notice-error">
-                <i class="ph-fill ph-x-circle text-lg shrink-0 mt-0.5"></i>
-                Please choose a rating and enter a comment before submitting.
-            </div>
-            <div th:if="${param.error != null and param.error[0] == 'account_limit'}" class="notice notice-warning">
-                <i class="ph-fill ph-warning-circle text-lg shrink-0 mt-0.5"></i>
-                You already submitted a general review. Add a booking ID to review a specific trip.
-            </div>
-            <div th:if="${param.error != null and param.error[0] == 'booking_limit'}" class="notice notice-warning">
-                <i class="ph-fill ph-warning-circle text-lg shrink-0 mt-0.5"></i>
-                You already left two reviews for that booking.
-            </div>
-            <div th:if="${param.error != null and param.error[0] == 'invalid_booking'}" class="notice notice-error">
-                <i class="ph-fill ph-x-circle text-lg shrink-0 mt-0.5"></i>
-                Booking not found or it does not belong to your account.
-            </div>
-            <div th:if="${param.error != null and param.error[0] == 'invalid_rating'}" class="notice notice-error">
-                <i class="ph-fill ph-x-circle text-lg shrink-0 mt-0.5"></i>
-                Rating must be between 1 and 5 stars.
+                <h1 class="form-card__title">Write a Review</h1>
+                <p class="form-card__sub">Share your DriveAway experience with the community.</p>
             </div>
 
-            <form th:action="@{/customer/reviews}" method="post" enctype="multipart/form-data" class="space-y-6" id="reviewForm">
-                <input type="hidden" name="source"       value="customer"/>
-                <input type="hidden" name="action"       value="create"/>
-                <input type="hidden" name="status"       value="PUBLISHED"/>
-                <input type="hidden" name="reviewerName" th:value="${reviewerName}"/>
+            <!-- Step indicators -->
+            <div class="form-steps" aria-hidden="true">
+                <div class="form-step active">
+                    <span class="form-step__num">1</span>
+                    <span>Details</span>
+                </div>
+                <div class="form-step-sep"></div>
+                <div class="form-step active">
+                    <span class="form-step__num">2</span>
+                    <span>Rating</span>
+                </div>
+                <div class="form-step-sep"></div>
+                <div class="form-step active">
+                    <span class="form-step__num">3</span>
+                    <span>Review</span>
+                </div>
+            </div>
 
-                <!-- Booking selector -->
-                <div>
-                    <label for="bookingId" class="field-label">Booking (optional)</label>
-                    <select id="bookingId" name="bookingId" class="form-input">
-                        <option value="">✦ No booking — general review</option>
-                        <option th:each="b : ${customerBookings}"
-                                th:value="${b.id}"
-                                th:text="${b.id + ' — ' + b.vehicleId + ' (' + b.rentalDate + ', ' + b.status + ')'}">BK-001</option>
-                    </select>
-                    <p th:if="${customerBookings == null or #lists.isEmpty(customerBookings)}"
-                       class="mt-2 text-xs text-slate-400">
-                        No bookings on record. Leave as general review or
-                        <a th:href="@{/customer/bookings}" class="font-semibold text-orange-600 hover:text-orange-800">book a vehicle</a> first.
-                    </p>
-                    <p th:unless="${customerBookings == null or #lists.isEmpty(customerBookings)}"
-                       class="mt-2 text-xs text-slate-400">
-                        Choose a booking to link this review, or leave blank for a general account review.
-                    </p>
+            <!-- Card body -->
+            <div class="form-card__body">
+
+                <!-- Notices -->
+                <div th:if="${param.error != null and param.error[0] == 'missing_fields'}" class="notice notice-error">
+                    <i class="ph-fill ph-x-circle" style="font-size:1.1rem;flex-shrink:0;margin-top:2px;"></i>
+                    Please choose a rating and enter a comment before submitting.
+                </div>
+                <div th:if="${param.error != null and param.error[0] == 'account_limit'}" class="notice notice-warning">
+                    <i class="ph-fill ph-warning-circle" style="font-size:1.1rem;flex-shrink:0;margin-top:2px;"></i>
+                    You already submitted a general review. Add a booking ID to review a specific trip.
+                </div>
+                <div th:if="${param.error != null and param.error[0] == 'booking_limit'}" class="notice notice-warning">
+                    <i class="ph-fill ph-warning-circle" style="font-size:1.1rem;flex-shrink:0;margin-top:2px;"></i>
+                    You already left two reviews for that booking.
+                </div>
+                <div th:if="${param.error != null and param.error[0] == 'invalid_booking'}" class="notice notice-error">
+                    <i class="ph-fill ph-x-circle" style="font-size:1.1rem;flex-shrink:0;margin-top:2px;"></i>
+                    Booking not found or it does not belong to your account.
+                </div>
+                <div th:if="${param.error != null and param.error[0] == 'invalid_rating'}" class="notice notice-error">
+                    <i class="ph-fill ph-x-circle" style="font-size:1.1rem;flex-shrink:0;margin-top:2px;"></i>
+                    Rating must be between 1 and 5 stars.
                 </div>
 
-                <!-- Star rating picker -->
-                <div>
-                    <label class="field-label">Your Rating</label>
-                    <div class="flex items-center gap-4">
-                        <div class="star-picker" id="starPicker" role="group" aria-label="Rating">
-                            <span class="s" data-val="1" title="1 — Very poor">★</span>
-                            <span class="s" data-val="2" title="2 — Poor">★</span>
-                            <span class="s" data-val="3" title="3 — OK">★</span>
-                            <span class="s" data-val="4" title="4 — Good">★</span>
-                            <span class="s" data-val="5" title="5 — Excellent">★</span>
+                <form th:action="@{/customer/reviews}" method="post" enctype="multipart/form-data"
+                      id="reviewForm" style="display:flex;flex-direction:column;gap:1.5rem;">
+                    <input type="hidden" name="source"       value="customer"/>
+                    <input type="hidden" name="action"       value="create"/>
+                    <input type="hidden" name="status"       value="PUBLISHED"/>
+                    <input type="hidden" name="reviewerName" th:value="${reviewerName}"/>
+
+                    <!-- Booking selector -->
+                    <div class="field-group">
+                        <label for="bookingId" class="field-label">Booking (optional)</label>
+                        <div class="input-wrap">
+                            <select id="bookingId" name="bookingId" class="form-input">
+                                <option value="">✦ No booking — general review</option>
+                                <option th:each="b : ${customerBookings}"
+                                        th:value="${b.id}"
+                                        th:text="${b.id + ' — ' + b.vehicleId + ' (' + b.rentalDate + ', ' + b.status + ')'}">BK-001</option>
+                            </select>
                         </div>
-                        <span class="star-label" id="ratingLabel">5 — Excellent</span>
+                        <p th:if="${customerBookings == null or #lists.isEmpty(customerBookings)}"
+                           style="font-size:0.72rem;color:var(--lux-ink-muted);margin-top:4px;">
+                            No bookings on record. Leave as general review or
+                            <a th:href="@{/customer/bookings}" style="color:var(--lux-gold);font-weight:600;">book a vehicle</a> first.
+                        </p>
+                        <p th:unless="${customerBookings == null or #lists.isEmpty(customerBookings)}"
+                           style="font-size:0.72rem;color:var(--lux-ink-muted);margin-top:4px;">
+                            Link to a specific booking or leave blank for a general account review.
+                        </p>
                     </div>
-                    <input type="hidden" name="rating" id="ratingInput" value="5"/>
-                </div>
 
-                <!-- Comments -->
-                <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="field-label mb-0">Comments</label>
-                        <span id="charCount" class="text-xs font-semibold char-ok">0 / 2000</span>
+                    <!-- Star rating -->
+                    <div class="field-group">
+                        <label class="field-label">Your Rating</label>
+                        <div class="star-section">
+                            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+                                <div class="star-picker" id="starPicker" role="group" aria-label="Rating">
+                                    <span class="s" data-val="1" title="1 — Very poor">★</span>
+                                    <span class="s" data-val="2" title="2 — Poor">★</span>
+                                    <span class="s" data-val="3" title="3 — OK">★</span>
+                                    <span class="s" data-val="4" title="4 — Good">★</span>
+                                    <span class="s" data-val="5" title="5 — Excellent">★</span>
+                                </div>
+                                <span class="star-label" id="ratingLabel">5 — Excellent</span>
+                            </div>
+                        </div>
+                        <input type="hidden" name="rating" id="ratingInput" value="5"/>
                     </div>
-                    <textarea id="commentsArea" name="comments" rows="5" required maxlength="2000"
-                              class="form-input resize-none"
-                              placeholder="Tell us about your rental experience — what went well, what could be improved…"></textarea>
-                </div>
 
-                <!-- Image Upload -->
-                <div>
-                    <label for="image" class="field-label">Add a Photo (optional)</label>
-                    <input type="file" id="image" name="image" accept="image/*" class="form-input p-2 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"/>
-                </div>
+                    <!-- Comments -->
+                    <div class="field-group">
+                        <div class="char-row">
+                            <label for="commentsArea" class="field-label">Comments</label>
+                            <span id="charCount" class="char-count char-ok">0 / 2000</span>
+                        </div>
+                        <div class="input-wrap">
+                            <textarea id="commentsArea" name="comments" rows="6" required maxlength="2000"
+                                      class="form-input"
+                                      placeholder="Tell us about your rental experience — what went well, what could be improved…"></textarea>
+                        </div>
+                    </div>
 
-                <!-- Submit -->
-                <button type="submit" class="submit-btn" id="submitBtn">
-                    <i class="ph-bold ph-paper-plane-right"></i>
-                    Submit Review
-                </button>
-            </form>
+                    <!-- Image Upload -->
+                    <div class="field-group">
+                        <label class="field-label">Add a Photo (optional)</label>
+                        <div class="file-zone" id="fileZone">
+                            <input type="file" id="image" name="image" accept="image/*"
+                                   onchange="handleFileChange(this)"/>
+                            <div class="file-zone__icon"><i class="ph ph-image"></i></div>
+                            <span class="file-zone__label">Drop photo here or click to browse</span>
+                            <span class="file-zone__hint">JPEG, PNG, WEBP — max 10 MB</span>
+                            <span class="file-zone__chosen" id="chosenFile" style="display:none;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <i class="ph ph-paper-plane-tilt" style="font-size:1rem;"></i>
+                        Submit Review
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -248,9 +481,22 @@
     textarea.addEventListener('input', () => {
         const n = textarea.value.length;
         charCount.textContent = n + ' / 2000';
-        charCount.className = 'text-xs font-semibold ' +
-            (n > 1900 ? 'char-over' : n > 1600 ? 'char-warn' : 'char-ok');
+        charCount.className = 'char-count ' + (n > 1900 ? 'char-over' : n > 1600 ? 'char-warn' : 'char-ok');
     });
+
+    // ── File zone drag ──
+    const zone = document.getElementById('fileZone');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('dragover'); });
+
+    function handleFileChange(input) {
+        const chosen = document.getElementById('chosenFile');
+        if (input.files && input.files[0]) {
+            chosen.textContent = '✓ ' + input.files[0].name;
+            chosen.style.display = 'block';
+        }
+    }
 </script>
 </body>
 </html>

@@ -1,60 +1,64 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<th:block th:fragment="landingNav">
-<header>
-    <nav id="nav" class="nav" aria-label="Main navigation">
-        <div id="nav-progress" class="nav__progress" aria-hidden="true"></div>
-        <div class="container nav__inner">
-            <a th:href="@{/}" class="nav__brand" aria-label="DriveAway home">DriveAway</a>
+<th:block th:fragment="indexNav">
+<nav id="navbar" class="da-nav" aria-label="Main navigation">
+    <div class="da-container da-container--wide da-nav__inner">
+        <a th:href="@{/}" class="da-nav__brand transition-link" aria-label="DriveAway home">
+            <span class="da-nav__mark" aria-hidden="true">D</span>
+            <span>DriveAway</span>
+        </a>
 
-            <ul class="nav__links">
-                <li><a th:href="@{/features}"
-                       th:classappend="${activeNav == 'features'} ? 'is-active' : ''">Why DriveAway</a></li>
-                <li><a th:href="@{/how-it-works}"
-                       th:classappend="${activeNav == 'how-it-works'} ? 'is-active' : ''">How it works</a></li>
-                <li><a th:href="@{/fleet}"
-                       th:classappend="${activeNav == 'fleet'} ? 'is-active' : ''">Fleet</a></li>
-                <li><a th:href="@{/testimonials}"
-                       th:classappend="${activeNav == 'testimonials'} ? 'is-active' : ''">Reviews</a></li>
-            </ul>
-
-            <div class="nav__actions">
-                <a th:if="${#strings.isEmpty(userRole)}"
-                   th:href="@{/auth/login}"
-                   class="nav__signin">Sign in</a>
-                <a th:if="${!#strings.isEmpty(userRole)}"
-                   th:href="@{/dashboard}"
-                   class="nav__signin"
-                   th:text="${!#strings.isEmpty(displayName) ? displayName : 'Dashboard'}">Dashboard</a>
-
-                <a th:if="${#strings.isEmpty(userRole)}"
-                   th:href="@{/auth/register}"
-                   class="btn btn--primary nav__cta">Book now</a>
-                <a th:if="${!#strings.isEmpty(userRole)}"
-                   th:href="@{/customer/fleet}"
-                   class="btn btn--primary nav__cta">Browse fleet</a>
-
-                <button type="button" id="nav-toggle" class="nav__toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-mobile">
-                    <span></span><span></span><span></span>
-                </button>
-            </div>
+        <div class="da-nav__links" role="navigation">
+            <a th:href="@{/}" class="da-nav__link transition-link">Home</a>
+            <a th:href="@{/#fleet}" data-section-link="fleet" class="da-nav__link">Fleet</a>
+            <a th:href="@{/public/about}" class="da-nav__link transition-link">About</a>
+            <a th:href="@{/public/contact}" class="da-nav__link transition-link">Contact</a>
         </div>
 
-        <div id="nav-mobile" class="nav__mobile" role="dialog" aria-label="Mobile menu">
-            <a th:href="@{/features}"
-               th:classappend="${activeNav == 'features'} ? 'is-active' : ''">Why DriveAway</a>
-            <a th:href="@{/how-it-works}"
-               th:classappend="${activeNav == 'how-it-works'} ? 'is-active' : ''">How it works</a>
-            <a th:href="@{/fleet}"
-               th:classappend="${activeNav == 'fleet'} ? 'is-active' : ''">Fleet</a>
-            <a th:href="@{/testimonials}"
-               th:classappend="${activeNav == 'testimonials'} ? 'is-active' : ''">Reviews</a>
-            <a th:if="${#strings.isEmpty(userRole)}" th:href="@{/auth/login}">Sign in</a>
-            <a th:if="${#strings.isEmpty(userRole)}" th:href="@{/auth/register}" class="btn btn--primary">Book now</a>
+        <div class="da-nav__actions" th:if="${#strings.isEmpty(userRole)}">
+            <a th:href="@{/auth/login}" class="da-btn da-btn--ghost transition-link">Sign in</a>
+            <a th:href="@{/auth/register}" class="da-btn da-btn--primary transition-link">
+                Register
+                <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+            </a>
         </div>
-    </nav>
-</header>
+
+        <div class="da-nav__actions" th:if="${!#strings.isEmpty(userRole)}">
+            <span class="da-nav__user">
+                <span class="da-tag__dot" aria-hidden="true"></span>
+                <span class="da-nav__user-name" th:text="${displayName}">User</span>
+            </span>
+            <a th:if="${userRole == 'customer'}" th:href="@{/customer/home}" class="da-btn da-btn--primary transition-link">
+                Dashboard
+                <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+            </a>
+            <a th:if="${userRole == 'staff'}" th:href="@{/dashboard}" class="da-btn da-btn--primary transition-link">
+                Staff portal
+                <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+            </a>
+        </div>
+
+        <button id="mobile-menu-btn" type="button" class="da-nav__menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+            <i class="ph ph-list" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <div id="mobile-menu" class="da-nav__mobile da-container da-container--wide" hidden>
+        <a th:href="@{/}" class="transition-link">Home</a>
+        <a th:href="@{/#fleet}">Fleet</a>
+        <a th:href="@{/public/about}" class="transition-link">About</a>
+        <a th:href="@{/public/contact}" class="transition-link">Contact</a>
+        <th:block th:if="${#strings.isEmpty(userRole)}">
+            <a th:href="@{/auth/login}" class="transition-link">Sign in</a>
+            <a th:href="@{/auth/register}" class="da-btn da-btn--primary da-btn--block transition-link">Register</a>
+        </th:block>
+        <th:block th:if="${!#strings.isEmpty(userRole)}">
+            <a th:if="${userRole == 'customer'}" th:href="@{/customer/home}" class="da-btn da-btn--primary da-btn--block transition-link">Dashboard</a>
+            <a th:if="${userRole == 'staff'}" th:href="@{/dashboard}" class="da-btn da-btn--primary da-btn--block transition-link">Staff portal</a>
+        </th:block>
+    </div>
+</nav>
 </th:block>
 </body>
 </html>

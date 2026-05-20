@@ -67,4 +67,4 @@ application-dev.properties
 data/
 
 ### Image Data ###
-src/main/resources/static/uploads/
+uploads/reviews

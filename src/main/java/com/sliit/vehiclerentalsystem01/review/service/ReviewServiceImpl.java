@@ -21,6 +21,35 @@ public class ReviewServiceImpl implements ReviewService {
         this.reviewRepository = reviewRepository;
     }
 
+    @jakarta.annotation.PostConstruct
+    public void cleanupOrphanedImages() {
+        try {
+            java.io.File dir = new java.io.File("uploads/reviews");
+            if (!dir.exists() || !dir.isDirectory()) {
+                return;
+            }
+            java.io.File[] files = dir.listFiles();
+            if (files == null || files.length == 0) {
+                return;
+            }
+            java.util.Set<String> activeImages = findAll().stream()
+                    .filter(r -> r instanceof CustomerReview)
+                    .map(r -> ((CustomerReview) r).getImageUrl())
+                    .filter(url -> url != null && !url.isBlank())
+                    .map(url -> url.startsWith("/") ? url.substring(1) : url)
+                    .map(url -> java.nio.file.Paths.get(url).getFileName().toString())
+                    .collect(Collectors.toSet());
+
+            for (java.io.File file : files) {
+                if (file.isFile() && !activeImages.contains(file.getName())) {
+                    java.nio.file.Files.deleteIfExists(file.toPath());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public List<Feedback> findAll() {
         return reviewRepository.findAll();
@@ -52,6 +81,21 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void deleteById(String id) {
+        findById(id).ifPresent(f -> {
+            if (f instanceof CustomerReview cr) {
+                String imageUrl = cr.getImageUrl();
+                if (imageUrl != null && !imageUrl.isBlank()) {
+                    try {
+                        String pathStr = imageUrl.startsWith("/") ? imageUrl.substring(1) : imageUrl;
+                        java.nio.file.Path path = java.nio.file.Paths.get(pathStr);
+                        java.nio.file.Files.deleteIfExists(path);
+                    } catch (java.io.IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
         List<Feedback> list = reviewRepository.findAll().stream()
                 .filter(r -> !id.equals(r.getReviewId()))
                 .collect(Collectors.toCollection(ArrayList::new));

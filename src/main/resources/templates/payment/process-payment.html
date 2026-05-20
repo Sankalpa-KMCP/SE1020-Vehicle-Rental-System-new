@@ -5,64 +5,136 @@
     <style>
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Premium Obsidian Dark theme overrides matching Central Dashboard */
+        .admin-shell {
+          --admin-navy: #050506;
+          --admin-navy-mid: #0c0c0e;
+          --admin-charcoal: #f4f2ee;
+          --admin-charcoal-muted: #a8a6a0;
+          --admin-bg: #050506;
+          --admin-canvas: #050506;
+          --admin-surface: #0c0c0e;
+          --admin-glass: rgba(12, 12, 14, 0.85);
+          --admin-text: #f4f2ee;
+          --admin-text-muted: #a8a6a0;
+          --admin-border: rgba(255, 255, 255, 0.08);
+
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            #050506 !important;
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        .admin-main {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            var(--admin-navy) !important;
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        .admin-sidebar {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 100% 35% at 50% 0%, rgba(201, 169, 98, 0.12), transparent 60%),
+            linear-gradient(180deg, #050506 0%, #0c0c0e 45%, #020203 100%) !important;
+          background-size: 20px 20px, auto, auto !important;
+          border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+
+        .admin-topbar__menu-btn, .admin-topbar__collapse-btn, .admin-topbar__logout, .admin-topbar__user {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          color: #f4f2ee !important;
+        }
+
+        /* Box and Element Styles */
+        .bg-white, .bg-slate-900, .bg-gray-100 { background: #0c0c0e !important; border-color: rgba(255,255,255,0.08) !important; color: #f4f2ee !important; }
+        .text-gray-900, .text-gray-800, .text-gray-700 { color: #f4f2ee !important; }
+        .text-gray-500, .text-gray-600, .text-slate-500 { color: #a8a6a0 !important; }
+        .bg-slate-50, .bg-gray-50 { background: #050506 !important; border-color: rgba(255,255,255,0.08) !important; color: #f4f2ee !important; }
+        .border-slate-100, .border-slate-200, .border-slate-600, .border-b, .border-gray-200, .border-gray-100 { border-color: rgba(255,255,255,0.05) !important; }
+        
+        .hover\:bg-gray-50:hover { background-color: rgba(201, 169, 98, 0.05) !important; }
+        td, th, span:not(.font-bold), div, label, p, h1, h2, h3, select, input { color: #f4f2ee !important; }
+        
+        input, select { background-color: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #f4f2ee !important; }
+        input:focus, select:focus { border-color: #c9a962 !important; box-shadow: 0 0 0 2px rgba(201,169,98,0.2) !important; }
+        
+        button[type="submit"], .bg-blue-600, .bg-slate-800, .bg-slate-700, .bg-sky-600 { background: #c9a962 !important; color: #050506 !important; border: none !important; }
+        button[type="submit"]:hover, .hover\:bg-blue-700:hover, .hover\:bg-slate-900:hover, .hover\:bg-slate-600:hover, .hover\:bg-sky-500:hover { background: #e8d5a3 !important; }
+        
+        .bg-red-600 { background: #ef4444 !important; color: #050506 !important; }
+        .hover\:bg-red-500:hover { background: #f87171 !important; color: #050506 !important; }
     </style>
 </head>
-<body class="admin-shell text-gray-800">
+<body class="admin-shell">
 <th:block th:replace="~{fragments/admin-shell :: shellOpen('payments', 'Process Payment')}"></th:block>
 <div class="fade-in">
 
-<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
-<div th:if="${formError == 'booking_not_found'}" class="bg-red-50 border border-red-200 text-red-800 font-semibold px-4 py-3 rounded-xl flex items-center gap-2">
-        <i class="ph-fill ph-warning-circle text-xl"></i> Booking ID was not found.
-    </div>
-    <div th:if="${formError == 'booking_not_confirmed'}" class="bg-amber-50 border border-amber-200 text-amber-900 font-semibold px-4 py-3 rounded-xl flex items-center gap-2">
-        <i class="ph-fill ph-warning-circle text-xl"></i> Payment is only allowed for confirmed bookings.
-    </div>
-    <div th:if="${formError == 'booking_required'}" class="bg-red-50 border border-red-200 text-red-800 font-semibold px-4 py-3 rounded-xl flex items-center gap-2">
-        <i class="ph-fill ph-warning-circle text-xl"></i> Please select a booking.
+    <div class="bg-gradient-to-br from-[#141418] to-[#0a0a0b] border border-[#c9a962]/30 rounded-3xl p-10 sm:p-12 text-white shadow-lg mb-8 relative overflow-hidden">
+        <div class="relative z-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Record Payment</h1>
+            <p class="text-[#a8a6a0] text-lg font-medium max-w-2xl leading-relaxed">Manually log transaction data for over-the-counter bookings.</p>
+        </div>
+        <i class="ph-fill ph-plus-circle absolute -right-8 -bottom-16 text-[220px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
     </div>
 
-    <section class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8">
-        <h1 class="text-2xl font-extrabold text-gray-900 mb-2">New transaction</h1>
-        <p class="text-gray-500 text-sm mb-6">Record a payment against a confirmed booking (legacy flow).</p>
-        <form th:action="@{/payments}" method="post" class="space-y-5">
+    <section class="bg-white rounded-3xl border border-slate-200 shadow-xl p-10">
+        <div class="flex items-center gap-4 mb-8">
+            <div class="w-14 h-14 rounded-2xl bg-[#c9a962]/10 text-[#c9a962] flex items-center justify-center text-2xl border border-[#c9a962]/30">
+                <i class="ph ph-plus-circle"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">New Transaction</h2>
+                <p class="text-gray-500 font-medium">Link a payment record to an existing booking.</p>
+            </div>
+        </div>
+
+        <form th:action="@{/payments}" method="post" class="space-y-6">
             <input type="hidden" name="action" value="create"/>
-            <div class="grid md:grid-cols-2 gap-4">
+            <div class="grid md:grid-cols-2 gap-6">
                 <label class="block md:col-span-2">
-                    <span class="text-xs font-bold text-gray-500 uppercase">Booking</span>
-                    <select name="bookingId" required class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                        <option value="">— Select booking —</option>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Select Booking</span>
+                    <select name="bookingId" required class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-semibold text-gray-900">
+                        <option value="">— Select booking reference —</option>
                         <option th:each="b : ${bookings}" th:value="${b.id}"
                                 th:text="${b.id + ' (' + b.bookingType + ') — ' + b.status}">b</option>
                     </select>
                 </label>
                 <label class="block">
-                    <span class="text-xs font-bold text-gray-500 uppercase">Amount</span>
-                    <input type="number" step="0.01" name="amount" required min="0" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-blue-500 outline-none"/>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Payment Amount ($)</span>
+                    <input type="number" step="0.01" name="amount" required min="0" placeholder="0.00" class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-semibold text-gray-900"/>
                 </label>
                 <label class="block">
-                    <span class="text-xs font-bold text-gray-500 uppercase">Manual payment ID (optional)</span>
-                    <input type="text" name="manualId" placeholder="Auto-generated if empty" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-blue-500 outline-none"/>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Manual Payment ID (Optional)</span>
+                    <input type="text" name="manualId" placeholder="Auto-generated if empty" class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-semibold text-gray-900"/>
                 </label>
                 <label class="block">
-                    <span class="text-xs font-bold text-gray-500 uppercase">Method</span>
-                    <select name="method" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                        <option value="Card">Card</option>
-                        <option value="Cash">Cash</option>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Payment Method</span>
+                    <select name="method" class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-semibold text-gray-900">
+                        <option value="Card">Card Transaction</option>
+                        <option value="Cash">Cash Deposit</option>
                     </select>
                 </label>
                 <label class="block">
-                    <span class="text-xs font-bold text-gray-500 uppercase">Status</span>
-                    <select name="status" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Registry Status</span>
+                    <select name="status" class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-semibold text-gray-900">
                         <option value="PAID">PAID</option>
                         <option value="PENDING">PENDING</option>
                         <option value="REFUNDED">REFUNDED</option>
                     </select>
                 </label>
             </div>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-600/25 transition flex items-center gap-2">
-                <i class="ph-bold ph-check-circle"></i> Save transaction
-            </button>
+            <div class="pt-4">
+                <button type="submit" class="w-full sm:w-auto bg-[#c9a962] hover:bg-[#e8d5a3] text-[#050506] font-extrabold px-10 py-4 rounded-xl shadow-lg shadow-[#c9a962]/10 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5">
+                    <i class="ph-bold ph-check-circle text-lg"></i> Complete Transaction
+                </button>
+            </div>
         </form>
     </section>
 
