@@ -1,4 +1,4 @@
-﻿/* ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * responsive.css — breakpoints for asymmetric scene layouts
  *  small  : default (≤ 639)
  *  s    640 : tightens bands & rails, opens cinema track
@@ -31,7 +31,7 @@
     align-items: end;
   }
 
-  .da-cinema__head { grid-template-columns: 1.2fr 1fr; gap: 3rem; }
+
 
   .da-prose__row {
     grid-template-columns: 5rem auto 1fr;
@@ -72,6 +72,8 @@
   .da-nav__links,
   .da-nav__actions { display: flex; }
   .da-nav__menu-btn { display: none; }
+
+  .da-cinema__head { grid-template-columns: 1.2fr 1fr; gap: 3rem; }
 
   /* Hero adds the editorial signals stack as a 3rd column */
   .da-hero__lockup {

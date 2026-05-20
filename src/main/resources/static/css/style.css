@@ -1110,7 +1110,7 @@ body.index-landing.page-exit .index-landing-shell {
   margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1024px) {
   .lux-fleet__head {
     grid-template-columns: 1.1fr 1fr;
     gap: 3rem;
@@ -1179,6 +1179,76 @@ body.index-landing.page-exit .index-landing-shell {
   background: var(--lux-cyan);
   box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
 }
+
+/* ── Fleet slider wrapper (flex row, arrows as siblings) ─────────────────── */
+.fleet-slider {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+.fleet-slider .da-cinema__track-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Fleet glass nav arrows ──────────────────────────────────────────────── */
+.fleet-glass-arrow {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(10, 10, 16, 0.55);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  color: rgba(248, 250, 253, 0.9);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 10;
+  transition:
+    background 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.28s ease;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+
+.fleet-glass-arrow--prev {
+  margin-right: 0.75rem;
+}
+
+.fleet-glass-arrow--next {
+  margin-left: 0.75rem;
+}
+
+.fleet-glass-arrow:hover {
+  background: rgba(34, 211, 238, 0.14);
+  border-color: rgba(34, 211, 238, 0.5);
+  color: #22d3ee;
+  box-shadow:
+    0 4px 28px rgba(34, 211, 238, 0.25),
+    inset 0 0 0 1px rgba(34, 211, 238, 0.14);
+  transform: scale(1.08);
+}
+
+.fleet-glass-arrow:active {
+  transform: scale(0.93);
+}
+
+.fleet-glass-arrow.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 
 .lux-fleet .da-cinema__track {
   grid-auto-columns: min(340px, 78vw);

@@ -1,4 +1,4 @@
-﻿document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
   var filterBtns = document.querySelectorAll('.filter-btn, .da-filter-pill');
   var carItems = document.querySelectorAll('.car-item');
   filterBtns.forEach(function (btn) {
@@ -91,5 +91,36 @@
       });
     }, { threshold: 0.4 });
     counters.forEach(function (c) { counterObserver.observe(c); });
+  }
+
+  // Horizontal Carousel Glass Arrow Navigation
+  var prevArrow = document.getElementById('fleet-prev');
+  var nextArrow = document.getElementById('fleet-next');
+  var track = document.getElementById('fleet-grid');
+
+  function updateArrowState() {
+    if (!track || !prevArrow || !nextArrow) return;
+    var atStart = track.scrollLeft <= 8;
+    var atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 8;
+    prevArrow.classList.toggle('is-hidden', atStart);
+    nextArrow.classList.toggle('is-hidden', atEnd);
+  }
+
+  if (prevArrow && nextArrow && track) {
+    // Initial state
+    updateArrowState();
+
+    track.addEventListener('scroll', updateArrowState, { passive: true });
+
+    nextArrow.addEventListener('click', function () {
+      var firstCard = track.querySelector('.da-card:not([style*="display: none"])');
+      var scrollAmount = firstCard ? firstCard.clientWidth + 20 : 360;
+      track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    });
+    prevArrow.addEventListener('click', function () {
+      var firstCard = track.querySelector('.da-card:not([style*="display: none"])');
+      var scrollAmount = firstCard ? firstCard.clientWidth + 20 : 360;
+      track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    });
   }
 });
