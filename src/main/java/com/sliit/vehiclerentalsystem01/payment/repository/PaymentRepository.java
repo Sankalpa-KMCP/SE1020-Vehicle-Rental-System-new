@@ -20,11 +20,16 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
+/**
+ * Repository class responsible for data persistence related to payments.
+ * It uses a flat file (payments.txt) as a database for simple storage.
+ */
 @Repository
 public class PaymentRepository {
 
     private static final String FILE_NAME = "payments.txt";
 
+    // Concurrency control to allow multiple thread reads but exclusive writes
     private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
     private final Lock readLock = rwLock.readLock();
     private final Lock writeLock = rwLock.writeLock();
@@ -32,10 +37,18 @@ public class PaymentRepository {
     @Value("${app.data.directory:data}")
     private String dataDirectory;
 
+    /**
+     * Resolves the absolute path to the data file.
+     */
     private Path path() {
         return Paths.get(dataDirectory).toAbsolutePath().normalize().resolve(FILE_NAME);
     }
 
+    /**
+     * CRUD: READ
+     * Retrieves all payments from the text file.
+     * Uses a read-lock to ensure data consistency during the read operation.
+     */
     public List<Payment> findAll() {
         readLock.lock();
         try {
@@ -43,45 +56,63 @@ public class PaymentRepository {
             if (!Files.exists(p)) {
                 return new ArrayList<>();
             }
+            // Read lines from file, parse them into Payment objects, and collect to list
             return Files.readAllLines(p, StandardCharsets.UTF_8).stream()
                     .map(String::trim)
-                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+                    .filter(line -> !line.isEmpty() && !line.startsWith("#")) // Skip empty lines and comments
                     .map(this::parseLine)
                     .collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
             throw new StorageException("Payment repository file operation failed", e);
         } finally {
-            readLock.unlock();
+            readLock.unlock(); // Always release the lock in a finally block
         }
     }
 
+    /**
+     * CRUD: CREATE / UPDATE / DELETE (Overwrite)
+     * Saves a list of payments back out to the text file.
+     * Uses a write-lock to ensure exclusive access and prevent data corruption.
+     */
     public void saveAll(List<Payment> payments) {
         writeLock.lock();
         try {
             Path p = path();
-            Files.createDirectories(p.getParent());
+            Files.createDirectories(p.getParent()); // Ensure the directory structure exists
+            
             List<String> lines = new ArrayList<>();
-            lines.add("# CARD|CASH,id,bookingId,amount,status");
+            lines.add("# CARD|CASH,id,bookingId,amount,status"); // Write header line
+            
+            // Map payment objects back into strings for file writing
             lines.addAll(payments.stream().map(this::toLine).toList());
+            
+            // Overwrite the existing file with the updated payment data
             Files.write(p, lines, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             throw new StorageException("Payment repository file operation failed", e);
         } finally {
-            writeLock.unlock();
+            writeLock.unlock(); // Release write lock
         }
     }
 
+    /**
+     * Factory pattern-like method to parse a single string line into a Payment object.
+     */
     private Payment parseLine(String line) {
         if (line.contains("|")) {
-            return parseLegacyPipePayment(line);
+            return parseLegacyPipePayment(line); // Handle older file formats
         }
+        
         String[] a = line.split(",", -1);
         if (a.length < 5) {
             throw new IllegalArgumentException("Invalid payment record: " + line);
         }
+        
         String kind = a[0].trim();
         String status = PaymentStatus.fromString(a[4].trim()).name();
+        
+        // Polymorphism in action: return appropriate subclass based on 'kind' field
         if (kind.equalsIgnoreCase("CARD")) {
             return new CardPayment(a[1].trim(), a[2].trim(), Double.parseDouble(a[3].trim()), status);
         }
@@ -91,9 +122,14 @@ public class PaymentRepository {
         throw new IllegalArgumentException("Unknown payment type: " + kind);
     }
 
+    /**
+     * Method dealing with old file formatting logic.
+     */
     private Payment parseLegacyPipePayment(String line) {
         String[] a = line.split("\\|", -1);
-        String status = PaymentStatus.PAID.name();
+        String status = PaymentStatus.PAID.name(); // Legacy ones default to PAID
+        
+        // Uses enhanced switch statement (modern Java feature)
         return switch (a[0]) {
             case "CARD" -> new CardPayment(a[1], a[2], Double.parseDouble(a[3]), status);
             case "CASH" -> new CashPayment(a[1], a[2], Double.parseDouble(a[3]), status);
@@ -101,7 +137,11 @@ public class PaymentRepository {
         };
     }
 
+    /**
+     * Serializes a Payment object back into a comma-separated string representation.
+     */
     private String toLine(Payment p) {
+        // Instanceof pattern matching cleanly checks object type and performs casting (Java 16+)
         if (p instanceof CardPayment c) {
             return String.join(",",
                     "CARD",
@@ -121,6 +161,9 @@ public class PaymentRepository {
         throw new IllegalArgumentException("Unsupported payment: " + p.getClass());
     }
 
+    /**
+     * Utility method to escape potentially problematic characters (like commas) in data.
+     */
     private static String esc(String s) {
         return s == null ? "" : s.replace(",", ";");
     }
