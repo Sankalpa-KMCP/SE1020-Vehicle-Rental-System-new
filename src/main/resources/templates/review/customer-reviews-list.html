@@ -188,6 +188,7 @@
         .hero-stat--accent .hero-stat__val {
             background: linear-gradient(135deg, var(--lux-gold-light) 0%, var(--lux-gold) 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -495,7 +496,7 @@
             </div>
             <div class="hero-stat hero-stat--accent">
                 <span class="hero-stat__label">AVG RATING</span>
-                <span class="hero-stat__val" th:text="${#numbers.formatDecimal(#aggregates.avg(myReviews.![rating]), 1, 'POINT', 1, 'POINT')}">—</span>
+                <span class="hero-stat__val" th:text="${avgRating != null and avgRating > 0 ? #numbers.formatDecimal(avgRating, 1, 'POINT', 1, 'POINT') : '—'}">—</span>
             </div>
             <div class="hero-stat hero-stat--accent">
                 <span class="hero-stat__label">MEMBER</span>
