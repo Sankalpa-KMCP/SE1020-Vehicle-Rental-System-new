@@ -259,7 +259,10 @@ public class CustomerPortalController {
     }
 
     @GetMapping("/billing/gateway")
-    public String billingGateway(HttpSession session, @RequestParam String bookingId, Model model) {
+    public String billingGateway(HttpSession session,
+                                 @RequestParam String bookingId,
+                                 @RequestParam(required = false) String error,
+                                 Model model) {
         if (!customer(session)) {
             return "redirect:/auth/login";
         }
@@ -283,12 +286,14 @@ public class CustomerPortalController {
         model.addAttribute("booking", booking);
         model.addAttribute("payment", payment);
         model.addAttribute("vehicle", vehicleService.findById(booking.getVehicleId()).orElse(null));
+        model.addAttribute("gatewayError", error);
         return "payment/fake-payment-gateway";
     }
 
     @PostMapping("/billing/gateway/complete")
     public String completeBillingGateway(HttpSession session,
                                          @RequestParam String bookingId,
+                                         @RequestParam(required = false) Double paymentAmount,
                                          @RequestParam(required = false) String cardNumber,
                                          @RequestParam(required = false) String cardName,
                                          @RequestParam(required = false) String expiry,
@@ -305,6 +310,12 @@ public class CustomerPortalController {
         }
         Payment payment = paymentService.findLatestByBookingId(bid)
                 .orElseGet(() -> createPendingGatewayPayment(ob.get()));
+        if (isBlank(cardName) || isBlank(cardNumber) || isBlank(expiry) || isBlank(cvv)) {
+            return "redirect:/customer/billing/gateway?bookingId=" + bid + "&error=missing_card_details";
+        }
+        if (paymentAmount == null || Math.abs(paymentAmount - payment.getAmount()) > 0.01) {
+            return "redirect:/customer/billing/gateway?bookingId=" + bid + "&error=amount_mismatch";
+        }
         payment.setStatus("PAID");
         try {
             paymentService.save(payment);
@@ -324,6 +335,10 @@ public class CustomerPortalController {
                 "PENDING");
         paymentService.save(payment);
         return payment;
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
     @GetMapping("/pay")
