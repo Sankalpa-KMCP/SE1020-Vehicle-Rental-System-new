@@ -77,11 +77,28 @@ public class CustomerPortalController {
         }
         String un = username(session);
         Optional<Customer> oc = userService.findByUsername(un).filter(u -> u instanceof Customer).map(u -> (Customer) u);
-        String displayName = oc.map(Customer::getName).filter(n -> !n.isBlank()).orElse("@" + un);
+        if (oc.isEmpty()) {
+            return "redirect:/auth/login?error=profile_not_found";
+        }
+        Customer customer = oc.get();
+        String displayName = customer.getName() != null && !customer.getName().isBlank()
+                ? customer.getName().trim()
+                : "@" + un;
         if (displayName.isBlank()) {
             displayName = "Customer";
         }
+        String firstName = displayName;
+        String fullName = customer.getName();
+        if (fullName != null && !fullName.isBlank()) {
+            String trimmed = fullName.trim();
+            int space = trimmed.indexOf(' ');
+            firstName = space > 0 ? trimmed.substring(0, space) : trimmed;
+        }
+        model.addAttribute("customer", customer);
         model.addAttribute("displayName", displayName);
+        model.addAttribute("firstName", firstName);
+        model.addAttribute("verified", customer.isVerified());
+        model.addAttribute("bookingCount", reservationService.findBookingsLinkedToCustomer(customer).size());
         List<String> notices = new ArrayList<>();
         for (Booking booking : reservationService.findAll()) {
             String owner = booking.getCustomerName();
