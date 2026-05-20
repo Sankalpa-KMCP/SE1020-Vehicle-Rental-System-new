@@ -30,20 +30,10 @@
              th:style="'background-image: url(' + ${v.imagePath} + ');'">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
             
-            <!-- Dynamic Status Badge -->
-            <div class="absolute top-4 left-4 z-20">
-                <span th:if="${v.status == 'AVAILABLE' || v.status == null || v.status == ''}" class="bg-green-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-green-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                    Available
-                </span>
-                <span th:if="${v.status == 'RENTED'}" class="bg-indigo-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                    Rented
-                </span>
-                <span th:if="${v.status == 'MAINTENANCE'}" class="bg-yellow-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-yellow-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                    Maintenance
-                </span>
+            <div class="absolute top-4 right-4 z-20">
+                <span th:if="${v.status == 'AVAILABLE' || v.status == null || v.status == ''}" class="bg-green-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-green-400">🟢 AVAILABLE</span>
+                <span th:if="${v.status == 'MAINTENANCE'}" class="bg-yellow-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-yellow-400">🟡 MAINTENANCE</span>
+                <span th:if="${v.status == 'RENTED'}" class="bg-indigo-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-indigo-400">🚗 RENTED</span>
             </div>
 
             <div class="relative z-10 p-6 h-full flex flex-col justify-end">
@@ -70,24 +60,21 @@
                 <li class="flex items-center gap-2"><i class="ph-bold ph-check-circle text-green-500 text-lg"></i> Fully Insured &amp; Inspected</li>
             </ul>
         </div>
-        <div class="p-4 bg-gray-50 border-t border-gray-100 mt-auto">
-            <!-- Available -->
+        <div class="p-4 bg-gray-50 border-t border-gray-100">
             <a th:if="${v.status == 'AVAILABLE' || v.status == null || v.status == ''}"
                th:href="@{/customer/bookings/new(vehicleId=${v.id},rate=${v.calculateRentalRate()})}"
                class="w-full block text-center bg-[#0D6EFD] text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-colors shadow-md text-lg">
                 Book This Vehicle
             </a>
 
-            <!-- Rented -->
-            <button th:if="${v.status == 'RENTED'}" disabled
-                    class="w-full flex justify-center items-center gap-2 bg-indigo-50 text-indigo-400 font-bold py-3.5 rounded-xl cursor-not-allowed shadow-inner text-lg border border-indigo-100">
-                <i class="ph-bold ph-car-profile"></i> Rented / On The Road
-            </button>
-
-            <!-- Maintenance -->
             <button th:if="${v.status == 'MAINTENANCE'}" disabled
                     class="w-full flex justify-center items-center gap-2 bg-gray-200 text-gray-500 font-bold py-3.5 rounded-xl cursor-not-allowed shadow-inner text-lg">
                 <i class="ph-bold ph-wrench"></i> Under Maintenance
+            </button>
+
+            <button th:if="${v.status == 'RENTED'}" disabled
+                    class="w-full flex justify-center items-center gap-2 bg-indigo-50 text-indigo-400 font-bold py-3.5 rounded-xl cursor-not-allowed shadow-inner text-lg border border-indigo-100">
+                <i class="ph-bold ph-car-profile"></i> On The Road
             </button>
         </div>
     </div>

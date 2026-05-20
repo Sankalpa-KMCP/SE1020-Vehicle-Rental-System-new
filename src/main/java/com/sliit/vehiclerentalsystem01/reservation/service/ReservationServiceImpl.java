@@ -88,7 +88,17 @@ public class ReservationServiceImpl implements ReservationService {
         list.add(booking);
         reservationRepository.saveAll(list);
 
-        syncVehicleStatus(booking.getVehicleId(), booking.getStatus());
+        if ("RENTED".equalsIgnoreCase(booking.getStatus())) {
+            updateVehicleStatus(booking.getVehicleId(), "RENTED");
+        } else if ("MAINTENANCE".equalsIgnoreCase(booking.getStatus())) {
+            updateVehicleStatus(booking.getVehicleId(), "MAINTENANCE");
+        } else if ("COMPLETED".equalsIgnoreCase(booking.getStatus()) || "CANCELLED".equalsIgnoreCase(booking.getStatus()) || "REJECTED".equalsIgnoreCase(booking.getStatus())) {
+            vehicleService.findById(booking.getVehicleId()).ifPresent(v -> {
+                if ("RENTED".equalsIgnoreCase(v.getStatus())) {
+                    updateVehicleStatus(booking.getVehicleId(), "AVAILABLE");
+                }
+            });
+        }
     }
 
     @Override
@@ -110,18 +120,37 @@ public class ReservationServiceImpl implements ReservationService {
         List<Booking> list = new ArrayList<>(reservationRepository.findAll());
         boolean changed = false;
         String vehicleIdToUpdate = null;
+        String statusToSet = null;
         for (Booking b : list) {
             if (bookingId.equals(b.getId())) {
                 b.setStatus(newStatus);
                 changed = true;
-                vehicleIdToUpdate = b.getVehicleId();
+                if ("RENTED".equalsIgnoreCase(newStatus)) {
+                    vehicleIdToUpdate = b.getVehicleId();
+                    statusToSet = "RENTED";
+                } else if ("MAINTENANCE".equalsIgnoreCase(newStatus)) {
+                    vehicleIdToUpdate = b.getVehicleId();
+                    statusToSet = "MAINTENANCE";
+                } else if ("COMPLETED".equalsIgnoreCase(newStatus) || "CANCELLED".equalsIgnoreCase(newStatus) || "REJECTED".equalsIgnoreCase(newStatus)) {
+                    vehicleIdToUpdate = b.getVehicleId();
+                    statusToSet = "AVAILABLE";
+                }
                 break;
             }
         }
         if (changed) {
             reservationRepository.saveAll(list);
-            if (vehicleIdToUpdate != null) {
-                syncVehicleStatus(vehicleIdToUpdate, newStatus);
+            if (vehicleIdToUpdate != null && statusToSet != null) {
+                if ("AVAILABLE".equals(statusToSet)) {
+                    final String targetStatus = statusToSet;
+                    vehicleService.findById(vehicleIdToUpdate.trim()).ifPresent(v -> {
+                        if ("RENTED".equalsIgnoreCase(v.getStatus())) {
+                            updateVehicleStatus(v.getId(), targetStatus);
+                        }
+                    });
+                } else {
+                    updateVehicleStatus(vehicleIdToUpdate, statusToSet);
+                }
             }
         }
     }
@@ -224,22 +253,11 @@ public class ReservationServiceImpl implements ReservationService {
         }
     }
 
-    private void syncVehicleStatus(String vehicleId, String bookingStatus) {
+    private void updateVehicleStatus(String vehicleId, String status) {
         if (vehicleId != null && !vehicleId.isBlank()) {
             vehicleService.findById(vehicleId.trim()).ifPresent(v -> {
-                String normStatus = normalized(bookingStatus);
-                if ("RENTED".equalsIgnoreCase(normStatus)) {
-                    v.setStatus("RENTED");
-                    vehicleService.save(v);
-                } else if ("MAINTENANCE".equalsIgnoreCase(normStatus)) {
-                    v.setStatus("MAINTENANCE");
-                    vehicleService.save(v);
-                } else {
-                    if ("RENTED".equalsIgnoreCase(v.getStatus())) {
-                        v.setStatus("AVAILABLE");
-                        vehicleService.save(v);
-                    }
-                }
+                v.setStatus(status);
+                vehicleService.save(v);
             });
         }
     }
@@ -312,6 +330,9 @@ public class ReservationServiceImpl implements ReservationService {
         return "CONFIRMED".equalsIgnoreCase(s)
                 || "PENDING".equalsIgnoreCase(s)
                 || "UPDATED".equalsIgnoreCase(s)
+                || "UPDATE_REQUESTED".equalsIgnoreCase(s)
+                || "RENTED".equalsIgnoreCase(s)
+                || "MAINTENANCE".equalsIgnoreCase(s)
                 || "CANCELLATION_REQUESTED".equalsIgnoreCase(s);
     }
 
