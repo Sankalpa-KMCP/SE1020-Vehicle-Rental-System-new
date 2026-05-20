@@ -46,7 +46,7 @@ com.sliit.vehiclerentalsystem01.maintenance/
 * **[MaintenanceService.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/service/MaintenanceService.java)**:
   Interface contract declaring maintenance tracking and availability validation signatures.
 * **[MaintenanceServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/maintenance/service/MaintenanceServiceImpl.java)**:
-  Implements fleet service rules: validates service dates (last service must precede next service), updates vehicle states, and checks availability (blocking bookings if status is `MAINTENANCE`).
+  Implements fleet service rules: validates service dates (last service must precede next service), updates vehicle states, and checks availability (blocking bookings if status is `MAINTENANCE`). On startup, if the maintenance vehicle roster file is empty, it writes the built-in `seedVehicles()` list via the repository.
 
 ---
 

@@ -1,5 +1,6 @@
 package com.sliit.vehiclerentalsystem01.maintenance.service;
 
+import com.sliit.vehiclerentalsystem01.maintenance.entity.MaintenanceEntry;
 import com.sliit.vehiclerentalsystem01.maintenance.entity.MaintenanceRecord;
 
 import java.util.List;
@@ -7,25 +8,19 @@ import java.util.Optional;
 
 public interface MaintenanceService {
 
-    List<MaintenanceRecord> findAll();
+    List<MaintenanceRecord> findAllVehicles();
 
-    List<MaintenanceRecord> findAvailableVehicles();
-
-    List<MaintenanceRecord> findInMaintenance();
-
-    List<MaintenanceRecord> findInUse();
-
-    int countAvailable();
+    List<MaintenanceEntry> findAllEntries();
 
     int countInMaintenance();
 
-    int countInUse();
-
     Optional<MaintenanceRecord> findByVehicleId(String vehicleId);
 
-    void addRecord(MaintenanceRecord record);
+    void addVehicle(MaintenanceRecord record);
 
-    void updateStatus(String vehicleId, String status);
+    void addMaintenanceEntry(MaintenanceEntry entry);
 
-    void deleteRecord(String vehicleId);
+    void deleteVehicle(String vehicleId);
+
+    void deleteMaintenanceEntry(String entryId);
 }

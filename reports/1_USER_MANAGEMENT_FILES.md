@@ -16,13 +16,13 @@ com.sliit.vehiclerentalsystem01.user/
 ├── controller/  <── Request Routers (handles HTTP endpoints, session attributes)
 ├── entity/      <── Domain Entities (encapsulates state and defines user inheritance)
 ├── repository/  <── Persistence Layer (manages users.txt flat-file buffering and CSV parsing)
-└── service/     <── Business Logic Layer (implements login hashing, role checks, and seeds defaults)
+└── service/     <── Business Logic Layer (implements login hashing, role checks, and user lifecycle rules)
 ```
 
 * **`controller/`**: Houses controllers that receive HTTP requests (GET, POST), validate request parameters, bind session data (e.g. tracking logged-in user names), and return Thymeleaf template paths or redirect URLs.
 * **`entity/`**: Houses polymorphic model structures that define the blueprint of users. Contains inheritance branches separating customers from operational staff.
 * **`repository/`**: Houses file access storage components. It isolates raw I/O (`BufferedReader`, `BufferedWriter`, file streams) from services and controllers, providing clean database interfaces.
-* **`service/`**: Houses the heavy operational business logic. It handles credential security (password matching), session allocations, default record bootstrapping, and validation rules.
+* **`service/`**: Houses the heavy operational business logic. It handles credential security (password matching), session-related rules, and validation. Initial user data lives in `data/users.txt` (maintained by the team), not auto-generated here on empty file.
 
 ---
 
@@ -44,7 +44,7 @@ com.sliit.vehiclerentalsystem01.user/
 * **[UserManagementController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/UserManagementController.java)**:
   A REST/MVC controller exposing CRUD endpoints to directly manage raw user profiles, permissions, and direct exclusions.
 * **[MasterConsoleController.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/MasterConsoleController.java)**:
-  Provides diagnostics, manual seeding, overriding configurations, and direct text-file cleanups.
+  Provides master-console routes for privileged configuration and diagnostics as implemented in the controller.
 
 ### B. Entity Tier (`entity/`)
 * **[User.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/entity/User.java)**:
@@ -66,7 +66,7 @@ com.sliit.vehiclerentalsystem01.user/
 * **[UserService.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/service/UserService.java)**:
   Interface outlining user manager signatures (login, register, update, find, delete).
 * **[UserServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/service/UserServiceImpl.java)**:
-  Implements user behaviors: hashes passwords, verifies logins, blocks duplicate registrations, and boots default administrative and test profiles if the text database is empty.
+  Implements user behaviors: password hashing, login verification, duplicate checks, and CRUD orchestration against `UserRepository`.
 * **[MasterAdminPendingService.java](../src/main/java/com/sliit/vehiclerentalsystem01/user/service/MasterAdminPendingService.java)**:
   Handles operating staff registrations pending administrator approval. It reads and writes entries in `data/staff_access_requests.txt`.
 

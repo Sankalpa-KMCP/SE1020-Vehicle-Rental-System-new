@@ -3,25 +3,106 @@
 <head>
     <th:block th:replace="~{fragments/admin-shell :: adminHead('Reviews - DriveAway')}"></th:block>
     <style>
+        /* ── Core Variables for Obsidian & Gold Theme ── */
+        :root {
+            --da-bg: #050506;
+            --da-surface: #0a0a0f;
+            --da-border: rgba(255, 255, 255, 0.08);
+            --da-accent: #c9a227;
+            --da-accent-glow: rgba(201, 162, 39, 0.15);
+            --da-text: #f3f4f6;
+            --da-text-muted: #9ca3af;
+            --da-radius: 1.25rem;
+        }
+
+        /* ── Override Admin Shell for Dark Mode (propagate to sidebar & topbar) ── */
+        .admin-shell {
+          --admin-navy: #050506;
+          --admin-navy-mid: #0c0c0e;
+          --admin-charcoal: #f4f2ee;
+          --admin-charcoal-muted: #a8a6a0;
+          --admin-bg: #050506;
+          --admin-canvas: #050506;
+          --admin-surface: #0c0c0e;
+          --admin-glass: rgba(12, 12, 14, 0.85);
+          --admin-text: #f4f2ee;
+          --admin-text-muted: #a8a6a0;
+          --admin-border: rgba(255, 255, 255, 0.08);
+
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            #050506;
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        .admin-main {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            var(--admin-navy);
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        /* Premium Obsidian Black Sidebar override */
+        .admin-sidebar {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 100% 35% at 50% 0%, rgba(201, 169, 98, 0.12), transparent 60%),
+            linear-gradient(180deg, #050506 0%, #0c0c0e 45%, #020203 100%) !important;
+          background-size: 20px 20px, auto, auto !important;
+          border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+
+        .admin-topbar__menu-btn,
+        .admin-topbar__collapse-btn,
+        .admin-topbar__logout,
+        .admin-topbar__user {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          color: #f4f2ee !important;
+        }
+
+        .admin-topbar__menu-btn:hover,
+        .admin-topbar__collapse-btn:hover,
+        .admin-topbar__logout:hover,
+        .admin-topbar__user:hover {
+          background: rgba(255, 255, 255, 0.1) !important;
+          border-color: rgba(201, 169, 98, 0.35) !important;
+          color: #e8d5a3 !important;
+        }
+
+        .admin-topbar {
+            background: rgba(10, 10, 15, 0.8) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+            color: #fff !important;
+        }
+        .admin-topbar__breadcrumb, .admin-topbar__breadcrumb strong {
+            color: #fff !important;
+        }
+
         /* ── Animations ── */
         .fade-in { animation: fadeIn 0.5s ease-out both; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 
         /* ── Hero banner ── */
         .hero-banner {
-            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #dc2626 100%);
+            background: radial-gradient(ellipse 100% 100% at 0% 0%, #16161d 0%, #0a0a0f 100%);
+            border: 1px solid rgba(201, 162, 39, 0.2);
             border-radius: 1.75rem;
             padding: 3rem 3.5rem;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(239,68,68,0.25);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(201, 162, 39, 0.03);
         }
         .hero-banner::before {
             content: '';
             position: absolute;
             inset: 0;
             background: url('https://www.transparenttextures.com/patterns/cubes.png');
-            opacity: 0.08;
+            opacity: 0.04;
             mix-blend-mode: overlay;
             pointer-events: none;
         }
@@ -31,7 +112,7 @@
             right: -40px;
             bottom: -60px;
             font-size: 280px;
-            color: rgba(255,255,255,0.08);
+            color: rgba(201, 162, 39, 0.04);
             pointer-events: none;
             line-height: 1;
             transform: rotate(-12deg);
@@ -39,49 +120,53 @@
 
         /* ── Stat cards ── */
         .stat-card {
-            background: #ffffff;
-            border-radius: 1.25rem;
+            background: rgba(18, 18, 24, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--da-radius);
             padding: 1.5rem;
-            border: 1px solid #f1f5f9;
             transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            box-shadow: 0 4px 20px rgba(15,23,42,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            color: #fff;
         }
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 45px rgba(15,23,42,0.10);
+            transform: translateY(-4px);
+            border-color: rgba(201, 162, 39, 0.3);
+            box-shadow: 0 12px 30px rgba(201, 162, 39, 0.1);
         }
 
         /* ── Star rating ── */
         .star-display { display: inline-flex; gap: 2px; }
         .star-display .star { font-size: 1rem; }
-        .star-display .star.filled { color: #f59e0b; }
-        .star-display .star.empty  { color: #e2e8f0; }
+        .star-display .star.filled { color: var(--da-accent); }
+        .star-display .star.empty  { color: rgba(255, 255, 255, 0.15); }
 
         /* ── Status badges ── */
         .badge {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            padding: 3px 10px;
+            padding: 4px 10px;
             border-radius: 999px;
             font-size: 0.68rem;
             font-weight: 800;
             letter-spacing: 0.06em;
             text-transform: uppercase;
         }
-        .badge-published { background: #dcfce7; color: #166534; }
-        .badge-flagged   { background: #fee2e2; color: #991b1b; }
-        .badge-pending   { background: #fef9c3; color: #854d0e; }
-        .badge-default   { background: #f1f5f9; color: #475569; }
+        .badge-published { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-flagged   { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .badge-pending   { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .badge-default   { background: rgba(255, 255, 255, 0.05); color: #9ca3af; border: 1px solid rgba(255, 255, 255, 0.1); }
 
         /* ── Review card ── */
         .review-card {
-            background: #ffffff;
-            border: 1px solid #f1f5f9;
-            border-radius: 1.25rem;
+            background: rgba(18, 18, 24, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--da-radius);
             padding: 1.5rem 1.75rem;
-            transition: box-shadow 0.25s ease, border-color 0.25s ease;
-            box-shadow: 0 2px 12px rgba(15,23,42,0.04);
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             position: relative;
             z-index: 1;
             opacity: 1;
@@ -95,9 +180,28 @@
             z-index: 2;
         }
         .review-card:hover {
-            box-shadow: 0 8px 32px rgba(15,23,42,0.09);
-            border-color: #fde68a;
+            box-shadow: 0 12px 36px rgba(201, 162, 39, 0.08), 0 0 0 1px rgba(201, 162, 39, 0.2);
+            border-color: rgba(201, 162, 39, 0.3);
+            transform: translateY(-2px);
         }
+
+        /* ── Unified High-Contrast White Text Colors ── */
+        .text-gray-900,
+        .text-gray-800,
+        .text-gray-700 {
+            color: #f4f2ee !important;
+        }
+        .text-gray-600 {
+            color: #d1d5db !important;
+        }
+        .text-gray-400 {
+            color: #9ca3af !important;
+        }
+        .reply-bubble .text-blue-700 { color: #60a5fa !important; }
+        .reply-bubble .text-gray-700 { color: #e5e7eb !important; }
+        .text-amber-700 { color: var(--da-accent) !important; }
+        .bg-amber-50 { background-color: rgba(201, 162, 39, 0.08) !important; }
+        .border-amber-200 { border-color: rgba(201, 162, 39, 0.2) !important; }
 
         /* ── Avatar ── */
         .avatar {
@@ -111,8 +215,16 @@
             font-size: 1.1rem;
             flex-shrink: 0;
         }
-        .avatar-customer { background: linear-gradient(135deg,#fef3c7,#fde68a); color: #92400e; }
-        .avatar-staff    { background: linear-gradient(135deg,#dbeafe,#bfdbfe); color: #1e40af; }
+        .avatar-customer {
+            background: linear-gradient(135deg, #2e2a1e, #1a160d);
+            color: var(--da-accent);
+            border: 1px solid rgba(201, 162, 39, 0.3);
+        }
+        .avatar-staff {
+            background: linear-gradient(135deg, #101a2c, #0a101d);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
 
         /* ── Reply toggle ── */
         .reply-toggle-btn {
@@ -121,15 +233,15 @@
             gap: 6px;
             font-size: 0.8rem;
             font-weight: 700;
-            color: #b45309;
-            background: #fef9c3;
-            border: 1px solid #fde68a;
+            color: var(--da-accent);
+            background: rgba(201, 162, 39, 0.08);
+            border: 1px solid rgba(201, 162, 39, 0.2);
             border-radius: 0.6rem;
             padding: 5px 12px;
             cursor: pointer;
-            transition: background 0.2s, color 0.2s;
+            transition: all 0.2s;
         }
-        .reply-toggle-btn:hover { background: #fef08a; color: #92400e; }
+        .reply-toggle-btn:hover { background: rgba(201, 162, 39, 0.15); color: #fff; }
 
         .reply-panel {
             overflow: hidden;
@@ -142,22 +254,24 @@
         /* ── Reply textarea ── */
         .reply-textarea {
             width: 100%;
-            border: 1.5px solid #e2e8f0;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 0.75rem;
             padding: 10px 14px;
             font-size: 0.875rem;
             resize: none;
             transition: border-color 0.2s, box-shadow 0.2s;
             outline: none;
+            color: #fff;
         }
         .reply-textarea:focus {
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+            border-color: var(--da-accent);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
         }
 
         /* ── Post-reply button ── */
         .post-btn {
-            background: linear-gradient(135deg,#f59e0b,#ef4444);
+            background: linear-gradient(135deg, var(--da-accent), #a37f1c);
             color: #fff;
             font-weight: 800;
             font-size: 0.85rem;
@@ -165,9 +279,10 @@
             border: none;
             border-radius: 0.75rem;
             cursor: pointer;
+            box-shadow: 0 4px 14px rgba(201, 162, 39, 0.25);
             transition: opacity 0.2s, transform 0.15s;
         }
-        .post-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .post-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201, 162, 39, 0.4); }
         .post-btn:active { transform: translateY(0); }
 
         /* ── Existing reply bubble ── */
@@ -175,14 +290,14 @@
             display: flex;
             gap: 10px;
             align-items: flex-start;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 1rem;
             padding: 12px 14px;
         }
 
         /* ── Empty state ── */
-        .empty-state { text-align: center; padding: 4rem 2rem; color: #94a3b8; }
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--da-text-muted); }
         .empty-state i { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
 
         /* ── Filter/search bar ── */
@@ -191,11 +306,11 @@
             flex-wrap: wrap;
             gap: 10px;
             align-items: center;
-            background: #ffffff;
-            border: 1px solid #f1f5f9;
+            background: rgba(18, 18, 24, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 1rem;
             padding: 1rem 1.25rem;
-            box-shadow: 0 2px 12px rgba(15,23,42,0.04);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
         .filter-pill {
             display: inline-flex;
@@ -210,17 +325,17 @@
             transition: all 0.2s;
         }
         .filter-pill.active, .filter-pill:hover {
-            border-color: #f59e0b;
-            background: #fffbeb;
-            color: #92400e;
+            border-color: var(--da-accent);
+            background: rgba(201, 162, 39, 0.1);
+            color: #fff;
         }
-        .filter-pill:not(.active) { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
+        .filter-pill:not(.active) { background: rgba(255, 255, 255, 0.03); color: var(--da-text-muted); border-color: rgba(255, 255, 255, 0.08); }
 
         /* ── Section heading ── */
         .section-heading {
             font-size: 1.25rem;
             font-weight: 800;
-            color: #111827;
+            color: #fff;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -229,7 +344,28 @@
             content: '';
             flex: 1;
             height: 1.5px;
-            background: linear-gradient(90deg, #fde68a 0%, transparent 100%);
+            background: linear-gradient(90deg, var(--da-accent) 0%, transparent 100%);
+        }
+
+        /* ── Input & Search ── */
+        #reviewFilter {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            color: #fff !important;
+        }
+        #reviewFilter::placeholder {
+            color: rgba(255, 255, 255, 0.35) !important;
+        }
+        #reviewFilter:focus {
+            border-color: var(--da-accent) !important;
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15) !important;
+        }
+
+        /* ── Notice Banner override ── */
+        .bg-amber-50 {
+            background-color: rgba(201, 162, 39, 0.08) !important;
+            border-color: rgba(201, 162, 39, 0.2) !important;
+            color: #f3f4f6 !important;
         }
     </style>
 </head>
@@ -246,71 +382,82 @@
 
     <!-- ── Hero banner ── -->
     <div class="hero-banner mb-10 relative z-10">
-        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
             <div>
-                <p class="text-amber-200 text-xs font-bold uppercase tracking-widest mb-2">Staff Panel</p>
+                <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-4">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse inline-block"></span>
+                    <span class="text-amber-300 text-xs font-bold uppercase tracking-widest">Staff Management Panel</span>
+                </div>
                 <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-3 tracking-tight leading-tight">
-                    Customer Reviews
+                    Customer <span style="background: linear-gradient(90deg, #c9a227, #f0d080); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Reviews</span>
                 </h1>
-                <p class="text-amber-100 text-base font-medium max-w-xl leading-relaxed opacity-90">
-                    Manage feedback, monitor ratings, and craft professional responses.
+                <p class="text-white/70 text-sm font-medium max-w-md leading-relaxed">
+                    Monitor ratings, manage feedback, and craft professional staff responses from one unified dashboard.
                 </p>
             </div>
             <!-- Mini stat strip in hero -->
-            <div class="flex flex-wrap gap-0 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden">
-                <div class="text-center px-5 py-4 border-r border-white/20">
-                    <p class="text-amber-200 text-xs font-bold uppercase tracking-wider mb-1">Total</p>
-                    <p class="text-white font-extrabold text-2xl" th:text="${totalReviews}">0</p>
+            <div class="flex flex-wrap gap-0 rounded-2xl overflow-hidden" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px);">
+                <div class="text-center px-6 py-5 border-r" style="border-color: rgba(255,255,255,0.08);">
+                    <p class="text-amber-400/80 text-xs font-bold uppercase tracking-widest mb-1">Total</p>
+                    <p class="text-white font-black text-3xl" th:text="${totalReviews}">0</p>
                 </div>
-                <div class="text-center px-5 py-4 border-r border-white/20">
-                    <p class="text-amber-200 text-xs font-bold uppercase tracking-wider mb-1">Live</p>
-                    <p class="text-white font-extrabold text-2xl" th:text="${publishedCount}">0</p>
+                <div class="text-center px-6 py-5 border-r" style="border-color: rgba(255,255,255,0.08);">
+                    <p class="text-emerald-400/80 text-xs font-bold uppercase tracking-widest mb-1">Live</p>
+                    <p class="text-white font-black text-3xl" th:text="${publishedCount}">0</p>
                 </div>
-                <div class="text-center px-5 py-4 border-r border-white/20">
-                    <p class="text-amber-200 text-xs font-bold uppercase tracking-wider mb-1">Flagged</p>
-                    <p class="text-white font-extrabold text-2xl" th:text="${flaggedCount}">0</p>
+                <div class="text-center px-6 py-5 border-r" style="border-color: rgba(255,255,255,0.08);">
+                    <p class="text-rose-400/80 text-xs font-bold uppercase tracking-widest mb-1">Flagged</p>
+                    <p class="text-white font-black text-3xl" th:text="${flaggedCount}">0</p>
                 </div>
-                <div class="text-center px-5 py-4">
-                    <p class="text-amber-200 text-xs font-bold uppercase tracking-wider mb-1">Avg ★</p>
-                    <p class="text-white font-extrabold text-2xl" th:text="${#numbers.formatDecimal(avgRating, 1, 1)}">0</p>
+                <div class="text-center px-6 py-5">
+                    <p class="text-amber-400/80 text-xs font-bold uppercase tracking-widest mb-1">Avg ★</p>
+                    <p class="text-white font-black text-3xl" th:text="${#numbers.formatDecimal(avgRating, 1, 1)}">0.0</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ── KPI stat cards ── -->
-    <div class="grid grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
-        <div class="stat-card">
-            <div class="flex items-center justify-between mb-4">
-                <div class="bg-amber-50 p-3 rounded-xl"><i class="ph-fill ph-chats-circle text-2xl text-amber-600"></i></div>
-                <span class="badge badge-default">Total</span>
+    <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-10">
+        <div class="stat-card" style="border-left: 3px solid rgba(201,162,39,0.5);">
+            <div class="flex items-center justify-between mb-5">
+                <div style="width:46px;height:46px;border-radius:14px;background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.2);display:flex;align-items:center;justify-content:center;">
+                    <i class="ph-fill ph-chats-circle" style="font-size:1.4rem;color:#c9a227;"></i>
+                </div>
+                <span class="badge badge-default">TOTAL</span>
             </div>
-            <p class="text-4xl font-extrabold text-gray-900" th:text="${totalReviews}">0</p>
-            <p class="text-xs text-gray-400 mt-2 font-medium">All reviews submitted</p>
+            <p class="font-black text-white mb-1" style="font-size:2.5rem;line-height:1;" th:text="${totalReviews}">0</p>
+            <p style="font-size:0.72rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">All reviews submitted</p>
         </div>
-        <div class="stat-card">
-            <div class="flex items-center justify-between mb-4">
-                <div class="bg-green-50 p-3 rounded-xl"><i class="ph-fill ph-check-fat text-2xl text-green-600"></i></div>
-                <span class="badge badge-published">Live</span>
+        <div class="stat-card" style="border-left: 3px solid rgba(16,185,129,0.5);">
+            <div class="flex items-center justify-between mb-5">
+                <div style="width:46px;height:46px;border-radius:14px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;">
+                    <i class="ph-fill ph-check-fat" style="font-size:1.4rem;color:#10b981;"></i>
+                </div>
+                <span class="badge badge-published">LIVE</span>
             </div>
-            <p class="text-4xl font-extrabold text-gray-900" th:text="${publishedCount}">0</p>
-            <p class="text-xs text-gray-400 mt-2 font-medium">Visible to customers</p>
+            <p class="font-black text-white mb-1" style="font-size:2.5rem;line-height:1;" th:text="${publishedCount}">0</p>
+            <p style="font-size:0.72rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Visible to customers</p>
         </div>
-        <div class="stat-card">
-            <div class="flex items-center justify-between mb-4">
-                <div class="bg-red-50 p-3 rounded-xl"><i class="ph-fill ph-flag text-2xl text-red-500"></i></div>
-                <span class="badge badge-flagged">Flagged</span>
+        <div class="stat-card" style="border-left: 3px solid rgba(239,68,68,0.5);">
+            <div class="flex items-center justify-between mb-5">
+                <div style="width:46px;height:46px;border-radius:14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;">
+                    <i class="ph-fill ph-flag" style="font-size:1.4rem;color:#ef4444;"></i>
+                </div>
+                <span class="badge badge-flagged">FLAGGED</span>
             </div>
-            <p class="text-4xl font-extrabold text-gray-900" th:text="${flaggedCount}">0</p>
-            <p class="text-xs text-gray-400 mt-2 font-medium">Needs your attention</p>
+            <p class="font-black text-white mb-1" style="font-size:2.5rem;line-height:1;" th:text="${flaggedCount}">0</p>
+            <p style="font-size:0.72rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Needs your attention</p>
         </div>
-        <div class="stat-card">
-            <div class="flex items-center justify-between mb-4">
-                <div class="bg-amber-50 p-3 rounded-xl"><i class="ph-fill ph-star-half text-2xl text-amber-500"></i></div>
-                <span class="badge badge-pending">Rating</span>
+        <div class="stat-card" style="border-left: 3px solid rgba(245,158,11,0.5);">
+            <div class="flex items-center justify-between mb-5">
+                <div style="width:46px;height:46px;border-radius:14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);display:flex;align-items:center;justify-content:center;">
+                    <i class="ph-fill ph-star" style="font-size:1.4rem;color:#f59e0b;"></i>
+                </div>
+                <span class="badge badge-pending">RATING</span>
             </div>
-            <p class="text-4xl font-extrabold text-gray-900" th:text="${#numbers.formatDecimal(avgRating, 1, 1)}">0</p>
-            <p class="text-xs text-gray-400 mt-2 font-medium">Average customer score</p>
+            <p class="font-black text-white mb-1" style="font-size:2.5rem;line-height:1;" th:text="${#numbers.formatDecimal(avgRating, 1, 1)}">0.0</p>
+            <p style="font-size:0.72rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Average customer score</p>
         </div>
     </div>
 
@@ -327,10 +474,11 @@
                       th:text="'(' + ${#lists.size(customerReviews)} + ')'">(0)</span>
             </h2>
             
-            <div class="relative w-full sm:w-72">
-                <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
-                <input type="text" id="reviewFilter" placeholder="Search reviews, names, ID..." 
-                       class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition shadow-sm">
+            <div class="relative w-full sm:w-80">
+                <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2" style="color:#9ca3af;font-size:1rem;"></i>
+                <input type="text" id="reviewFilter" placeholder="Search reviews, names, IDs…"
+                       class="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm font-medium outline-none transition"
+                       style="background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.08);color:#fff;">
             </div>
         </div>
 
@@ -339,6 +487,7 @@
 
             <article th:each="r, stat : ${customerReviews}"
                      class="review-card"
+                     style="border-left: 3px solid rgba(201,162,39,0.25);"
                      th:attr="data-review-id=${r.id}">
 
                 <!-- Top row: avatar + name + meta -->
@@ -382,13 +531,16 @@
 
                         <!-- Attached Image -->
                         <div th:if="${r.imageUrl != null and !#strings.isEmpty(r.imageUrl)}" class="mt-3">
-                            <img th:src="@{${r.imageUrl}}" alt="Review photo" class="h-32 w-auto rounded-xl border border-slate-200 object-cover shadow-sm"/>
+                            <img th:src="@{${r.imageUrl}}" alt="Review photo" class="h-28 w-auto rounded-xl object-cover shadow-sm" style="border:1px solid rgba(255,255,255,0.1);"/>
                         </div>
                     </div>
 
                     <!-- View button -->
                     <a th:href="@{/reviews/{id}(id=${r.id})}"
-                       class="shrink-0 inline-flex items-center gap-1.5 text-amber-700 hover:text-amber-900 font-bold text-xs bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-2 rounded-xl transition">
+                       class="shrink-0 inline-flex items-center gap-1.5 font-bold text-xs px-4 py-2.5 rounded-xl transition"
+                       style="background:rgba(201,162,39,0.12);border:1px solid rgba(201,162,39,0.25);color:#c9a227;" 
+                       onmouseover="this.style.background='rgba(201,162,39,0.22)';this.style.color='#fff'"
+                       onmouseout="this.style.background='rgba(201,162,39,0.12)';this.style.color='#c9a227'">
                         <i class="ph-bold ph-eye"></i> View
                     </a>
                 </div>

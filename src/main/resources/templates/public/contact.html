@@ -1,354 +1,238 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DriveAway | Contact Us</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
-    /* --- FASTER PAGE TRANSITION CSS --- */
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #FAFAFA;
-      overflow-x: hidden;
-      opacity: 0;
-      transition: opacity 0.15s ease-out;
-    }
-    body.page-loaded { opacity: 1; }
-
-    .gradient-text {
-      background: linear-gradient(135deg, #0D6EFD 0%, #4A12DA 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2,0.8,0.2,1); }
-    .reveal.active { opacity: 1; transform: translateY(0); }
-
-    /* Input overrides matching auth pages */
-    input:-webkit-autofill, textarea:-webkit-autofill {
-      -webkit-box-shadow: 0 0 0 30px white inset !important;
-    }
-
-    /* --- INTERACTIVE MASCOT CSS --- */
-    .mascot-body {
-      position: absolute;
-      transform-style: preserve-3d;
-      will-change: transform;
-      width: 7rem;
-      height: 9rem;
-    }
-    .mascot-eyes {
-      position: absolute;
-      transform: translateZ(40px);
-      will-change: transform;
-      z-index: 2;
-    }
-
-    @keyframes blink {
-      0%, 92%, 98%, 100% { transform: scaleY(1); }
-      95% { transform: scaleY(0.1); }
-    }
-    .eye-dot {
-      animation: blink 5s infinite;
-      transform-origin: center;
-      transition: transform 0.2s ease;
-    }
-
-    .shape-yellow-girl {
-      background: linear-gradient(135deg, #FFE044, #D6A200);
-      box-shadow: inset 3px 3px 10px rgba(255,255,255,0.6), inset -3px -3px 10px rgba(0,0,0,0.2), 10px 20px 30px rgba(251, 207, 20, 0.3);
-      border-radius: 3.5rem 3.5rem 0 0;
-    }
-    .glasses-wrapper { display: flex; gap: 0.1rem; position: relative; align-items: center; justify-content: center; }
-    .glasses-frame {
-      border: 3px solid #1F2937;
-      border-radius: 50%;
-      display: flex; justify-content: center; align-items: center;
-      background: rgba(255, 255, 255, 0.2);
-      box-shadow: 1px 2px 4px rgba(0,0,0,0.15);
-    }
-    .glasses-sm { width: 1.1rem; height: 1.1rem; border-width: 2px; }
-    .glasses-bridge {
-      position: absolute; width: 0.4rem; height: 3px; background-color: #1F2937;
-      left: 50%; transform: translateX(-50%); top: 50%; z-index: 10;
-    }
-
-    /* Floating Background Art */
-    .brand-shape { position: absolute; opacity: 0.15; z-index: 0; pointer-events: none; animation: float 6s ease-in-out infinite; }
-    @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(2deg); } }
-  </style>
-</head>
-<body class="text-gray-900 antialiased">
-
-<div th:replace="~{fragments/layout :: publicNav}"></div>
-
-<main class="relative">
-  <div class="brand-shape w-64 h-64 rounded-[4rem] bg-[#0D6EFD] top-20 left-[-5%] transform -rotate-12"></div>
-  <div class="brand-shape w-40 h-40 rounded-full bg-[#7A52FA] top-40 right-[10%] transform rotate-12" style="animation-delay: 2s;"></div>
-
-  <section class="pt-40 pb-16 relative z-10">
-    <div class="max-w-[1400px] mx-auto px-6 lg:px-8 text-center">
-      <div class="reveal">
-        <div class="inline-flex items-center justify-center bg-blue-50 p-4 rounded-2xl mb-6">
-          <i class="ph-fill ph-paper-plane-tilt text-4xl text-[#0D6EFD]"></i>
-        </div>
-        <h1 class="text-[3.5rem] md:text-[4.5rem] font-extrabold mb-4 tracking-tight leading-tight">Get in <span class="gradient-text">Touch</span></h1>
-        <p class="text-xl text-gray-500 max-w-2xl mx-auto font-medium">Have a question about our fleet? Need support with a booking? Our team is ready to help.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="pb-32 relative z-10">
-    <div class="max-w-[1400px] mx-auto px-6 lg:px-8 grid lg:grid-cols-12 gap-16 items-start">
-
-      <div class="lg:col-span-5 reveal">
-        <h2 class="text-3xl font-extrabold mb-8 tracking-tight text-gray-900">Contact Information</h2>
-
-        <div class="space-y-6">
-          <div class="bg-white p-6 rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.03)] border border-gray-100 flex items-start gap-5 hover:shadow-[0_20px_40px_rgba(13,110,253,0.08)] transition-all duration-300 group cursor-pointer">
-            <div class="bg-blue-50 p-4 rounded-2xl group-hover:bg-[#0D6EFD] transition-colors duration-300">
-              <i class="ph-fill ph-map-pin text-2xl text-[#0D6EFD] group-hover:text-white transition-colors duration-300"></i>
-            </div>
-            <div>
-              <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Our Headquarters</h4>
-              <p class="text-lg font-bold text-gray-900">123 Galle Road,<br>Colombo 03, Sri Lanka</p>
-            </div>
-          </div>
-
-          <div class="bg-white p-6 rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.03)] border border-gray-100 flex items-start gap-5 hover:shadow-[0_20px_40px_rgba(13,110,253,0.08)] transition-all duration-300 group cursor-pointer">
-            <div class="bg-blue-50 p-4 rounded-2xl group-hover:bg-[#0D6EFD] transition-colors duration-300">
-              <i class="ph-fill ph-phone text-2xl text-[#0D6EFD] group-hover:text-white transition-colors duration-300"></i>
-            </div>
-            <div>
-              <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Call Us</h4>
-              <p class="text-lg font-bold text-gray-900">+94 11 234 5678</p>
-              <p class="text-sm text-gray-500 font-medium mt-1">Mon - Sat: 8:00 AM - 6:00 PM</p>
-            </div>
-          </div>
-
-          <div class="bg-white p-6 rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.03)] border border-gray-100 flex items-start gap-5 hover:shadow-[0_20px_40px_rgba(13,110,253,0.08)] transition-all duration-300 group cursor-pointer">
-            <div class="bg-blue-50 p-4 rounded-2xl group-hover:bg-[#0D6EFD] transition-colors duration-300">
-              <i class="ph-fill ph-envelope text-2xl text-[#0D6EFD] group-hover:text-white transition-colors duration-300"></i>
-            </div>
-            <div>
-              <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Email Us</h4>
-              <p class="text-lg font-bold text-gray-900">hello@driveaway.lk</p>
-              <p class="text-sm text-gray-500 font-medium mt-1">Expect a reply within 2 hours</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="lg:col-span-7 reveal relative pt-12">
-
-        <div class="absolute -top-8 right-16 z-0 perspective-[1000px]">
-          <div id="mascot-support" class="mascot-body shape-yellow-girl">
-            <div class="mascot-eyes glasses-wrapper drop-shadow-sm absolute inset-x-0 mx-auto w-fit top-4">
-              <div class="glasses-bridge"></div>
-              <div class="glasses-frame glasses-sm relative z-20"><div class="w-1.5 h-1.5 rounded-full bg-black eye-dot" style="animation-delay: 1.5s;"></div></div>
-              <div class="glasses-frame glasses-sm relative z-20"><div class="w-1.5 h-1.5 rounded-full bg-black eye-dot" style="animation-delay: 1.5s;"></div></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white p-10 md:p-12 rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.08)] border border-gray-100 relative z-10">
-          <h2 class="text-3xl font-extrabold mb-8 tracking-tight">Send a Message</h2>
-
-          <form action="#" method="POST" id="contactForm" class="space-y-8">
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Full Name</label>
-                <input type="text" name="name" required placeholder="John Doe"
-                       class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent">
-              </div>
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Email Address</label>
-                <input type="email" name="email" required placeholder="john@example.com"
-                       class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent">
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Message</label>
-              <textarea name="message" rows="4" required placeholder="How can we help you today?"
-                        class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent resize-none"></textarea>
-            </div>
-
-            <button type="submit" class="w-full bg-[#0D6EFD] text-white font-bold py-5 rounded-2xl hover:bg-blue-700 transition-transform transform hover:-translate-y-1 shadow-lg hover:shadow-[#0D6EFD]/30 mt-4 text-xl tracking-wide flex justify-center items-center gap-3">
-              Send Message <i class="ph-bold ph-paper-plane-right"></i>
-            </button>
-          </form>
-
-          <div id="formStatus" class="mt-6 p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 font-bold text-center hidden items-center justify-center gap-2">
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-</main>
-
-<div th:replace="~{fragments/layout :: publicFooter}"></div>
-
-<script>
-  // 1. Scroll Reveal Logic
-  document.addEventListener('DOMContentLoaded', () => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  });
-
-  // 2. Interactive Support Mascot Logic
-  class Mascot {
-    constructor(id, weight, maxRotation) {
-      this.body = document.getElementById(id);
-      this.eyes = this.body.querySelector('.mascot-eyes');
-      this.eyeDots = this.body.querySelectorAll('.eye-dot');
-      this.weight = weight;
-      this.maxRotation = maxRotation;
-      this.currentX = 0; this.currentY = 0;
-      this.targetX = 0;  this.targetY = 0;
-      this.scale = 1;
-    }
-
-    lookAt(x, y) {
-      this.targetX = x;
-      this.targetY = y;
-    }
-
-    setSquint(squint) {
-      this.eyeDots.forEach(dot => {
-        if (squint) {
-          dot.style.transform = 'scaleY(0.15) translateY(2px)';
-          dot.style.animation = 'none';
-        } else {
-          dot.style.transform = '';
-          dot.style.animation = '';
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DriveAway | Contact Us</title>
+    <meta name="description" content="DriveAway — premium vehicle rentals in Sri Lanka. Contact our support or visit our hubs."/>
+    <meta name="theme-color" content="#050506"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" th:href="@{/landing/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/sections.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/loader.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/motion.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/animations.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/responsive.css}"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/hero.css}"/>
+    <style>
+        /* Custom layout overrides to support form styling and split margins */
+        .contact-form-container {
+            padding: clamp(1.5rem, 3vw, 2.5rem);
+            position: relative;
         }
-      });
-    }
+        .contact-textarea-field {
+            min-height: 8rem;
+        }
+        .contact-textarea-field textarea {
+            resize: none;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: var(--da-text);
+            font: inherit;
+            padding-top: 0.25rem;
+        }
+        .contact-textarea-field textarea:focus {
+            outline: none;
+        }
+        .contact-grid-split {
+            margin-top: 2rem;
+            margin-bottom: clamp(4rem, 8vw, 7rem);
+        }
+        #formStatus.show {
+            display: flex !important;
+        }
+    </style>
+</head>
+<body class="index-landing lux-landing">
 
-    update() {
-      this.currentX += (this.targetX - this.currentX) * this.weight;
-      this.currentY += (this.targetY - this.currentY) * this.weight;
+<th:block th:replace="~{landing/fragments/overlays/loader :: pageLoader}"></th:block>
 
-      const moveX = this.currentX * 15;
-      const moveY = this.currentY * 15;
-      const rotX = this.currentY * -(this.maxRotation * 1.2);
-      const rotY = this.currentX * (this.maxRotation * 1.2);
+<div class="index-landing-shell">
+    <div th:replace="~{landing/fragments/nav :: indexNav}"></div>
 
-      this.body.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px, 0) ' +
-              'rotateX(' + rotX + 'deg) rotateY(' + rotY + 'deg) ' +
-              'scale(' + this.scale + ')';
+    <aside class="da-chapter" id="chapter-marker" aria-hidden="true">
+        <span class="da-chapter__num" data-chapter-num>01</span>
+        <span class="da-chapter__rule"></span>
+        <span class="da-chapter__label" data-chapter-label>Reach</span>
+    </aside>
 
-      this.eyes.style.transform = 'translateZ(40px) translate(' + (this.currentX * 25) + 'px, ' + (this.currentY * 25) + 'px)';
-    }
-  }
+    <main class="da-canvas" id="top">
+        <!-- ── Page Banner (Hero Style) ── -->
+        <header class="da-hero da-scene da-scene--hero" id="cinematic-hero" data-chapter="01" data-chapter-name="Reach" data-mood="act">
+            <div class="da-hero__visual" aria-hidden="true" style="background-image: url('https://images.unsplash.com/photo-1502877338535-766e1452684a?q=80&w=1920&auto=format&fit=crop'); opacity: 0.6;"></div>
 
-  // Initialize the Support Mascot
-  const supportMascot = new Mascot('mascot-support', 0.08, 25);
-  const inspectableInputs = document.querySelectorAll('.inspectable-input');
+            <div class="da-container da-container--wide">
+                <div class="da-hero__grid">
+                    <div class="da-hero__content">
+                        <div class="da-hero__masthead da-reveal">
+                            <span class="da-hero__index">DriveAway &nbsp;/&nbsp; Vol.&nbsp;01</span>
+                            <span class="da-hero__meta">
+                                <span class="da-hero__meta-rule"></span>
+                                Reach Out
+                            </span>
+                        </div>
 
-  let globalMouseX = -0.5; // She looks slightly left by default
-  let globalMouseY = 0;
-  let activeState = 'idle';
+                        <div class="da-hero__title-wrap da-reveal">
+                            <h1 class="da-hero__title">
+                                <span class="da-hero__title-line">Get in</span>
+                                <span class="da-hero__title-line da-hero__title-line--accent">touch.</span>
+                            </h1>
+                            <p class="da-hero__lede">
+                                Have questions about our fleet or booking process? Our support team is here to assist you 24/7.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-  function evaluateState() {
-    const isInspecting = Array.from(inspectableInputs).includes(document.activeElement);
+        <!-- ── Split Content Section ── -->
+        <section class="da-scene da-scene--split contact-grid-split" id="contact-info" aria-label="Contact Information" data-chapter="02" data-chapter-name="Office" data-mood="trust">
+            <div class="da-container da-container--wide">
+                <div class="da-split">
+                    <!-- Left: Contact Details -->
+                    <div class="da-split__copy da-reveal">
+                        <span class="da-eyebrow"><span class="da-eyebrow__num">02</span>Contact</span>
+                        <h2 class="da-title">Connect with<br/><em>our team.</em></h2>
+                        <p class="da-lede">Reach out to us via any of our channels or visit our central Colombo hub directly.</p>
+                        
+                        <ol class="da-split__list" style="margin-top: 2rem;">
+                            <li class="da-loc da-reveal">
+                                <span class="da-loc__num">i.</span>
+                                <div class="da-loc__body">
+                                    <h3 class="da-loc__name">Central Headquarters</h3>
+                                    <p class="da-loc__addr">123 Galle Road, Colombo 03, Sri Lanka</p>
+                                    <p class="da-loc__tags">
+                                        <span>24/7 Support Desk</span>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="da-loc da-reveal" style="transition-delay:60ms">
+                                <span class="da-loc__num">ii.</span>
+                                <div class="da-loc__body">
+                                    <h3 class="da-loc__name">Call Support</h3>
+                                    <p class="da-loc__addr">+94 11 234 5678</p>
+                                    <p class="da-loc__tags">
+                                        <span>Mon – Sat: 8:00 AM – 6:00 PM</span>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="da-loc da-reveal" style="transition-delay:120ms">
+                                <span class="da-loc__num">iii.</span>
+                                <div class="da-loc__body">
+                                    <h3 class="da-loc__name">Email Channels</h3>
+                                    <p class="da-loc__addr">hello@driveaway.lk</p>
+                                    <p class="da-loc__tags">
+                                        <span>Replies within 2 hours</span>
+                                    </p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
 
-    if (isInspecting) {
-      activeState = 'inspecting';
-      supportMascot.scale = 1.05; // Leans in slightly
-      supportMascot.setSquint(false);
-      updateTypingTrack();
-    } else {
-      activeState = 'idle';
-      supportMascot.scale = 1;
-      supportMascot.setSquint(false);
-      supportMascot.lookAt(globalMouseX, globalMouseY);
-    }
-  }
+                    <!-- Right: Contact Form (Matching search form style) -->
+                    <div class="da-reveal" style="transition-delay: 100ms;">
+                        <div class="contact-form-container glass glass--gold-edge">
+                            <header class="da-search__head" style="margin-bottom: 2rem;">
+                                <span class="da-search__step">Inquiry</span>
+                                <h2 class="da-search__title">Send a message</h2>
+                                <p class="da-search__hint">Complete the details below to reach our agent desk</p>
+                            </header>
 
-  function updateTypingTrack() {
-    if (activeState !== 'inspecting') return;
-    const activeInput = document.activeElement;
+                            <form id="contactForm" action="#" method="POST" class="da-act__form">
+                                <div class="da-act__row da-act__row--pair" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                    <label class="da-act__field" for="contact-name">
+                                        <span class="da-act__label">Full Name</span>
+                                        <input id="contact-name" type="text" name="name" class="da-act__input" placeholder="John Doe" required/>
+                                    </label>
+                                    <label class="da-act__field" for="contact-email">
+                                        <span class="da-act__label">Email Address</span>
+                                        <input id="contact-email" type="email" name="email" class="da-act__input" placeholder="john@example.com" required/>
+                                    </label>
+                                </div>
 
-    // Calculate how far along the input they have typed to track the text
-    const typeProgress = Math.min((activeInput.value || '').length / 25, 1);
+                                <div class="da-act__row" style="margin-bottom: 1rem;">
+                                    <label class="da-act__field" for="contact-subject">
+                                        <span class="da-act__label">Subject</span>
+                                        <input id="contact-subject" type="text" name="subject" class="da-act__input" placeholder="How can we help you?" required/>
+                                    </label>
+                                </div>
 
-    // She looks DOWN at the form (Y = 0.5) and sweeps LEFT to RIGHT as you type
-    const lookX = -0.6 + (typeProgress * 0.8);
-    supportMascot.lookAt(lookX, 0.5);
-  }
+                                <div class="da-act__row" style="margin-bottom: 1.5rem;">
+                                    <label class="da-act__field contact-textarea-field" for="contact-message">
+                                        <span class="da-act__label">Your Message</span>
+                                        <textarea id="contact-message" name="message" placeholder="Write your inquiry here..." required></textarea>
+                                    </label>
+                                </div>
 
-  // Attach listeners to all inputs and textareas
-  inspectableInputs.forEach(input => {
-    input.addEventListener('focus', evaluateState);
-    input.addEventListener('blur', evaluateState);
-    input.addEventListener('input', updateTypingTrack);
-  });
+                                <div class="da-act__submit">
+                                    <button type="submit" class="da-btn da-btn--primary da-btn--xl da-magnetic" style="width: 100%;">
+                                        <span>Send Message</span>
+                                        <span class="da-btn__arrow" aria-hidden="true">&rarr;</span>
+                                    </button>
+                                </div>
+                            </form>
 
-  // Track mouse globally
-  document.addEventListener('mousemove', (e) => {
-    globalMouseX = (e.clientX / window.innerWidth) * 2 - 1;
-    globalMouseY = (e.clientY / window.innerHeight) * 2 - 1;
+                            <div id="formStatus" class="glass" style="display: none; margin-top: 1.5rem; padding: 1rem; border-radius: var(--da-radius); border-color: rgba(34, 211, 238, 0.3); color: var(--lux-cyan); font-size: var(--da-text-sm); font-weight: 500; align-items: center; gap: 0.6rem;">
+                                <i class="ph-fill ph-check-circle" style="font-size:1.25rem;"></i>
+                                <span>Thank you! We've received your query and will reply shortly.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
-    if (activeState === 'idle') {
-      supportMascot.lookAt(globalMouseX, globalMouseY);
-    }
-  });
+    <div th:replace="~{landing/fragments/footer :: indexFooter}"></div>
+</div>
 
-  function renderLoop() {
-    supportMascot.update();
-    requestAnimationFrame(renderLoop);
-  }
-  requestAnimationFrame(renderLoop);
+<script th:src="@{/landing/js/loader.js}"></script>
+<script th:src="@{/landing/js/scroll.js}"></script>
+<script th:src="@{/landing/js/interactions.js}"></script>
+<script th:src="@{/landing/js/motion.js}"></script>
+<script th:src="@{/landing/js/mascots.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Active navigation link highlighting
+        const path = window.location.pathname;
+        document.querySelectorAll('.da-nav__link').forEach(link => {
+            const href = link.getAttribute('href') || '';
+            const cleanHref = href.replace(/^\//, '');
+            if (cleanHref === '') {
+                if (path === '/' || path === '') {
+                    link.classList.add('is-active');
+                }
+            } else if (path.includes(cleanHref)) {
+                link.classList.add('is-active');
+            }
+        });
 
-  // 3. Simple Form Submission UI State
-  const form = document.getElementById('contactForm');
-  const status = document.getElementById('formStatus');
+        // Form submission behavior
+        const contactForm = document.getElementById('contactForm');
+        const formStatus = document.getElementById('formStatus');
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
+        if (contactForm && formStatus) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show status
+                formStatus.classList.add('show');
+                contactForm.reset();
 
-    // Mascot looks incredibly happy/squints when submitted!
-    activeState = 'submitted';
-    supportMascot.scale = 1.1;
-    supportMascot.lookAt(0, 0.8); // Looks straight down at the success message
-    supportMascot.setSquint(true);
-
-    status.classList.remove('hidden');
-    status.classList.add('flex');
-    status.innerHTML = '<i class="ph-fill ph-check-circle text-2xl"></i> Thank you! We will get back to you soon.';
-    form.reset();
-
-    setTimeout(() => {
-      status.classList.remove('flex');
-      status.classList.add('hidden');
-      activeState = 'idle';
-      evaluateState();
-    }, 4000);
-  });
-
-  // 4. Page Transition Logic
-  window.addEventListener('load', () => {
-    document.body.classList.add('page-loaded');
-  });
-  document.querySelectorAll('.transition-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      const targetUrl = this.href;
-      document.body.classList.remove('page-loaded');
-      setTimeout(() => { window.location.href = targetUrl; }, 150);
+                // Auto hide status after 4 seconds
+                setTimeout(() => {
+                    formStatus.classList.remove('show');
+                }, 4000);
+            });
+        }
     });
-  });
 </script>
 </body>
 </html>

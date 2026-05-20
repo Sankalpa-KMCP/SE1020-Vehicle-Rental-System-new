@@ -39,15 +39,21 @@ VehicleRentalSystem01/
 │   │   │           └── vehiclerentalsystem01/
 │   │   │               ├── VehicleRentalSystemApplication.java [Shared/Common] (Spring Boot system bootstrapper)
 │   │   │               │
-│   │   │               ├── core/ [Shared/Common] (Core system framework, security & global exceptions)
+│   │   │               ├── core/ [Shared/Common] (Config, presentation, security helpers, image storage, exceptions)
 │   │   │               │   ├── exceptions/
 │   │   │               │   │   ├── StorageException.java [Shared/Common] (Custom I/O storage operation failure exception)
 │   │   │               │   │   └── ValidationException.java [Shared/Common] (Custom user/domain inputs validation exception)
+│   │   │               │   ├── config/
+│   │   │               │   │   ├── WebConfig.java [Shared/Common] (Resource handlers, e.g. /uploads/**)
+│   │   │               │   │   └── WebMvcConfig.java [Shared/Common] (Resource handlers, e.g. /avatars/** from data)
 │   │   │               │   ├── presentation/
-│   │   │               │   │   ├── FleetPreviewItem.java [Shared/Common] (Landing page showcase vehicle presentation model)
-│   │   │               │   │   └── WebUIController.java [Shared/Common] (Central public landing, terms, and privacy coordinator controller)
-│   │   │               │   └── security/
-│   │   │               │       └── UserSessionKeys.java [Shared/Common] (Global authentication session constants)
+│   │   │               │   │   ├── FleetPreviewItem.java [Shared/Common] (Landing fleet preview row DTO)
+│   │   │               │   │   └── WebUIController.java [Shared/Common] (Public landing, about, contact, legal routes)
+│   │   │               │   ├── security/
+│   │   │               │   │   ├── UserSessionKeys.java [Shared/Common] (HttpSession attribute key constants)
+│   │   │               │   │   └── SecurityUtils.java [Shared/Common] (Auth/session helper utilities)
+│   │   │               │   └── service/
+│   │   │               │       └── ImageStorageService.java [Shared/Common] (Stores uploaded images, e.g. profile pictures)
 │   │   │               │
 │   │   │               ├── user/ [Student 1] (User Management Feature Domain)
 │   │   │               │   ├── controller/
@@ -89,7 +95,7 @@ VehicleRentalSystem01/
 │   │   │               │   ├── controller/
 │   │   │               │   │   └── VehicleController.java [Student 3] (Admin fleet list, addition and editor views routes)
 │   │   │               │   ├── entity/
-│   │   │               │   │   ├── Vehicle.java [Student 3] (Polymorphic abstract parent for vehicle fleet models)
+│   │   │               │   │   ├── Vehicle.java [Student 3] (Polymorphic abstract parent: id, brand, model, dailyRate, imagePath)
 │   │   │               │   │   ├── Car.java [Student 3] (Concrete passenger car subclass with seating capacity)
 │   │   │               │   │   └── Motorcycle.java [Student 3] (Concrete motorcycle subclass with helmet included flag)
 │   │   │               │   ├── repository/
@@ -104,7 +110,8 @@ VehicleRentalSystem01/
 │   │   │               │   ├── entity/
 │   │   │               │   │   ├── Payment.java [Student 4] (Polymorphic abstract parent for transaction payment records)
 │   │   │               │   │   ├── CardPayment.java [Student 4] (Polymorphic credit/debit card transaction subclass)
-│   │   │               │   │   └── CashPayment.java [Student 4] (Polymorphic cash ledger subclass)
+│   │   │               │   │   ├── CashPayment.java [Student 4] (Polymorphic cash ledger subclass)
+│   │   │               │   │   └── PaymentStatus.java [Shared/Common] (Canonical payment lifecycle enum and string parsing)
 │   │   │               │   ├── repository/
 │   │   │               │   │   └── PaymentRepository.java [Student 4] (CSV Payments Flat-File Repository persistence layer)
 │   │   │               │   └── service/
@@ -138,11 +145,10 @@ VehicleRentalSystem01/
 │   │   └── resources/
 │   │       ├── application.properties [Shared/Common] (Server port configs, Thymeleaf parameters, persistent directories)
 │   │       │
-│   │       ├── static/ [Shared/Common] (Unified Frontend Stylesheets & JS resources)
-│   │       │   ├── css/
-│   │       │   │   └── style.css [Shared/Common] (Core brand typography, layout resets, and dynamic dashboard themes)
-│   │       │   └── js/
-│   │       │       └── main.js [Shared/Common] (Interactive card grids, stats widgets, and click animations helper script)
+│   │       ├── static/ [Shared/Common] (Public CSS, JS, images; app and marketing bundles)
+│   │       │   ├── css/ [Shared/Common] (Shared and admin styles, e.g. style.css)
+│   │       │   ├── js/ [Shared/Common] (Shared scripts, e.g. main.js)
+│   │       │   └── landing/ [Shared/Common] (DriveAway marketing UI: css/, js/, tokens, sections — many files; see repo)
 │   │       │
 │   │       └── templates/ (Thymeleaf HTML templates)
 │   │           ├── fragments/ [Shared/Common]
