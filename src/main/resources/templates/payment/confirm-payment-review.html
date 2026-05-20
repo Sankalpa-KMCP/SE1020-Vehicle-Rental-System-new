@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Verify Payment - DriveAway')}"></th:block>
+    <style>
+        .verification-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .comparison-card {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .status-badge-match {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 700;
+        }
+        .status-badge-mismatch {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 700;
+        }
+
+        /* Premium Obsidian Dark theme overrides matching Central Dashboard */
+        .admin-shell {
+          --admin-navy: #050506;
+          --admin-navy-mid: #0c0c0e;
+          --admin-charcoal: #f4f2ee;
+          --admin-charcoal-muted: #a8a6a0;
+          --admin-bg: #050506;
+          --admin-canvas: #050506;
+          --admin-surface: #0c0c0e;
+          --admin-glass: rgba(12, 12, 14, 0.85);
+          --admin-text: #f4f2ee;
+          --admin-text-muted: #a8a6a0;
+          --admin-border: rgba(255, 255, 255, 0.08);
+
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            #050506 !important;
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        .admin-main {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            var(--admin-navy) !important;
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        .admin-sidebar {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 100% 35% at 50% 0%, rgba(201, 169, 98, 0.12), transparent 60%),
+            linear-gradient(180deg, #050506 0%, #0c0c0e 45%, #020203 100%) !important;
+          background-size: 20px 20px, auto, auto !important;
+          border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+    </style>
+</head>
+<body class="admin-shell">
+<th:block th:replace="~{fragments/admin-shell :: shellOpen('payments', 'Payment Verification')}"></th:block>
+
+<div class="max-w-5xl mx-auto py-10 px-6">
+    <!-- Header Section -->
+    <div class="bg-gradient-to-br from-[#141418] to-[#0a0a0b] border border-[#c9a962]/30 rounded-3xl p-10 text-white shadow-2xl mb-10 relative overflow-hidden">
+        <div class="relative z-10">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 rounded-xl bg-[#c9a962]/20 flex items-center justify-center border border-[#c9a962]/30">
+                    <i class="ph-bold ph-shield-check text-[#c9a962] text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tight">Payment Verification Portal</h1>
+            </div>
+            <p class="text-[#a8a6a0] text-lg max-w-2xl">Review consistency between booking requirements and customer-submitted payment data.</p>
+        </div>
+        <i class="ph-fill ph-fingerprint absolute -right-10 -bottom-20 text-[250px] text-white opacity-5 transform -rotate-12 pointer-events-none"></i>
+    </div>
+
+    <div class="verification-grid">
+        <!-- System Expected Details -->
+        <div class="comparison-card">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <i class="ph-bold ph-desktop text-blue-400"></i>
+                Estimated Bill
+            </h2>
+            <div class="space-y-6">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Vehicle Details</label>
+                    <p class="text-lg font-bold" th:text="${vehicle.brand + ' ' + vehicle.model}">Toyota Camry</p>
+                    <p class="text-sm text-gray-400" th:text="${vehicle.dailyRate + ' / day'}">$50 / day</p>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Booking Duration</label>
+                    <p class="text-lg font-bold" th:text="${booking.durationDays + ' Days'}">3 Days</p>
+                    <p class="text-sm text-gray-400" th:text="${'From ' + booking.rentalDate}">From 2024-05-20</p>
+                </div>
+                <div class="pt-6 border-t border-white/5">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Calculated Total</label>
+                    <p class="text-4xl font-black text-white">$<span th:text="${#numbers.formatDecimal(expectedAmount, 1, 2)}">150.00</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actual Payment Record -->
+        <div class="comparison-card" th:classappend="${matches ? 'border-emerald-500/20' : 'border-red-500/20'}">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i class="ph-bold ph-receipt text-emerald-400"></i>
+                    Customer Payment
+                </h2>
+                <span th:if="${matches}" class="status-badge-match">MATCHED</span>
+                <span th:if="${!matches}" class="status-badge-mismatch">MISMATCH</span>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Payment ID</label>
+                    <p class="text-lg font-mono font-bold" th:text="${payment.id}">PAY-ABC12345</p>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Method Used</label>
+                    <p class="text-lg font-bold" th:text="${payment.paymentMethod}">Credit Card</p>
+                </div>
+                <div class="pt-6 border-t border-white/5">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Submitted Amount</label>
+                    <p class="text-4xl font-black" th:classappend="${matches ? 'text-emerald-400' : 'text-red-400'}">
+                        $<span th:text="${#numbers.formatDecimal(payment.amount, 1, 2)}">150.00</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Variance Alert -->
+    <div th:if="${!matches}" class="mt-8 bg-red-500/10 border border-red-500/20 rounded-2xl p-6 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+            <i class="ph-bold ph-warning text-red-500 text-xl"></i>
+        </div>
+        <div>
+            <p class="text-red-400 font-bold">Variance Detected</p>
+            <p class="text-sm text-red-400/80">There is a mismatch of <span class="font-bold" th:text="${'$' + #numbers.formatDecimal(difference, 1, 2)}"></span>. Please verify the actual bank receipt before confirming.</p>
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="mt-12 flex items-center justify-between bg-white/5 p-6 rounded-3xl border border-white/10">
+        <a th:href="@{/payments}" class="text-gray-400 hover:text-white font-bold flex items-center gap-2 transition-colors">
+            <i class="ph-bold ph-arrow-left"></i>
+            Back to Dashboard
+        </a>
+        <div class="flex gap-4">
+            <a th:href="@{/payments/{id}/edit(id=${payment.id})}" class="bg-white/10 hover:bg-white/20 text-white font-bold px-8 py-3 rounded-2xl transition-all border border-white/10">
+                Adjust Payment
+            </a>
+            <form th:action="@{/payments/{id}/confirm(id=${payment.id})}" method="post">
+                <button type="submit" class="bg-[#c9a962] hover:bg-[#e8d5a3] text-[#050506] font-extrabold px-10 py-3 rounded-2xl transition-all shadow-lg shadow-[#c9a962]/20">
+                    Confirm & Complete Settlement
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/admin-shell :: shellClose}"></th:block>
+<script th:replace="~{fragments/admin-shell :: mobileScript}"></script>
+</body>
+</html>

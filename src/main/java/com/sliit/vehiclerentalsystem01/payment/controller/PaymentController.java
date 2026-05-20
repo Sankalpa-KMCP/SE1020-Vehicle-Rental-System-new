@@ -7,6 +7,7 @@ import com.sliit.vehiclerentalsystem01.payment.entity.CashPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
 import com.sliit.vehiclerentalsystem01.payment.entity.PaymentStatus;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
+import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -33,11 +34,14 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final ReservationService reservationService;
+    private final VehicleService vehicleService;
 
     public PaymentController(PaymentService paymentService,
-                             ReservationService reservationService) {
+                             ReservationService reservationService,
+                             VehicleService vehicleService) {
         this.paymentService = paymentService;
         this.reservationService = reservationService;
+        this.vehicleService = vehicleService;
     }
 
     private static boolean admin(HttpSession session) {
@@ -261,6 +265,37 @@ public class PaymentController {
             return "redirect:/payments/" + id + "/edit?error=" + ex.getMessage();
         }
         return "redirect:/payments";
+    }
+
+    @GetMapping("/{id}/confirm")
+    public String confirmReview(@PathVariable String id, HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        Optional<Payment> opt = paymentService.findById(id);
+        if (opt.isEmpty()) {
+            return "redirect:/payments";
+        }
+        Payment payment = opt.get();
+        model.addAttribute("payment", payment);
+
+        // Set defaults to avoid template warnings if objects are missing
+        model.addAttribute("expectedAmount", 0.0);
+        model.addAttribute("difference", 0.0);
+        model.addAttribute("matches", false);
+
+        reservationService.findById(payment.getBookingId()).ifPresent(booking -> {
+            model.addAttribute("booking", booking);
+            vehicleService.findById(booking.getVehicleId()).ifPresent(vehicle -> {
+                model.addAttribute("vehicle", vehicle);
+                double expected = vehicle.calculateRentalRate() * Math.max(1, booking.getDurationDays());
+                model.addAttribute("expectedAmount", expected);
+                model.addAttribute("difference", Math.abs(expected - payment.getAmount()));
+                model.addAttribute("matches", Math.abs(expected - payment.getAmount()) < 0.01);
+            });
+        });
+
+        return "payment/confirm-payment-review";
     }
 
     @PostMapping("/{id}/confirm")
