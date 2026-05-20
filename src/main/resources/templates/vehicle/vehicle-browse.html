@@ -46,7 +46,7 @@
             </div>
             <div class="border-t border-b border-gray-100 py-4 mb-6 text-center">
                 <p class="text-gray-500 font-medium text-sm">Daily Rental Rate</p>
-                <p class="text-3xl font-extrabold text-gray-900 mt-1">$<span th:text="${#numbers.formatDecimal(v.calculateRentalRate(), 1, 2)}">0</span> <span class="text-lg text-gray-400 font-medium">/day</span></p>
+                <p class="text-3xl font-extrabold text-gray-900 mt-1">LKR <span th:text="${#numbers.formatDecimal(v.calculateRentalRate(), 1, 2)}">0</span> <span class="text-lg text-gray-400 font-medium">/day</span></p>
             </div>
             <ul class="text-sm text-gray-600 space-y-2 font-medium mb-6">
                 <li class="flex items-center gap-2"><i class="ph-bold ph-check-circle text-green-500 text-lg"></i> Vehicle ID: <span th:text="${v.id}">id</span></li>
