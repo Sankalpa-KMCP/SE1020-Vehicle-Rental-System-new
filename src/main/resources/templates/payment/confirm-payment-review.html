@@ -103,7 +103,7 @@
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Vehicle Details</label>
                     <p class="text-lg font-bold" th:text="${vehicle.brand + ' ' + vehicle.model}">Toyota Camry</p>
-                    <p class="text-sm text-gray-400" th:text="${vehicle.dailyRate + ' / day'}">$50 / day</p>
+                    <p class="text-sm text-gray-400" th:text="${'LKR ' + vehicle.dailyRate + ' / day'}">LKR 50 / day</p>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Booking Duration</label>
@@ -112,7 +112,7 @@
                 </div>
                 <div class="pt-6 border-t border-white/5">
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Calculated Total</label>
-                    <p class="text-4xl font-black text-white">$<span th:text="${#numbers.formatDecimal(expectedAmount, 1, 2)}">150.00</span></p>
+                    <p class="text-4xl font-black text-white">LKR <span th:text="${#numbers.formatDecimal(expectedAmount, 1, 2)}">150.00</span></p>
                 </div>
             </div>
         </div>
@@ -140,7 +140,7 @@
                 <div class="pt-6 border-t border-white/5">
                     <label class="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-1">Submitted Amount</label>
                     <p class="text-4xl font-black" th:classappend="${matches ? 'text-emerald-400' : 'text-red-400'}">
-                        $<span th:text="${#numbers.formatDecimal(payment.amount, 1, 2)}">150.00</span>
+                        LKR <span th:text="${#numbers.formatDecimal(payment.amount, 1, 2)}">150.00</span>
                     </p>
                 </div>
             </div>
@@ -154,7 +154,7 @@
         </div>
         <div>
             <p class="text-red-400 font-bold">Variance Detected</p>
-            <p class="text-sm text-red-400/80">There is a mismatch of <span class="font-bold" th:text="${'$' + #numbers.formatDecimal(difference, 1, 2)}"></span>. Please verify the actual bank receipt before confirming.</p>
+            <p class="text-sm text-red-400/80">There is a mismatch of <span class="font-bold" th:text="${'LKR ' + #numbers.formatDecimal(difference, 1, 2)}"></span>. Please verify the actual bank receipt before confirming.</p>
         </div>
     </div>
 
