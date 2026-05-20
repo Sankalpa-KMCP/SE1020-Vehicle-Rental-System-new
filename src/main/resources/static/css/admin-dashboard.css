@@ -1,22 +1,22 @@
 /* Admin Dashboard — premium navy / charcoal / gold design system */
 :root {
-  --admin-navy: #0a1628;
-  --admin-navy-mid: #0f1f35;
-  --admin-charcoal: #1a2332;
-  --admin-charcoal-muted: #2d3748;
-  --admin-gold: #c9a227;
-  --admin-gold-light: #d4af37;
-  --admin-gold-muted: rgba(201, 162, 39, 0.35);
-  --admin-gold-subtle: rgba(201, 162, 39, 0.12);
-  --admin-bg: #eef1f6;
-  --admin-canvas: #eef1f6;
-  --admin-surface: #ffffff;
-  --admin-glass: rgba(255, 255, 255, 0.72);
-  --admin-text: var(--admin-charcoal);
-  --admin-text-muted: #5c6b7f;
-  --admin-border: rgba(26, 35, 50, 0.1);
-  --admin-shadow-rest: 0 4px 24px rgba(10, 22, 40, 0.06);
-  --admin-shadow-soft: 0 8px 32px rgba(10, 22, 40, 0.08);
+  --admin-navy: #050506;
+  --admin-navy-mid: #0c0c0e;
+  --admin-charcoal: #f4f2ee;
+  --admin-charcoal-muted: #a8a6a0;
+  --admin-gold: #c9a962;
+  --admin-gold-light: #e8d5a3;
+  --admin-gold-muted: rgba(201, 169, 98, 0.35);
+  --admin-gold-subtle: rgba(201, 169, 98, 0.12);
+  --admin-bg: #050506;
+  --admin-canvas: #050506;
+  --admin-surface: #0c0c0e;
+  --admin-glass: rgba(12, 12, 14, 0.85);
+  --admin-text: #f4f2ee;
+  --admin-text-muted: #a8a6a0;
+  --admin-border: rgba(255, 255, 255, 0.08);
+  --admin-shadow-rest: 0 4px 24px rgba(0, 0, 0, 0.35);
+  --admin-shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.45);
   --admin-sidebar-width: 240px;
   --admin-sidebar-width-collapsed: 72px;
   --admin-topbar-height: 4rem;
@@ -31,7 +31,12 @@
 .admin-shell {
   display: flex;
   min-height: 100vh;
-  background-color: var(--admin-canvas);
+  background:
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+    radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+    #050506;
+  background-size: 24px 24px, auto, auto, auto;
   font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
   color: var(--admin-text);
 }
@@ -60,9 +65,9 @@
   width: var(--admin-sidebar-width);
   height: 100vh;
   background:
-    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.03) 1px, transparent 0),
-    radial-gradient(ellipse 100% 35% at 50% 0%, rgba(201, 162, 39, 0.12), transparent 60%),
-    linear-gradient(180deg, var(--admin-navy) 0%, var(--admin-charcoal) 45%, #060d18 100%);
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+    radial-gradient(ellipse 100% 35% at 50% 0%, rgba(201, 169, 98, 0.12), transparent 60%),
+    linear-gradient(180deg, #050506 0%, #0c0c0e 45%, #020203 100%);
   background-size: 20px 20px, auto, auto;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
@@ -153,12 +158,12 @@
 
 .admin-sidebar__scroll::before {
   top: 0;
-  background: linear-gradient(180deg, rgba(6, 13, 24, 0.9), transparent);
+  background: linear-gradient(180deg, var(--admin-navy), transparent);
 }
 
 .admin-sidebar__scroll::after {
   bottom: 0;
-  background: linear-gradient(0deg, rgba(6, 13, 24, 0.9), transparent);
+  background: linear-gradient(0deg, var(--admin-navy), transparent);
 }
 
 .admin-sidebar__nav {
@@ -616,10 +621,10 @@ html:not(.sidebar-collapsed) .admin-sidebar__link:active {
   width: 100%;
   margin: 0 auto;
   background:
-    radial-gradient(circle at 1px 1px, rgba(26, 35, 50, 0.04) 1px, transparent 0),
-    radial-gradient(ellipse 80% 50% at 0% 0%, rgba(10, 22, 40, 0.04), transparent 50%),
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(201, 162, 39, 0.03), transparent 45%),
-    var(--admin-canvas);
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+    radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+    var(--admin-navy);
   background-size: 24px 24px, auto, auto, auto;
 }
 
@@ -2529,3 +2534,407 @@ html:not(.sidebar-collapsed) .admin-sidebar__link:active {
     transform: translateY(0);
   }
 }
+
+/* ==========================================================================
+   Obsidian Dark Theme Tailwind & Form Element Overrides
+   ========================================================================== */
+
+/* Tailwind Backgrounds */
+.admin-shell .bg-white {
+  background-color: var(--admin-surface) !important;
+}
+.admin-shell .bg-gray-50,
+.admin-shell .bg-slate-50 {
+  background-color: var(--admin-navy-mid) !important;
+}
+.admin-shell .bg-gray-100,
+.admin-shell .bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Tailwind Borders */
+.admin-shell .border-gray-100,
+.admin-shell .border-gray-200,
+.admin-shell .border-slate-100,
+.admin-shell .border-slate-200 {
+  border-color: var(--admin-border) !important;
+}
+
+/* Tailwind Text Colors */
+.admin-shell .text-gray-900,
+.admin-shell .text-gray-800,
+.admin-shell .text-gray-700,
+.admin-shell .text-slate-900,
+.admin-shell .text-slate-800,
+.admin-shell .text-slate-700 {
+  color: var(--admin-text) !important;
+}
+.admin-shell .text-gray-600,
+.admin-shell .text-gray-500,
+.admin-shell .text-slate-600,
+.admin-shell .text-slate-500 {
+  color: var(--admin-text-muted) !important;
+}
+
+/* Accent Links and Icons */
+.admin-shell .text-teal-600,
+.admin-shell .text-cyan-600,
+.admin-shell .text-indigo-600,
+.admin-shell .text-blue-600,
+.admin-shell .text-emerald-600 {
+  color: var(--admin-gold) !important;
+}
+.admin-shell .text-teal-600:hover,
+.admin-shell .text-cyan-600:hover,
+.admin-shell .text-indigo-600:hover,
+.admin-shell .text-blue-600:hover,
+.admin-shell .text-emerald-600:hover {
+  color: var(--admin-gold-light) !important;
+}
+
+/* Status Badges */
+.admin-shell .bg-green-50,
+.admin-shell .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.06) !important;
+  color: #10b981 !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+.admin-shell .text-green-700,
+.admin-shell .text-emerald-700 {
+  color: #10b981 !important;
+}
+.admin-shell .border-green-200,
+.admin-shell .border-emerald-200 {
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+.admin-shell .bg-yellow-50,
+.admin-shell .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.06) !important;
+  color: #f59e0b !important;
+  border-color: rgba(245, 158, 11, 0.2) !important;
+}
+.admin-shell .text-yellow-700,
+.admin-shell .text-amber-700 {
+  color: #f59e0b !important;
+}
+.admin-shell .border-yellow-200,
+.admin-shell .border-amber-200 {
+  border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+.admin-shell .bg-blue-50,
+.admin-shell .bg-cyan-50,
+.admin-shell .bg-indigo-50 {
+  background-color: rgba(59, 130, 246, 0.06) !important;
+  color: #3b82f6 !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
+}
+.admin-shell .text-blue-700,
+.admin-shell .text-cyan-700,
+.admin-shell .text-indigo-700 {
+  color: #3b82f6 !important;
+}
+.admin-shell .border-blue-200,
+.admin-shell .border-cyan-200,
+.admin-shell .border-indigo-200 {
+  border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.admin-shell .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.06) !important;
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}
+.admin-shell .text-red-700 {
+  color: #ef4444 !important;
+}
+.admin-shell .border-red-200 {
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Form Element Styling */
+.admin-shell form input[type="text"],
+.admin-shell form input[type="number"],
+.admin-shell form input[type="email"],
+.admin-shell form input[type="password"],
+.admin-shell form input[type="date"],
+.admin-shell form select,
+.admin-shell form textarea {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f4f2ee !important;
+}
+.admin-shell form input[type="text"]:focus,
+.admin-shell form input[type="number"]:focus,
+.admin-shell form input[type="email"]:focus,
+.admin-shell form input[type="password"]:focus,
+.admin-shell form input[type="date"]:focus,
+.admin-shell form select:focus,
+.admin-shell form textarea:focus {
+  border-color: var(--admin-gold) !important;
+  background-color: var(--admin-navy-mid) !important;
+  box-shadow: 0 0 0 2px rgba(201, 169, 98, 0.25) !important;
+}
+
+/* Primary Action Buttons */
+.admin-shell button[type="submit"],
+.admin-shell .bg-\[\#0D6EFD\],
+.admin-shell .bg-blue-600,
+.admin-shell .bg-cyan-600 {
+  background: linear-gradient(135deg, var(--admin-gold) 0%, var(--admin-gold-light) 100%) !important;
+  color: #050506 !important;
+  border: none !important;
+  font-weight: 700 !important;
+}
+.admin-shell button[type="submit"]:hover,
+.admin-shell .bg-\[\#0D6EFD\]:hover,
+.admin-shell .bg-blue-600:hover,
+.admin-shell .bg-cyan-600:hover {
+  background: linear-gradient(135deg, var(--admin-gold-light) 0%, var(--admin-gold) 100%) !important;
+  box-shadow: 0 8px 20px rgba(201, 169, 98, 0.25) !important;
+}
+
+/* Secondary Buttons */
+.admin-shell a.bg-gray-100,
+.admin-shell button.bg-gray-100,
+.admin-shell .bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #f4f2ee !important;
+}
+.admin-shell a.bg-gray-100:hover,
+.admin-shell button.bg-gray-100:hover,
+.admin-shell .bg-slate-100:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* Table Hover Overrides */
+.admin-shell tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Sleek buttons and elements in topbar override */
+.admin-topbar__menu-btn,
+.admin-topbar__collapse-btn,
+.admin-topbar__logout,
+.admin-topbar__user {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f4f2ee !important;
+}
+
+.admin-topbar__menu-btn:hover,
+.admin-topbar__collapse-btn:hover,
+.admin-topbar__logout:hover,
+.admin-topbar__user:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(201, 169, 98, 0.35) !important;
+  color: #e8d5a3 !important;
+}
+
+/* Luxury Gradient Banners */
+.admin-shell .bg-gradient-to-br {
+  background: linear-gradient(135deg, #0c0c0e 0%, #141418 100%) !important;
+  border: 1px solid rgba(201, 169, 98, 0.15) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35) !important;
+}
+.admin-shell .bg-gradient-to-br .text-cyan-100,
+.admin-shell .bg-gradient-to-br .text-emerald-100 {
+  color: var(--admin-charcoal-muted) !important;
+}
+
+/* Master Console / Access Requests overrides */
+.admin-access-panel {
+  background: #0c0c0e !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35) !important;
+}
+.admin-access-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.admin-access-count {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #a8a6a0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.admin-access-row {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+.admin-access-row:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(201, 169, 98, 0.25) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+.admin-btn--success {
+  background: #10b981 !important;
+  border: none !important;
+  color: #ffffff !important;
+}
+.admin-btn--success:hover {
+  background: #059669 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25) !important;
+}
+.admin-btn--danger {
+  background: #ef4444 !important;
+  border: none !important;
+  color: #ffffff !important;
+}
+.admin-btn--danger:hover {
+  background: #dc2626 !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+}
+
+/* Maintenance Register Overrides */
+.admin-shell .admin-page-header {
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 1.4rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #0a0a0b 0%, #141418 100%);
+  color: #f4f2ee;
+  border: 1px solid rgba(201, 169, 98, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+.admin-shell .admin-maintenance-panel {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 18px !important;
+  background: #0c0c0e !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: blur(10px) !important;
+}
+.admin-shell .admin-maintenance-panel__header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  padding: 1.2rem !important;
+  background: #141418 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.admin-shell .admin-maintenance-form {
+  padding: 1rem 1.2rem !important;
+  background: #0c0c0e !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.admin-shell .admin-maintenance-form__control {
+  min-height: 2.75rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 10px !important;
+  background: #141418 !important;
+  color: #f4f2ee !important;
+  padding: 0.65rem 0.8rem !important;
+  font-weight: 600 !important;
+}
+.admin-shell .admin-maintenance-form__control option {
+  background: #0c0c0e !important;
+  color: #f4f2ee !important;
+}
+.admin-shell .admin-maintenance-form__control:focus {
+  outline: none !important;
+  border-color: #c9a962 !important;
+  box-shadow: 0 0 0 4px rgba(201, 169, 98, 0.18) !important;
+}
+.admin-shell .admin-maintenance-table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: #0c0c0e !important;
+}
+.admin-shell .admin-maintenance-table th,
+.admin-shell .admin-maintenance-table td {
+  padding: 0.95rem 1rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f4f2ee !important;
+}
+.admin-shell .admin-maintenance-table thead {
+  background: #141418 !important;
+}
+.admin-shell .admin-maintenance-table th {
+  color: #a8a6a0 !important;
+  font-weight: 700 !important;
+}
+.admin-shell .admin-maintenance-row:hover {
+  background: #141418 !important;
+}
+.admin-shell .admin-maintenance-notes {
+  color: #a8a6a0 !important;
+}
+.admin-shell .admin-btn--primary {
+  border: 1px solid rgba(232, 213, 163, 0.3) !important;
+  font-size: 0.9rem !important;
+  background: linear-gradient(135deg, #c9a962 0%, #e8d5a3 100%) !important;
+  color: #050506 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 12px 24px rgba(201, 169, 98, 0.18) !important;
+}
+.admin-shell .admin-btn--primary:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 14px 28px rgba(201, 169, 98, 0.28) !important;
+}
+.admin-shell .admin-btn--danger {
+  border: none !important;
+  background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 10px 20px rgba(239, 68, 68, 0.15) !important;
+}
+.admin-shell .admin-btn--danger:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.25) !important;
+}
+.admin-shell .admin-alert--warning {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  background: rgba(245, 158, 11, 0.1) !important;
+  color: #fbbf24 !important;
+  font-weight: 700 !important;
+  border-radius: 12px !important;
+  padding: 1rem !important;
+}
+.admin-shell .admin-toast {
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #0c0c0e 0%, #141418 100%) !important;
+  color: #f4f2ee !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.45) !important;
+}
+
+@media (max-width: 1024px) {
+  .admin-shell .admin-maintenance-form__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-shell .admin-page-header {
+    border-radius: 14px !important;
+  }
+
+  .admin-shell .admin-maintenance-form__grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-shell .admin-maintenance-form__control--wide {
+    grid-column: span 1 !important;
+  }
+}
+
+/* Page entrance animations */
+.fade-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+
