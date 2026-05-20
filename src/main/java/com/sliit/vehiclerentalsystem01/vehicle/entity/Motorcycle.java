@@ -1,5 +1,6 @@
 package com.sliit.vehiclerentalsystem01.vehicle.entity;
 
+//inheritance
 public class Motorcycle extends Vehicle {
 
     private boolean helmetIncluded;
@@ -9,7 +10,7 @@ public class Motorcycle extends Vehicle {
         this.helmetIncluded = false;
     }
 
-    // NOTICE THE NEW 'String status' AT THE END OF THIS LINE!
+
     public Motorcycle(String id, String brand, String model, double dailyRate, boolean helmetIncluded, String imagePath, String status) {
         super(id, brand, model, dailyRate, imagePath, status);
         this.helmetIncluded = helmetIncluded;

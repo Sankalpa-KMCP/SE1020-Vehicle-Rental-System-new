@@ -1,5 +1,6 @@
 package com.sliit.vehiclerentalsystem01.vehicle.entity;
 
+//inheritance
 public class Car extends Vehicle {
 
     private int seatingCapacity;
@@ -9,7 +10,7 @@ public class Car extends Vehicle {
         this.seatingCapacity = 0;
     }
 
-    // Now accepting the 7th parameter: status
+
     public Car(String id, String brand, String model, double dailyRate, int seatingCapacity, String imagePath, String status) {
         super(id, brand, model, dailyRate, imagePath, status);
         this.seatingCapacity = seatingCapacity;
