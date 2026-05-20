@@ -1,6 +1,8 @@
 package com.sliit.vehiclerentalsystem01.core.presentation;
 
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.vehicle.entity.Car;
+import com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Vehicle;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
 import jakarta.servlet.http.HttpSession;
@@ -15,7 +17,7 @@ import java.util.List;
 @Controller
 public class WebUIController {
 
-    private static final int FLEET_PREVIEW_MAX = 6;
+    private static final int FLEET_PREVIEW_MAX = 8;
     private static final int FLEET_PAGE_MAX = 50;
 
     private final VehicleService vehicleService;
@@ -29,7 +31,7 @@ public class WebUIController {
         applyLandingNav(session, model);
         model.addAttribute("activeNav", "home");
         model.addAttribute("pageTitle", "DriveAway | Car & Motorcycle Rentals");
-        model.addAttribute("fleetPreview", buildFleetPreview(3));
+        model.addAttribute("fleetPreview", buildFleetPreview(FLEET_PREVIEW_MAX));
         return "landing/index";
     }
 
@@ -142,38 +144,109 @@ public class WebUIController {
     private List<FleetPreviewItem> buildFleetPreview(int max) {
         List<Vehicle> all = vehicleService.findAll();
         List<FleetPreviewItem> fleetPreview = new ArrayList<>();
-        int n = 0;
+        
+        int sedanCount = 0;
+        int suvCount = 0;
+        int luxuryCount = 0;
+        int motorcycleCount = 0;
+
         for (Vehicle v : all) {
-            if (n >= max) {
-                break;
-            }
-            n++;
-            String vehicleType = v.getVehicleType() != null ? v.getVehicleType().toLowerCase() : "";
+            String model = v.getModel() != null ? v.getModel().toLowerCase().trim() : "";
+            String brand = v.getBrand() != null ? v.getBrand().toLowerCase().trim() : "";
+
             String category = "sedan";
-            if (vehicleType.contains("suv") || vehicleType.contains("4x4")) {
-                category = "suv";
-            } else if (vehicleType.contains("luxury")) {
-                category = "luxury";
+            String displayType = "Premium Sedan";
+
+            if (v instanceof Motorcycle) {
+                category = "motorcycle";
+                displayType = "Motorcycle";
+                if (model.contains("cbr")) {
+                    displayType = "Sport Motorcycle";
+                } else if (model.contains("r15")) {
+                    displayType = "Sport Motorcycle";
+                } else if (model.contains("gixxer")) {
+                    displayType = "Naked Motorcycle";
+                } else if (model.contains("ninja")) {
+                    displayType = "Superbike";
+                } else if (model.contains("primavera")) {
+                    displayType = "Classic Scooter";
+                } else if (model.contains("iron 883")) {
+                    displayType = "Cruiser Motorcycle";
+                } else if (model.contains("panigale")) {
+                    category = "luxury";
+                    displayType = "Exotic Superbike";
+                }
+            } else {
+                if (model.contains("outlander")) {
+                    category = "suv";
+                    displayType = "Crossover SUV";
+                } else if (model.contains("mustang")) {
+                    category = "luxury";
+                    displayType = "Muscle Car";
+                } else if (model.contains("model 3")) {
+                    category = "luxury";
+                    displayType = "Premium Electric Sedan";
+                } else if (model.contains("3 series") || brand.contains("bmw")) {
+                    category = "luxury";
+                    displayType = "Luxury Sedan";
+                } else if (model.contains("aqua")) {
+                    category = "sedan";
+                    displayType = "Hybrid Hatchback";
+                } else if (model.contains("leaf")) {
+                    category = "sedan";
+                    displayType = "Electric Hatchback";
+                } else if (model.contains("elantra")) {
+                    category = "sedan";
+                    displayType = "Premium Sedan";
+                } else if (model.contains("wagon r")) {
+                    category = "sedan";
+                    displayType = "Compact Hatchback";
+                }
             }
-            String imageUrl = "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=600&auto=format&fit=crop";
-            if (vehicleType.contains("suv")) {
-                imageUrl = "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=80&w=600&auto=format&fit=crop";
-            } else if (vehicleType.contains("luxury")) {
-                imageUrl = "https://images.unsplash.com/photo-1503376760367-1b6121f1cd9a?q=80&w=600&auto=format&fit=crop";
-            } else if (vehicleType.contains("hatchback")) {
-                imageUrl = "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=600&auto=format&fit=crop";
+
+            // Enforce diversity for landing page preview (max < 15)
+            if (max < 15) {
+                if (category.equals("sedan") && sedanCount >= 2) continue;
+                if (category.equals("suv") && suvCount >= 2) continue;
+                if (category.equals("luxury") && luxuryCount >= 2) continue;
+                if (category.equals("motorcycle") && motorcycleCount >= 2) continue;
             }
+
+            // Fallback image urls if the loaded image is default or blank
+            String imageUrl = v.getImagePath();
+            if (imageUrl == null || imageUrl.isBlank() || imageUrl.contains("default-vehicle.png")) {
+                if (category.equals("suv")) {
+                    imageUrl = "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=600&auto=format&fit=crop";
+                } else if (category.equals("luxury")) {
+                    imageUrl = "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?q=80&w=600&auto=format&fit=crop";
+                } else if (category.equals("motorcycle")) {
+                    imageUrl = "https://images.unsplash.com/photo-1558981806-ec527fa84c39?q=80&w=600&auto=format&fit=crop";
+                } else {
+                    imageUrl = "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=600&auto=format&fit=crop";
+                }
+            }
+
+            // Increment the counter for selected category
+            if (category.equals("sedan")) sedanCount++;
+            else if (category.equals("suv")) suvCount++;
+            else if (category.equals("luxury")) luxuryCount++;
+            else if (category.equals("motorcycle")) motorcycleCount++;
+
             long rate = Math.round(v.calculateRentalRate());
             fleetPreview.add(new FleetPreviewItem(
                     v.getId(),
                     v.getBrand(),
                     v.getModel(),
-                    v.getVehicleType(),
+                    displayType,
                     v.getSpecificDetail(),
                     category,
                     imageUrl,
                     rate
             ));
+
+            if (fleetPreview.size() >= max) {
+                break;
+            }
         }
         return fleetPreview;
     }
