@@ -12,13 +12,6 @@
         <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Edit <span class="text-indigo-600">Vehicle</span></h1>
         <p class="text-gray-500 mt-2 font-medium">Update specifications; changes apply immediately after save.</p>
     </header>
-
-    <div th:if="${param.error}" class="max-w-3xl mx-auto px-6 mb-6">
-        <div class="bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 font-semibold flex items-center gap-2">
-            <i class="ph-bold ph-warning-circle text-xl"></i> <span th:text="${param.error}"></span>
-        </div>
-    </div>
-
     <form method="post" th:action="@{/vehicles}" enctype="multipart/form-data" class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-6 max-w-3xl mx-auto" id="vehicleForm">
         <input type="hidden" name="action" value="update"/>
         <input type="hidden" name="id" th:value="${vehicle.id}"/>
@@ -48,26 +41,25 @@
         </div>
 
         <label class="block">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vehicle Status</span>
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vehicle Operational Status</span>
             <select name="status" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
-                <option value="AVAILABLE" th:selected="${vehicle.status == 'AVAILABLE'}">🟢 Available</option>
+                <option value="AVAILABLE" th:selected="${vehicle.status == 'AVAILABLE' || vehicle.status == null || vehicle.status == ''}">🟢 Available (In Yard)</option>
                 <option value="MAINTENANCE" th:selected="${vehicle.status == 'MAINTENANCE'}">🟡 Under Maintenance</option>
-                <option value="BOOKED" th:selected="${vehicle.status == 'BOOKED'}">🔴 Booked</option>
+                <option value="RENTED" th:selected="${vehicle.status == 'RENTED'}">🚗 Rented / Driven Off Site</option>
             </select>
         </label>
 
         <div class="pt-2">
             <div class="mb-4">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-2">Current Image</span>
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-2">Current Asset View</span>
                 <img th:src="@{${vehicle.imagePath}}" alt="Current Image" class="h-32 object-cover rounded-lg border border-gray-200 shadow-sm" onerror="this.src='/images/default-vehicle.png'"/>
             </div>
-
             <label class="block">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Upload New Image (Optional)</span>
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vehicle Image (Optional - leave blank to keep current)</span>
                 <input type="file" name="imageFile" accept="image/png, image/jpeg, image/webp"
                        class="mt-1 w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700
                               file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 file:cursor-pointer cursor-pointer"/>
-                <p class="text-xs text-gray-500 mt-2 font-medium">Leave blank to keep the current image.</p>
+                <p class="text-xs text-gray-500 mt-2 font-medium">Accepted formats: JPG, PNG, WEBP. Max size: 2MB.</p>
             </label>
         </div>
         <div id="carFields" class="space-y-3">
