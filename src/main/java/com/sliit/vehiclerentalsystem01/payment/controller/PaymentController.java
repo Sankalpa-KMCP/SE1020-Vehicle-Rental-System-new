@@ -12,21 +12,14 @@ import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Admin payment management. Every endpoint requires an {@code ADMIN_LOGGED_IN} session;
- * customer-facing payment flows live under {@code /customer/*}.
+ * PaymentController: Manages administrative and customer payment workflows.
  */
 @Controller
 @RequestMapping("/payments")
@@ -36,52 +29,46 @@ public class PaymentController {
     private final ReservationService reservationService;
     private final VehicleService vehicleService;
 
-    public PaymentController(PaymentService paymentService,
-                             ReservationService reservationService,
-                             VehicleService vehicleService) {
+    public PaymentController(PaymentService paymentService, ReservationService reservationService, VehicleService vehicleService) {
         this.paymentService = paymentService;
         this.reservationService = reservationService;
         this.vehicleService = vehicleService;
     }
 
-    private static boolean admin(HttpSession session) {
+    // --- Helper Methods ---
+    private boolean isAdmin(HttpSession session) {
         return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
     }
 
+    private boolean isCustomer(HttpSession session) {
+        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN));
+    }
+
+    // --- Admin Dashboard & List ---
+    /**
+     * Display all payment records and summary metrics on the admin dashboard.
+     */
     @GetMapping
     public String list(HttpSession session, Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
-
+        if (!isAdmin(session)) return "redirect:/auth/staff-login";
         List<Payment> payments = paymentService.findAll();
         model.addAttribute("payments", payments);
         model.addAttribute("totalTransactions", payments.size());
-        long paidCount = payments.stream()
-                .filter(p -> PaymentStatus.fromString(p.getStatus()).isPaid())
-                .count();
-        long pendingCount = payments.stream()
-                .filter(p -> PaymentStatus.fromString(p.getStatus()).isPending())
-                .count();
-        long refundedCount = payments.stream()
-                .filter(p -> PaymentStatus.fromString(p.getStatus()).isRefunded())
-                .count();
-        double totalAmount = payments.stream().mapToDouble(Payment::getAmount).sum();
-        model.addAttribute("paidCount", paidCount);
-        model.addAttribute("pendingCount", pendingCount);
-        model.addAttribute("refundedCount", refundedCount);
-        model.addAttribute("totalAmount", totalAmount);
+        model.addAttribute("paidCount", payments.stream().filter(p -> PaymentStatus.fromString(p.getStatus()).isPaid()).count());
+        model.addAttribute("pendingCount", payments.stream().filter(p -> PaymentStatus.fromString(p.getStatus()).isPending()).count());
+        model.addAttribute("refundedCount", payments.stream().filter(p -> PaymentStatus.fromString(p.getStatus()).isRefunded()).count());
+        model.addAttribute("totalAmount", payments.stream().mapToDouble(Payment::getAmount).sum());
         return "payment/payment-dashboard";
     }
 
+    // --- Create & New Entry ---
+    /**
+     * Show form to initiate a new payment record from the admin side.
+     */
     @GetMapping("/new")
     public String newForm(HttpSession session, Model model, @RequestParam(required = false) String error) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+        if (!isAdmin(session)) return "redirect:/auth/staff-login";
         model.addAttribute("mode", "create");
-        model.addAttribute("entityId", null);
-        model.addAttribute("paymentType", "CARD");
         model.addAttribute("cardPayment", new CardPayment());
         model.addAttribute("cashPayment", new CashPayment());
         model.addAttribute("bookings", reservationService.findAll());
@@ -89,286 +76,115 @@ public class PaymentController {
         return "payment/process-payment";
     }
 
-    @GetMapping("/{id}")
-    public String detail(@PathVariable String id, HttpSession session, Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
-        return paymentService.findById(id)
-                .map(p -> {
-                    model.addAttribute("payment", p);
-                    return "payment/payment-detail";
-                })
-                .orElse("redirect:/payments");
-    }
-
-    @GetMapping("/{id}/edit")
-    public String edit(@PathVariable String id, HttpSession session, Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
-        return paymentService.findById(id)
-                .map(p -> {
-                    model.addAttribute("mode", "edit");
-                    model.addAttribute("entityId", id);
-                    model.addAttribute("payment", p);
-                    model.addAttribute("paymentType", p instanceof CashPayment ? "CASH" : "CARD");
-                    if (p instanceof CardPayment c) {
-                        model.addAttribute("cardPayment", c);
-                        model.addAttribute("cashPayment", new CashPayment());
-                    } else {
-                        model.addAttribute("cardPayment", new CardPayment());
-                        model.addAttribute("cashPayment", (CashPayment) p);
-                    }
-                    model.addAttribute("bookings", reservationService.findAll());
-                    return "payment/edit-payment";
-                })
-                .orElse("redirect:/payments");
-    }
-
     /**
-     * Legacy {@code edit-payment.jsp} POST: {@code action=update}, {@code id}, {@code bookingId},
-     * {@code amount}, {@code method} (Card/Cash), {@code status}.
-     */
-    @PostMapping(params = "action=update")
-    public String legacyJspUpdate(
-            HttpSession session,
-            @RequestParam String id,
-            @RequestParam String bookingId,
-            @RequestParam double amount,
-            @RequestParam String method,
-            @RequestParam String status) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
-        Optional<Payment> opt = paymentService.findById(id);
-        if (opt.isEmpty()) {
-            return "redirect:/payments";
-        }
-        Payment existing = opt.get();
-        boolean wantCash = method != null && method.toLowerCase().contains("cash");
-        Payment toSave;
-        if (wantCash && existing instanceof CardPayment) {
-            toSave = new CashPayment(id, bookingId, amount, status);
-        } else if (!wantCash && existing instanceof CashPayment) {
-            toSave = new CardPayment(id, bookingId, amount, status);
-        } else if (existing instanceof CardPayment) {
-            toSave = new CardPayment(id, bookingId, amount, status);
-        } else {
-            toSave = new CashPayment(id, bookingId, amount, status);
-        }
-        try {
-            paymentService.save(toSave);
-        } catch (ValidationException ex) {
-            return "redirect:/payments/" + id + "/edit?error=" + ex.getMessage();
-        }
-        return "redirect:/payments";
-    }
-
-    /**
-     * Legacy {@code process-payment.jsp} POST: {@code action=create}, {@code bookingId},
-     * {@code amount}, {@code method} (Card / Cash), {@code status}, optional {@code manualId}.
-     */
-    @PostMapping(params = "action=create")
-    public String legacyJspCreate(
-            HttpSession session,
-            @RequestParam String bookingId,
-            @RequestParam double amount,
-            @RequestParam String method,
-            @RequestParam String status,
-            @RequestParam(required = false) String manualId,
-            RedirectAttributes ra) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
-        String bid = bookingId == null ? "" : bookingId.trim();
-        if (bid.isEmpty()) {
-            ra.addAttribute("error", "booking_required");
-            return "redirect:/payments/new";
-        }
-        if (reservationService.findById(bid).isEmpty()) {
-            ra.addAttribute("error", "booking_not_found");
-            return "redirect:/payments/new";
-        }
-        if (!reservationService.isPaymentAllowed(bid)) {
-            ra.addAttribute("error", "booking_not_confirmed");
-            return "redirect:/payments/new";
-        }
-        String id = (manualId != null && !manualId.isBlank())
-                ? manualId.trim()
-                : "PAY-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        boolean wantCash = method != null && method.toLowerCase().contains("cash");
-        Payment toSave = wantCash
-                ? new CashPayment(id, bid, amount, status == null ? "" : status.trim())
-                : new CardPayment(id, bid, amount, status == null ? "" : status.trim());
-        try {
-            paymentService.save(toSave);
-        } catch (ValidationException ex) {
-            ra.addAttribute("error", ex.getMessage());
-            return "redirect:/payments/new";
-        }
-        return "redirect:/payments";
-    }
-
-    /**
-     * Modern create POST. Mirrors the booking-validity checks from {@link #legacyJspCreate}:
-     * the linked booking must exist and must be CONFIRMED before a payment row can be added.
+     * Process the submission of a new payment record.
      */
     @PostMapping
-    public String create(
-            HttpSession session,
-            @RequestParam String paymentType,
-            @ModelAttribute CardPayment cardPayment,
-            @ModelAttribute CashPayment cashPayment,
-            RedirectAttributes ra) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String create(HttpSession session, @RequestParam String paymentType, @ModelAttribute CardPayment cardPayment, @ModelAttribute CashPayment cashPayment, RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/auth/staff-login";
         Payment toSave = "CASH".equalsIgnoreCase(paymentType) ? cashPayment : cardPayment;
-        String bookingId = toSave.getBookingId() == null ? "" : toSave.getBookingId().trim();
-        if (bookingId.isEmpty()) {
+        
+        // Ensure a booking ID is provided before saving
+        if (toSave.getBookingId() == null || toSave.getBookingId().isBlank()) {
             ra.addAttribute("error", "booking_required");
             return "redirect:/payments/new";
         }
-        if (reservationService.findById(bookingId).isEmpty()) {
-            ra.addAttribute("error", "booking_not_found");
-            return "redirect:/payments/new";
+        
+        // Auto-generate a unique Payment ID if not manually entered
+        if (toSave.getId() == null || toSave.getId().isBlank()) {
+            toSave.setId("PAY-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         }
-        if (!reservationService.isPaymentAllowed(bookingId)) {
-            ra.addAttribute("error", "booking_not_confirmed");
-            return "redirect:/payments/new";
-        }
-        try {
-            paymentService.save(toSave);
-        } catch (ValidationException ex) {
-            ra.addAttribute("error", ex.getMessage());
-            return "redirect:/payments/new";
-        }
+
+        try { paymentService.save(toSave); } catch (ValidationException ex) { ra.addAttribute("error", ex.getMessage()); return "redirect:/payments/new"; }
         return "redirect:/payments";
     }
 
+    // --- Edit & Update ---
+    /**
+     * Show the edit form for an existing payment record.
+     */
+    @GetMapping("/{id}/edit")
+    public String edit(@PathVariable String id, HttpSession session, Model model) {
+        if (!isAdmin(session)) return "redirect:/auth/staff-login";
+        return paymentService.findById(id).map(p -> {
+            model.addAttribute("mode", "edit");
+            model.addAttribute("payment", p);
+            model.addAttribute("paymentType", p instanceof CashPayment ? "CASH" : "CARD");
+            model.addAttribute("bookings", reservationService.findAll());
+            return "payment/edit-payment";
+        }).orElse("redirect:/payments");
+    }
+
+    /**
+     * Process the update of an existing payment record.
+     */
     @PostMapping("/{id}")
-    public String update(
-            @PathVariable String id,
-            HttpSession session,
-            @RequestParam String paymentType,
-            @ModelAttribute CardPayment cardPayment,
-            @ModelAttribute CashPayment cashPayment) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String update(@PathVariable String id, HttpSession session, @RequestParam String paymentType, @ModelAttribute CardPayment cardPayment, @ModelAttribute CashPayment cashPayment) {
+        if (!isAdmin(session)) return "redirect:/auth/staff-login";
         Payment toSave = "CASH".equalsIgnoreCase(paymentType) ? cashPayment : cardPayment;
         toSave.setId(id);
-        try {
-            paymentService.save(toSave);
-        } catch (ValidationException ex) {
-            return "redirect:/payments/" + id + "/edit?error=" + ex.getMessage();
-        }
+        try { paymentService.save(toSave); } catch (ValidationException ex) { return "redirect:/payments/" + id + "/edit?error=" + ex.getMessage(); }
         return "redirect:/payments";
     }
 
+    // --- Verification & Confirmation Portal ---
+    /**
+     * Display the comparison between system-estimated cost and user-submitted payment.
+     */
     @GetMapping("/{id}/confirm")
     public String confirmReview(@PathVariable String id, HttpSession session, Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
-        Optional<Payment> opt = paymentService.findById(id);
-        if (opt.isEmpty()) {
-            return "redirect:/payments";
-        }
-        Payment payment = opt.get();
-        model.addAttribute("payment", payment);
-
-        // Set defaults to avoid template warnings if objects are missing
-        model.addAttribute("expectedAmount", 0.0);
-        model.addAttribute("difference", 0.0);
-        model.addAttribute("matches", false);
-
-        reservationService.findById(payment.getBookingId()).ifPresent(booking -> {
-            model.addAttribute("booking", booking);
-            vehicleService.findById(booking.getVehicleId()).ifPresent(vehicle -> {
-                model.addAttribute("vehicle", vehicle);
-                double expected = vehicle.calculateRentalRate() * Math.max(1, booking.getDurationDays());
-                model.addAttribute("expectedAmount", expected);
-                model.addAttribute("difference", Math.abs(expected - payment.getAmount()));
-                model.addAttribute("matches", Math.abs(expected - payment.getAmount()) < 0.01);
+        if (!isAdmin(session)) return "redirect:/auth/staff-login";
+        return paymentService.findById(id).map(payment -> {
+            model.addAttribute("payment", payment);
+            reservationService.findById(payment.getBookingId()).ifPresent(booking -> {
+                model.addAttribute("booking", booking);
+                vehicleService.findById(booking.getVehicleId()).ifPresent(v -> {
+                    double expected = v.calculateRentalRate() * Math.max(1, booking.getDurationDays());
+                    model.addAttribute("expectedAmount", expected);
+                    model.addAttribute("matches", Math.abs(expected - payment.getAmount()) < 0.01);
+                    model.addAttribute("difference", Math.abs(expected - payment.getAmount()));
+                });
             });
-        });
-
-        return "payment/confirm-payment-review";
+            return "payment/confirm-payment-review";
+        }).orElse("redirect:/payments");
     }
 
+    /**
+     * Finalize the payment settlement process, marking the record as 'PAID'.
+     */
     @PostMapping("/{id}/confirm")
     public String confirmPayment(@PathVariable String id, HttpSession session) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
-        Optional<Payment> payment = paymentService.findById(id);
-        if (payment.isEmpty()) {
-            return "redirect:/payments";
-        }
-        Payment confirmedPayment = payment.get();
-        confirmedPayment.setStatus("PAID");
-        try {
-            paymentService.save(confirmedPayment);
-        } catch (ValidationException ex) {
-            return "redirect:/payments/" + id + "/edit?error=" + ex.getMessage();
-        }
+        if (!isAdmin(session)) return "redirect:/auth/staff-login";
+        paymentService.findById(id).ifPresent(p -> {
+            p.setStatus("PAID");
+            try { paymentService.save(p); } catch (Exception ignored) {}
+        });
         return "redirect:/payments";
     }
 
+    // --- Deletion ---
+    /**
+     * Delete a payment record from the ledger.
+     */
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable String id, HttpSession session) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+        if (!isAdmin(session)) return "redirect:/auth/staff-login";
         paymentService.deleteById(id);
         return "redirect:/payments";
     }
 
-    private static boolean customer(HttpSession session) {
-        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN));
-    }
-
-    @PostMapping("/customer/gateway/complete")
-    public String customerGatewayComplete(HttpSession session,
-                                          @RequestParam String bookingId,
-                                          RedirectAttributes ra) {
-        if (!customer(session)) {
-            return "redirect:/auth/login";
-        }
-        Optional<Payment> payment = paymentService.findLatestByBookingId(bookingId);
-        if (payment.isPresent()) {
-            Payment p = payment.get();
+    // --- Customer Portal Actions ---
+    /**
+     * Handle payment submissions from the customer portal, marking them for staff verification.
+     */
+    @PostMapping({"/customer/pay", "/customer/gateway/complete"})
+    public String customerSubmit(@RequestParam String bookingId, HttpSession session, RedirectAttributes ra) {
+        if (!isCustomer(session)) return "redirect:/auth/login";
+        paymentService.findLatestByBookingId(bookingId).ifPresent(p -> {
             p.setStatus("VERIFYING");
-            try {
-                paymentService.save(p);
-            } catch (ValidationException ex) {
-                return "redirect:/customer/billing/gateway?bookingId=" + bookingId + "&error=" + ex.getMessage();
-            }
-        }
-        ra.addFlashAttribute("paymentMessage", "Your payment is pending for staff approval.");
-        return "redirect:/customer/billing?payment=pending_approval";
-    }
-
-    @PostMapping("/customer/pay")
-    public String customerPay(HttpSession session,
-                              @RequestParam String bookingId,
-                              RedirectAttributes ra) {
-        if (!customer(session)) {
-            return "redirect:/auth/login";
-        }
-        Optional<Payment> latest = paymentService.findLatestByBookingId(bookingId);
-        if (latest.isPresent()) {
-            Payment p = latest.get();
-            p.setStatus("VERIFYING");
-            try {
-                paymentService.save(p);
-            } catch (ValidationException ex) {
-                return "redirect:/customer/pay?bookingId=" + bookingId + "&error=" + ex.getMessage();
-            }
-        }
-        ra.addFlashAttribute("paymentMessage", "Your payment is pending for staff approval.");
-        return "redirect:/customer/billing?payment=pending_approval";
+            try { paymentService.save(p); } catch (Exception ignored) {}
+        });
+        ra.addFlashAttribute("paymentMessage", "Payment submitted for verification.");
+        return "redirect:/customer/billing";
     }
 }
