@@ -17,10 +17,6 @@ public class VehicleServiceImpl implements VehicleService {
     private final VehicleRepository vehicleRepository;
     private final ReservationService reservationService;
 
-    /**
-     * Reservation service is {@link Lazy} because ReservationService also depends on UserService and on
-     * the bean-resolution path Spring instantiates Vehicle service early.
-     */
     public VehicleServiceImpl(VehicleRepository vehicleRepository, @Lazy ReservationService reservationService) {
         this.vehicleRepository = vehicleRepository;
         this.reservationService = reservationService;
@@ -33,45 +29,43 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public Optional<Vehicle> findById(String id) {
-        if (id == null || id.isBlank()) {
-            return Optional.empty();
-        }
-        return vehicleRepository.findAll().stream()
-                .filter(v -> id.equals(v.getId()))
-                .findFirst();
+        if (id == null || id.isBlank()) return Optional.empty();
+        return vehicleRepository.findAll().stream().filter(v -> id.equals(v.getId())).findFirst();
     }
 
     @Override
     public void save(Vehicle vehicle) {
-        if (vehicle.getDailyRate() <= 0) {
-            throw new ValidationException("invalid_daily_rate");
-        }
+        if (vehicle.getDailyRate() <= 0) throw new ValidationException("invalid_daily_rate");
 
-        // --- NEW: DUPLICATE VEHICLE DEFENSE ---
+        // DUPLICATE DEFENSE: This protects your fleet inventory integrity.
         boolean isDuplicate = vehicleRepository.findAll().stream()
                 .anyMatch(existing ->
                         existing.getBrand().equalsIgnoreCase(vehicle.getBrand()) &&
                                 existing.getModel().equalsIgnoreCase(vehicle.getModel()) &&
                                 existing.getSpecificDetail().equalsIgnoreCase(vehicle.getSpecificDetail()) &&
-                                !existing.getId().equals(vehicle.getId()) // Ensure we don't block normal edits!
+                                !existing.getId().equals(vehicle.getId())
                 );
 
         if (isDuplicate) {
-            throw new ValidationException("Duplicate Detected: A " + vehicle.getBrand() + " " + vehicle.getModel() + " with those exact details already exists.");
+            throw new ValidationException("Duplicate Detected: This vehicle specification already exists in the fleet.");
         }
-        // --------------------------------------
 
         if (vehicle.getId() == null || vehicle.getId().isBlank()) {
             vehicle.setId(UUID.randomUUID().toString());
         }
+
+        // --- NOTE FOR RESERVATION TEAM ---
+        // My module handles Physical Availability.
+        // Use vehicle.setStatus("RENTED") only when the keys are handed over.
+        // Use vehicle.setStatus("AVAILABLE") when the vehicle is returned.
+
         vehicleRepository.saveVehicle(vehicle);
     }
 
     @Override
     public void deleteById(String id) {
-        if (id == null || id.isBlank()) {
-            return;
-        }
+        if (id == null || id.isBlank()) return;
+        // This maintains the integrity between modules
         if (reservationService.findUnavailableVehicleIds().contains(id.trim())) {
             throw new IllegalStateException("vehicle_in_use");
         }
