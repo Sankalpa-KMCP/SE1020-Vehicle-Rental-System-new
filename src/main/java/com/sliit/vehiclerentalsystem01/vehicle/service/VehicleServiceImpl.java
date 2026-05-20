@@ -46,17 +46,27 @@ public class VehicleServiceImpl implements VehicleService {
         if (vehicle.getDailyRate() <= 0) {
             throw new ValidationException("invalid_daily_rate");
         }
+
+        // --- NEW: DUPLICATE VEHICLE DEFENSE ---
+        boolean isDuplicate = vehicleRepository.findAll().stream()
+                .anyMatch(existing ->
+                        existing.getBrand().equalsIgnoreCase(vehicle.getBrand()) &&
+                                existing.getModel().equalsIgnoreCase(vehicle.getModel()) &&
+                                existing.getSpecificDetail().equalsIgnoreCase(vehicle.getSpecificDetail()) &&
+                                !existing.getId().equals(vehicle.getId()) // Ensure we don't block normal edits!
+                );
+
+        if (isDuplicate) {
+            throw new ValidationException("Duplicate Detected: A " + vehicle.getBrand() + " " + vehicle.getModel() + " with those exact details already exists.");
+        }
+        // --------------------------------------
+
         if (vehicle.getId() == null || vehicle.getId().isBlank()) {
             vehicle.setId(UUID.randomUUID().toString());
         }
         vehicleRepository.saveVehicle(vehicle);
     }
 
-    /**
-     * Refuses to delete a vehicle that an active booking still references. Throws
-     * {@link IllegalStateException} with code {@code vehicle_in_use} so controllers can surface
-     * a friendly error.
-     */
     @Override
     public void deleteById(String id) {
         if (id == null || id.isBlank()) {
