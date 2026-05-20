@@ -11,7 +11,7 @@
 
         <div class="da-nav__links" role="navigation">
             <a th:href="@{/}" class="da-nav__link transition-link">Home</a>
-            <a href="#fleet" data-section-link="fleet" class="da-nav__link">Fleet</a>
+            <a th:href="@{/#fleet}" data-section-link="fleet" class="da-nav__link">Fleet</a>
             <a th:href="@{/public/about}" class="da-nav__link transition-link">About</a>
             <a th:href="@{/public/contact}" class="da-nav__link transition-link">Contact</a>
         </div>
@@ -46,7 +46,7 @@
 
     <div id="mobile-menu" class="da-nav__mobile da-container da-container--wide" hidden>
         <a th:href="@{/}" class="transition-link">Home</a>
-        <a href="#fleet">Fleet</a>
+        <a th:href="@{/#fleet}">Fleet</a>
         <a th:href="@{/public/about}" class="transition-link">About</a>
         <a th:href="@{/public/contact}" class="transition-link">Contact</a>
         <th:block th:if="${#strings.isEmpty(userRole)}">

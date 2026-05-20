@@ -6,19 +6,22 @@ public abstract class Vehicle {
     private String brand;
     private String model;
     private double dailyRate;
+    private String imagePath;
 
     public Vehicle() {
         this.id = "";
         this.brand = "";
         this.model = "";
         this.dailyRate = 0.0;
+        this.imagePath = "";
     }
 
-    protected Vehicle(String id, String brand, String model, double dailyRate) {
+    protected Vehicle(String id, String brand, String model, double dailyRate, String imagePath) {
         this.id = id;
         this.brand = brand;
         this.model = model;
         this.dailyRate = dailyRate;
+        this.imagePath = imagePath;
     }
 
     // Getters and Setters
@@ -52,6 +55,14 @@ public abstract class Vehicle {
 
     public void setDailyRate(double dailyRate) {
         this.dailyRate = dailyRate;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public abstract String getVehicleType();

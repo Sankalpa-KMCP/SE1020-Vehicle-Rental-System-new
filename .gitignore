@@ -65,3 +65,6 @@ application-dev.properties
 
 ### Application Data ###
 data/
+
+### Image Data ###
+uploads/reviews

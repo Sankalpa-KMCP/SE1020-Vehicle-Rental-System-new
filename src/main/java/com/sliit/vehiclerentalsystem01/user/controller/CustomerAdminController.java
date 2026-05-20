@@ -1,6 +1,8 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
+import com.sliit.vehiclerentalsystem01.core.service.ImageStorageService;
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
+import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +31,13 @@ public class CustomerAdminController {
 
     private final UserService userService;
     private final ReservationService reservationService;
+    private final ImageStorageService imageStorageService;
 
-    public CustomerAdminController(UserService userService, ReservationService reservationService) {
+    public CustomerAdminController(UserService userService, ReservationService reservationService,
+                                   ImageStorageService imageStorageService) {
         this.userService = userService;
         this.reservationService = reservationService;
+        this.imageStorageService = imageStorageService;
     }
 
     private static String normalized(String value) {
@@ -153,7 +159,8 @@ public class CustomerAdminController {
     }
 
     @PostMapping
-    public String handlePost(@RequestParam Map<String, String> params, HttpSession session) {
+    public String handlePost(@RequestParam Map<String, String> params, HttpSession session,
+                             @RequestParam(value = "avatarImage", required = false) MultipartFile avatarImage) {
         String action = normalized(params.get("action"));
         if (action.isEmpty()) {
             action = "register";
@@ -207,29 +214,31 @@ public class CustomerAdminController {
                         .map(u -> (Customer) u)
                         .orElseThrow();
                 existing.setUsername(username);
-                existing.setPassword(password);
+                existing.setPassword(SecurityUtils.hashPasswordIfNeeded(password));
                 existing.setEmail(email);
                 existing.setPhone(phone);
                 existing.setNic(nic);
                 existing.setDriverLicense(license);
                 existing.setFullName(name);
+                imageStorageService.attachAvatar(existing, avatarImage);
                 userService.save(existing);
                 boolean isAdmin = session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
                 return isAdmin
                         ? "redirect:/customers?action=view_directory&msg=updated"
-                        : "redirect:/customers?action=editSelf&msg=updated";
+                        : "redirect:/customer/home?msg=updated";
             }
 
             String newId = "C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
             Customer created = new Customer();
             created.setId(newId);
             created.setUsername(username);
-            created.setPassword(password);
+            created.setPassword(SecurityUtils.hashPasswordIfNeeded(password));
             created.setEmail(email);
             created.setPhone(phone);
             created.setNic(nic);
             created.setDriverLicense(license);
             created.setFullName(name);
+            imageStorageService.attachAvatar(created, avatarImage);
             userService.save(created);
 
             if ("create".equals(action) || (session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN)))) {

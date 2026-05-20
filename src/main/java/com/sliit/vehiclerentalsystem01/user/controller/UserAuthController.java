@@ -1,5 +1,7 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
+import com.sliit.vehiclerentalsystem01.core.service.ImageStorageService;
+import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -24,10 +27,13 @@ public class UserAuthController {
 
     private final UserService userService;
     private final MasterAdminPendingService pendingService;
+    private final ImageStorageService imageStorageService;
 
-    public UserAuthController(UserService userService, MasterAdminPendingService pendingService) {
+    public UserAuthController(UserService userService, MasterAdminPendingService pendingService,
+                              ImageStorageService imageStorageService) {
         this.userService = userService;
         this.pendingService = pendingService;
+        this.imageStorageService = imageStorageService;
     }
 
     @GetMapping("/login")
@@ -160,17 +166,19 @@ public class UserAuthController {
             @RequestParam String phone,
             @RequestParam(required = false) String nic,
             @RequestParam(required = false) String license,
+            @RequestParam(value = "avatarImage", required = false) MultipartFile avatarImage,
             RedirectAttributes redirectAttributes) {
         try {
             Customer customer = new Customer();
             customer.setId("C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase());
             customer.setName(name != null ? name.trim() : "");
             customer.setUsername(username);
-            customer.setPassword(password);
+            customer.setPassword(SecurityUtils.hashPasswordIfNeeded(password));
             customer.setEmail(email);
             customer.setPhoneNumber(phone);
             customer.setLicenseNumber(blankToNa(license));
             customer.setNic(blankToNa(nic));
+            imageStorageService.attachAvatar(customer, avatarImage);
             userService.save(customer);
             redirectAttributes.addFlashAttribute("success", "Registration successful! Please login.");
             return "redirect:/auth/login?success=registered";

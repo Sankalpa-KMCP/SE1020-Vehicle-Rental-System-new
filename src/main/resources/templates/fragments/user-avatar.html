@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="avatar(user, size)">
+    <th:block th:with="px=${size != null ? size : 40}">
+        <img th:if="${user != null and user.hasAvatar()}"
+             th:src="${user.avatarUrl}"
+             th:alt="${user.name}"
+             th:style="|width:${px}px;height:${px}px;border-radius:50%;object-fit:cover;aspect-ratio:1/1;display:block;|"/>
+        <div th:unless="${user != null and user.hasAvatar()}"
+             th:style="|width:${px}px;height:${px}px;border-radius:50%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;background:linear-gradient(135deg,#0D6EFD,#6366f1);font-size:${px / 2.5}px;|"
+             th:text="${user != null and !#strings.isEmpty(user.name) ? #strings.toUpperCase(#strings.substring(user.name,0,1)) : '?'}">?</div>
+    </th:block>
+</th:block>
+
+<th:block th:fragment="avatarInput">
+    <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/80 p-5">
+        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Profile photo (optional)</label>
+        <input type="file" name="avatarImage" accept="image/*"
+               class="w-full text-sm font-medium text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-blue-600 file:text-white file:font-bold hover:file:bg-blue-700 file:cursor-pointer"/>
+        <p class="text-xs text-gray-500 mt-2">JPG, PNG, GIF or WebP. Max 2MB.</p>
+    </div>
+</th:block>
+</body>
+</html>

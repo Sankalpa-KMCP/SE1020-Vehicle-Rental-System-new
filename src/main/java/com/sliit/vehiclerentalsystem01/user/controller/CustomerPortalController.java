@@ -3,6 +3,7 @@ package com.sliit.vehiclerentalsystem01.user.controller;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
+import com.sliit.vehiclerentalsystem01.payment.entity.CardPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
 import com.sliit.vehiclerentalsystem01.review.entity.CustomerReview;
@@ -76,11 +77,28 @@ public class CustomerPortalController {
         }
         String un = username(session);
         Optional<Customer> oc = userService.findByUsername(un).filter(u -> u instanceof Customer).map(u -> (Customer) u);
-        String displayName = oc.map(Customer::getName).filter(n -> !n.isBlank()).orElse("@" + un);
+        if (oc.isEmpty()) {
+            return "redirect:/auth/login?error=profile_not_found";
+        }
+        Customer customer = oc.get();
+        String displayName = customer.getName() != null && !customer.getName().isBlank()
+                ? customer.getName().trim()
+                : "@" + un;
         if (displayName.isBlank()) {
             displayName = "Customer";
         }
+        String firstName = displayName;
+        String fullName = customer.getName();
+        if (fullName != null && !fullName.isBlank()) {
+            String trimmed = fullName.trim();
+            int space = trimmed.indexOf(' ');
+            firstName = space > 0 ? trimmed.substring(0, space) : trimmed;
+        }
+        model.addAttribute("customer", customer);
         model.addAttribute("displayName", displayName);
+        model.addAttribute("firstName", firstName);
+        model.addAttribute("verified", customer.isVerified());
+        model.addAttribute("bookingCount", reservationService.findBookingsLinkedToCustomer(customer).size());
         List<String> notices = new ArrayList<>();
         for (Booking booking : reservationService.findAll()) {
             String owner = booking.getCustomerName();
@@ -213,7 +231,7 @@ public class CustomerPortalController {
     }
 
     @GetMapping("/billing")
-    public String billing(HttpSession session, Model model) {
+    public String billing(HttpSession session, Model model, @RequestParam(required = false) String payment) {
         if (!customer(session)) {
             return "redirect:/";
         }
@@ -253,7 +271,76 @@ public class CustomerPortalController {
         model.addAttribute("pendingTotal", pendingTotal);
         model.addAttribute("refundedTotal", refundedTotal);
         model.addAttribute("totalBilled", totalBilled);
+        model.addAttribute("paymentStatus", payment);
         return "payment/customer-billing";
+    }
+
+    @GetMapping("/billing/gateway")
+    public String billingGateway(HttpSession session, @RequestParam String bookingId, Model model) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        String bid = bookingId == null ? "" : bookingId.trim();
+        String un = username(session);
+        Optional<Booking> ob = reservationService.findById(bid);
+        if (ob.isEmpty()) {
+            return "redirect:/customer/billing?payment=booking_not_found";
+        }
+        Booking booking = ob.get();
+        if (booking.getCustomerName() == null || !un.equalsIgnoreCase(booking.getCustomerName().trim())) {
+            return "redirect:/customer/billing?payment=booking_not_found";
+        }
+        if (!reservationService.isPaymentAllowed(bid)) {
+            return "redirect:/customer/billing?payment=booking_not_confirmed";
+        }
+
+        Payment payment = paymentService.findLatestByBookingId(bid)
+                .orElseGet(() -> createPendingGatewayPayment(booking));
+
+        model.addAttribute("booking", booking);
+        model.addAttribute("payment", payment);
+        model.addAttribute("vehicle", vehicleService.findById(booking.getVehicleId()).orElse(null));
+        return "payment/fake-payment-gateway";
+    }
+
+    @PostMapping("/billing/gateway/complete")
+    public String completeBillingGateway(HttpSession session,
+                                         @RequestParam String bookingId,
+                                         @RequestParam(required = false) String cardNumber,
+                                         @RequestParam(required = false) String cardName,
+                                         @RequestParam(required = false) String expiry,
+                                         @RequestParam(required = false) String cvv) {
+        if (!customer(session)) {
+            return "redirect:/auth/login";
+        }
+        String bid = bookingId == null ? "" : bookingId.trim();
+        String un = username(session);
+        Optional<Booking> ob = reservationService.findById(bid);
+        if (ob.isEmpty() || ob.get().getCustomerName() == null
+                || !un.equalsIgnoreCase(ob.get().getCustomerName().trim())) {
+            return "redirect:/customer/billing?payment=booking_not_found";
+        }
+        Payment payment = paymentService.findLatestByBookingId(bid)
+                .orElseGet(() -> createPendingGatewayPayment(ob.get()));
+        payment.setStatus("PAID");
+        try {
+            paymentService.save(payment);
+        } catch (ValidationException ex) {
+            return "redirect:/customer/billing/gateway?bookingId=" + bid + "&error=" + ex.getMessage();
+        }
+        return "redirect:/customer/billing?payment=success";
+    }
+
+    private Payment createPendingGatewayPayment(Booking booking) {
+        double amount = vehicleService.findById(booking.getVehicleId())
+                .map(vehicle -> vehicle.calculateRentalRate() * Math.max(1, booking.getDurationDays()))
+                .orElse(0.0);
+        Payment payment = new CardPayment("PAY-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(),
+                booking.getId(),
+                amount,
+                "PENDING");
+        paymentService.save(payment);
+        return payment;
     }
 
     @GetMapping("/pay")
@@ -397,7 +484,8 @@ public class CustomerPortalController {
     public String reviewCreate(HttpSession session, RedirectAttributes ra,
                                @RequestParam int rating,
                                @RequestParam String comments,
-                               @RequestParam(required = false) String bookingId) {
+                               @RequestParam(required = false) String bookingId,
+                               @RequestParam(value = "image", required = false) org.springframework.web.multipart.MultipartFile image) {
         if (!customer(session)) {
             return "redirect:/auth/login";
         }
@@ -436,6 +524,7 @@ public class CustomerPortalController {
         } else {
             cr.setVehicleId(reservationService.findById(bid).map(Booking::getVehicleId).orElse(""));
         }
+        cr.setImageUrl(saveReviewImage(image));
         try {
             reviewService.save(cr);
         } catch (ValidationException ex) {
@@ -460,7 +549,8 @@ public class CustomerPortalController {
     @PostMapping("/reviews/{id}")
     public String reviewUpdate(HttpSession session, @PathVariable String id,
                                @RequestParam int rating,
-                               @RequestParam String comments) {
+                               @RequestParam String comments,
+                               @RequestParam(value = "image", required = false) org.springframework.web.multipart.MultipartFile image) {
         if (!customer(session)) {
             return "redirect:/auth/login";
         }
@@ -471,6 +561,10 @@ public class CustomerPortalController {
                 .map(cr -> {
                     cr.setRating(rating);
                     cr.setComments(comments.trim());
+                    String imgUrl = saveReviewImage(image);
+                    if (imgUrl != null && !imgUrl.isEmpty()) {
+                        cr.setImageUrl(imgUrl);
+                    }
                     try {
                         reviewService.save(cr);
                     } catch (ValidationException ex) {
@@ -547,5 +641,25 @@ public class CustomerPortalController {
             return "redirect:/customer/bookings/" + id + "/edit?error=" + ex.getMessage();
         }
         return "redirect:/customer/bookings";
+    }
+
+    private String saveReviewImage(org.springframework.web.multipart.MultipartFile image) {
+        if (image == null || image.isEmpty()) {
+            return "";
+        }
+        try {
+            String uploadDir = "uploads/reviews/";
+            java.io.File dir = new java.io.File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            String filename = UUID.randomUUID().toString() + "_" + org.springframework.util.StringUtils.cleanPath(image.getOriginalFilename());
+            java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + filename);
+            java.nio.file.Files.copy(image.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            return "/uploads/reviews/" + filename;
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }

@@ -16,7 +16,8 @@
         <p class="text-slate-500">Manage and onboard employees in the system.</p>
     </div>
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-        <form th:action="@{/staff}" method="post" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <form th:action="@{/staff}" method="post" enctype="multipart/form-data" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2" th:replace="~{fragments/user-avatar :: avatarInput}"></div>
             <input type="text" name="manualId" placeholder="Employee ID (EMP-01)" class="border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none" required/>
             <input type="text" name="name" placeholder="Full Name" class="border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none" required/>
             <input type="email" name="email" placeholder="Email Address" class="border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none" required/>
@@ -37,6 +38,7 @@
         <table class="w-full text-left">
             <thead class="bg-slate-50 text-slate-600">
             <tr>
+                <th class="p-4">Avatar</th>
                 <th class="p-4">EMP ID</th>
                 <th class="p-4">NAME</th>
                 <th class="p-4">EMAIL</th>
@@ -47,6 +49,7 @@
             </thead>
             <tbody>
             <tr th:each="s : ${staffList}" class="border-t border-slate-100">
+                <td class="p-4"><div th:replace="~{fragments/user-avatar :: avatar(user=${s}, size=40)}"></div></td>
                 <td class="p-4" th:text="${s.staffId}">id</td>
                 <td class="p-4" th:text="${s.name}">n</td>
                 <td class="p-4" th:text="${s.email}">e</td>
@@ -58,7 +61,7 @@
                 </td>
             </tr>
             <tr th:if="${staffList == null or staffList.isEmpty()}">
-                <td colspan="6" class="text-center p-6 text-gray-500">No staff found in the system.</td>
+                <td colspan="7" class="text-center p-6 text-gray-500">No staff found in the system.</td>
             </tr>
             </tbody>
         </table>

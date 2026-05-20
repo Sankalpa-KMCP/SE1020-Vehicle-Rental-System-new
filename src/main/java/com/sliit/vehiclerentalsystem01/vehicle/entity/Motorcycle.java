@@ -9,8 +9,8 @@ public class Motorcycle extends Vehicle {
         this.helmetIncluded = false;
     }
 
-    public Motorcycle(String id, String brand, String model, double dailyRate, boolean helmetIncluded) {
-        super(id, brand, model, dailyRate);
+    public Motorcycle(String id, String brand, String model, double dailyRate, boolean helmetIncluded, String imagePath) {
+        super(id, brand, model, dailyRate, imagePath);
         this.helmetIncluded = helmetIncluded;
     }
 
@@ -41,6 +41,6 @@ public class Motorcycle extends Vehicle {
     @Override
     public String toCSV() {
         return "Motorcycle," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + ","
-                + helmetIncluded;
+                + helmetIncluded + "," + getImagePath();
     }
 }

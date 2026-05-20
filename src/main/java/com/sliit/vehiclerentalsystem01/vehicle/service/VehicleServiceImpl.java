@@ -36,7 +36,9 @@ public class VehicleServiceImpl implements VehicleService {
         if (id == null || id.isBlank()) {
             return Optional.empty();
         }
-        return vehicleRepository.findAll().stream().filter(v -> id.equals(v.getId())).findFirst();
+        return vehicleRepository.findAll().stream()
+                .filter(v -> id.equals(v.getId()))
+                .findFirst();
     }
 
     @Override

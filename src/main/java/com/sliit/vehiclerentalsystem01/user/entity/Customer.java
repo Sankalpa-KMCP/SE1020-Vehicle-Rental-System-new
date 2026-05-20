@@ -81,12 +81,14 @@ public class Customer extends User {
     }
 
     /**
-     * CSV for file storage: ID,Name,Email,Username,Password,NIC,License,Phone
+     * CSV for file storage: ID,Name,Email,Username,Password,NIC,License,Phone,ProfilePicture
      */
+    @Override
     public String toCSV() {
         return safeCsvValue(getId()) + "," + safeCsvValue(getName()) + "," + safeCsvValue(getEmail()) + ","
                 + safeCsvValue(username) + "," + safeCsvValue(password) + "," + safeCsvValue(nic) + ","
-                + safeCsvValue(licenseNumber) + "," + safeCsvValue(phoneNumber);
+                + safeCsvValue(licenseNumber) + "," + safeCsvValue(phoneNumber) + ","
+                + safeCsvValue(getProfilePicture());
     }
 
     public static Customer fromCSV(String line) {
@@ -95,8 +97,16 @@ public class Customer extends User {
         }
         String[] data = line.split(",", -1);
         if (data.length == 8) {
-            return new Customer(data[0].trim(), data[1].trim(), data[2].trim(), data[3].trim(),
+            Customer customer = new Customer(data[0].trim(), data[1].trim(), data[2].trim(), data[3].trim(),
                     data[4].trim(), data[5].trim(), data[6].trim(), data[7].trim());
+            customer.setProfilePicture("N/A");
+            return customer;
+        }
+        if (data.length == 9) {
+            Customer customer = new Customer(data[0].trim(), data[1].trim(), data[2].trim(), data[3].trim(),
+                    data[4].trim(), data[5].trim(), data[6].trim(), data[7].trim());
+            customer.setProfilePicture(data[8].trim());
+            return customer;
         }
         return null;
     }

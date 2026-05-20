@@ -121,7 +121,8 @@ public class VehicleRepository {
         try {
             Files.createDirectories(path.getParent());
             List<String> lines = new ArrayList<>();
-            lines.add("# Car,id,brand,model,dailyRate,seatingCapacity | Motorcycle,id,brand,model,dailyRate,helmetIncluded");
+            // Updated header to include imagePath
+            lines.add("# Car,id,brand,model,dailyRate,seatingCapacity,imagePath | Motorcycle,id,brand,model,dailyRate,helmetIncluded,imagePath");
             lines.addAll(vehicles.stream().map(this::toLine).toList());
             Files.write(path, lines, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -136,26 +137,32 @@ public class VehicleRepository {
         }
         String[] p = line.split(",", -1);
         String type = p[0].trim();
+
+        // This is the magic line that safely grabs the image path without crashing older data
+        String imagePath = (p.length > 6 && !p[6].isBlank()) ? p[6].trim() : "/images/default-vehicle.png";
+
         if (type.equalsIgnoreCase("Car")) {
             return new Car(p[1].trim(), p[2].trim(), p[3].trim(), Double.parseDouble(p[4].trim()),
-                    Integer.parseInt(p[5].trim()));
+                    Integer.parseInt(p[5].trim()), imagePath);
         }
         if (type.equalsIgnoreCase("Motorcycle")) {
             return new Motorcycle(p[1].trim(), p[2].trim(), p[3].trim(), Double.parseDouble(p[4].trim()),
-                    Boolean.parseBoolean(p[5].trim()));
+                    Boolean.parseBoolean(p[5].trim()), imagePath);
         }
         throw new IllegalArgumentException("Unknown vehicle type: " + type);
     }
 
     private Vehicle parseLegacyPipeLine(String line) {
         String[] p = line.split("\\|", -1);
+        String defaultImagePath = "/images/default-vehicle.png"; // Legacy format gets the default image
+
         return switch (p[0]) {
             case "CAR" -> new Car(
                     p[1], p[2], p[3], Double.parseDouble(p[4]),
-                    p.length > 6 ? Integer.parseInt(p[6]) : 4);
+                    p.length > 6 ? Integer.parseInt(p[6]) : 4, defaultImagePath);
             case "MOTORCYCLE" -> {
                 boolean helmet = p.length >= 8 && Boolean.parseBoolean(p[7]);
-                yield new Motorcycle(p[1], p[2], p[3], Double.parseDouble(p[4]), helmet);
+                yield new Motorcycle(p[1], p[2], p[3], Double.parseDouble(p[4]), helmet, defaultImagePath);
             }
             default -> throw new IllegalArgumentException("Unknown vehicle type: " + p[0]);
         };

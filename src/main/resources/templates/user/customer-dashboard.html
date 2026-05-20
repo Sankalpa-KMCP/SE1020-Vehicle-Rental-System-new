@@ -8,53 +8,176 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background:
-                radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
-                radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
-                radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
-                #050506;
-            background-size: 24px 24px, auto, auto, auto;
-            color: #f4f2ee;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background: #f4f7fc;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 0% -10%, rgba(59, 130, 246, 0.16), transparent 55%),
+                radial-gradient(ellipse 60% 45% at 100% 0%, rgba(139, 92, 246, 0.12), transparent 50%),
+                radial-gradient(ellipse 50% 40% at 50% 100%, rgba(14, 165, 233, 0.06), transparent 45%);
         }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.45;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(59, 130, 246, 0.22); top: -100px; left: -60px; }
+        .orb-2 { width: 340px; height: 340px; background: rgba(167, 139, 250, 0.18); top: 18%; right: -80px; }
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .soft-card { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); }
-        .glass-effect { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        .hero-pattern { background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); }
-        .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        .icon-bounce { transition: transform 0.3s ease; }
-        .card-hover:hover .icon-bounce { transform: scale(1.1) rotate(5deg); }
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.85);
+            box-shadow: 0 4px 28px rgba(15, 23, 42, 0.06);
+        }
+        .profile-pill {
+            background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(239, 246, 255, 0.92));
+            border: 1px solid rgba(191, 219, 254, 0.85);
+            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.08);
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+        }
+        .profile-pill:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 26px rgba(37, 99, 235, 0.14);
+            border-color: rgba(147, 197, 253, 1);
+        }
+        .avatar-glow {
+            padding: 3px;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+            border-radius: 9999px;
+            box-shadow: 0 6px 28px rgba(79, 70, 229, 0.3);
+        }
+        .avatar-glow-inner { background: #fff; border-radius: 9999px; padding: 2px; }
+        .hero-shell {
+            background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 45%, #6d28d9 100%);
+            box-shadow: 0 22px 48px -14px rgba(37, 99, 235, 0.42), inset 0 1px 0 rgba(255,255,255,0.12);
+        }
+        .hero-pattern {
+            background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+            opacity: 0.3;
+        }
+        .hero-name {
+            background: linear-gradient(to right, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-glass {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+            transition: transform 0.22s ease, background 0.22s ease;
+        }
+        .stat-glass:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.15); }
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #4f46e5;
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.14);
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            margin-bottom: 0.65rem;
+        }
+        .bento-card {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 22px rgba(15, 23, 42, 0.05);
+            transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.32s ease, border-color 0.32s ease;
+            animation: fadeIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .bento-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 44px -12px rgba(15, 23, 42, 0.11);
+        }
+        .bento-card--blue:hover { border-color: rgba(59, 130, 246, 0.35); }
+        .bento-card--green:hover { border-color: rgba(16, 185, 129, 0.35); }
+        .bento-card--teal:hover { border-color: rgba(20, 184, 166, 0.35); }
+        .bento-card--purple:hover { border-color: rgba(139, 92, 246, 0.4); }
+        .bento-card--orange:hover { border-color: rgba(249, 115, 22, 0.35); }
+        .bento-card--rose:hover { border-color: rgba(244, 63, 94, 0.35); }
+        .bento-card--featured {
+            background: linear-gradient(145deg, #faf5ff 0%, #ffffff 50%);
+            border-color: rgba(167, 139, 250, 0.35);
+        }
+        .bento-card:nth-child(1) { animation-delay: 0.04s; }
+        .bento-card:nth-child(2) { animation-delay: 0.08s; }
+        .bento-card:nth-child(3) { animation-delay: 0.12s; }
+        .bento-card:nth-child(4) { animation-delay: 0.16s; }
+        .bento-card:nth-child(5) { animation-delay: 0.2s; }
+        .bento-card:nth-child(6) { animation-delay: 0.24s; }
+        .icon-tile { transition: transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1); }
+        .bento-card:hover .icon-tile { transform: scale(1.06) rotate(-2deg); }
+        .card-cta { transition: gap 0.2s ease, background 0.22s ease, color 0.22s ease; }
+        .bento-card:hover .card-cta { gap: 0.55rem; }
+        .toast-success {
+            background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1);
+            animation: toastIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logout-btn {
+            box-shadow: 0 5px 18px rgba(244, 63, 94, 0.32);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .logout-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(244, 63, 94, 0.4);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .fade-in, .bento-card, .toast-success { animation: none; }
+            .bento-card:hover, .stat-glass:hover, .profile-pill:hover, .logout-btn:hover { transform: none; }
+            .bento-card:hover .icon-tile { transform: none; }
+        }
     </style>
 </head>
-<body class="min-h-screen text-[#f4f2ee] flex flex-col">
+<body class="min-h-screen text-slate-800 flex flex-col relative">
 
-<nav class="bg-[#0c0c0e]/80 glass-effect border-b border-white/5 sticky top-0 z-30 shadow-lg">
-    <div class="max-w-screen-2xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
-        <a th:href="@{/customer/home}" class="flex items-center gap-3 group">
-            <div class="w-12 h-12 bg-gradient-to-br from-[#c9a962] to-[#e8d5a3] rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-[#c9a962]/30 transition-all">
-                <i class="ph-fill ph-car-profile text-2xl text-[#050506]"></i>
+<div class="ambient-orb orb-1" aria-hidden="true"></div>
+<div class="ambient-orb orb-2" aria-hidden="true"></div>
+
+<nav class="nav-glass sticky top-0 z-40 relative">
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 h-[4.5rem] sm:h-[4.75rem] flex items-center justify-between gap-3">
+        <a th:href="@{/customer/home}" class="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:shadow-indigo-500/35 transition-shadow">
+                <i class="ph-fill ph-car-profile text-xl sm:text-2xl text-white"></i>
             </div>
-            <span class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-[#f4f2ee] to-[#a8a6a0] bg-clip-text text-transparent">DriveAway</span>
+            <span class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">Drive<span class="text-indigo-600">Away</span></span>
         </a>
 
-        <div class="flex items-center gap-4">
-            <div class="hidden md:flex items-center gap-4 bg-[#141418] px-5 py-2.5 rounded-2xl border border-white/10">
-                <div class="w-10 h-10 bg-gradient-to-br from-[#c9a962] to-[#e8d5a3] rounded-full flex items-center justify-center shadow-md">
-                    <i class="ph-bold ph-user text-lg text-[#050506]"></i>
+        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+            <a th:href="@{/customers(action=editSelf)}" class="profile-pill flex items-center gap-2.5 sm:gap-3 px-2.5 sm:px-4 py-2 rounded-2xl min-w-0">
+                <div class="avatar-glow shrink-0">
+                    <div class="avatar-glow-inner" th:replace="~{fragments/user-avatar :: avatar(user=${customer}, size=42)}"></div>
                 </div>
-                <div>
-                    <p class="text-xs text-[#c9a962] font-bold uppercase tracking-wider">Welcome</p>
-                    <p class="font-bold text-[#f4f2ee] text-sm leading-tight truncate max-w-[150px]" th:text="${displayName}">Customer</p>
+                <div class="min-w-0 hidden min-[380px]:block text-left">
+                    <p class="text-[10px] sm:text-[11px] text-indigo-600 font-extrabold uppercase tracking-[0.12em]">Welcome</p>
+                    <p class="font-bold text-slate-900 text-xs sm:text-sm leading-tight truncate max-w-[9rem] sm:max-w-[11rem]" th:text="${displayName}">Customer</p>
                 </div>
-            </div>
-            <form th:action="@{/auth}" method="post" class="m-0">
+                <i class="ph-bold ph-caret-right text-indigo-400 text-sm hidden sm:block opacity-50"></i>
+            </a>
+            <form th:action="@{/auth}" method="post" class="m-0 shrink-0">
                 <input type="hidden" name="action" value="logout"/>
-                <button type="submit" class="bg-white/5 border border-white/10 hover:bg-rose-600/20 hover:text-rose-400 hover:border-rose-500/30 text-white font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-sm">
+                <button type="submit" class="logout-btn bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold px-3.5 sm:px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm">
                     <i class="ph-bold ph-sign-out text-lg"></i>
                     <span class="hidden sm:inline">Logout</span>
                 </button>
@@ -63,164 +186,209 @@
     </div>
 </nav>
 
-<main class="flex-grow max-w-screen-2xl mx-auto w-full px-6 lg:px-8 py-12 fade-in">
+<main class="flex-grow max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 fade-in relative z-10">
 
-    <div class="bg-gradient-to-br from-[#0c0c0e] to-[#141418] rounded-3xl p-8 sm:p-12 lg:p-16 text-[#f4f2ee] border border-white/10 shadow-2xl mb-12 relative overflow-hidden hero-pattern">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_0%_0%,rgba(201,169,98,0.08),transparent_60%)]"></div>
-        <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
-            <div class="flex-1">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-14 h-14 bg-gradient-to-br from-[#c9a962]/10 to-[#e8d5a3]/5 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10">
-                        <i class="ph-fill ph-house text-3xl text-[#c9a962]"></i>
-                    </div>
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white">Welcome Back</h1>
-                </div>
-                <p class="text-[#a8a6a0] text-lg sm:text-xl font-medium max-w-2xl leading-relaxed mb-6">Your premium vehicle rental dashboard. Book rides, manage reservations, and explore our fleet with ease.</p>
-                <div class="flex flex-wrap gap-3">
-                    <a th:href="@{/customer/fleet}" class="inline-flex items-center gap-2 bg-gradient-to-r from-[#c9a962] to-[#e8d5a3] text-[#050506] font-extrabold px-6 py-3 rounded-xl shadow-lg shadow-[#c9a962]/20 hover:shadow-[#c9a962]/40 transition-all">
-                        <i class="ph-bold ph-car"></i> Browse Fleet
-                    </a>
-                    <a th:href="@{/customer/bookings}" class="inline-flex items-center gap-2 bg-white/5 backdrop-blur-sm text-[#f4f2ee] font-bold px-6 py-3 rounded-xl border border-white/10 hover:bg-white/10 hover:border-[#c9a962]/40 transition-all">
-                        <i class="ph-bold ph-calendar-check"></i> My Bookings
-                    </a>
-                </div>
-            </div>
-
-            <div class="flex gap-4 bg-[#0c0c0e]/80 p-6 rounded-2xl backdrop-blur-sm border border-white/10">
-                <div class="text-center px-6 border-r border-white/10">
-                    <div class="w-12 h-12 bg-green-400/10 rounded-xl flex items-center justify-center mx-auto mb-2 border border-green-400/20">
-                        <i class="ph-fill ph-shield-check text-2xl text-green-400"></i>
-                    </div>
-                    <p class="text-[#a8a6a0] text-xs font-bold uppercase tracking-wider mb-1">Status</p>
-                    <p class="text-green-400 font-extrabold">Active</p>
-                </div>
-                <div class="text-center px-6">
-                    <div class="w-12 h-12 bg-amber-400/10 rounded-xl flex items-center justify-center mx-auto mb-2 border border-amber-400/20">
-                        <i class="ph-fill ph-crown text-2xl text-[#c9a962]"></i>
-                    </div>
-                    <p class="text-[#a8a6a0] text-xs font-bold uppercase tracking-wider mb-1">Member</p>
-                    <p class="text-[#c9a962] font-extrabold">Premium</p>
-                </div>
-            </div>
-        </div>
-        <i class="ph-fill ph-car absolute -right-16 -bottom-16 text-[400px] text-white opacity-[0.02] transform rotate-12 pointer-events-none"></i>
+    <div id="profileToast" th:if="${param.msg != null and param.msg[0] == 'updated'}"
+         class="toast-success mb-8 p-4 sm:p-5 rounded-2xl text-emerald-800 font-semibold flex items-center justify-between gap-4">
+        <span class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-md">
+                <i class="ph-bold ph-check text-xl"></i>
+            </span>
+            Profile updated successfully.
+        </span>
+        <button type="button" onclick="document.getElementById('profileToast').remove()" class="text-emerald-700 hover:bg-emerald-100 p-2 rounded-xl transition-colors" aria-label="Dismiss">
+            <i class="ph-bold ph-x text-lg"></i>
+        </button>
     </div>
 
-    <div th:if="${bookingNotices != null and !bookingNotices.isEmpty()}" class="mb-10 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/25 rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shadow-md">
-                <i class="ph-fill ph-bell text-xl text-[#050506]"></i>
+    <section class="hero-shell rounded-[1.75rem] sm:rounded-[2rem] p-6 sm:p-10 lg:p-12 mb-10 sm:mb-12 relative overflow-hidden">
+        <div class="absolute inset-0 hero-pattern pointer-events-none" aria-hidden="true"></div>
+        <div class="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-violet-400/25 blur-3xl pointer-events-none" aria-hidden="true"></div>
+        <div class="absolute -left-8 bottom-0 w-48 h-48 rounded-full bg-blue-400/20 blur-3xl pointer-events-none" aria-hidden="true"></div>
+        <i class="ph-fill ph-car absolute -right-10 -bottom-16 text-[220px] sm:text-[300px] text-white/[0.04] rotate-12 pointer-events-none" aria-hidden="true"></i>
+
+        <div class="relative z-10 flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-8">
+            <div class="flex-1 min-w-0">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 mb-5">
+                    <div class="avatar-glow shrink-0">
+                        <div class="avatar-glow-inner" th:replace="~{fragments/user-avatar :: avatar(user=${customer}, size=88)}"></div>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-indigo-200 text-xs sm:text-sm font-bold uppercase tracking-[0.18em] mb-1.5">Your portal</p>
+                        <h1 class="text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold tracking-tight leading-[1.12] text-white">
+                            Welcome back, <span class="hero-name" th:text="${firstName}">Guest</span>
+                        </h1>
+                    </div>
+                </div>
+                <p class="text-blue-100/90 text-base sm:text-lg font-medium max-w-xl leading-relaxed mb-6">
+                    Book rides, manage reservations, and explore our fleet — all in one place.
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <a th:href="@{/customer/fleet}" class="inline-flex items-center gap-2.5 bg-white text-indigo-700 font-bold px-5 sm:px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm sm:text-base">
+                        <i class="ph-bold ph-car text-lg"></i> Browse Fleet
+                    </a>
+                    <a th:href="@{/customer/bookings}" class="inline-flex items-center gap-2.5 text-white font-bold px-5 sm:px-6 py-3 rounded-2xl border border-white/35 bg-white/10 hover:bg-white/18 backdrop-blur-sm transition-all text-sm sm:text-base">
+                        <i class="ph-bold ph-calendar-check text-lg"></i> My Bookings
+                    </a>
+                </div>
             </div>
-            <h3 class="text-lg font-bold text-[#c9a962]">Booking Notifications</h3>
+
+            <div class="grid grid-cols-3 gap-3 w-full xl:w-auto xl:min-w-[19rem]">
+                <div class="stat-glass rounded-2xl p-3.5 sm:p-4 text-center">
+                    <div class="w-10 h-10 bg-emerald-400/20 rounded-xl flex items-center justify-center mx-auto mb-2 ring-1 ring-white/15">
+                        <i class="ph-fill ph-shield-check text-xl text-emerald-300"></i>
+                    </div>
+                    <p class="text-blue-100/75 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">Status</p>
+                    <p class="text-white font-extrabold text-sm sm:text-base mt-0.5">Active</p>
+                </div>
+                <div class="stat-glass rounded-2xl p-3.5 sm:p-4 text-center">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2 ring-1 ring-white/15"
+                         th:classappend="${verified} ? 'bg-emerald-400/20' : 'bg-amber-400/25'">
+                        <i th:class="${verified} ? 'ph-fill ph-seal-check text-xl text-emerald-300' : 'ph-fill ph-warning text-xl text-amber-200'"></i>
+                    </div>
+                    <p class="text-blue-100/75 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">Account</p>
+                    <p class="text-white font-extrabold text-sm sm:text-base mt-0.5" th:text="${verified} ? 'Verified' : 'Incomplete'">—</p>
+                    <a th:unless="${verified}" th:href="@{/customers(action=editSelf)}"
+                       class="text-[9px] text-amber-100 hover:text-white underline mt-0.5 inline-block">Complete profile</a>
+                </div>
+                <div class="stat-glass rounded-2xl p-3.5 sm:p-4 text-center">
+                    <div class="w-10 h-10 bg-white/12 rounded-xl flex items-center justify-center mx-auto mb-2 ring-1 ring-white/15">
+                        <i class="ph-fill ph-calendar-blank text-xl text-indigo-200"></i>
+                    </div>
+                    <p class="text-blue-100/75 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">Bookings</p>
+                    <p class="text-white font-extrabold text-xl sm:text-2xl tabular-nums mt-0.5" th:text="${bookingCount}">0</p>
+                </div>
+            </div>
         </div>
-        <div class="space-y-3">
-            <div th:each="n : ${bookingNotices}" class="bg-[#0c0c0e] border border-white/5 text-amber-200/90 rounded-xl px-5 py-3 text-sm font-medium shadow-sm flex items-start gap-3">
-                <i class="ph-fill ph-info text-amber-500 mt-0.5"></i>
+    </section>
+
+    <div th:if="${bookingNotices != null and !bookingNotices.isEmpty()}" class="mb-10 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/90 border border-amber-200/80 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-md">
+                <i class="ph-fill ph-bell text-lg text-white"></i>
+            </div>
+            <h3 class="text-lg font-extrabold text-amber-900">Booking updates</h3>
+        </div>
+        <div class="space-y-2.5">
+            <div th:each="n : ${bookingNotices}" class="bg-white/90 border border-amber-100 text-amber-950 rounded-xl px-4 py-3 text-sm font-medium flex items-start gap-3">
+                <i class="ph-fill ph-info text-amber-500 mt-0.5 shrink-0"></i>
                 <span th:text="${n}">Notice</span>
             </div>
         </div>
     </div>
 
-    <div class="mb-8">
-        <h2 class="text-3xl font-extrabold text-white mb-2">Quick Actions</h2>
-        <p class="text-[#a8a6a0] font-medium">Access all your DriveAway services from one place</p>
-    </div>
+    <header class="mb-7 sm:mb-9">
+        <span class="section-label"><i class="ph-bold ph-squares-four"></i> Dashboard</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Quick Actions</h2>
+        <p class="text-slate-500 font-medium mt-1.5">Access all your DriveAway services from one place</p>
+    </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 mb-14">
 
-        <a th:href="@{/customer/fleet}" class="bg-[#0c0c0e] rounded-3xl p-8 border border-white/10 soft-card card-hover group flex flex-col h-full relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-indigo-600/10 rounded-full -mr-16 -mt-16 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+        <a th:href="@{/customer/fleet}" class="bento-card bento-card--blue group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-32 h-32 bg-blue-100/70 rounded-full blur-2xl group-hover:bg-blue-200/80 transition-colors"></div>
             <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-center gap-4 mb-5">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-3xl shadow-lg icon-bounce">
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <div class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-blue-500/25">
                         <i class="ph-fill ph-car-profile"></i>
                     </div>
-                    <h3 class="text-xl font-extrabold text-[#f4f2ee]">Rent a Vehicle</h3>
+                    <i class="ph-bold ph-arrow-up-right text-slate-300 group-hover:text-blue-500 text-lg transition-colors"></i>
                 </div>
-                <p class="text-[#a8a6a0] font-medium mb-6 flex-grow leading-relaxed">Browse our premium fleet, check real-time availability, pricing, and secure your booking instantly.</p>
-                <div class="inline-flex items-center gap-2 bg-[#141418] text-[#22d3ee] border border-white/5 font-bold px-4 py-2 rounded-xl group-hover:bg-[#22d3ee] group-hover:text-[#050506] group-hover:shadow-lg group-hover:shadow-[#22d3ee]/20 transition-all w-fit">
+                <h3 class="text-lg font-extrabold text-slate-900 mb-2">Rent a Vehicle</h3>
+                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">Browse our premium fleet and secure your booking in seconds.</p>
+                <span class="card-cta inline-flex items-center gap-2 text-blue-600 font-bold text-sm bg-blue-50 group-hover:bg-blue-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
                     Explore Fleet <i class="ph-bold ph-arrow-right"></i>
-                </div>
+                </span>
             </div>
         </a>
 
-        <a th:href="@{/customer/bookings}" class="bg-[#0c0c0e] rounded-3xl p-8 border border-white/10 soft-card card-hover group flex flex-col h-full relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-emerald-600/10 rounded-full -mr-16 -mt-16 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+        <a th:href="@{/customer/bookings}" class="bento-card bento-card--green group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-32 h-32 bg-emerald-100/70 rounded-full blur-2xl group-hover:bg-emerald-200/80 transition-colors"></div>
             <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-center gap-4 mb-5">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white flex items-center justify-center text-3xl shadow-lg icon-bounce">
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <div class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/25">
                         <i class="ph-fill ph-calendar-check"></i>
                     </div>
-                    <h3 class="text-xl font-extrabold text-[#f4f2ee]">My Bookings</h3>
+                    <i class="ph-bold ph-arrow-up-right text-slate-300 group-hover:text-emerald-500 text-lg transition-colors"></i>
                 </div>
-                <p class="text-[#a8a6a0] font-medium mb-6 flex-grow leading-relaxed">View your active rentals, check past transaction history, modify dates, and manage cancellations.</p>
-                <div class="inline-flex items-center gap-2 bg-[#141418] text-[#10b981] border border-white/5 font-bold px-4 py-2 rounded-xl group-hover:bg-[#10b981] group-hover:text-[#050506] group-hover:shadow-lg group-hover:shadow-[#10b981]/20 transition-all w-fit">
+                <h3 class="text-lg font-extrabold text-slate-900 mb-2">My Bookings</h3>
+                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">View active rentals, history, and manage changes.</p>
+                <span class="card-cta inline-flex items-center gap-2 text-emerald-600 font-bold text-sm bg-emerald-50 group-hover:bg-emerald-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
                     Manage Reservations <i class="ph-bold ph-arrow-right"></i>
-                </div>
+                </span>
             </div>
         </a>
 
-        <a th:href="@{/customer/billing}" class="bg-[#0c0c0e] rounded-3xl p-8 border border-white/10 soft-card card-hover group flex flex-col h-full relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-500/10 to-cyan-600/10 rounded-full -mr-16 -mt-16 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+        <a th:href="@{/customer/billing}" class="bento-card bento-card--teal group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-32 h-32 bg-teal-100/70 rounded-full blur-2xl group-hover:bg-teal-200/80 transition-colors"></div>
             <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-center gap-4 mb-5">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white flex items-center justify-center text-3xl shadow-lg icon-bounce">
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <div class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-teal-500/25">
                         <i class="ph-fill ph-receipt"></i>
                     </div>
-                    <h3 class="text-xl font-extrabold text-[#f4f2ee]">Billing &amp; Payments</h3>
+                    <i class="ph-bold ph-arrow-up-right text-slate-300 group-hover:text-teal-500 text-lg transition-colors"></i>
                 </div>
-                <p class="text-[#a8a6a0] font-medium mb-6 flex-grow leading-relaxed">View your invoices, settle pending balances, and manage your saved payment methods securely.</p>
-                <div class="inline-flex items-center gap-2 bg-[#141418] text-[#14b8a6] border border-white/5 font-bold px-4 py-2 rounded-xl group-hover:bg-[#14b8a6] group-hover:text-white group-hover:shadow-lg group-hover:shadow-[#14b8a6]/20 transition-all w-fit">
+                <h3 class="text-lg font-extrabold text-slate-900 mb-2">Billing &amp; Payments</h3>
+                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">Invoices, balances, and payment methods in one place.</p>
+                <span class="card-cta inline-flex items-center gap-2 text-teal-600 font-bold text-sm bg-teal-50 group-hover:bg-teal-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
                     View Invoices <i class="ph-bold ph-arrow-right"></i>
-                </div>
+                </span>
             </div>
         </a>
 
-        <a th:href="@{/customers(action=editSelf)}" class="bg-[#0c0c0e] rounded-3xl p-8 border border-white/10 soft-card card-hover group flex flex-col h-full relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-violet-600/10 rounded-full -mr-16 -mt-16 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+        <a th:href="@{/customers(action=editSelf)}" class="bento-card bento-card--purple bento-card--featured group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-36 h-36 bg-violet-200/50 rounded-full blur-2xl group-hover:bg-violet-300/60 transition-colors"></div>
+            <span class="absolute top-4 right-4 text-[10px] font-extrabold uppercase tracking-wider text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full border border-violet-200">You</span>
             <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-center gap-4 mb-5">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 text-white flex items-center justify-center text-3xl shadow-lg icon-bounce">
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <div class="shrink-0 rounded-2xl overflow-hidden ring-2 ring-violet-200 shadow-sm" th:if="${customer != null and customer.hasAvatar()}">
+                        <div th:replace="~{fragments/user-avatar :: avatar(user=${customer}, size=56)}"></div>
+                    </div>
+                    <div th:unless="${customer != null and customer.hasAvatar()}"
+                         class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-violet-500/25">
                         <i class="ph-fill ph-identification-card"></i>
                     </div>
-                    <h3 class="text-xl font-extrabold text-[#f4f2ee]">Profile Settings</h3>
+                    <i class="ph-bold ph-arrow-up-right text-violet-300 group-hover:text-violet-600 text-lg transition-colors"></i>
                 </div>
-                <p class="text-[#a8a6a0] font-medium mb-6 flex-grow leading-relaxed">Update your contact information, upload missing verification documents, or change your password.</p>
-                <div class="inline-flex items-center gap-2 bg-[#141418] text-[#a855f7] border border-white/5 font-bold px-4 py-2 rounded-xl group-hover:bg-[#a855f7] group-hover:text-white group-hover:shadow-lg group-hover:shadow-[#a855f7]/20 transition-all w-fit">
+                <h3 class="text-lg font-extrabold text-slate-900 mb-2">Profile Settings</h3>
+                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">Photo, contact info, documents, and password.</p>
+                <span class="card-cta inline-flex items-center gap-2 text-violet-600 font-bold text-sm bg-violet-100 group-hover:bg-violet-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
                     Edit Profile <i class="ph-bold ph-arrow-right"></i>
-                </div>
+                </span>
             </div>
         </a>
 
-        <a th:href="@{/customer/reviews}" class="bg-[#0c0c0e] rounded-3xl p-8 border border-white/10 soft-card card-hover group flex flex-col h-full relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/10 to-amber-600/10 rounded-full -mr-16 -mt-16 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+        <a th:href="@{/customer/reviews}" class="bento-card bento-card--orange group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-32 h-32 bg-orange-100/70 rounded-full blur-2xl group-hover:bg-orange-200/80 transition-colors"></div>
             <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-center gap-4 mb-5">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center text-3xl shadow-lg icon-bounce">
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <div class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center text-2xl shadow-lg shadow-orange-500/25">
                         <i class="ph-fill ph-star"></i>
                     </div>
-                    <h3 class="text-xl font-extrabold text-[#f4f2ee]">My Reviews</h3>
+                    <i class="ph-bold ph-arrow-up-right text-slate-300 group-hover:text-orange-500 text-lg transition-colors"></i>
                 </div>
-                <p class="text-[#a8a6a0] font-medium mb-6 flex-grow leading-relaxed">View your submitted feedback, edit or delete reviews, or write a new one.</p>
-                <div class="inline-flex items-center gap-2 bg-[#141418] text-[#f97316] border border-white/5 font-bold px-4 py-2 rounded-xl group-hover:bg-[#f97316] group-hover:text-white group-hover:shadow-lg group-hover:shadow-[#f97316]/20 transition-all w-fit">
+                <h3 class="text-lg font-extrabold text-slate-900 mb-2">My Reviews</h3>
+                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">Share feedback and manage your rental reviews.</p>
+                <span class="card-cta inline-flex items-center gap-2 text-orange-600 font-bold text-sm bg-orange-50 group-hover:bg-orange-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
                     Manage Reviews <i class="ph-bold ph-arrow-right"></i>
-                </div>
+                </span>
             </div>
         </a>
 
-        <a th:href="@{/customer/support}" class="bg-[#0c0c0e] rounded-3xl p-8 border border-white/10 soft-card card-hover group flex flex-col h-full relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-rose-500/10 to-pink-600/10 rounded-full -mr-16 -mt-16 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+        <a th:href="@{/customer/support}" class="bento-card bento-card--rose group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-32 h-32 bg-rose-100/70 rounded-full blur-2xl group-hover:bg-rose-200/80 transition-colors"></div>
             <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-center gap-4 mb-5">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center text-3xl shadow-lg icon-bounce">
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <div class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-rose-500/25">
                         <i class="ph-fill ph-headset"></i>
                     </div>
-                    <h3 class="text-xl font-extrabold text-[#f4f2ee]">Help &amp; Support</h3>
+                    <i class="ph-bold ph-arrow-up-right text-slate-300 group-hover:text-rose-500 text-lg transition-colors"></i>
                 </div>
-                <p class="text-[#a8a6a0] font-medium mb-6 flex-grow leading-relaxed">Having trouble? Contact our 24/7 support team, read the FAQs, or report an issue with a vehicle.</p>
-                <div class="inline-flex items-center gap-2 bg-[#141418] text-[#f43f5e] border border-white/5 font-bold px-4 py-2 rounded-xl group-hover:bg-[#f43f5e] group-hover:text-white group-hover:shadow-lg group-hover:shadow-[#f43f5e]/20 transition-all w-fit">
+                <h3 class="text-lg font-extrabold text-slate-900 mb-2">Help &amp; Support</h3>
+                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">24/7 assistance, FAQs, and vehicle issue reports.</p>
+                <span class="card-cta inline-flex items-center gap-2 text-rose-600 font-bold text-sm bg-rose-50 group-hover:bg-rose-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
                     Get Assistance <i class="ph-bold ph-arrow-right"></i>
-                </div>
+                </span>
             </div>
         </a>
 
