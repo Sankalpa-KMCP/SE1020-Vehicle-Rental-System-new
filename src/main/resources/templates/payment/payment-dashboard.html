@@ -57,9 +57,9 @@
         .text-gray-900, .text-gray-800, .text-gray-700 { color: #f4f2ee !important; }
         .text-gray-500, .text-gray-600 { color: #a8a6a0 !important; }
         .bg-slate-50, .bg-gray-100, .bg-gray-50 { background: #050506 !important; border-color: rgba(255,255,255,0.08) !important; }
-        .border-slate-100, .border-slate-200, .border-white\/20, .border-b { border-color: rgba(255,255,255,0.05) !important; }
+        .border-slate-100, .border-slate-200, .border-b { border-color: rgba(255,255,255,0.05) !important; }
         
-        .hover\:bg-emerald-50\/50:hover { background-color: rgba(201, 169, 98, 0.05) !important; }
+        tr:hover { background-color: rgba(201, 169, 98, 0.05) !important; }
         td, th { color: #f4f2ee !important; }
     </style>
 </head>
@@ -172,23 +172,28 @@
                         <span th:if="${#strings.equalsIgnoreCase(p.status, 'REFUNDED')}" class="bg-red-50 text-red-700 border border-red-200 font-bold px-3 py-1 rounded-lg text-xs">REFUNDED</span>
                         <span th:if="${!#strings.equalsIgnoreCase(p.status, 'PAID') and !#strings.equalsIgnoreCase(p.status, 'PENDING') and !#strings.equalsIgnoreCase(p.status, 'VERIFYING') and !#strings.equalsIgnoreCase(p.status, 'REFUNDED')}" class="bg-slate-100 text-slate-800 font-bold px-3 py-1 rounded-lg text-xs" th:text="${p.status}">s</span>
                     </td>
-                    <td class="py-5 px-6 text-right space-x-2">
-                        <a th:href="@{/payments/{id}(id=${p.id})}" class="inline-flex items-center gap-1 text-gray-500 hover:text-gray-800 font-bold text-sm">
-                            <i class="ph-bold ph-eye"></i> View
-                        </a>
-                        <form th:if="${#strings.equalsIgnoreCase(p.status, 'VERIFYING') or #strings.equalsIgnoreCase(p.status, 'PENDING')}" th:action="@{/payments/{id}/confirm(id=${p.id})}" method="post" class="inline" onsubmit="return confirm('Confirm this payment as PAID?');">
-                            <button type="submit" class="inline-flex items-center gap-1 text-blue-500 hover:text-blue-700 font-bold text-sm align-middle">
-                                <i class="ph-bold ph-check-circle"></i> Confirm
-                            </button>
-                        </form>
-                        <a th:href="@{/payments/{id}/edit(id=${p.id})}" class="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-800 font-bold text-sm">
-                            <i class="ph-bold ph-pencil-simple"></i> Edit
-                        </a>
-                        <form th:action="@{/payments/{id}/delete(id=${p.id})}" method="post" class="inline" onsubmit="return confirm('Delete this payment record?');">
-                            <button type="submit" class="inline-flex items-center gap-1 text-red-500 hover:text-red-700 font-bold text-sm align-middle">
-                                <i class="ph-bold ph-trash"></i> Delete
-                            </button>
-                        </form>
+                    <td class="py-5 px-6 text-right whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-4">
+                            <!-- Confirm Action (Only for non-paid) -->
+                            <a th:if="${#strings.equalsIgnoreCase(p.status, 'VERIFYING') or #strings.equalsIgnoreCase(p.status, 'PENDING')}" 
+                               th:href="@{/payments/{id}/confirm(id=${p.id})}" 
+                               class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-bold text-sm transition-colors px-2 py-1 rounded-lg hover:bg-blue-400/10">
+                                <i class="ph-bold ph-shield-check"></i> Confirm
+                            </a>
+
+                            <!-- Edit Action -->
+                            <a th:href="@{/payments/{id}/edit(id=${p.id})}" 
+                               class="inline-flex items-center gap-1.5 text-[#c9a962]/80 hover:text-[#c9a962] font-bold text-sm transition-colors px-2 py-1 rounded-lg hover:bg-[#c9a962]/10">
+                                <i class="ph-bold ph-pencil-simple"></i> Edit
+                            </a>
+
+                            <!-- Delete Action -->
+                            <form th:action="@{/payments/{id}/delete(id=${p.id})}" method="post" class="inline m-0" onsubmit="return confirm('Delete this payment record?');">
+                                <button type="submit" class="inline-flex items-center gap-1.5 text-red-400/80 hover:text-red-400 font-bold text-sm align-middle transition-colors px-2 py-1 rounded-lg hover:bg-red-400/10">
+                                    <i class="ph-bold ph-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 <tr th:if="${payments == null or payments.isEmpty()}">
