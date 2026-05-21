@@ -21,6 +21,27 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * PERSISTENCE LAYER — stores all users in a single text file: {@code data/users.txt}.
+ * <p>
+ * WHY a file instead of MySQL?
+ * This is a coursework design: it demonstrates file I/O, CSV parsing, and OOP (Customer vs Staff
+ * subtypes) without database setup. The trade-off is that every save rewrites the whole file.
+ * <p>
+ * HOW CRUD works here (read-modify-write):
+ * <ol>
+ *   <li>READ: load every line from users.txt into a {@code List<User>} in memory.</li>
+ *   <li>CHANGE: add, replace (by id), or remove from that list.</li>
+ *   <li>WRITE: truncate the file and write all lines back (via each user's {@code toCSV()}).</li>
+ * </ol>
+ * WHY {@link ReentrantReadWriteLock}?
+ * Multiple browsers can hit login at once (shared read lock). Saves/deletes take an exclusive
+ * write lock so two updates never corrupt the file mid-write.
+ * <p>
+ * WHO calls this class?
+ * Only {@link com.sliit.vehiclerentalsystem01.user.service.UserServiceImpl} — controllers never
+ * touch the file directly (layered architecture).
+ */
 @Repository
 public class UserRepository {
 
@@ -28,6 +49,7 @@ public class UserRepository {
 
     private static final Logger log = LoggerFactory.getLogger(UserRepository.class);
 
+    // Many readers (login/list), exclusive writer (save/delete)
     private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
     private final Lock readLock = rwLock.readLock();
     private final Lock writeLock = rwLock.writeLock();
@@ -45,6 +67,7 @@ public class UserRepository {
         return Paths.get(dataDirectory).toAbsolutePath().normalize().resolve(FILE_NAME);
     }
 
+    /** READ: load every user line from disk */
     public List<User> findAll() {
         readLock.lock();
         try {
@@ -55,7 +78,10 @@ public class UserRepository {
     }
 
     /**
-     * Atomically upserts a user (replace by id, then persist full file).
+     * CREATE and UPDATE use the same method (upsert).
+     * HOW: If an existing user has the same id, remove it from the list, then append the new object.
+     * WHY: There is no SQL "UPDATE row WHERE id=?" — we only have a text file, so we replace in memory
+     * and save the full snapshot. Controllers call {@code UserService.save()}, which ends up here.
      */
     public void saveUser(User user) {
         writeLock.lock();
@@ -69,9 +95,7 @@ public class UserRepository {
         }
     }
 
-    /**
-     * Atomically removes the user with the given id, if present. No-op for null/blank id.
-     */
+    /** DELETE: remove user by id and rewrite file */
     public void deleteUserById(String id) {
         if (id == null || id.isBlank()) {
             return;
@@ -96,8 +120,9 @@ public class UserRepository {
     }
 
     /**
-     * Reads and parses users from disk without acquiring locks.
-     * Call only while holding {@link #writeLock}, or from {@link #findAll()} after taking {@link #readLock}.
+     * Reads and parses users from disk (caller must already hold readLock or writeLock).
+     * HOW: Skip blank lines and # comments; each other line → parseLine() → Customer or Staff instance.
+     * WHY skip bad lines instead of failing: one corrupt row should not block login for everyone else.
      */
     private List<User> readUsersFromDiskUnlocked() {
         Path path = usersPath();
@@ -123,6 +148,12 @@ public class UserRepository {
         }
     }
 
+    /**
+     * Writes the in-memory list back to disk.
+     * HOW: Header comment lines (for humans) + one CSV line per user from {@link User#toCSV()}.
+     * TRUNCATE_EXISTING replaces the old file content entirely — that is why a failed write mid-flight
+     * would be dangerous without the write lock.
+     */
     private void writeUsersToDiskUnlocked(List<User> users) {
         Path path = usersPath();
         try {
@@ -138,6 +169,14 @@ public class UserRepository {
         }
     }
 
+    /**
+     * POLYMORPHISM at load time: one file holds both Customer and Staff rows.
+     * HOW we decide the type:
+     * - 9 comma fields → Customer (includes profile picture column)
+     * - 8 fields with Admin/Support in role column → Staff → {@link Staff#fromCSV} builds AdminStaff or SupportStaff
+     * - Lines with {@code |} → old pipe format (CUSTOMER|... / STAFF|...) converted to CSV internally
+     * WHY: A single users.txt is simpler for the assignment than separate customer.txt and staff.txt files.
+     */
     private User parseLine(String line) {
         if (line.contains("|")) {
             return parseLegacyPipeLine(line);

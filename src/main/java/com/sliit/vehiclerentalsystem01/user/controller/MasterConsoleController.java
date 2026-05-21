@@ -13,8 +13,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * Master admin console (legacy {@code master-console.jsp}). Provides the pending staff/admin
- * request list plus approve / reject actions.
+ * MASTER ADMIN ONLY — /user/master-console
+ * <p>
+ * WHY restricted to isMasterAdmin session flag?
+ * Approving staff creates real accounts in users.txt; only trusted accounts (admin, master1) should do this.
+ * <p>
+ * HOW approve works: POST action=approve + request line → MasterAdminPendingService.approve()
+ * → SupportStaff saved → pending line removed → flash message shows temporary password for the new user.
  */
 @Controller
 @RequestMapping("/user")
