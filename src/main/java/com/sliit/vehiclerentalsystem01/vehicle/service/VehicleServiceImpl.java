@@ -54,10 +54,6 @@ public class VehicleServiceImpl implements VehicleService {
             vehicle.setId(UUID.randomUUID().toString());
         }
 
-        // --- NOTE FOR RESERVATION TEAM ---
-        // My module handles Physical Availability.
-        // Use vehicle.setStatus("RENTED") only when the keys are handed over.
-        // Use vehicle.setStatus("AVAILABLE") when the vehicle is returned.
 
         vehicleRepository.saveVehicle(vehicle);
     }
