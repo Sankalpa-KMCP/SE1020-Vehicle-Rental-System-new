@@ -2,6 +2,10 @@ package com.sliit.vehiclerentalsystem01.vehicle.entity;
 
 public abstract class Vehicle {
 
+    // 1. CLASS VARIABLE (STATIC)
+    private static int totalFleetCount = 0;
+
+    // Instance Variables
     private String id;
     private String brand;
     private String model;
@@ -16,6 +20,7 @@ public abstract class Vehicle {
         this.dailyRate = 0.0;
         this.imagePath = "";
         this.status = "AVAILABLE";
+        totalFleetCount++;
     }
 
     protected Vehicle(String id, String brand, String model, double dailyRate, String imagePath, String status) {
@@ -29,6 +34,12 @@ public abstract class Vehicle {
                 status.equalsIgnoreCase("MAINTENANCE") ||
                 status.equalsIgnoreCase("RENTED")))
                 ? status.toUpperCase() : "AVAILABLE";
+        totalFleetCount++; // Increment counter whenever any vehicle is created
+    }
+
+    // Static Getter for the panel
+    public static int getTotalFleetCount() {
+        return totalFleetCount;
     }
 
     public String getId() { return id; }
@@ -37,12 +48,22 @@ public abstract class Vehicle {
     public void setBrand(String brand) { this.brand = brand; }
     public String getModel() { return model; }
     public void setModel(String model) { this.model = model; }
-    public double getDailyRate() { return dailyRate; }
-    public void setDailyRate(double dailyRate) { this.dailyRate = dailyRate; }
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public double getDailyRate() { return dailyRate; }
+
+    // 2. STANDARD METHOD
+    public void setDailyRate(double dailyRate) {
+        this.dailyRate = dailyRate;
+    }
+
+    // 3. OVERLOADED METHOD (COMPILE-TIME POLYMORPHISM)
+    public void setDailyRate(double baseRate, double discountAmount) {
+        this.dailyRate = baseRate - discountAmount;
+    }
 
     public abstract String getVehicleType();
     public abstract double calculateRentalRate();
