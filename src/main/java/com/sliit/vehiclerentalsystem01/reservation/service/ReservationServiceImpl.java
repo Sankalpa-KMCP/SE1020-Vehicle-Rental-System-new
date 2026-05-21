@@ -6,6 +6,8 @@ import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
 import com.sliit.vehiclerentalsystem01.reservation.repository.ReservationRepository;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
+import com.sliit.vehiclerentalsystem01.vehicle.entity.Vehicle;
+import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +27,16 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserService userService;
     private final PaymentService paymentService;
+    private final VehicleService vehicleService;
 
     public ReservationServiceImpl(ReservationRepository reservationRepository,
                                   UserService userService,
-                                  @Lazy PaymentService paymentService) {
+                                  @Lazy PaymentService paymentService,
+                                  @Lazy VehicleService vehicleService) {
         this.reservationRepository = reservationRepository;
         this.userService = userService;
         this.paymentService = paymentService;
+        this.vehicleService = vehicleService;
     }
 
     @Override
@@ -82,6 +87,18 @@ public class ReservationServiceImpl implements ReservationService {
         list.removeIf(b -> booking.getId().equals(b.getId()));
         list.add(booking);
         reservationRepository.saveAll(list);
+
+        if ("RENTED".equalsIgnoreCase(booking.getStatus())) {
+            updateVehicleStatus(booking.getVehicleId(), "RENTED");
+        } else if ("MAINTENANCE".equalsIgnoreCase(booking.getStatus())) {
+            updateVehicleStatus(booking.getVehicleId(), "MAINTENANCE");
+        } else if ("COMPLETED".equalsIgnoreCase(booking.getStatus()) || "CANCELLED".equalsIgnoreCase(booking.getStatus()) || "REJECTED".equalsIgnoreCase(booking.getStatus())) {
+            vehicleService.findById(booking.getVehicleId()).ifPresent(v -> {
+                if ("RENTED".equalsIgnoreCase(v.getStatus())) {
+                    updateVehicleStatus(booking.getVehicleId(), "AVAILABLE");
+                }
+            });
+        }
     }
 
     @Override
@@ -102,15 +119,39 @@ public class ReservationServiceImpl implements ReservationService {
         }
         List<Booking> list = new ArrayList<>(reservationRepository.findAll());
         boolean changed = false;
+        String vehicleIdToUpdate = null;
+        String statusToSet = null;
         for (Booking b : list) {
             if (bookingId.equals(b.getId())) {
                 b.setStatus(newStatus);
                 changed = true;
+                if ("RENTED".equalsIgnoreCase(newStatus)) {
+                    vehicleIdToUpdate = b.getVehicleId();
+                    statusToSet = "RENTED";
+                } else if ("MAINTENANCE".equalsIgnoreCase(newStatus)) {
+                    vehicleIdToUpdate = b.getVehicleId();
+                    statusToSet = "MAINTENANCE";
+                } else if ("COMPLETED".equalsIgnoreCase(newStatus) || "CANCELLED".equalsIgnoreCase(newStatus) || "REJECTED".equalsIgnoreCase(newStatus)) {
+                    vehicleIdToUpdate = b.getVehicleId();
+                    statusToSet = "AVAILABLE";
+                }
                 break;
             }
         }
         if (changed) {
             reservationRepository.saveAll(list);
+            if (vehicleIdToUpdate != null && statusToSet != null) {
+                if ("AVAILABLE".equals(statusToSet)) {
+                    final String targetStatus = statusToSet;
+                    vehicleService.findById(vehicleIdToUpdate.trim()).ifPresent(v -> {
+                        if ("RENTED".equalsIgnoreCase(v.getStatus())) {
+                            updateVehicleStatus(v.getId(), targetStatus);
+                        }
+                    });
+                } else {
+                    updateVehicleStatus(vehicleIdToUpdate, statusToSet);
+                }
+            }
         }
     }
 
@@ -212,6 +253,15 @@ public class ReservationServiceImpl implements ReservationService {
         }
     }
 
+    private void updateVehicleStatus(String vehicleId, String status) {
+        if (vehicleId != null && !vehicleId.isBlank()) {
+            vehicleService.findById(vehicleId.trim()).ifPresent(v -> {
+                v.setStatus(status);
+                vehicleService.save(v);
+            });
+        }
+    }
+
     private void validateBeforeSave(Booking booking) {
         int days = booking.getDurationDays();
         if (days < 1) {
@@ -231,6 +281,22 @@ public class ReservationServiceImpl implements ReservationService {
         String vehicleId = normalized(booking.getVehicleId());
         if (vehicleId.isEmpty()) {
             throw new ValidationException("vehicle_unavailable");
+        }
+
+        boolean isNewBooking = true;
+        if (booking.getId() != null && !booking.getId().isBlank()) {
+            isNewBooking = reservationRepository.findAll().stream().noneMatch(b -> booking.getId().equals(b.getId()));
+        }
+        if (isNewBooking) {
+            Optional<Vehicle> vOpt = vehicleService.findById(vehicleId);
+            if (vOpt.isEmpty() || !"AVAILABLE".equalsIgnoreCase(vOpt.get().getStatus())) {
+                throw new ValidationException("vehicle_unavailable");
+            }
+        } else {
+            Optional<Vehicle> vOpt = vehicleService.findById(vehicleId);
+            if (vOpt.isPresent() && "MAINTENANCE".equalsIgnoreCase(vOpt.get().getStatus())) {
+                throw new ValidationException("vehicle_unavailable");
+            }
         }
 
         String selfId = booking.getId() == null ? "" : booking.getId();
@@ -264,6 +330,9 @@ public class ReservationServiceImpl implements ReservationService {
         return "CONFIRMED".equalsIgnoreCase(s)
                 || "PENDING".equalsIgnoreCase(s)
                 || "UPDATED".equalsIgnoreCase(s)
+                || "UPDATE_REQUESTED".equalsIgnoreCase(s)
+                || "RENTED".equalsIgnoreCase(s)
+                || "MAINTENANCE".equalsIgnoreCase(s)
                 || "CANCELLATION_REQUESTED".equalsIgnoreCase(s);
     }
 

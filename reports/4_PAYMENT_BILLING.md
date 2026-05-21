@@ -23,6 +23,7 @@ This component's responsibilities are divided across standard Spring Boot MVC ti
   * [Payment.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/Payment.java): Abstract base class defining common fields (`id`, `bookingId`, `amount`, `status`) and declaring abstract methods `getPaymentMethod()` and `getPaymentType()`.
   * [CardPayment.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/CardPayment.java): Concrete subclass representing credit/debit card transactions.
   * [CashPayment.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/CashPayment.java): Concrete subclass representing cash ledger entries.
+  * [PaymentStatus.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/PaymentStatus.java): Normalized status constants; [PaymentRepository](../src/main/java/com/sliit/vehiclerentalsystem01/payment/repository/PaymentRepository.java) normalizes the CSV status column through `PaymentStatus.fromString(...)` when loading rows.
 * **Repositories (Data Access Layer):**
   * [PaymentRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/payment/repository/PaymentRepository.java): Manages file storage serialization, legacy pipe parsing, and CSV operations for card and cash payments.
 * **Services (Business Logic):**
@@ -99,7 +100,7 @@ Polymorphism is demonstrated by overriding the `getPaymentMethod()` method, whic
 ## 4. Flat-File Persistence Schema (`data/payments.txt`)
 Payment logs are serialized in a comma-delimited format inside `data/payments.txt`. The first column acts as the type discriminator:
 * **Record Schema:**
-  `CARD/CASH,id,bookingId,amount,status`
+  `CARD|CASH,id,bookingId,amount,status` (the fifth column is parsed into [PaymentStatus](../src/main/java/com/sliit/vehiclerentalsystem01/payment/entity/PaymentStatus.java) names such as `PAID`, `PENDING`, `VERIFYING`, `REFUNDED`, `FAILED`, with synonyms mapped by `fromString`.)
 * **Sample Entries:**
   `CARD,PAY-001,TXN-101,250.0,PAID`
   `CASH,PAY-002,TXN-102,120.0,PENDING`

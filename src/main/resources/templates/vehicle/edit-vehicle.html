@@ -2,132 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <th:block th:replace="~{fragments/admin-shell :: adminHead('Edit Vehicle - DriveAway')}"></th:block>
-    <style>
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* DriveAway Premium Obsidian Dark theme variables */
-        .admin-shell {
-          --admin-navy: #050506;
-          --admin-navy-mid: #0c0c0e;
-          --admin-charcoal: #f4f2ee;
-          --admin-charcoal-muted: #a8a6a0;
-          --admin-bg: #050506;
-          --admin-canvas: #050506;
-          --admin-surface: #0c0c0e;
-          --admin-glass: rgba(12, 12, 14, 0.85);
-          --admin-text: #f4f2ee;
-          --admin-text-muted: #a8a6a0;
-          --admin-border: rgba(255, 255, 255, 0.08);
-
-          background:
-            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
-            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
-            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
-            #050506;
-          background-size: 24px 24px, auto, auto, auto;
-        }
-
-        .admin-main {
-          background:
-            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
-            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
-            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
-            var(--admin-navy);
-          background-size: 24px 24px, auto, auto, auto;
-        }
-
-        /* Premium Obsidian Black Sidebar override */
-        .admin-sidebar {
-          background:
-            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
-            radial-gradient(ellipse 100% 35% at 50% 0%, rgba(201, 169, 98, 0.12), transparent 60%),
-            linear-gradient(180deg, #050506 0%, #0c0c0e 45%, #020203 100%) !important;
-          background-size: 20px 20px, auto, auto !important;
-          border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
-        }
-
-        /* Sleek buttons and elements in topbar override */
-        .admin-topbar__menu-btn,
-        .admin-topbar__collapse-btn,
-        .admin-topbar__logout,
-        .admin-topbar__user {
-          background: rgba(255, 255, 255, 0.05) !important;
-          border-color: rgba(255, 255, 255, 0.08) !important;
-          color: #f4f2ee !important;
-        }
-
-        .admin-topbar__menu-btn:hover,
-        .admin-topbar__collapse-btn:hover,
-        .admin-topbar__logout:hover,
-        .admin-topbar__user:hover {
-          background: rgba(255, 255, 255, 0.1) !important;
-          border-color: rgba(201, 169, 98, 0.35) !important;
-          color: #e8d5a3 !important;
-        }
-
-        /* Override Tailwind background classes */
-        .bg-white {
-          background-color: #0c0c0e !important;
-          border-color: rgba(255, 255, 255, 0.08) !important;
-        }
-
-        .border-slate-200 {
-          border-color: rgba(255, 255, 255, 0.08) !important;
-        }
-
-        /* Text colors */
-        .text-gray-800,
-        .text-gray-900,
-        .text-gray-700 {
-          color: #f4f2ee !important;
-        }
-
-        .text-gray-500 {
-          color: #a8a6a0 !important;
-        }
-
-        .text-indigo-600 {
-          color: #c9a962 !important;
-        }
-
-        /* Form elements style overrides */
-        #vehicleForm input[type="text"],
-        #vehicleForm input[type="number"],
-        #vehicleForm select {
-          background-color: rgba(255, 255, 255, 0.03) !important;
-          border-color: rgba(255, 255, 255, 0.08) !important;
-          color: #f4f2ee !important;
-        }
-
-        #vehicleForm input[type="text"]:focus,
-        #vehicleForm input[type="number"]:focus,
-        #vehicleForm select:focus {
-          border-color: #c9a962 !important;
-          box-shadow: 0 0 0 2px rgba(201, 169, 98, 0.25) !important;
-        }
-
-        /* Primary and Secondary button overrides */
-        #vehicleForm button[type="submit"] {
-          background: linear-gradient(135deg, #c9a962 0%, #e8d5a3 100%) !important;
-          color: #050506 !important;
-          font-weight: 800 !important;
-          box-shadow: 0 10px 20px rgba(201, 169, 98, 0.18) !important;
-        }
-
-        #vehicleForm button[type="submit"]:hover {
-          box-shadow: 0 12px 24px rgba(201, 169, 98, 0.28) !important;
-        }
-
-        #vehicleForm a.bg-gray-100 {
-          background-color: rgba(255, 255, 255, 0.05) !important;
-          color: #f4f2ee !important;
-        }
-
-        #vehicleForm a.bg-gray-100:hover {
-          background-color: rgba(255, 255, 255, 0.1) !important;
-        }
-    </style>
 </head>
 <body class="admin-shell text-gray-800">
 <th:block th:replace="~{fragments/admin-shell :: shellOpen('vehicles', 'Edit Vehicle')}"></th:block>
@@ -138,7 +13,7 @@
         <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Edit <span class="text-indigo-600">Vehicle</span></h1>
         <p class="text-gray-500 mt-2 font-medium">Update specifications; changes apply immediately after save.</p>
     </header>
-    <form method="post" th:action="@{/vehicles}" enctype="multipart/form-data" class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-6" id="vehicleForm">
+    <form method="post" th:action="@{/vehicles}" enctype="multipart/form-data" class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-6 max-w-3xl mx-auto" id="vehicleForm">
         <input type="hidden" name="action" value="update"/>
         <input type="hidden" name="id" th:value="${vehicle.id}"/>
         <div class="grid md:grid-cols-2 gap-5">
@@ -151,19 +26,35 @@
                 <input type="text" name="model" th:value="${vehicle.model}" required class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"/>
             </label>
         </div>
+
+        <div class="grid md:grid-cols-2 gap-5">
+            <label class="block">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Daily rate (LKR)</span>
+                <input type="number" step="0.01" name="rate" th:value="${vehicle.dailyRate}" required class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"/>
+            </label>
+            <label class="block">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vehicle type</span>
+                <select name="vehicleType" id="vehicleType" onchange="toggleVehicleFields()" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                    <option value="Car" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Car)}">Car</option>
+                    <option value="Motorcycle" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle)}">Motorcycle</option>
+                </select>
+            </label>
+        </div>
+
         <label class="block">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Daily rate ($)</span>
-            <input type="number" step="0.01" name="rate" th:value="${vehicle.dailyRate}" required class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"/>
-        </label>
-        <label class="block">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vehicle type</span>
-            <select name="vehicleType" id="vehicleType" onchange="toggleVehicleFields()" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
-                <option value="Car" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Car)}">Car</option>
-                <option value="Motorcycle" th:selected="${vehicle instanceof T(com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle)}">Motorcycle</option>
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vehicle Operational Status</span>
+            <select name="status" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                <option value="AVAILABLE" th:selected="${vehicle.status == 'AVAILABLE' || vehicle.status == null || vehicle.status == ''}">🟢 Available (In Yard)</option>
+                <option value="MAINTENANCE" th:selected="${vehicle.status == 'MAINTENANCE'}">🟡 Under Maintenance</option>
+                <option value="RENTED" th:selected="${vehicle.status == 'RENTED'}">🚗 Rented / Driven Off Site</option>
             </select>
         </label>
 
         <div class="pt-2">
+            <div class="mb-4">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-2">Current Asset View</span>
+                <img th:src="@{${vehicle.imagePath}}" alt="Current Image" class="h-32 object-cover rounded-lg border border-gray-200 shadow-sm" onerror="this.src='/images/default-vehicle.png'"/>
+            </div>
             <label class="block">
                 <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vehicle Image (Optional - leave blank to keep current)</span>
                 <input type="file" name="imageFile" accept="image/png, image/jpeg, image/webp"

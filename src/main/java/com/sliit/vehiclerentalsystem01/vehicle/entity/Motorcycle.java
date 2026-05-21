@@ -1,5 +1,6 @@
 package com.sliit.vehiclerentalsystem01.vehicle.entity;
 
+//inheritance
 public class Motorcycle extends Vehicle {
 
     private boolean helmetIncluded;
@@ -9,8 +10,9 @@ public class Motorcycle extends Vehicle {
         this.helmetIncluded = false;
     }
 
-    public Motorcycle(String id, String brand, String model, double dailyRate, boolean helmetIncluded, String imagePath) {
-        super(id, brand, model, dailyRate, imagePath);
+
+    public Motorcycle(String id, String brand, String model, double dailyRate, boolean helmetIncluded, String imagePath, String status) {
+        super(id, brand, model, dailyRate, imagePath, status);
         this.helmetIncluded = helmetIncluded;
     }
 
@@ -41,6 +43,6 @@ public class Motorcycle extends Vehicle {
     @Override
     public String toCSV() {
         return "Motorcycle," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + ","
-                + helmetIncluded + "," + getImagePath();
+                + helmetIncluded + "," + getImagePath() + "," + getStatus();
     }
 }

@@ -134,11 +134,7 @@ public class CustomerPortalController {
             return "redirect:/";
         }
         List<Vehicle> all = vehicleService.findAll();
-        Set<String> unavailable = reservationService.findUnavailableVehicleIds();
-        List<Vehicle> available = all.stream()
-                .filter(v -> !unavailable.contains(v.getId()))
-                .collect(Collectors.toList());
-        model.addAttribute("vehicles", available);
+        model.addAttribute("vehicles", all);
         return "vehicle/vehicle-browse";
     }
 
@@ -291,7 +287,10 @@ public class CustomerPortalController {
     }
 
     @GetMapping("/billing/gateway")
-    public String billingGateway(HttpSession session, @RequestParam String bookingId, Model model) {
+    public String billingGateway(HttpSession session,
+                                 @RequestParam String bookingId,
+                                 @RequestParam(required = false) String error,
+                                 Model model) {
         if (!customer(session)) {
             return "redirect:/auth/login";
         }
@@ -315,12 +314,14 @@ public class CustomerPortalController {
         model.addAttribute("booking", booking);
         model.addAttribute("payment", payment);
         model.addAttribute("vehicle", vehicleService.findById(booking.getVehicleId()).orElse(null));
+        model.addAttribute("gatewayError", error);
         return "payment/fake-payment-gateway";
     }
 
     @PostMapping("/billing/gateway/complete")
     public String completeBillingGateway(HttpSession session,
                                          @RequestParam String bookingId,
+                                         @RequestParam(required = false) Double paymentAmount,
                                          @RequestParam(required = false) String cardNumber,
                                          @RequestParam(required = false) String cardName,
                                          @RequestParam(required = false) String expiry,
@@ -337,6 +338,12 @@ public class CustomerPortalController {
         }
         Payment payment = paymentService.findLatestByBookingId(bid)
                 .orElseGet(() -> createPendingGatewayPayment(ob.get()));
+        if (isBlank(cardName) || isBlank(cardNumber) || isBlank(expiry) || isBlank(cvv)) {
+            return "redirect:/customer/billing/gateway?bookingId=" + bid + "&error=missing_card_details";
+        }
+        if (paymentAmount == null || Math.abs(paymentAmount - payment.getAmount()) > 0.01) {
+            return "redirect:/customer/billing/gateway?bookingId=" + bid + "&error=amount_mismatch";
+        }
         payment.setStatus("PAID");
         try {
             paymentService.save(payment);
@@ -356,6 +363,10 @@ public class CustomerPortalController {
                 "PENDING");
         paymentService.save(payment);
         return payment;
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
     @GetMapping("/pay")
@@ -470,7 +481,15 @@ public class CustomerPortalController {
             myReviews = List.of();
             model.addAttribute("reviewError", "Could not load your reviews. Please try again later.");
         }
+        double avgRating = 0.0;
+        if (!myReviews.isEmpty()) {
+            avgRating = myReviews.stream()
+                    .mapToInt(CustomerReview::getRating)
+                    .average()
+                    .orElse(0.0);
+        }
         model.addAttribute("myReviews", myReviews);
+        model.addAttribute("avgRating", avgRating);
         return "review/customer-reviews-list";
     }
 
@@ -580,6 +599,16 @@ public class CustomerPortalController {
                     cr.setComments(comments.trim());
                     String imgUrl = saveReviewImage(image);
                     if (imgUrl != null && !imgUrl.isEmpty()) {
+                        String oldImgUrl = cr.getImageUrl();
+                        if (oldImgUrl != null && !oldImgUrl.isBlank()) {
+                            try {
+                                String pathStr = oldImgUrl.startsWith("/") ? oldImgUrl.substring(1) : oldImgUrl;
+                                java.nio.file.Path path = java.nio.file.Paths.get(pathStr);
+                                java.nio.file.Files.deleteIfExists(path);
+                            } catch (java.io.IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         cr.setImageUrl(imgUrl);
                     }
                     try {

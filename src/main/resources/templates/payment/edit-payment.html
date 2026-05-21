@@ -5,17 +5,81 @@
     <style>
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Premium Obsidian Dark theme overrides matching Central Dashboard */
+        .admin-shell {
+          --admin-navy: #050506;
+          --admin-navy-mid: #0c0c0e;
+          --admin-charcoal: #f4f2ee;
+          --admin-charcoal-muted: #a8a6a0;
+          --admin-bg: #050506;
+          --admin-canvas: #050506;
+          --admin-surface: #0c0c0e;
+          --admin-glass: rgba(12, 12, 14, 0.85);
+          --admin-text: #f4f2ee;
+          --admin-text-muted: #a8a6a0;
+          --admin-border: rgba(255, 255, 255, 0.08);
+
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            #050506 !important;
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        .admin-main {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
+            var(--admin-navy) !important;
+          background-size: 24px 24px, auto, auto, auto;
+        }
+
+        .admin-sidebar {
+          background:
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+            radial-gradient(ellipse 100% 35% at 50% 0%, rgba(201, 169, 98, 0.12), transparent 60%),
+            linear-gradient(180deg, #050506 0%, #0c0c0e 45%, #020203 100%) !important;
+          background-size: 20px 20px, auto, auto !important;
+          border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+
+        .admin-topbar__menu-btn, .admin-topbar__collapse-btn, .admin-topbar__logout, .admin-topbar__user {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          color: #f4f2ee !important;
+        }
+
+        /* Box and Element Styles */
+        .bg-white, .bg-slate-900, .bg-gray-100 { background: #0c0c0e !important; border-color: rgba(255,255,255,0.08) !important; color: #f4f2ee !important; }
+        .text-gray-900, .text-gray-800, .text-gray-700 { color: #f4f2ee !important; }
+        .text-gray-500, .text-gray-600, .text-slate-500 { color: #a8a6a0 !important; }
+        .bg-slate-50, .bg-gray-50 { background: #050506 !important; border-color: rgba(255,255,255,0.08) !important; color: #f4f2ee !important; }
+        .border-slate-100, .border-slate-200, .border-slate-600, .border-white\/20, .border-b, .border-gray-200, .border-gray-100 { border-color: rgba(255,255,255,0.05) !important; }
+        
+        .hover\:bg-emerald-50\/50:hover, .hover\:bg-gray-50:hover { background-color: rgba(201, 169, 98, 0.05) !important; }
+        td, th, span:not(.font-bold), div, label, p, h1, h2, h3, select, input { color: #f4f2ee !important; }
+        
+        input, select { background-color: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #f4f2ee !important; }
+        input:focus, select:focus { border-color: #c9a962 !important; box-shadow: 0 0 0 2px rgba(201,169,98,0.2) !important; }
+        
+        button[type="submit"], .bg-blue-600, .bg-slate-800, .bg-slate-700, .bg-sky-600 { background: #c9a962 !important; color: #050506 !important; border: none !important; }
+        button[type="submit"]:hover, .hover\:bg-blue-700:hover, .hover\:bg-slate-900:hover, .hover\:bg-slate-600:hover, .hover\:bg-sky-500:hover { background: #e8d5a3 !important; }
+        
+        .bg-gradient-to-br { background: linear-gradient(135deg, #0a0a0b 0%, #141418 100%) !important; border: 1px solid rgba(201, 169, 98, 0.2) !important; }
     </style>
 </head>
-<body class="admin-shell text-gray-800">
+<body class="admin-shell">
 <th:block th:replace="~{fragments/admin-shell :: shellOpen('payments', 'Edit Payment')}"></th:block>
 <div class="fade-in">
 
 
-<div class="bg-gradient-to-br from-[#0D6EFD] to-[#0a58ca] rounded-3xl p-10 sm:p-12 text-white shadow-lg mb-8 relative overflow-hidden">
+<div class="bg-gradient-to-br from-[#141418] to-[#0a0a0b] border border-[#c9a962]/30 rounded-3xl p-10 sm:p-12 text-white shadow-lg mb-8 relative overflow-hidden">
         <div class="relative z-10">
-            <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Edit Payment</h1>
-            <p class="text-blue-100 text-lg font-medium max-w-2xl leading-relaxed">Update the transaction details using the same clean portal design.</p>
+            <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Modify Transaction</h1>
+            <p class="text-[#a8a6a0] text-lg font-medium max-w-2xl leading-relaxed">Update the payment record and ledger metadata.</p>
         </div>
         <i class="ph-fill ph-pencil-simple absolute -right-8 -bottom-16 text-[220px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
     </div>
@@ -31,9 +95,7 @@
             </div>
         </div>
 
-        <form th:action="@{/payments}" method="post" class="space-y-6">
-            <input type="hidden" name="action" value="update"/>
-            <input type="hidden" name="id" th:value="${payment.paymentId}"/>
+        <form th:action="@{/payments/{id}(id=${payment.id})}" method="post" class="space-y-6">
 
             <div>
                 <label for="bookingId" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Booking Ref</label>
@@ -41,16 +103,16 @@
             </div>
 
             <div>
-                <label for="amount" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Amount ($)</label>
+                <label for="amount" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Amount (LKR)</label>
                 <input id="amount" type="number" step="0.01" name="amount" th:value="${payment.amount}" required class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 shadow-inner"/>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                    <label for="method" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Method</label>
-                    <select id="method" name="method" class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 shadow-inner">
-                        <option value="Card" th:selected="${#strings.containsIgnoreCase(payment.paymentMethod, 'Card')}">Card</option>
-                        <option value="Cash" th:selected="${#strings.containsIgnoreCase(payment.paymentMethod, 'Cash')}">Cash</option>
+                    <label for="paymentType" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Method</label>
+                    <select id="paymentType" name="paymentType" class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 shadow-inner">
+                        <option value="CARD" th:selected="${#strings.equalsIgnoreCase(paymentType, 'CARD')}">Card</option>
+                        <option value="CASH" th:selected="${#strings.equalsIgnoreCase(paymentType, 'CASH')}">Cash</option>
                     </select>
                 </div>
                 <div>
@@ -65,8 +127,8 @@
 
             <div class="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <a th:href="@{/payments}" class="text-gray-500 hover:text-gray-800 font-bold px-4 py-2 transition-colors order-2 sm:order-1">Cancel</a>
-                <button type="submit" class="w-full sm:w-auto bg-[#0D6EFD] hover:bg-blue-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all flex justify-center items-center gap-2 transform hover:-translate-y-0.5 order-1 sm:order-2">
-                    <i class="ph-bold ph-floppy-disk text-lg"></i> Update Data
+                <button type="submit" class="w-full sm:w-auto bg-[#c9a962] hover:bg-[#e8d5a3] text-[#050506] font-extrabold px-8 py-3.5 rounded-xl shadow-lg shadow-[#c9a962]/10 transition-all flex justify-center items-center gap-2 transform hover:-translate-y-0.5 order-1 sm:order-2">
+                    <i class="ph-bold ph-floppy-disk text-lg"></i> Update Record
                 </button>
             </div>
         </form>

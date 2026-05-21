@@ -36,7 +36,7 @@ com.sliit.vehiclerentalsystem01.review/
 * **[Feedback.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/Feedback.java)**:
   Abstract base class defining fields (ID, comments text) and declaring the abstract method `getReviewType()`.
 * **[CustomerReview.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/entity/CustomerReview.java)**:
-  Concrete subclass representing review feedback. It captures reviewer name, star rating (1-5), booking ID, vehicle ID, approval status, and staff reply fields.
+  Concrete subclass representing review feedback. It captures reviewer name, star rating (1-5), booking ID, vehicle ID, status, staff reply fields, timestamps, and optional **`imageUrl`** (11th CSV field when present).
 
 ### C. Repository Tier (`repository/`)
 * **[ReviewRepository.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/repository/ReviewRepository.java)**:
@@ -46,7 +46,7 @@ com.sliit.vehiclerentalsystem01.review/
 * **[ReviewService.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/service/ReviewService.java)**:
   Interface outlining review moderation signatures (registering, modifying, approving, and replying to reviews).
 * **[ReviewServiceImpl.java](../src/main/java/com/sliit/vehiclerentalsystem01/review/service/ReviewServiceImpl.java)**:
-  Implements reviews moderation behaviors: validating star rating bounds (must be between 1 and 5), handling approval states (`PENDING` -> `APPROVED`), and tracking replying staff usernames and timestamps.
+  Implements persistence orchestration: rating bounds checks (1–5), replace-by-id saves, and delete-by-id; customer submissions set status in [CustomerPortalController](../src/main/java/com/sliit/vehiclerentalsystem01/user/controller/CustomerPortalController.java) (typically **`PUBLISHED`**).
 
 ---
 

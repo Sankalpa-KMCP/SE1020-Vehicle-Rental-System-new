@@ -7,6 +7,7 @@ public abstract class Vehicle {
     private String model;
     private double dailyRate;
     private String imagePath;
+    private String status;
 
     public Vehicle() {
         this.id = "";
@@ -14,60 +15,39 @@ public abstract class Vehicle {
         this.model = "";
         this.dailyRate = 0.0;
         this.imagePath = "";
+        this.status = "AVAILABLE";
     }
 
-    protected Vehicle(String id, String brand, String model, double dailyRate, String imagePath) {
+    protected Vehicle(String id, String brand, String model, double dailyRate, String imagePath, String status) {
         this.id = id;
         this.brand = brand;
         this.model = model;
         this.dailyRate = dailyRate;
         this.imagePath = imagePath;
+        // Logic: Accept only valid fleet states
+        this.status = (status != null && (status.equalsIgnoreCase("AVAILABLE") ||
+                status.equalsIgnoreCase("MAINTENANCE") ||
+                status.equalsIgnoreCase("RENTED")))
+                ? status.toUpperCase() : "AVAILABLE";
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    public double getDailyRate() {
-        return dailyRate;
-    }
-
-    public void setDailyRate(double dailyRate) {
-        this.dailyRate = dailyRate;
-    }
-
-    public String getImagePath() {
-        return imagePath;
-    }
-
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getBrand() { return brand; }
+    public void setBrand(String brand) { this.brand = brand; }
+    public String getModel() { return model; }
+    public void setModel(String model) { this.model = model; }
+    public double getDailyRate() { return dailyRate; }
+    public void setDailyRate(double dailyRate) { this.dailyRate = dailyRate; }
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public abstract String getVehicleType();
-
     public abstract double calculateRentalRate();
+    public abstract String getSpecificDetail();
+    public abstract String toCSV();
 
     @Override
     public boolean equals(Object obj) {
@@ -78,11 +58,5 @@ public abstract class Vehicle {
     }
 
     @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
-    }
-
-    public abstract String getSpecificDetail();
-
-    public abstract String toCSV();
+    public int hashCode() { return id != null ? id.hashCode() : 0; }
 }
