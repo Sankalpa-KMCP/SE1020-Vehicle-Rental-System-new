@@ -52,4 +52,16 @@ public interface PaymentService {
      * Checks if a booking has at least one successful/paid payment.
      */
     boolean hasPaidPaymentForBooking(String bookingId);
+
+    /**
+     * CRUD: READ
+     * Returns all payments linked to a specific booking ID.
+     */
+    List<Payment> findAllByBookingId(String bookingId);
+
+    /**
+     * CRUD: READ
+     * Checks if the latest payment for a booking is a Cash payment.
+     */
+    boolean isCashPaymentForBooking(String bookingId);
 }
