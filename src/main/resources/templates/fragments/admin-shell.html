@@ -1,28 +1,29 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <!-- Shared head assets for admin pages -->
+  <th:block th:fragment="adminHead(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title != null ? title : 'DriveAway - Admin'}">DriveAway - Admin</title>
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('adminSidebarCollapsed') === 'true') {
+            document.documentElement.classList.add('sidebar-collapsed');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/admin-dashboard.css(v=2.1)}"/>
+  </th:block>
+</head>
 <body>
-
-<!-- Shared head assets for admin pages -->
-<th:block th:fragment="adminHead(title)">
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title th:text="${title != null ? title : 'DriveAway - Admin'}">DriveAway - Admin</title>
-  <script>
-    (function () {
-      try {
-        if (localStorage.getItem('adminSidebarCollapsed') === 'true') {
-          document.documentElement.classList.add('sidebar-collapsed');
-        }
-      } catch (e) {}
-    })();
-  </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" th:href="@{/css/admin-dashboard.css(v=2.1)}"/>
-</th:block>
 
 <!-- Mobile overlay -->
 <div th:fragment="mobileOverlay" class="admin-mobile-overlay" id="admin-mobile-overlay" aria-hidden="true"></div>
@@ -119,13 +120,17 @@
 <th:block th:fragment="shellOpen(activeNav, pageTitle)">
   <div th:replace="~{fragments/admin-shell :: mobileOverlay}"></div>
   <aside th:replace="~{fragments/admin-shell :: sidebar(${activeNav})}"></aside>
+  <!--noinspection HtmlMissingClosingTag-->
   <div class="admin-content-wrapper">
     <header th:replace="~{fragments/admin-shell :: topbar(${pageTitle})}"></header>
+    <!--noinspection HtmlMissingClosingTag-->
     <main class="admin-main admin-fade-in">
 </th:block>
 
 <th:block th:fragment="shellClose">
+    <!--noinspection HtmlExtraClosingTag-->
     </main>
+  <!--noinspection HtmlExtraClosingTag-->
   </div>
 </th:block>
 
