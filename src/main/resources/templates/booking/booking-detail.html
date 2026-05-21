@@ -27,6 +27,8 @@
             <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Status</p>
             <span th:if="${#strings.equalsIgnoreCase(booking.status,'CONFIRMED')}" class="bg-green-50 text-green-700 border border-green-200 font-bold px-3 py-1 rounded-lg text-sm">Confirmed</span>
             <span th:if="${#strings.equalsIgnoreCase(booking.status,'PENDING')}" class="bg-yellow-50 text-yellow-700 border border-yellow-200 font-bold px-3 py-1 rounded-lg text-sm">Pending</span>
+            <span th:if="${#strings.equalsIgnoreCase(booking.status,'RENTED')}" class="bg-purple-50 text-purple-700 border border-purple-200 font-bold px-3 py-1 rounded-lg text-sm">Rented</span>
+            <span th:if="${#strings.equalsIgnoreCase(booking.status,'MAINTENANCE')}" class="bg-yellow-50 text-yellow-700 border border-yellow-200 font-bold px-3 py-1 rounded-lg text-sm">Maintenance</span>
             <span th:if="${#strings.equalsIgnoreCase(booking.status,'UPDATE_REQUESTED')}" class="bg-blue-50 text-blue-700 border border-blue-200 font-bold px-3 py-1 rounded-lg text-sm">Edit Requested</span>
             <span th:if="${#strings.equalsIgnoreCase(booking.status,'CANCELLATION_REQUESTED')}" class="bg-red-50 text-red-700 border border-red-200 font-bold px-3 py-1 rounded-lg text-sm">Cancel Requested</span>
             <span th:if="${#strings.equalsIgnoreCase(booking.status,'CANCELLED')}" class="bg-gray-100 text-gray-500 font-bold px-3 py-1 rounded-lg text-sm">Cancelled</span>

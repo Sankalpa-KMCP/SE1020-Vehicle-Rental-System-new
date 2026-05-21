@@ -109,6 +109,8 @@
                     <td class="py-5 px-6">
                         <span th:if="${#strings.equalsIgnoreCase(b.status,'CONFIRMED')}" class="bg-green-50 text-green-700 border border-green-200 font-bold px-3 py-1 rounded-lg text-xs">Confirmed</span>
                         <span th:if="${#strings.equalsIgnoreCase(b.status,'PENDING')}" class="bg-yellow-50 text-yellow-700 border border-yellow-200 font-bold px-3 py-1 rounded-lg text-xs">New Pending</span>
+                        <span th:if="${#strings.equalsIgnoreCase(b.status,'RENTED')}" class="bg-purple-50 text-purple-700 border border-purple-200 font-bold px-3 py-1 rounded-lg text-xs">Rented</span>
+                        <span th:if="${#strings.equalsIgnoreCase(b.status,'MAINTENANCE')}" class="bg-amber-50 text-amber-700 border border-amber-200 font-bold px-3 py-1 rounded-lg text-xs">Maintenance</span>
                         <div th:if="${#strings.equalsIgnoreCase(b.status,'UPDATE_REQUESTED')}" class="flex flex-col gap-1">
                             <span class="bg-blue-50 text-blue-700 border border-blue-200 font-bold px-3 py-1 rounded-lg text-xs w-max">Edit Requested</span>
                             <p class="text-[10px] text-blue-600 font-bold">REQ: <span th:text="${b.staffMessage != null ? #strings.replace(b.staffMessage, '|', ' / ') : 'N/A'}">N/A</span> Days</p>
@@ -116,7 +118,7 @@
                         <span th:if="${#strings.equalsIgnoreCase(b.status,'CANCELLATION_REQUESTED')}" class="bg-red-50 text-red-700 border border-red-200 font-bold px-3 py-1 rounded-lg text-xs">Cancel Req</span>
                         <span th:if="${#strings.equalsIgnoreCase(b.status,'CANCELLED')}" class="bg-gray-100 text-gray-500 font-bold px-3 py-1 rounded-lg text-xs">Cancelled</span>
                         <span th:if="${#strings.equalsIgnoreCase(b.status,'REJECTED')}" class="bg-gray-50 text-gray-600 px-3 py-1 rounded-lg text-xs">Rejected</span>
-                        <span th:if="${!#strings.equalsIgnoreCase(b.status,'CONFIRMED') and !#strings.equalsIgnoreCase(b.status,'PENDING') and !#strings.equalsIgnoreCase(b.status,'UPDATE_REQUESTED') and !#strings.equalsIgnoreCase(b.status,'CANCELLATION_REQUESTED') and !#strings.equalsIgnoreCase(b.status,'CANCELLED') and !#strings.equalsIgnoreCase(b.status,'REJECTED')}" class="bg-gray-50 text-gray-600 px-3 py-1 rounded-lg text-xs" th:text="${b.status}">Other</span>
+                        <span th:if="${!#strings.equalsIgnoreCase(b.status,'CONFIRMED') and !#strings.equalsIgnoreCase(b.status,'PENDING') and !#strings.equalsIgnoreCase(b.status,'RENTED') and !#strings.equalsIgnoreCase(b.status,'MAINTENANCE') and !#strings.equalsIgnoreCase(b.status,'UPDATE_REQUESTED') and !#strings.equalsIgnoreCase(b.status,'CANCELLATION_REQUESTED') and !#strings.equalsIgnoreCase(b.status,'CANCELLED') and !#strings.equalsIgnoreCase(b.status,'REJECTED')}" class="bg-gray-50 text-gray-600 px-3 py-1 rounded-lg text-xs" th:text="${b.status}">Other</span>
                     </td>
                     <td class="py-5 px-6 text-right">
                         <div class="flex justify-end gap-2">

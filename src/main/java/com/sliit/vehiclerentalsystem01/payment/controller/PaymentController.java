@@ -80,9 +80,16 @@ public class PaymentController {
      * Process the submission of a new payment record.
      */
     @PostMapping
-    public String create(HttpSession session, @RequestParam String paymentType, @ModelAttribute CardPayment cardPayment, @ModelAttribute CashPayment cashPayment, RedirectAttributes ra) {
+    public String create(HttpSession session,
+                         @RequestParam(required = false) String paymentType,
+                         @RequestParam(required = false) String method,
+                         @RequestParam(required = false) String manualId,
+                         @ModelAttribute CardPayment cardPayment,
+                         @ModelAttribute CashPayment cashPayment,
+                         RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/auth/staff-login";
-        Payment toSave = "CASH".equalsIgnoreCase(paymentType) ? cashPayment : cardPayment;
+        String selectedType = (paymentType == null || paymentType.isBlank()) ? method : paymentType;
+        Payment toSave = "CASH".equalsIgnoreCase(selectedType) ? cashPayment : cardPayment;
         
         // Ensure a booking ID is provided before saving
         if (toSave.getBookingId() == null || toSave.getBookingId().isBlank()) {
@@ -90,6 +97,10 @@ public class PaymentController {
             return "redirect:/payments/new";
         }
         
+        if (manualId != null && !manualId.isBlank()) {
+            toSave.setId(manualId.trim());
+        }
+
         // Auto-generate a unique Payment ID if not manually entered
         if (toSave.getId() == null || toSave.getId().isBlank()) {
             toSave.setId("PAY-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
@@ -119,9 +130,15 @@ public class PaymentController {
      * Process the update of an existing payment record.
      */
     @PostMapping("/{id}")
-    public String update(@PathVariable String id, HttpSession session, @RequestParam String paymentType, @ModelAttribute CardPayment cardPayment, @ModelAttribute CashPayment cashPayment) {
+    public String update(@PathVariable String id,
+                         HttpSession session,
+                         @RequestParam(required = false) String paymentType,
+                         @RequestParam(required = false) String method,
+                         @ModelAttribute CardPayment cardPayment,
+                         @ModelAttribute CashPayment cashPayment) {
         if (!isAdmin(session)) return "redirect:/auth/staff-login";
-        Payment toSave = "CASH".equalsIgnoreCase(paymentType) ? cashPayment : cardPayment;
+        String selectedType = (paymentType == null || paymentType.isBlank()) ? method : paymentType;
+        Payment toSave = "CASH".equalsIgnoreCase(selectedType) ? cashPayment : cardPayment;
         toSave.setId(id);
         try { paymentService.save(toSave); } catch (ValidationException ex) { return "redirect:/payments/" + id + "/edit?error=" + ex.getMessage(); }
         return "redirect:/payments";

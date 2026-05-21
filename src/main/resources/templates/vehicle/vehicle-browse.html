@@ -29,6 +29,13 @@
         <div class="bg-slate-900 h-48 bg-cover bg-center text-white relative overflow-hidden border-b border-gray-200"
              th:style="'background-image: url(' + ${v.imagePath} + ');'">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+            
+            <div class="absolute top-4 right-4 z-20">
+                <span th:if="${v.status == 'AVAILABLE' || v.status == null || v.status == ''}" class="bg-green-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-green-400">🟢 AVAILABLE</span>
+                <span th:if="${v.status == 'MAINTENANCE'}" class="bg-yellow-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-yellow-400">🟡 MAINTENANCE</span>
+                <span th:if="${v.status == 'RENTED'}" class="bg-indigo-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-indigo-400">🚗 RENTED</span>
+            </div>
+
             <div class="relative z-10 p-6 h-full flex flex-col justify-end">
                 <p class="text-blue-400 font-bold tracking-wider text-sm uppercase mb-1" th:text="${v.brand}">Brand</p>
                 <h2 class="text-2xl font-extrabold truncate drop-shadow-md" th:text="${v.model}">Model</h2>
@@ -54,9 +61,21 @@
             </ul>
         </div>
         <div class="p-4 bg-gray-50 border-t border-gray-100">
-            <a th:href="@{/customer/bookings/new(vehicleId=${v.id},rate=${v.calculateRentalRate()})}" class="w-full block text-center bg-[#0D6EFD] text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-colors shadow-md text-lg">
+            <a th:if="${v.status == 'AVAILABLE' || v.status == null || v.status == ''}"
+               th:href="@{/customer/bookings/new(vehicleId=${v.id},rate=${v.calculateRentalRate()})}"
+               class="w-full block text-center bg-[#0D6EFD] text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-colors shadow-md text-lg">
                 Book This Vehicle
             </a>
+
+            <button th:if="${v.status == 'MAINTENANCE'}" disabled
+                    class="w-full flex justify-center items-center gap-2 bg-gray-200 text-gray-500 font-bold py-3.5 rounded-xl cursor-not-allowed shadow-inner text-lg">
+                <i class="ph-bold ph-wrench"></i> Under Maintenance
+            </button>
+
+            <button th:if="${v.status == 'RENTED'}" disabled
+                    class="w-full flex justify-center items-center gap-2 bg-indigo-50 text-indigo-400 font-bold py-3.5 rounded-xl cursor-not-allowed shadow-inner text-lg border border-indigo-100">
+                <i class="ph-bold ph-car-profile"></i> On The Road
+            </button>
         </div>
     </div>
     <div th:if="${vehicles == null or vehicles.isEmpty()}" class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-200 border-dashed">
