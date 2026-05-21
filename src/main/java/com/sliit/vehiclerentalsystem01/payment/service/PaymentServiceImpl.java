@@ -88,7 +88,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public List<Payment> findAll() {
         syncPendingPayments(); // Ensure data is up to date before fetching
-        return paymentRepository.findAll();
+        return paymentRepository.findAll().stream()
+                .filter(p -> !PaymentStatus.fromString(p.getStatus()).isDeleted())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -97,7 +99,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public Optional<Payment> findById(String id) {
         syncPendingPayments();
-        return paymentRepository.findAll().stream().filter(p -> id.equals(p.getId())).findFirst();
+        return paymentRepository.findAll().stream()
+                .filter(p -> id.equals(p.getId()) && !PaymentStatus.fromString(p.getStatus()).isDeleted())
+                .findFirst();
     }
 
     /**
@@ -129,10 +133,13 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     public void deleteById(String id) {
-        List<Payment> list = paymentRepository.findAll().stream()
-                .filter(p -> !id.equals(p.getId()))
-                .collect(Collectors.toCollection(ArrayList::new));
-        paymentRepository.saveAll(list);
+        paymentRepository.findAll().stream()
+                .filter(p -> id.equals(p.getId()))
+                .findFirst()
+                .ifPresent(p -> {
+                    p.setStatus("DELETED");
+                    save(p);
+                });
     }
 
     /**
@@ -153,7 +160,7 @@ public class PaymentServiceImpl implements PaymentService {
         // Search backwards to quickly find the latest entry
         for (int i = all.size() - 1; i >= 0; i--) {
             Payment p = all.get(i);
-            if (key.equals(p.getBookingId())) {
+            if (key.equals(p.getBookingId()) && !PaymentStatus.fromString(p.getStatus()).isDeleted()) {
                 return Optional.of(p);
             }
         }
@@ -170,7 +177,8 @@ public class PaymentServiceImpl implements PaymentService {
             return false;
         }
         String key = bookingId.trim();
-        return paymentRepository.findAll().stream().anyMatch(p -> key.equals(p.getBookingId()));
+        return paymentRepository.findAll().stream()
+                .anyMatch(p -> key.equals(p.getBookingId()) && !PaymentStatus.fromString(p.getStatus()).isDeleted());
     }
 
     /**
@@ -184,7 +192,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
         String key = bookingId.trim();
         return paymentRepository.findAll().stream()
-                .filter(p -> key.equals(p.getBookingId()))
+                .filter(p -> key.equals(p.getBookingId()) && !PaymentStatus.fromString(p.getStatus()).isDeleted())
                 .anyMatch(p -> PaymentStatus.fromString(p.getStatus()).isPaid());
     }
 }
