@@ -106,7 +106,7 @@
                 Complete the card details before submitting the payment.
             </div>
 
-            <form th:action="@{/customer/billing/gateway/complete}" method="post" class="space-y-5">
+            <form th:action="@{/payments/customer/gateway/complete}" method="post" class="space-y-5">
                 <input type="hidden" name="bookingId" th:value="${booking.id}"/>
 
                 <label class="block">
