@@ -1,12 +1,20 @@
 package com.sliit.vehiclerentalsystem01.user.entity;
 
 /**
- * Customer IS-A {@link User} with rental-specific fields.
+ * CUSTOMER subtype — people who rent vehicles.
+ * <p>
+ * INHERITANCE: extends {@link User}; adds username/password and rental documents (NIC, license).
+ * <p>
+ * WHY isVerified()?
+ * Dashboard counts "verified guests" when NIC and license are not N/A — encourages complete profiles.
+ * <p>
+ * FILE FORMAT (9 columns): id,name,email,username,password,nic,license,phone,profilePicture
+ * Password in file is SHA-256 hex after registration (hashed in controller before save).
  */
 public class Customer extends User {
 
     private String username;
-    private String password;
+    private String password; // SHA-256 hash after registration
     private String nic;
     private String licenseNumber;
     private String phoneNumber;
@@ -80,9 +88,9 @@ public class Customer extends User {
         return "CUSTOMER";
     }
 
-    /**
-     * CSV for file storage: ID,Name,Email,Username,Password,NIC,License,Phone,ProfilePicture
-     */
+    // --- File persistence (UserRepository calls these) ---
+
+    /** One line for users.txt: id,name,email,username,password,nic,license,phone,profilePicture */
     @Override
     public String toCSV() {
         return safeCsvValue(getId()) + "," + safeCsvValue(getName()) + "," + safeCsvValue(getEmail()) + ","
@@ -91,6 +99,7 @@ public class Customer extends User {
                 + safeCsvValue(getProfilePicture());
     }
 
+    /** Rebuilds a Customer from a CSV line (8 or 9 columns) */
     public static Customer fromCSV(String line) {
         if (line == null || line.trim().isEmpty()) {
             return null;
@@ -136,6 +145,7 @@ public class Customer extends User {
         setLicenseNumber(license);
     }
 
+    /** Verified when both NIC and driver license are on file (not N/A) */
     public boolean isVerified() {
         return isDocumentAvailable(nic) && isDocumentAvailable(licenseNumber);
     }

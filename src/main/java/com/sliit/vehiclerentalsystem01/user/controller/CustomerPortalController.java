@@ -34,7 +34,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Logged-in customer UI (legacy JSP portal under {@code customer-*.jsp} / {@code browse-cars.jsp}).
+ * CUSTOMER PORTAL at /customer/* (after login).
+ * <p>
+ * WHY in the user package but mostly other domains?
+ * Legacy structure: one controller per old JSP customer area. User-related part is session check +
+ * findByUsername for dashboard; fleet/bookings/billing/reviews delegate to other services.
+ * <p>
+ * HOW access is guarded: private customer(session) checks customerLoggedIn on HttpSession;
+ * if false, redirect to /auth/login. No Spring Security filter — manual checks per handler.
  */
 @Controller
 @RequestMapping("/customer")
@@ -69,6 +76,8 @@ public class CustomerPortalController {
         Object u = session.getAttribute(UserSessionKeys.USERNAME);
         return u == null ? "" : u.toString().trim();
     }
+
+    // --- Customer dashboard (loads profile via UserService) ---
 
     @GetMapping("/home")
     public String home(HttpSession session, Model model) {
@@ -117,6 +126,8 @@ public class CustomerPortalController {
         return "user/customer-dashboard";
     }
 
+    // --- Vehicle browse (VehicleService) ---
+
     @GetMapping("/fleet")
     public String fleet(HttpSession session, Model model) {
         if (!customer(session)) {
@@ -126,6 +137,8 @@ public class CustomerPortalController {
         model.addAttribute("vehicles", all);
         return "vehicle/vehicle-browse";
     }
+
+    // --- Bookings (ReservationService) ---
 
     @GetMapping("/bookings")
     public String myBookings(HttpSession session, Model model) {
@@ -225,6 +238,8 @@ public class CustomerPortalController {
         }
         return "redirect:/customer/bookings";
     }
+
+    // --- Payments / billing (PaymentService) ---
 
     @GetMapping("/billing")
     public String billing(HttpSession session, Model model, @RequestParam(required = false) String payment) {
@@ -446,6 +461,8 @@ public class CustomerPortalController {
         }
         return customerKey.equalsIgnoreCase(Objects.toString(cr.getReviewerName(), "").trim());
     }
+
+    // --- Reviews (ReviewService) ---
 
     @GetMapping("/reviews")
     public String reviewList(HttpSession session, Model model) {

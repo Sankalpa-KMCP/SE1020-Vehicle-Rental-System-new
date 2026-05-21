@@ -8,6 +8,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * Admin landing at /user-management — shows counts only (no direct CRUD in this class).
+ * WHY: Links out to /users, /customers, /staff, and master-console; keeps dashboard logic in one place.
+ */
 @Controller
 public class UserManagementController {
 

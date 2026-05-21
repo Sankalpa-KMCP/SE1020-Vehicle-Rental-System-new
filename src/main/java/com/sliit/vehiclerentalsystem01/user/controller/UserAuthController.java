@@ -21,6 +21,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * WEB LAYER — authentication entry points (no admin CRUD here).
+ * <p>
+ * WHY HttpSession instead of JWT?
+ * Matches legacy JSP design and keeps coursework simple: flags like customerLoggedIn gate each page.
+ * <p>
+ * TWO login URLs on purpose:
+ * - POST /auth/login → customers only (rejects Staff accounts)
+ * - POST /auth/staff-login → staff only (rejects Customer accounts)
+ * That stops customers from reaching admin dashboards with the wrong form.
+ * <p>
+ * CREATE user path: POST /auth/register builds Customer, hashes password, optional avatar, userService.save().
+ */
 @Controller
 @RequestMapping("/auth")
 public class UserAuthController {
@@ -35,6 +48,8 @@ public class UserAuthController {
         this.pendingService = pendingService;
         this.imageStorageService = imageStorageService;
     }
+
+    // --- Login / register pages (GET) ---
 
     @GetMapping("/login")
     public String showLoginPage() {
@@ -51,6 +66,7 @@ public class UserAuthController {
         return "auth/register";
     }
 
+    /** Customer login only (staff must use staff-login) */
     @PostMapping("/login")
     public String login(
             @RequestParam String username,
@@ -119,6 +135,13 @@ public class UserAuthController {
         return "redirect:/auth/staff-login?success=requested";
     }
 
+    /**
+     * HOW session knows who logged in:
+     * - Customer → customerLoggedIn + ROLE_CUSTOMER
+     * - Staff with Admin role → adminLoggedIn + ROLE_ADMIN; usernames admin/master1 also set isMasterAdmin
+     * - Other staff → staffLoggedIn + ROLE_STAFF
+     * Controllers check these flags instead of re-reading users.txt on every page.
+     */
     private void establishAuthenticatedSession(HttpSession session, User u) {
         clearAuthFlags(session);
         session.setAttribute(UserSessionKeys.USERNAME, sessionUsername(u));
@@ -157,6 +180,7 @@ public class UserAuthController {
         return "";
     }
 
+    /** CREATE customer + optional avatar, then redirect to login */
     @PostMapping("/register")
     public String register(
             @RequestParam String name,

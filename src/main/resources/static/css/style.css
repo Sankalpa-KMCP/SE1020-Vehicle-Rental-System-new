@@ -144,7 +144,7 @@ body.index-landing {
 /* ── 2. Reset + document baseline ───────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
