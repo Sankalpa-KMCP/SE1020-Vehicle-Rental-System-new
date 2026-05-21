@@ -153,15 +153,25 @@ public class PaymentController {
         if (!isAdmin(session)) return "redirect:/auth/staff-login";
         return paymentService.findById(id).map(payment -> {
             model.addAttribute("payment", payment);
-            reservationService.findById(payment.getBookingId()).ifPresent(booking -> {
+            var bookingOpt = reservationService.findById(payment.getBookingId());
+            if (bookingOpt.isPresent()) {
+                var booking = bookingOpt.get();
                 model.addAttribute("booking", booking);
-                vehicleService.findById(booking.getVehicleId()).ifPresent(v -> {
+                var vehicleOpt = vehicleService.findById(booking.getVehicleId());
+                if (vehicleOpt.isPresent()) {
+                    var v = vehicleOpt.get();
                     double expected = v.calculateRentalRate() * Math.max(1, booking.getDurationDays());
                     model.addAttribute("expectedAmount", expected);
                     model.addAttribute("matches", Math.abs(expected - payment.getAmount()) < 0.01);
                     model.addAttribute("difference", Math.abs(expected - payment.getAmount()));
-                });
-            });
+                    model.addAttribute("vehicle", v);
+                } else {
+                    return "redirect:/payments?error=vehicle_not_found";
+                }
+            } else {
+                model.addAttribute("errorMessage", "Booking ID not found for this payment.");
+                return "redirect:/payments?error=booking_not_found";
+            }
             return "payment/confirm-payment-review";
         }).orElse("redirect:/payments");
     }
