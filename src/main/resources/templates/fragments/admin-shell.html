@@ -93,13 +93,7 @@
       <span class="admin-sidebar__link-icon"><i class="ph-bold ph-star"></i></span>
       <span class="admin-sidebar__link-text">Reviews</span>
     </a>
-    <a th:href="@{/public/contact}"
-       class="admin-sidebar__link"
-       data-tooltip="Support"
-       th:classappend="${activeNav == 'support'} ? ' is-active' : ''">
-      <span class="admin-sidebar__link-icon"><i class="ph-bold ph-headset"></i></span>
-      <span class="admin-sidebar__link-text">Support</span>
-    </a>
+
 
     <th:block th:if="${session['isMasterAdmin'] != null and session['isMasterAdmin']}">
       <div class="admin-sidebar__divider"></div>
