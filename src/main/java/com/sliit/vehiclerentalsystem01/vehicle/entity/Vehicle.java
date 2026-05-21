@@ -20,21 +20,36 @@ public abstract class Vehicle {
         this.dailyRate = 0.0;
         this.imagePath = "";
         this.status = "AVAILABLE";
-        totalFleetCount++;
+        totalFleetCount++; 
     }
 
     protected Vehicle(String id, String brand, String model, double dailyRate, String imagePath, String status) {
+
+        // --- EXCEPTION HANDLING / DATA VALIDATION ---
+        if (dailyRate < 0) {
+            throw new IllegalArgumentException("Data Security Error: Daily rental rate cannot be a negative number.");
+        }
+        if (brand == null || brand.trim().isEmpty()) {
+            throw new IllegalArgumentException("Data Security Error: Vehicle brand cannot be blank.");
+        }
+        if (model == null || model.trim().isEmpty()) {
+            throw new IllegalArgumentException("Data Security Error: Vehicle model cannot be blank.");
+        }
+
+
         this.id = id;
         this.brand = brand;
         this.model = model;
         this.dailyRate = dailyRate;
         this.imagePath = imagePath;
+
         // Logic: Accept only valid fleet states
         this.status = (status != null && (status.equalsIgnoreCase("AVAILABLE") ||
                 status.equalsIgnoreCase("MAINTENANCE") ||
                 status.equalsIgnoreCase("RENTED")))
                 ? status.toUpperCase() : "AVAILABLE";
-        totalFleetCount++; // Increment counter whenever any vehicle is created
+
+        totalFleetCount++;
     }
 
     // Static Getter for the panel
