@@ -9,7 +9,8 @@ public enum PaymentStatus {
     PENDING,
     VERIFYING,
     REFUNDED,
-    FAILED;
+    FAILED,
+    DELETED;
 
     /**
      * Parses a string into a known PaymentStatus safely.
@@ -35,6 +36,9 @@ public enum PaymentStatus {
             }
             if (s.contains("FAIL")) {
                 return FAILED;
+            }
+            if (s.contains("DELETE")) {
+                return DELETED;
             }
             if (containsAny(s, "PENDING", "DUE", "AWAITING")) {
                 return PENDING;
@@ -68,5 +72,9 @@ public enum PaymentStatus {
 
     public boolean isRefunded() {
         return this == REFUNDED;
+    }
+
+    public boolean isDeleted() {
+        return this == DELETED;
     }
 }

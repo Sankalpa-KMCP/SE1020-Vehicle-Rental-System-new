@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <th:block th:fragment="fleetSection">
@@ -26,6 +26,7 @@
                 <button type="button" class="da-tab filter-btn" data-filter="sedan" aria-pressed="false">Sedan</button>
                 <button type="button" class="da-tab filter-btn" data-filter="suv" aria-pressed="false">SUV &middot; 4x4</button>
                 <button type="button" class="da-tab filter-btn" data-filter="luxury" aria-pressed="false">Luxury</button>
+                <button type="button" class="da-tab filter-btn" data-filter="motorcycle" aria-pressed="false">Motorcycle</button>
                 <span class="da-tabs__indicator" data-tabs-indicator aria-hidden="true"></span>
             </div>
             <p class="da-cinema__hint">
@@ -34,58 +35,70 @@
             </p>
         </div>
 
-        <div class="da-cinema__track-wrap">
-            <div class="da-cinema__track" id="fleet-grid" role="region" aria-label="Vehicle gallery">
-                <th:block th:if="${fleetPreview != null and !fleetPreview.isEmpty()}">
-                    <article th:each="v, vStat : ${fleetPreview}"
-                             th:attr="data-category=${v.category}, data-index=${vStat.index}"
-                             th:classappend="${vStat.first} ? ' da-card--lead' : ''"
-                             class="da-card da-card--vehicle car-item da-reveal lux-card"
-                             style="--card-index: 0;"
-                             th:style="'--card-index:' + ${vStat.index} + ';'">
-                        <div class="lux-card__media">
-                            <img th:src="${v.imageUrl}" th:alt="|${v.brand} ${v.model}|" loading="lazy" width="800" height="500"/>
-                            <span class="lux-card__badge">
-                                <span class="da-tag__dot" aria-hidden="true"
-                                      th:style="${v.status == 'MAINTENANCE'} ? 'background: #eab308; box-shadow: 0 0 8px rgba(234,179,8,0.6);' : (${v.status == 'RENTED'} ? 'background: #8b5cf6; box-shadow: 0 0 8px rgba(139,92,246,0.6);' : '')"></span>
-                                <span th:text="${v.status == 'MAINTENANCE'} ? 'Maintenance' : (${v.status == 'RENTED'} ? 'Rented' : 'Available')">Available</span>
-                            </span>
-                            <span class="lux-card__index" aria-hidden="true" th:text="${'0' + (vStat.index + 1)}">01</span>
-                        </div>
-                        <div class="lux-card__body">
-                            <p class="lux-card__brand" th:text="${v.brand}">Brand</p>
-                            <h3 class="lux-card__model"><span th:text="${v.model}">Model</span></h3>
-                            <p class="lux-card__detail" th:text="${v.specificDetail}">detail</p>
-                            <div class="lux-card__foot">
-                                <div class="lux-card__price">
-                                    <span class="lux-card__price-value">$<span th:text="${v.ratePerDay}">0</span></span>
-                                    <span class="lux-card__price-unit">/ day</span>
-                                </div>
-                                <a th:if="${#strings.isEmpty(userRole)}" th:href="@{/auth/login}" class="lux-card__reserve transition-link">
-                                    Reserve
-                                    <span class="lux-card__reserve-arrow" aria-hidden="true">&rarr;</span>
-                                </a>
-                                <a th:if="${!#strings.isEmpty(userRole)}" th:href="@{/customer/bookings/new(vehicleId=${v.id})}" class="lux-card__reserve transition-link">
-                                    Reserve
-                                    <span class="lux-card__reserve-arrow" aria-hidden="true">&rarr;</span>
-                                </a>
+        <div class="fleet-slider">
+            <button type="button" id="fleet-prev" class="fleet-glass-arrow fleet-glass-arrow--prev" aria-label="Previous vehicles">
+                <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                    <path d="M165.66 202.34a8 8 0 0 1-11.32 11.32l-80-80a8 8 0 0 1 0-11.32l80-80a8 8 0 0 1 11.32 11.32L91.31 128z"/>
+                </svg>
+            </button>
+
+            <div class="da-cinema__track-wrap">
+                <div class="da-cinema__track" id="fleet-grid" role="region" aria-label="Vehicle gallery">
+                    <th:block th:if="${fleetPreview != null and !fleetPreview.isEmpty()}">
+                        <article th:each="v, vStat : ${fleetPreview}"
+                                 th:attr="data-category=${v.category}, data-index=${vStat.index}"
+                                 class="da-card da-card--vehicle car-item da-reveal lux-card"
+                                 style="--card-index: 0;"
+                                 th:style="'--card-index:' + ${vStat.index} + ';'">
+                            <div class="lux-card__media">
+                                <img th:src="${v.imageUrl}" th:alt="|${v.brand} ${v.model}|" loading="lazy" width="800" height="500"/>
+                                <span class="lux-card__badge">
+                                    <span class="da-tag__dot" aria-hidden="true"></span>
+                                    Available
+                                </span>
+                                <span class="lux-card__index" aria-hidden="true" th:text="${'0' + (vStat.index + 1)}">01</span>
                             </div>
-                            <p class="lux-card__type"><span th:text="${v.vehicleType}">type</span></p>
-                        </div>
-                    </article>
-                </th:block>
-                <div th:if="${fleetPreview == null or fleetPreview.isEmpty()}" class="da-cinema__empty">
-                    <span class="da-cinema__empty-icon" aria-hidden="true" data-float>
-                        <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('search')}"></th:block>
-                    </span>
-                    <span class="da-eyebrow da-eyebrow--bare">Empty</span>
-                    <p>No vehicles available at the moment. Check back shortly.</p>
+                            <div class="lux-card__body">
+                                <p class="lux-card__brand" th:text="${v.brand}">Brand</p>
+                                <h3 class="lux-card__model"><span th:text="${v.model}">Model</span></h3>
+                                <p class="lux-card__detail" th:text="${v.specificDetail}">detail</p>
+                                <div class="lux-card__foot">
+                                    <div class="lux-card__price">
+                                        <span class="lux-card__price-value">$<span th:text="${v.ratePerDay}">0</span></span>
+                                        <span class="lux-card__price-unit">/ day</span>
+                                    </div>
+                                    <a th:if="${#strings.isEmpty(userRole)}" th:href="@{/auth/login}" class="lux-card__reserve transition-link">
+                                        Reserve
+                                        <span class="lux-card__reserve-arrow" aria-hidden="true">&rarr;</span>
+                                    </a>
+                                    <a th:if="${!#strings.isEmpty(userRole)}" th:href="@{/customer/bookings/new(vehicleId=${v.id})}" class="lux-card__reserve transition-link">
+                                        Reserve
+                                        <span class="lux-card__reserve-arrow" aria-hidden="true">&rarr;</span>
+                                    </a>
+                                </div>
+                                <p class="lux-card__type"><span th:text="${v.vehicleType}">type</span></p>
+                            </div>
+                        </article>
+                    </th:block>
+                    <div th:if="${fleetPreview == null or fleetPreview.isEmpty()}" class="da-cinema__empty">
+                        <span class="da-cinema__empty-icon" aria-hidden="true" data-float>
+                            <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('search')}"></th:block>
+                        </span>
+                        <span class="da-eyebrow da-eyebrow--bare">Empty</span>
+                        <p>No vehicles available at the moment. Check back shortly.</p>
+                    </div>
+                </div>
+                <div class="da-cinema__edges" aria-hidden="true">
+                    <span class="da-cinema__edge da-cinema__edge--start"></span>
+                    <span class="da-cinema__edge da-cinema__edge--end"></span>
                 </div>
             </div>
-            <div class="da-cinema__edges" aria-hidden="true">
-                <span class="da-cinema__edge da-cinema__edge--start"></span>
-                <span class="da-cinema__edge da-cinema__edge--end"></span>
-            </div>
+
+            <button type="button" id="fleet-next" class="fleet-glass-arrow fleet-glass-arrow--next" aria-label="Next vehicles">
+                <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                    <path d="M181.66 133.66l-80 80a8 8 0 0 1-11.32-11.32L164.69 128 90.34 53.66a8 8 0 0 1 11.32-11.32l80 80a8 8 0 0 1 0 11.32z"/>
+                </svg>
+            </button>
         </div>
     </div>
 </section>
