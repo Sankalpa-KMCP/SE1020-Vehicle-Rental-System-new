@@ -7,81 +7,90 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; }
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #050506;
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
+                radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.06), transparent 50%),
+                radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.04), transparent 45%);
+            background-size: 24px 24px, auto, auto;
+            color: #f4f2ee;
+        }
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="min-h-screen p-6 md:p-10 relative">
 <div class="max-w-7xl mx-auto flex justify-between items-center mb-10">
-    <a th:href="@{/customer/home}" class="flex items-center gap-2 bg-white px-5 py-2.5 rounded-xl font-bold text-gray-800 shadow-sm border border-gray-200 hover:bg-gray-50 transition">
+    <a th:href="@{/customer/home}" class="flex items-center gap-2 bg-white/5 px-5 py-2.5 rounded-xl font-bold text-[#f4f2ee] shadow-sm border border-white/10 hover:bg-white/10 hover:border-[#c9a962]/50 hover:text-white transition-all duration-200">
         <i class="ph-bold ph-arrow-left text-xl"></i>
         <span>Back to Portal</span>
     </a>
-    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
-        <i class="ph-fill ph-car-profile text-[#0D6EFD]"></i> Available Fleet
+    <h1 class="text-3xl font-extrabold text-[#f4f2ee] tracking-tight flex items-center gap-3">
+        <i class="ph-fill ph-car-profile text-[#c9a962]"></i> Available Fleet
     </h1>
 </div>
 <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 fade-in">
-    <div th:each="v : ${vehicles}" class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300 flex flex-col">
+    <div th:each="v : ${vehicles}" class="bg-[#0c0c0e]/85 backdrop-blur-md rounded-2xl shadow-2xl border border-white/5 overflow-hidden hover:-translate-y-2 hover:border-[#c9a962]/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 flex flex-col">
 
-        <div class="bg-slate-900 h-48 bg-cover bg-center text-white relative overflow-hidden border-b border-gray-200"
+        <div class="bg-slate-950 h-48 bg-cover bg-center text-white relative overflow-hidden border-b border-white/5"
              th:style="'background-image: url(' + ${v.imagePath} + ');'">
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-[#0c0c0e]/50 to-transparent"></div>
             
             <div class="absolute top-4 right-4 z-20">
-                <span th:if="${v.status == 'AVAILABLE' || v.status == null || v.status == ''}" class="bg-green-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-green-400">🟢 AVAILABLE</span>
-                <span th:if="${v.status == 'MAINTENANCE'}" class="bg-yellow-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-yellow-400">🟡 MAINTENANCE</span>
-                <span th:if="${v.status == 'RENTED'}" class="bg-indigo-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-indigo-400">🚗 RENTED</span>
+                <span th:if="${v.status == 'AVAILABLE' || v.status == null || v.status == ''}" class="bg-emerald-500/10 backdrop-blur-md text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-emerald-500/20">🟢 AVAILABLE</span>
+                <span th:if="${v.status == 'MAINTENANCE'}" class="bg-amber-500/10 backdrop-blur-md text-amber-400 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-amber-500/20">🟡 MAINTENANCE</span>
+                <span th:if="${v.status == 'RENTED'}" class="bg-cyan-500/10 backdrop-blur-md text-cyan-400 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-cyan-500/20">🚗 RENTED</span>
             </div>
 
             <div class="relative z-10 p-6 h-full flex flex-col justify-end">
-                <p class="text-blue-400 font-bold tracking-wider text-sm uppercase mb-1" th:text="${v.brand}">Brand</p>
-                <h2 class="text-2xl font-extrabold truncate drop-shadow-md" th:text="${v.model}">Model</h2>
+                <p class="text-[#c9a962] font-bold tracking-wider text-sm uppercase mb-1" th:text="${v.brand}">Brand</p>
+                <h2 class="text-2xl font-extrabold truncate drop-shadow-md text-[#f4f2ee]" th:text="${v.model}">Model</h2>
             </div>
         </div>
 
         <div class="p-6 flex-grow">
             <div class="flex justify-between items-center mb-6">
-                <div class="bg-blue-50 text-blue-700 font-bold px-3 py-1 rounded-lg text-sm flex items-center gap-1.5">
+                <div class="bg-white/5 text-[#a8a6a0] border border-white/5 font-semibold px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider flex items-center gap-1.5">
                     <i class="ph-bold ph-steering-wheel"></i> <span th:text="${v.vehicleType}">Car</span>
                 </div>
-                <div class="bg-gray-100 text-gray-700 font-bold px-3 py-1 rounded-lg text-sm flex items-center gap-1.5">
+                <div class="bg-white/5 text-[#a8a6a0] border border-white/5 font-semibold px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider flex items-center gap-1.5">
                     <i class="ph-bold ph-list-checks"></i> <span th:text="${v.specificDetail}">detail</span>
                 </div>
             </div>
-            <div class="border-t border-b border-gray-100 py-4 mb-6 text-center">
-                <p class="text-gray-500 font-medium text-sm">Daily Rental Rate</p>
-                <p class="text-3xl font-extrabold text-gray-900 mt-1">LKR <span th:text="${#numbers.formatDecimal(v.calculateRentalRate(), 1, 2)}">0</span> <span class="text-lg text-gray-400 font-medium">/day</span></p>
+            <div class="border-t border-b border-white/5 py-4 mb-6 text-center">
+                <p class="text-[#a8a6a0] font-medium text-sm">Daily Rental Rate</p>
+                <p class="text-3xl font-extrabold text-[#f4f2ee] mt-1">LKR <span class="text-[#c9a962]" th:text="${#numbers.formatDecimal(v.calculateRentalRate(), 1, 2)}">0</span> <span class="text-sm text-[#a8a6a0] font-medium">/day</span></p>
             </div>
-            <ul class="text-sm text-gray-600 space-y-2 font-medium mb-6">
-                <li class="flex items-center gap-2"><i class="ph-bold ph-check-circle text-green-500 text-lg"></i> Vehicle ID: <span th:text="${v.id}">id</span></li>
-                <li class="flex items-center gap-2"><i class="ph-bold ph-check-circle text-green-500 text-lg"></i> Fully Insured &amp; Inspected</li>
+            <ul class="text-sm text-[#a8a6a0] space-y-2 font-medium mb-6">
+                <li class="flex items-center gap-2"><i class="ph-bold ph-check-circle text-[#c9a962] text-lg"></i> Vehicle ID: <span th:text="${v.id}">id</span></li>
+                <li class="flex items-center gap-2"><i class="ph-bold ph-check-circle text-[#c9a962] text-lg"></i> Fully Insured &amp; Inspected</li>
             </ul>
         </div>
-        <div class="p-4 bg-gray-50 border-t border-gray-100">
+        <div class="p-4 bg-[#0c0c0e] border-t border-white/5">
             <a th:if="${v.status == 'AVAILABLE' || v.status == null || v.status == ''}"
                th:href="@{/customer/bookings/new(vehicleId=${v.id},rate=${v.calculateRentalRate()})}"
-               class="w-full block text-center bg-[#0D6EFD] text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-colors shadow-md text-lg">
+               class="w-full block text-center bg-gradient-to-r from-[#c9a962] to-[#e8d5a3] text-[#050506] font-bold py-3.5 rounded-xl hover:from-[#e8d5a3] hover:to-[#c9a962] hover:shadow-[0_0_20px_rgba(201,169,98,0.4)] transition-all duration-300 text-lg">
                 Book This Vehicle
             </a>
 
             <button th:if="${v.status == 'MAINTENANCE'}" disabled
-                    class="w-full flex justify-center items-center gap-2 bg-gray-200 text-gray-500 font-bold py-3.5 rounded-xl cursor-not-allowed shadow-inner text-lg">
+                    class="w-full flex justify-center items-center gap-2 bg-white/5 text-[#a8a6a0]/40 border border-white/5 font-bold py-3.5 rounded-xl cursor-not-allowed shadow-inner text-lg">
                 <i class="ph-bold ph-wrench"></i> Under Maintenance
             </button>
 
             <button th:if="${v.status == 'RENTED'}" disabled
-                    class="w-full flex justify-center items-center gap-2 bg-indigo-50 text-indigo-400 font-bold py-3.5 rounded-xl cursor-not-allowed shadow-inner text-lg border border-indigo-100">
+                    class="w-full flex justify-center items-center gap-2 bg-white/5 text-[#a8a6a0]/40 border border-white/5 font-bold py-3.5 rounded-xl cursor-not-allowed shadow-inner text-lg">
                 <i class="ph-bold ph-car-profile"></i> On The Road
             </button>
         </div>
     </div>
-    <div th:if="${vehicles == null or vehicles.isEmpty()}" class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-200 border-dashed">
-        <i class="ph-fill ph-car-profile text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-2xl font-bold text-gray-700">No Vehicles Available</h3>
-        <p class="text-gray-500 mt-2">No vehicles are currently open for booking decisions.</p>
+    <div th:if="${vehicles == null or vehicles.isEmpty()}" class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-[#0c0c0e]/60 rounded-2xl shadow-2xl border border-white/10 border-dashed">
+        <i class="ph-fill ph-car-profile text-6xl text-white/20 mb-4"></i>
+        <h3 class="text-2xl font-bold text-[#f4f2ee]">No Vehicles Available</h3>
+        <p class="text-[#a8a6a0] mt-2">No vehicles are currently open for booking decisions.</p>
     </div>
 </div>
 </body>
