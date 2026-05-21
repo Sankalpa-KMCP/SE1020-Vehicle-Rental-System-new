@@ -1,14 +1,23 @@
 package com.sliit.vehiclerentalsystem01.user.entity;
 
 /**
- * Abstract staff member; {@code staffId} is stored as {@link User#getId()}.
+ * STAFF subtype (abstract) — employees who operate the rental system.
+ * <p>
+ * INHERITANCE: AdminStaff and SupportStaff extend this; both return getUserRole() "STAFF" but
+ * {@link #getAccessLevel()} differs (FULL_ACCESS vs LIMITED_ACCESS).
+ * <p>
+ * WHY isAdminRole()?
+ * At login, UserAuthController checks role string to set adminLoggedIn vs staffLoggedIn session flags.
+ * File may say "Admin", "ADMIN", etc. — equalsIgnoreCase avoids casing bugs.
+ * <p>
+ * FILE FORMAT (8 columns): id,name,email,phone,username,password,role,profilePicture
  */
 public abstract class Staff extends User {
 
     private String phone;
     private String username;
     private String password;
-    private String role;
+    private String role; // Admin / Support — drives isAdminRole() and CSV parsing
 
     public Staff() {
         super();
@@ -63,6 +72,7 @@ public abstract class Staff extends User {
         return getId();
     }
 
+    /** Used at login to choose admin vs support session flags */
     public boolean isAdminRole() {
         return "Admin".equalsIgnoreCase(role) || "ADMIN".equalsIgnoreCase(role);
     }
@@ -110,6 +120,7 @@ public abstract class Staff extends User {
                 + safeCsvValue(roleValue) + "," + safeCsvValue(getProfilePicture());
     }
 
+    /** Parses CSV and returns AdminStaff or SupportStaff based on role column */
     public static Staff fromCSV(String line) {
         if (line == null || line.trim().isEmpty()) {
             return null;
@@ -132,6 +143,7 @@ public abstract class Staff extends User {
         return null;
     }
 
+    /** Factory: role column decides AdminStaff vs SupportStaff instance */
     private static Staff buildStaffFromFields(String[] data, int roleIndex) {
         String id = data[0].trim();
         String name = data[1].trim();

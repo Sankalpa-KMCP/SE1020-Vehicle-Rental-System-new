@@ -17,13 +17,28 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * BUSINESS LAYER for user management.
+ * <p>
+ * WHY this class exists (between controller and repository):
+ * - Controllers should not parse CSV or check "username already taken" — that belongs here.
+ * - Repository should not know about bookings or password rules — only load/save lines.
+ * <p>
+ * HOW a typical request flows:
+ * Browser → UserController → UserServiceImpl.save() → validate → UserRepository.saveUser() → users.txt
+ * <p>
+ * Important behaviours implemented here (not in the repository):
+ * - Email/username uniqueness before save
+ * - Login checks SHA-256 hash (or legacy plain password in old data files)
+ * - Customers cannot be deleted if they still have reservations (needs ReservationService)
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
     private static final Pattern EMAIL_FORMAT = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
 
     private final UserRepository userRepository;
-    private final ReservationService reservationService;
+    private final ReservationService reservationService; // used to block customer delete when bookings exist
 
     /**
      * ReservationService is {@link Lazy} to break the cycle: ReservationServiceImpl itself depends
@@ -33,6 +48,13 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.reservationService = reservationService;
     }
+
+    /*
+     * READ operations
+     * WHY we call findAll() even for findById: there is no index or SQL WHERE clause — we load the
+     * whole file each time. That also means login always sees the latest disk contents (good if you
+     * edit users.txt manually while the app runs).
+     */
 
     @Override
     public List<User> findAll() {
@@ -47,6 +69,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll().stream().filter(u -> id.equals(u.getId())).findFirst();
     }
 
+    /**
+     * HOW: Scan all users; match Customer/Staff username field (case-insensitive).
+     * WHY: Used for login lookup, duplicate checks, and loading the logged-in customer profile.
+     * Note: authenticate() also allows customers to log in with email — this method is username-only.
+     */
     @Override
     public Optional<User> findByUsername(String username) {
         if (username == null || username.isBlank()) {
@@ -82,6 +109,12 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * CREATE or UPDATE (same code path).
+     * HOW: Assign random UUID id only when missing; run validateBeforeSave(); delegate to repository upsert.
+     * WHY UUID: Controllers often generate ids like C-xxxxx or EMP-xxxx, but this is a safety net for
+     * any code path that forgot to set id before save.
+     */
     @Override
     public void save(User user) {
         if (user.getId() == null || user.getId().isBlank()) {
@@ -92,9 +125,11 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Refuses to delete a customer whose username still has linked bookings. Throws
-     * {@link IllegalStateException} with code {@code customer_in_use} so controllers can surface
-     * a friendly error. Staff deletions are unaffected.
+     * DELETE with a business rule for customers.
+     * WHY block delete when bookings exist: bookings.txt stores customerName (username). Deleting the
+     * user would leave orphan bookings and break reports. Staff have no such rule.
+     * HOW: ReservationService.findBookingsLinkedToCustomer() — if non-empty, throw customer_in_use;
+     * controllers redirect with error message. Otherwise repository removes the line from users.txt.
      */
     @Override
     public void deleteById(String id) {
@@ -114,8 +149,14 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Validates credentials against the latest contents of the user store on disk.
-     * Customers may sign in with username or email (case-insensitive); staff match username only.
+     * LOGIN validation (read-only — does not change users.txt).
+     * HOW:
+     * 1. Reload all users from disk (fresh credentials).
+     * 2. Hash the typed password with SHA-256 and compare to stored value.
+     * 3. Customer: match username OR email; Staff: username only.
+     * WHY hash on every attempt: stored password is a 64-char hex string; we hash input once and compare.
+     * Legacy plain-text passwords in old sample files still work via passwordsMatch().
+     * On success, UserAuthController sets HttpSession flags — not done in this class.
      */
     @Override
     public Optional<User> authenticate(String username, String password) {
@@ -147,6 +188,11 @@ public class UserServiceImpl implements UserService {
                 .findFirst();
     }
 
+    /**
+     * WHY validate before touching the file: avoid half-written invalid rows and give the UI clear
+     * error codes (invalid_email, username_taken, email_already_registered).
+     * HOW: Scan current findAll() list and compare to the user being saved (same id allowed — that is an update).
+     */
     private void validateBeforeSave(User user) {
         String email = user.getEmail() == null ? "" : user.getEmail().trim();
         if (email.isEmpty() || !EMAIL_FORMAT.matcher(email).matches()) {
@@ -184,6 +230,7 @@ public class UserServiceImpl implements UserService {
         return "";
     }
 
+    /** Supports stored SHA-256 hash or legacy plain-text password in users.txt */
     private static boolean passwordsMatch(String plainPassword, String hashedInput, String storedPass) {
         if (SecurityUtils.isSha256Hex(storedPass)) {
             return hashedInput.equalsIgnoreCase(storedPass);

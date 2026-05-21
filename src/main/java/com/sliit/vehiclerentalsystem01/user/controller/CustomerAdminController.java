@@ -23,7 +23,11 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Legacy {@code CustomerController} flows under {@code /customers}, backed by {@link UserService}.
+ * CUSTOMER management at /customers — directory, search, admin edit, and customer self-service.
+ * <p>
+ * HOW actions work: ?action= on GET (view_directory, edit, delete, search, editSelf) and action= on POST.
+ * WHY editSelf? Logged-in customers update their own row without admin session — still uses userService.save().
+ * WHY ReservationService injected? Search shows bookings for a customer; delete rule is in UserServiceImpl.
  */
 @Controller
 @RequestMapping("/customers")
@@ -57,6 +61,7 @@ public class CustomerAdminController {
         return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
     }
 
+    /** READ stats for customer-directory (total / verified / unverified) */
     private void loadDashboard(Model model) {
         List<Customer> allCustomers = userService.findAllCustomers();
         if (allCustomers == null) {
@@ -74,6 +79,7 @@ public class CustomerAdminController {
         model.addAttribute("unverifiedGuests", allCustomers.size() - verifiedGuests);
     }
 
+    /** GET: directory, search, edit, delete, or customer self-edit (editSelf) */
     @GetMapping
     public String handleGet(
             @RequestParam(required = false, defaultValue = "view_directory") String action,
@@ -158,6 +164,7 @@ public class CustomerAdminController {
         }
     }
 
+    /** POST: create, update, or delete customer (action param) */
     @PostMapping
     public String handlePost(@RequestParam Map<String, String> params, HttpSession session,
                              @RequestParam(value = "avatarImage", required = false) MultipartFile avatarImage) {

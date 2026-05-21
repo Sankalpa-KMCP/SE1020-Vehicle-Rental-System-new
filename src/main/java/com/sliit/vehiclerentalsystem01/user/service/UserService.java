@@ -7,6 +7,15 @@ import com.sliit.vehiclerentalsystem01.user.entity.User;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * CONTRACT for all user operations (CRUD + login).
+ * <p>
+ * WHY an interface?
+ * - Controllers inject {@code UserService}, not {@code UserServiceImpl} — dependency inversion (OOP).
+ * - Tests or future code could swap implementation; Spring wires UserServiceImpl at runtime.
+ * <p>
+ * Implementations must read from {@code users.txt} on each call so behaviour matches the file on disk.
+ */
 public interface UserService {
 
     List<User> findAll();
