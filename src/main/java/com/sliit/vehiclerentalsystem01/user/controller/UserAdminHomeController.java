@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * Simple Thymeleaf admin landing (replaces {@code admin-home.jsp}).
+ * Admin dashboard at /user/admin-dashboard — aggregates counts from user module AND other modules
+ * (vehicles, bookings, payments, etc.) for a single overview screen after staff login.
  */
 @Controller
 @RequestMapping("/user")
@@ -51,6 +52,7 @@ public class UserAdminHomeController {
         return adminDashboard(session, model);
     }
 
+    /** Admin dashboard metrics (users + other modules); requires ADMIN_LOGGED_IN */
     @GetMapping("/admin-dashboard")
     public String adminDashboard(HttpSession session, Model model) {
         if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
