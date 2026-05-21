@@ -123,11 +123,7 @@ public class CustomerPortalController {
             return "redirect:/";
         }
         List<Vehicle> all = vehicleService.findAll();
-        Set<String> unavailable = reservationService.findUnavailableVehicleIds();
-        List<Vehicle> available = all.stream()
-                .filter(v -> !unavailable.contains(v.getId()))
-                .collect(Collectors.toList());
-        model.addAttribute("vehicles", available);
+        model.addAttribute("vehicles", all);
         return "vehicle/vehicle-browse";
     }
 

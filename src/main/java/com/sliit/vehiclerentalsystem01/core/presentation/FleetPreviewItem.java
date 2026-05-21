@@ -11,5 +11,6 @@ public record FleetPreviewItem(
         String specificDetail,
         String category,
         String imageUrl,
-        long ratePerDay
+        long ratePerDay,
+        String status
 ) {}
