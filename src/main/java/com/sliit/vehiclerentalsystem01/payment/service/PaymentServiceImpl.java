@@ -195,4 +195,33 @@ public class PaymentServiceImpl implements PaymentService {
                 .filter(p -> key.equals(p.getBookingId()) && !PaymentStatus.fromString(p.getStatus()).isDeleted())
                 .anyMatch(p -> PaymentStatus.fromString(p.getStatus()).isPaid());
     }
+
+    /**
+     * CRUD: READ
+     */
+    @Override
+    public List<Payment> findAllByBookingId(String bookingId) {
+        syncPendingPayments();
+        if (bookingId == null || bookingId.isBlank()) return new ArrayList<>();
+        String key = bookingId.trim();
+        return paymentRepository.findAll().stream()
+                .filter(p -> key.equals(p.getBookingId()) && !PaymentStatus.fromString(p.getStatus()).isDeleted())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * CRUD: READ
+     */
+    @Override
+    public boolean isCashPaymentForBooking(String bookingId) {
+        Optional<Payment> latest = findLatestByBookingId(bookingId);
+        if (latest.isPresent()) {
+            Payment p = latest.get();
+            String method = p.getPaymentMethod();
+            return p instanceof com.sliit.vehiclerentalsystem01.payment.entity.CashPayment ||
+                    "CASH".equalsIgnoreCase(method) || 
+                    "Cash Transaction".equalsIgnoreCase(method);
+        }
+        return false;
+    }
 }
