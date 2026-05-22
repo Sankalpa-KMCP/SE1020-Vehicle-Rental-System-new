@@ -18,10 +18,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Concrete implementation of the PaymentService.
- * Contains the business logic for managing payments, interfacing between controllers and the repository.
- */
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
