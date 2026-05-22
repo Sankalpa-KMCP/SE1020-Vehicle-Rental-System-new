@@ -20,10 +20,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
-/**
- * Repository class responsible for data persistence related to payments.
- * It uses a flat file (payments.txt) as a database for simple storage.
- */
 @Repository
 public class PaymentRepository {
 

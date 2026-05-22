@@ -1,8 +1,6 @@
 package com.sliit.vehiclerentalsystem01.payment.entity;
 
 /**
- * Represents a payment made via Cash.
- * This class inherits from the abstract Payment class,
  * providing a concrete implementation for cash transactions.
  */
 public class CashPayment extends Payment {

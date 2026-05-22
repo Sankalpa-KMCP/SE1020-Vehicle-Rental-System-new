@@ -18,9 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * PaymentController: Manages administrative and customer payment workflows.
- */
 @Controller
 @RequestMapping("/payments")
 public class PaymentController {

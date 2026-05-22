@@ -1,8 +1,6 @@
 package com.sliit.vehiclerentalsystem01.payment.entity;
 
 /**
- * Represents a payment made via Credit or Debit card.
- * This class inherits from the abstract Payment class, 
  * demonstrating Inheritance and Polymorphism.
  */
 public class CardPayment extends Payment {

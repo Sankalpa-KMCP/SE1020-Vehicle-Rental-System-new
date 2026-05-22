@@ -5,10 +5,7 @@ import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Interface that defines the contract for payment-related operations.
- * By using an interface, we achieve abstraction and loose coupling.
- */
+
 public interface PaymentService {
 
     /**
