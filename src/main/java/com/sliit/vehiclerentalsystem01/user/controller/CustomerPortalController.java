@@ -87,6 +87,15 @@ public class CustomerPortalController {
         if (displayName.isBlank()) {
             displayName = "Customer";
         }
+        List<Vehicle> fleet = vehicleService.findAll();
+        List<Vehicle> featuredVehicles = fleet.stream()
+                .filter(v -> v.getStatus() == null || "AVAILABLE".equalsIgnoreCase(v.getStatus()))
+                .limit(3)
+                .toList();
+        Vehicle featuredVehicle = fleet.stream()
+                .filter(v -> v.getStatus() == null || "AVAILABLE".equalsIgnoreCase(v.getStatus()))
+                .findFirst()
+                .orElseGet(() -> fleet.isEmpty() ? null : fleet.get(0));
         String firstName = displayName;
         String fullName = customer.getName();
         if (fullName != null && !fullName.isBlank()) {
@@ -99,6 +108,12 @@ public class CustomerPortalController {
         model.addAttribute("firstName", firstName);
         model.addAttribute("verified", customer.isVerified());
         model.addAttribute("bookingCount", reservationService.findBookingsLinkedToCustomer(customer).size());
+        model.addAttribute("fleetCount", fleet.size());
+        model.addAttribute("availableFleetCount", fleet.stream()
+                .filter(v -> v.getStatus() == null || "AVAILABLE".equalsIgnoreCase(v.getStatus()))
+                .count());
+        model.addAttribute("featuredVehicle", featuredVehicle);
+        model.addAttribute("featuredVehicles", featuredVehicles);
         List<String> notices = new ArrayList<>();
         for (Booking booking : reservationService.findAll()) {
             String owner = booking.getCustomerName();

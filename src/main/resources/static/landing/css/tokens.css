@@ -4,6 +4,13 @@
   --da-font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --da-font-feature: 'ss01' on, 'cv11' on, 'cv02' on;
 
+  /* Advanced 3D Transform and Perspective Tokens */
+  --da-perspective: 1200px;
+  --da-trans-3d: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --layer-3d-rear: -50px;
+  --layer-3d-mid: 20px;
+  --layer-3d-front: 60px;
+
   /* Monochrome ink scale — single source of color */
   --da-ink-0:    #ffffff;
   --da-ink-50:   #fafaf9;
@@ -77,14 +84,14 @@
 
   /* Line heights */
   --da-leading-tight:  1.02;
-  --da-leading-snug:   1.18;
-  --da-leading:        1.6;
+  --da-leading-snug:   1.1;
+  --da-leading:        1.8;
   --da-leading-relax:  1.75;
 
   /* Letter-spacing presets — tight on display, open on micro labels */
-  --da-track-display: -0.035em;
-  --da-track-title:   -0.025em;
-  --da-track-body:    -0.005em;
+  --da-track-display: -0.05em;
+  --da-track-title:   -0.035em;
+  --da-track-body:    0.015em;
   --da-track-micro:   0.12em;
 
   /* Spacing / rhythm — used as page tempo */
@@ -99,6 +106,7 @@
   --da-space-16:  4rem;
   --da-space-24:  6rem;
   --da-space-32:  8rem;
+  --da-space-mega: calc(var(--da-space-32) * 2);
 
   /* Section tempo — sections breathe differently */
   --da-scene-y-tight:    clamp(3.5rem, 6vw, 5rem);

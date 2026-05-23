@@ -3,398 +3,935 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>DriveAway | My Portal</title>
+    <title>DriveAway | Customer Home</title>
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var w = Math.max(window.innerWidth || 0, root.clientWidth || 0);
+            var h = Math.max(window.innerHeight || 0, root.clientHeight || 0);
+            root.style.setProperty('--stage-width', Math.min(Math.round(w * 1.05), 1860) + 'px');
+            root.style.setProperty('--hero-height', Math.min(Math.round(h * 0.84), 980) + 'px');
+            root.style.setProperty('--display-size', Math.max(48, Math.min(92, Math.round(w * 0.047))) + 'px');
+            root.style.setProperty('--shell-pad', Math.max(18, Math.min(34, Math.round(w * 0.012))) + 'px');
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet"/>
     <style>
+        :root {
+            --ink: #18120d;
+            --muted: #6b6056;
+            --paper: #f5efe6;
+            --paper-strong: #fffaf3;
+            --line: rgba(56, 42, 27, 0.1);
+            --line-strong: rgba(56, 42, 27, 0.18);
+            --gold: #b98a43;
+            --gold-soft: #ebd4ad;
+            --emerald: #15725f;
+            --emerald-soft: #d6f0e7;
+            --wine: #9d5d46;
+            --wine-soft: #f4ddd4;
+            --plum: #7f5a74;
+            --plum-soft: #edddea;
+            --charcoal: #1c1712;
+            --shadow: 0 22px 64px rgba(49, 35, 18, 0.12);
+            --shadow-strong: 0 34px 100px rgba(49, 35, 18, 0.2);
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            min-height: 100%;
+            font-family: "Inter", system-ui, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(ellipse 56rem 28rem at 0% 0%, rgba(185, 138, 67, 0.14), transparent 60%),
+                radial-gradient(ellipse 38rem 24rem at 100% 0%, rgba(157, 93, 70, 0.12), transparent 62%),
+                linear-gradient(180deg, #fbf7f1 0%, #f5efe6 42%, #efe7db 100%);
+            overflow-x: hidden;
+            perspective: 1800px;
+        }
+
         body {
-            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-            background: #f4f7fc;
-            background-image:
-                radial-gradient(ellipse 80% 50% at 0% -10%, rgba(59, 130, 246, 0.16), transparent 55%),
-                radial-gradient(ellipse 60% 45% at 100% 0%, rgba(139, 92, 246, 0.12), transparent 50%),
-                radial-gradient(ellipse 50% 40% at 50% 100%, rgba(14, 165, 233, 0.06), transparent 45%);
+            opacity: 0;
+            transition: opacity 180ms ease;
         }
-        .ambient-orb {
+
+        body.ready { opacity: 1; }
+
+        .grain {
             position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
+            inset: 0;
             pointer-events: none;
-            z-index: 0;
-            opacity: 0.45;
+            opacity: 0.08;
+            background-image: radial-gradient(rgba(0, 0, 0, 0.45) 0.65px, transparent 0.8px);
+            background-size: 3px 3px;
+            mix-blend-mode: multiply;
         }
-        .orb-1 { width: 400px; height: 400px; background: rgba(59, 130, 246, 0.22); top: -100px; left: -60px; }
-        .orb-2 { width: 340px; height: 340px; background: rgba(167, 139, 250, 0.18); top: 18%; right: -80px; }
-        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .nav-glass {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.85);
-            box-shadow: 0 4px 28px rgba(15, 23, 42, 0.06);
+
+        .shell {
+            width: min(var(--stage-width, 1380px), calc(100vw - 3rem));
+            margin: 0 auto;
+            padding: 0 0 4rem;
+            position: relative;
+            z-index: 2;
         }
-        .profile-pill {
-            background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(239, 246, 255, 0.92));
-            border: 1px solid rgba(191, 219, 254, 0.85);
-            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.08);
-            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 60;
+            backdrop-filter: blur(18px);
+            background: rgba(255, 251, 244, 0.74);
+            border-bottom: 1px solid rgba(56, 42, 27, 0.08);
+            box-shadow: 0 1px 0 rgba(255,255,255,0.88), 0 10px 36px rgba(49, 35, 18, 0.05);
         }
-        .profile-pill:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 26px rgba(37, 99, 235, 0.14);
-            border-color: rgba(147, 197, 253, 1);
+
+        .topbar__inner {
+            width: min(var(--stage-width, 1380px), calc(100vw - 3rem));
+            margin: 0 auto;
+            padding: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        .avatar-glow {
-            padding: 3px;
-            background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
-            border-radius: 9999px;
-            box-shadow: 0 6px 28px rgba(79, 70, 229, 0.3);
-        }
-        .avatar-glow-inner { background: #fff; border-radius: 9999px; padding: 2px; }
-        .hero-shell {
-            background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 45%, #6d28d9 100%);
-            box-shadow: 0 22px 48px -14px rgba(37, 99, 235, 0.42), inset 0 1px 0 rgba(255,255,255,0.12);
-        }
-        .hero-pattern {
-            background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
-            opacity: 0.3;
-        }
-        .hero-name {
-            background: linear-gradient(to right, #fff, #e0e7ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .stat-glass {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
-            transition: transform 0.22s ease, background 0.22s ease;
-        }
-        .stat-glass:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.15); }
-        .section-label {
+
+        .brand {
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
-            font-size: 0.68rem;
+            gap: 0.9rem;
+            text-decoration: none;
+            color: var(--ink);
+        }
+
+        .brand__mark {
+            width: 3.1rem;
+            height: 3.1rem;
+            border-radius: 1.02rem;
+            display: grid;
+            place-items: center;
+            color: #fff9ef;
+            background: linear-gradient(135deg, #18120d 0%, #6c5031 46%, #b98a43 100%);
+            box-shadow: 0 18px 32px rgba(108, 80, 49, 0.22);
+        }
+
+        .brand__name {
+            font-family: "Playfair Display", serif;
+            font-size: 1.56rem;
+            line-height: 1;
             font-weight: 800;
-            letter-spacing: 0.12em;
+        }
+
+        .brand__name span { color: var(--gold); }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 0.62rem;
+        }
+
+        .chip, .btn-main, .btn-alt {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.48rem;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 900;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            pointer-events: auto;
+            touch-action: manipulation;
+        }
+
+        .chip {
+            padding: 0.7rem 1.04rem;
+            color: var(--ink);
+            background: rgba(255, 255, 255, 0.92);
+            border-color: rgba(56, 42, 27, 0.08);
+            box-shadow: 0 10px 18px rgba(49, 35, 18, 0.04);
+        }
+
+        .btn-main {
+            padding: 0.82rem 1.16rem;
+            color: #fff8ef;
+            background: linear-gradient(135deg, #19120d 0%, #6d4f30 46%, #b98a43 100%);
+            box-shadow: 0 16px 30px rgba(108, 80, 49, 0.24);
+        }
+
+        .btn-alt {
+            padding: 0.82rem 1.16rem;
+            color: var(--ink);
+            background: rgba(255, 255, 255, 0.92);
+            border-color: rgba(56, 42, 27, 0.08);
+        }
+
+        .btn-main:hover, .btn-alt:hover, .chip:hover {
+            transform: translateY(-1px);
+        }
+
+        .hero {
+            position: relative;
+            min-height: var(--hero-height, 40rem);
+            border-radius: 2.15rem;
+            overflow: hidden;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.03)),
+                url("https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=2400&q=80");
+            background-size: cover;
+            background-position: center;
+            border: 1px solid rgba(56, 42, 27, 0.12);
+            box-shadow: var(--shadow-strong);
+            transform-style: preserve-3d;
+            transition: transform 0.12s linear;
+            will-change: transform;
+            margin-top: 1rem;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 38rem 18rem at 16% 0%, rgba(255,255,255,0.68), transparent 74%),
+                radial-gradient(ellipse 28rem 20rem at 100% 100%, rgba(185, 138, 67, 0.16), transparent 72%),
+                linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.82) 66%, rgba(244, 237, 227, 0.98) 100%);
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: auto -10% -36% auto;
+            width: 40rem;
+            height: 40rem;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(185, 138, 67, 0.16), transparent 68%);
+            transform: translateZ(24px);
+            pointer-events: none;
+        }
+
+        .hero-grid {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+            gap: 1.05rem;
+            min-height: 100%;
+            padding: var(--shell-pad, 24px);
+            transform-style: preserve-3d;
+        }
+
+        .hero-copy {
+            align-self: end;
+            transform: translateZ(44px);
+            max-width: 56rem;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.46rem;
+            padding: 0.48rem 0.8rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.84);
+            border: 1px solid rgba(56, 42, 27, 0.08);
+            color: var(--gold);
+            font-size: 0.7rem;
+            font-weight: 900;
             text-transform: uppercase;
-            color: #4f46e5;
-            background: rgba(99, 102, 241, 0.08);
-            border: 1px solid rgba(99, 102, 241, 0.14);
-            padding: 0.3rem 0.8rem;
-            border-radius: 9999px;
-            margin-bottom: 0.65rem;
+            letter-spacing: 0.1em;
+            box-shadow: 0 10px 18px rgba(49, 35, 18, 0.04);
         }
-        .bento-card {
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(226, 232, 240, 0.95);
-            border-radius: 1.5rem;
-            box-shadow: 0 4px 22px rgba(15, 23, 42, 0.05);
-            transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.32s ease, border-color 0.32s ease;
-            animation: fadeIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+        .hero-copy h1 {
+            margin: 1rem 0 0.62rem;
+            font-family: "Playfair Display", serif;
+            font-size: var(--display-size, 76px);
+            line-height: 0.92;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+            max-width: 12ch;
         }
-        .bento-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 44px -12px rgba(15, 23, 42, 0.11);
+
+        .hero-copy p {
+            margin: 0;
+            max-width: 50ch;
+            color: var(--muted);
+            line-height: 1.76;
+            font-size: 1.06rem;
         }
-        .bento-card--blue:hover { border-color: rgba(59, 130, 246, 0.35); }
-        .bento-card--green:hover { border-color: rgba(16, 185, 129, 0.35); }
-        .bento-card--teal:hover { border-color: rgba(20, 184, 166, 0.35); }
-        .bento-card--purple:hover { border-color: rgba(139, 92, 246, 0.4); }
-        .bento-card--orange:hover { border-color: rgba(249, 115, 22, 0.35); }
-        .bento-card--rose:hover { border-color: rgba(244, 63, 94, 0.35); }
-        .bento-card--featured {
-            background: linear-gradient(145deg, #faf5ff 0%, #ffffff 50%);
-            border-color: rgba(167, 139, 250, 0.35);
+
+        .hero-actions {
+            margin-top: 1.45rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.68rem;
         }
-        .bento-card:nth-child(1) { animation-delay: 0.04s; }
-        .bento-card:nth-child(2) { animation-delay: 0.08s; }
-        .bento-card:nth-child(3) { animation-delay: 0.12s; }
-        .bento-card:nth-child(4) { animation-delay: 0.16s; }
-        .bento-card:nth-child(5) { animation-delay: 0.2s; }
-        .bento-card:nth-child(6) { animation-delay: 0.24s; }
-        .icon-tile { transition: transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1); }
-        .bento-card:hover .icon-tile { transform: scale(1.06) rotate(-2deg); }
-        .card-cta { transition: gap 0.2s ease, background 0.22s ease, color 0.22s ease; }
-        .bento-card:hover .card-cta { gap: 0.55rem; }
-        .toast-success {
-            background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
-            border: 1px solid rgba(52, 211, 153, 0.35);
-            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1);
-            animation: toastIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+        .flow-panel {
+            align-self: end;
+            border-radius: 1.3rem;
+            background: rgba(255,255,255,0.92);
+            border: 1px solid rgba(56, 42, 27, 0.08);
+            box-shadow: 0 22px 36px rgba(49, 35, 18, 0.08);
+            backdrop-filter: blur(12px);
+            padding: 1.08rem;
+            transform: translateZ(64px);
         }
-        @keyframes toastIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        .flow-panel h3 {
+            margin: 0 0 0.78rem;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gold);
         }
-        .logout-btn {
-            box-shadow: 0 5px 18px rgba(244, 63, 94, 0.32);
+
+        .flow-list {
+            display: grid;
+            gap: 0.7rem;
+        }
+
+        .flow-step {
+            display: grid;
+            grid-template-columns: 3rem 1fr;
+            gap: 0.86rem;
+            align-items: start;
+            padding: 0.86rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(56, 42, 27, 0.08);
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(249,245,239,0.94) 100%);
+            box-shadow: 0 12px 20px rgba(49, 35, 18, 0.04);
+        }
+
+        .flow-step:nth-child(1) {
+            background: linear-gradient(180deg, #fff8ef 0%, #fbf0dd 100%);
+        }
+
+        .flow-step:nth-child(2) {
+            background: linear-gradient(180deg, #eef8f3 0%, #d9efe6 100%);
+        }
+
+        .flow-step:nth-child(3) {
+            background: linear-gradient(180deg, #f8efeb 0%, #f1ddd4 100%);
+        }
+
+        .flow-num {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.95rem;
+            display: grid;
+            place-items: center;
+            color: #fff8ef;
+            font-size: 1rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #19120d, #6d4f30 54%, #b98a43);
+            box-shadow: 0 12px 22px rgba(92, 68, 42, 0.18);
+        }
+
+        .flow-step strong {
+            display: block;
+            margin-bottom: 0.16rem;
+            font-size: 0.92rem;
+            color: var(--ink);
+        }
+
+        .flow-step span {
+            display: block;
+            font-size: 0.78rem;
+            line-height: 1.45;
+            color: var(--muted);
+        }
+
+        .hero-stats {
+            margin-top: 0.9rem;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.62rem;
+        }
+
+        .mini-stat {
+            border-radius: 0.98rem;
+            padding: 0.94rem;
+            border: 1px solid rgba(56, 42, 27, 0.08);
+            box-shadow: 0 12px 20px rgba(49, 35, 18, 0.04);
+        }
+
+        .mini-stat--gold {
+            background: linear-gradient(180deg, #fff7ec 0%, #f7ebd4 100%);
+        }
+
+        .mini-stat--emerald {
+            background: linear-gradient(180deg, #f0faf6 0%, #d8efe5 100%);
+        }
+
+        .mini-stat--wine {
+            background: linear-gradient(180deg, #fcf3ef 0%, #f2ddd4 100%);
+        }
+
+        .mini-stat--plum {
+            background: linear-gradient(180deg, #faf5fa 0%, #ecdeea 100%);
+        }
+
+        .mini-stat .label {
+            display: block;
+            margin: 0 0 0.35rem;
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        .mini-stat .value {
+            margin: 0;
+            font-family: "Playfair Display", serif;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: var(--ink);
+        }
+
+        .summary-strip {
+            margin-top: 1rem;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.78rem;
+        }
+
+        .summary-card {
+            border-radius: 1.08rem;
+            padding: 1rem;
+            box-shadow: 0 16px 28px rgba(49, 35, 18, 0.07);
+            border: 1px solid rgba(56, 42, 27, 0.08);
+            transform-style: preserve-3d;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .logout-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(244, 63, 94, 0.4);
+
+        .summary-card:hover {
+            transform: translateY(-2px) translateZ(6px);
+            box-shadow: 0 20px 34px rgba(49, 35, 18, 0.1);
         }
-        @media (prefers-reduced-motion: reduce) {
-            .fade-in, .bento-card, .toast-success { animation: none; }
-            .bento-card:hover, .stat-glass:hover, .profile-pill:hover, .logout-btn:hover { transform: none; }
-            .bento-card:hover .icon-tile { transform: none; }
+
+        .summary-card--gold {
+            background: linear-gradient(180deg, #fff9ef 0%, #f6ecd8 100%);
+        }
+
+        .summary-card--emerald {
+            background: linear-gradient(180deg, #f1faf6 0%, #d9efe6 100%);
+        }
+
+        .summary-card--wine {
+            background: linear-gradient(180deg, #fcf3ef 0%, #f3ddd4 100%);
+        }
+
+        .summary-card--plum {
+            background: linear-gradient(180deg, #faf6fb 0%, #ecdeeb 100%);
+        }
+
+        .summary-card .label {
+            display: block;
+            margin: 0 0 0.44rem;
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--muted);
+        }
+
+        .summary-card .value {
+            margin: 0 0 0.25rem;
+            font-family: "Playfair Display", serif;
+            font-size: 1.54rem;
+            line-height: 1;
+        }
+
+        .summary-card p {
+            margin: 0;
+            font-size: 0.8rem;
+            line-height: 1.45;
+            color: var(--muted);
+        }
+
+        .section {
+            margin-top: 1rem;
+            border-radius: 1.32rem;
+            border: 1px solid rgba(56, 42, 27, 0.1);
+            background: var(--panel);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(14px);
+            padding: 1.16rem;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section h2 {
+            margin: 0 0 0.2rem;
+            font-family: "Playfair Display", serif;
+            font-size: 1.28rem;
+        }
+
+        .section p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .notice-list {
+            margin-top: 0.9rem;
+            display: grid;
+            gap: 0.55rem;
+        }
+
+        .notice {
+            border-radius: 0.96rem;
+            border: 1px solid rgba(185, 138, 67, 0.18);
+            background: linear-gradient(180deg, #fffdf9 0%, #fbf4e8 100%);
+            color: #5d4320;
+            padding: 0.84rem 0.96rem;
+            font-size: 0.86rem;
+            font-weight: 600;
+            line-height: 1.46;
+            box-shadow: 0 10px 18px rgba(49, 35, 18, 0.05);
+        }
+
+        .action-grid {
+            margin-top: 0.9rem;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.78rem;
+        }
+
+        .action {
+            text-decoration: none;
+            min-height: 10.4rem;
+            border-radius: 1.06rem;
+            border: 1px solid rgba(56, 42, 27, 0.1);
+            padding: 1.04rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.82rem;
+            box-shadow: 0 16px 28px rgba(49, 35, 18, 0.08);
+            transform-style: preserve-3d;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+
+        .action:hover {
+            transform: translateY(-3px) translateZ(8px);
+            box-shadow: 0 22px 38px rgba(49, 35, 18, 0.12);
+        }
+
+        .action--gold {
+            background: linear-gradient(180deg, #fff9ef 0%, #f6ecd8 100%);
+        }
+
+        .action--emerald {
+            background: linear-gradient(180deg, #f1faf6 0%, #d9efe6 100%);
+        }
+
+        .action--wine {
+            background: linear-gradient(180deg, #fcf3ef 0%, #f3ddd4 100%);
+        }
+
+        .action--plum {
+            background: linear-gradient(180deg, #faf6fb 0%, #ecdeeb 100%);
+        }
+
+        .action__icon {
+            width: 2.45rem;
+            height: 2.45rem;
+            border-radius: 0.78rem;
+            display: grid;
+            place-items: center;
+            color: #fff7ec;
+            background: linear-gradient(135deg, #19120d, #6d4f30 54%, #b98a43);
+            box-shadow: 0 12px 24px rgba(92, 68, 42, 0.2);
+        }
+
+        .action h3 {
+            margin: 0.66rem 0 0.34rem;
+            font-size: 1rem;
+            color: var(--ink);
+        }
+
+        .action p {
+            margin: 0;
+            font-size: 0.84rem;
+            line-height: 1.54;
+            color: var(--muted);
+        }
+
+        .action .go {
+            font-size: 0.73rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .fleet-strip {
+            margin-top: 0.9rem;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.66rem;
+        }
+
+        .fleet-item {
+            border-radius: 0.98rem;
+            border: 1px solid rgba(56, 42, 27, 0.1);
+            background: var(--panel-strong);
+            overflow: hidden;
+            box-shadow: 0 14px 24px rgba(49, 35, 18, 0.08);
+            transform-style: preserve-3d;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .fleet-item:hover {
+            transform: translateY(-2px) translateZ(6px);
+            box-shadow: 0 18px 32px rgba(49, 35, 18, 0.12);
+        }
+
+        .fleet-item img {
+            width: 100%;
+            height: 6.5rem;
+            object-fit: cover;
+            display: block;
+        }
+
+        .fleet-item__body {
+            padding: 0.64rem 0.74rem 0.78rem;
+        }
+
+        .fleet-item__title {
+            margin: 0;
+            font-size: 0.87rem;
+            font-weight: 800;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .fleet-item__meta {
+            margin-top: 0.3rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            font-size: 0.74rem;
+            color: var(--muted);
+        }
+
+        .desktop-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.56rem 0.8rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.86);
+            border: 1px solid rgba(56, 42, 27, 0.08);
+            color: var(--gold);
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+        }
+
+        @media (max-width: 1180px) {
+            .hero-grid { grid-template-columns: 1fr; }
+            .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 860px) {
+            .shell, .topbar__inner { width: calc(100vw - 1.2rem); }
+            .topbar { position: static; }
+            .hero-grid { padding: 1.1rem; }
+            .hero-copy h1 { font-size: clamp(2.3rem, 10vw, 3.1rem); }
+            .hero, .summary-strip, .action-grid, .fleet-strip, .hero-stats { grid-template-columns: 1fr; }
+            .top-actions { width: 100%; justify-content: flex-start; }
         }
     </style>
 </head>
-<body class="min-h-screen text-slate-800 flex flex-col relative">
+<body>
+<div class="grain" aria-hidden="true"></div>
 
-<div class="ambient-orb orb-1" aria-hidden="true"></div>
-<div class="ambient-orb orb-2" aria-hidden="true"></div>
-
-<nav class="nav-glass sticky top-0 z-40 relative">
-    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 h-[4.5rem] sm:h-[4.75rem] flex items-center justify-between gap-3">
-        <a th:href="@{/customer/home}" class="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-            <div class="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:shadow-indigo-500/35 transition-shadow">
-                <i class="ph-fill ph-car-profile text-xl sm:text-2xl text-white"></i>
-            </div>
-            <span class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">Drive<span class="text-indigo-600">Away</span></span>
+<nav class="topbar">
+    <div class="topbar__inner">
+        <a th:href="@{/customer/home}" class="brand">
+            <span class="brand__mark"><i class="ph-fill ph-car-profile text-xl"></i></span>
+            <span class="brand__name">Drive<span>Away</span></span>
         </a>
 
-        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-            <a th:href="@{/customers(action=editSelf)}" class="profile-pill flex items-center gap-2.5 sm:gap-3 px-2.5 sm:px-4 py-2 rounded-2xl min-w-0">
-                <div class="avatar-glow shrink-0">
-                    <div class="avatar-glow-inner" th:replace="~{fragments/user-avatar :: avatar(user=${customer}, size=42)}"></div>
-                </div>
-                <div class="min-w-0 hidden min-[380px]:block text-left">
-                    <p class="text-[10px] sm:text-[11px] text-indigo-600 font-extrabold uppercase tracking-[0.12em]">Welcome</p>
-                    <p class="font-bold text-slate-900 text-xs sm:text-sm leading-tight truncate max-w-[9rem] sm:max-w-[11rem]" th:text="${displayName}">Customer</p>
-                </div>
-                <i class="ph-bold ph-caret-right text-indigo-400 text-sm hidden sm:block opacity-50"></i>
-            </a>
-            <form th:action="@{/auth}" method="post" class="m-0 shrink-0">
+        <div class="top-actions">
+            <span class="desktop-badge"><i class="ph-bold ph-monitor"></i> Desktop View</span>
+            <a th:href="@{/customers(action=editSelf)}" class="chip"><i class="ph-bold ph-user-circle"></i> <span th:text="${displayName}">Customer</span></a>
+            <a th:href="@{/customer/fleet}" class="btn-alt"><i class="ph-bold ph-car-profile"></i> Fleet</a>
+            <a th:href="@{/customer/bookings}" class="btn-alt"><i class="ph-bold ph-calendar-check"></i> Bookings</a>
+            <form th:action="@{/auth}" method="post" class="m-0">
                 <input type="hidden" name="action" value="logout"/>
-                <button type="submit" class="logout-btn bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold px-3.5 sm:px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm">
-                    <i class="ph-bold ph-sign-out text-lg"></i>
-                    <span class="hidden sm:inline">Logout</span>
-                </button>
+                <button type="submit" class="btn-alt"><i class="ph-bold ph-sign-out"></i> Logout</button>
             </form>
         </div>
     </div>
 </nav>
 
-<main class="flex-grow max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 fade-in relative z-10">
-
-    <div id="profileToast" th:if="${param.msg != null and param.msg[0] == 'updated'}"
-         class="toast-success mb-8 p-4 sm:p-5 rounded-2xl text-emerald-800 font-semibold flex items-center justify-between gap-4">
-        <span class="flex items-center gap-3">
-            <span class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-md">
-                <i class="ph-bold ph-check text-xl"></i>
-            </span>
-            Profile updated successfully.
-        </span>
-        <button type="button" onclick="document.getElementById('profileToast').remove()" class="text-emerald-700 hover:bg-emerald-100 p-2 rounded-xl transition-colors" aria-label="Dismiss">
-            <i class="ph-bold ph-x text-lg"></i>
-        </button>
-    </div>
-
-    <section class="hero-shell rounded-[1.75rem] sm:rounded-[2rem] p-6 sm:p-10 lg:p-12 mb-10 sm:mb-12 relative overflow-hidden">
-        <div class="absolute inset-0 hero-pattern pointer-events-none" aria-hidden="true"></div>
-        <div class="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-violet-400/25 blur-3xl pointer-events-none" aria-hidden="true"></div>
-        <div class="absolute -left-8 bottom-0 w-48 h-48 rounded-full bg-blue-400/20 blur-3xl pointer-events-none" aria-hidden="true"></div>
-        <i class="ph-fill ph-car absolute -right-10 -bottom-16 text-[220px] sm:text-[300px] text-white/[0.04] rotate-12 pointer-events-none" aria-hidden="true"></i>
-
-        <div class="relative z-10 flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-8">
-            <div class="flex-1 min-w-0">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6 mb-5">
-                    <div class="avatar-glow shrink-0">
-                        <div class="avatar-glow-inner" th:replace="~{fragments/user-avatar :: avatar(user=${customer}, size=88)}"></div>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-indigo-200 text-xs sm:text-sm font-bold uppercase tracking-[0.18em] mb-1.5">Your portal</p>
-                        <h1 class="text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold tracking-tight leading-[1.12] text-white">
-                            Welcome back, <span class="hero-name" th:text="${firstName}">Guest</span>
-                        </h1>
-                    </div>
-                </div>
-                <p class="text-blue-100/90 text-base sm:text-lg font-medium max-w-xl leading-relaxed mb-6">
-                    Book rides, manage reservations, and explore our fleet — all in one place.
-                </p>
-                <div class="flex flex-wrap gap-3">
-                    <a th:href="@{/customer/fleet}" class="inline-flex items-center gap-2.5 bg-white text-indigo-700 font-bold px-5 sm:px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm sm:text-base">
-                        <i class="ph-bold ph-car text-lg"></i> Browse Fleet
-                    </a>
-                    <a th:href="@{/customer/bookings}" class="inline-flex items-center gap-2.5 text-white font-bold px-5 sm:px-6 py-3 rounded-2xl border border-white/35 bg-white/10 hover:bg-white/18 backdrop-blur-sm transition-all text-sm sm:text-base">
-                        <i class="ph-bold ph-calendar-check text-lg"></i> My Bookings
-                    </a>
+<main class="shell">
+    <section class="hero" id="hero3d">
+        <div class="hero-grid">
+            <div class="hero-copy">
+                <span class="eyebrow"><i class="ph-bold ph-sparkle"></i> Private Client Portal</span>
+                <h1>Premium, colorful, and finally easy to read.</h1>
+                <p>The page is now organized so the eye lands in the right order: what this place is, what to do first, what is available now, and where to go next. The richer color comes from clear service zones, not random decoration.</p>
+                <div class="hero-actions">
+                    <a th:href="@{/customer/fleet}" class="btn-main"><i class="ph-bold ph-steering-wheel"></i> 1. Browse Fleet</a>
+                    <a th:href="@{/customer/bookings}" class="btn-alt"><i class="ph-bold ph-calendar-check"></i> 2. Manage Booking</a>
+                    <a th:href="@{/customer/billing}" class="btn-alt"><i class="ph-bold ph-wallet"></i> 3. Pay & Finish</a>
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-3 w-full xl:w-auto xl:min-w-[19rem]">
-                <div class="stat-glass rounded-2xl p-3.5 sm:p-4 text-center">
-                    <div class="w-10 h-10 bg-emerald-400/20 rounded-xl flex items-center justify-center mx-auto mb-2 ring-1 ring-white/15">
-                        <i class="ph-fill ph-shield-check text-xl text-emerald-300"></i>
+            <aside class="flow-panel" data-tilt>
+                <h3>How this portal works</h3>
+                <div class="flow-list">
+                    <div class="flow-step">
+                        <div class="flow-num">1</div>
+                        <div>
+                            <strong>Choose a vehicle</strong>
+                            <span>Start in the fleet and compare what is available right now.</span>
+                        </div>
                     </div>
-                    <p class="text-blue-100/75 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">Status</p>
-                    <p class="text-white font-extrabold text-sm sm:text-base mt-0.5">Active</p>
-                </div>
-                <div class="stat-glass rounded-2xl p-3.5 sm:p-4 text-center">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2 ring-1 ring-white/15"
-                         th:classappend="${verified} ? 'bg-emerald-400/20' : 'bg-amber-400/25'">
-                        <i th:class="${verified} ? 'ph-fill ph-seal-check text-xl text-emerald-300' : 'ph-fill ph-warning text-xl text-amber-200'"></i>
+                    <div class="flow-step">
+                        <div class="flow-num">2</div>
+                        <div>
+                            <strong>Track your reservation</strong>
+                            <span>Use bookings to review status, edit requests, or cancellations.</span>
+                        </div>
                     </div>
-                    <p class="text-blue-100/75 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">Account</p>
-                    <p class="text-white font-extrabold text-sm sm:text-base mt-0.5" th:text="${verified} ? 'Verified' : 'Incomplete'">—</p>
-                    <a th:unless="${verified}" th:href="@{/customers(action=editSelf)}"
-                       class="text-[9px] text-amber-100 hover:text-white underline mt-0.5 inline-block">Complete profile</a>
-                </div>
-                <div class="stat-glass rounded-2xl p-3.5 sm:p-4 text-center">
-                    <div class="w-10 h-10 bg-white/12 rounded-xl flex items-center justify-center mx-auto mb-2 ring-1 ring-white/15">
-                        <i class="ph-fill ph-calendar-blank text-xl text-indigo-200"></i>
+                    <div class="flow-step">
+                        <div class="flow-num">3</div>
+                        <div>
+                            <strong>Clear payment quickly</strong>
+                            <span>Only confirmed bookings move into billing so the path stays obvious.</span>
+                        </div>
                     </div>
-                    <p class="text-blue-100/75 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">Bookings</p>
-                    <p class="text-white font-extrabold text-xl sm:text-2xl tabular-nums mt-0.5" th:text="${bookingCount}">0</p>
                 </div>
-            </div>
+
+                <div class="hero-stats">
+                    <div class="mini-stat mini-stat--gold">
+                        <span class="label">Bookable now</span>
+                        <p class="value" th:text="${availableFleetCount}">0</p>
+                    </div>
+                    <div class="mini-stat mini-stat--emerald">
+                        <span class="label">Your bookings</span>
+                        <p class="value" th:text="${bookingCount}">0</p>
+                    </div>
+                    <div class="mini-stat mini-stat--wine">
+                        <span class="label">Fleet total</span>
+                        <p class="value" th:text="${fleetCount}">0</p>
+                    </div>
+                    <div class="mini-stat mini-stat--plum">
+                        <span class="label">Account</span>
+                        <p class="value" th:text="${verified} ? 'Verified' : 'Pending'">Verified</p>
+                    </div>
+                </div>
+            </aside>
         </div>
     </section>
 
-    <div th:if="${bookingNotices != null and !bookingNotices.isEmpty()}" class="mb-10 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/90 border border-amber-200/80 shadow-sm">
-        <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-md">
-                <i class="ph-fill ph-bell text-lg text-white"></i>
+    <section class="summary-strip">
+        <article class="summary-card summary-card--gold" data-tilt>
+            <span class="label">Start Here</span>
+            <p class="value">Fleet</p>
+            <p>Best place to begin if you are deciding what to rent next.</p>
+        </article>
+        <article class="summary-card summary-card--emerald" data-tilt>
+            <span class="label">Next Priority</span>
+            <p class="value">Bookings</p>
+            <p>Check approvals, requested edits, and upcoming reservations.</p>
+        </article>
+        <article class="summary-card summary-card--wine" data-tilt>
+            <span class="label">Final Step</span>
+            <p class="value">Billing</p>
+            <p>Pay only when the booking is ready, without guessing where to go.</p>
+        </article>
+        <article class="summary-card summary-card--plum" data-tilt>
+            <span class="label">Trust Layer</span>
+            <p class="value" th:text="${verified} ? 'Verified' : 'Complete Profile'">Verified</p>
+            <p>Your profile and documents stay visible as part of the journey.</p>
+        </article>
+    </section>
+
+    <section class="section" th:if="${bookingNotices != null and !bookingNotices.isEmpty()}">
+        <div class="section-head">
+            <div>
+                <h2>Recent Booking Updates</h2>
+                <p>Latest decisions and messages from staff on your reservations.</p>
             </div>
-            <h3 class="text-lg font-extrabold text-amber-900">Booking updates</h3>
         </div>
-        <div class="space-y-2.5">
-            <div th:each="n : ${bookingNotices}" class="bg-white/90 border border-amber-100 text-amber-950 rounded-xl px-4 py-3 text-sm font-medium flex items-start gap-3">
-                <i class="ph-fill ph-info text-amber-500 mt-0.5 shrink-0"></i>
-                <span th:text="${n}">Notice</span>
+        <div class="notice-list">
+            <article class="notice" th:each="n : ${bookingNotices}" th:text="${n}">Notice</article>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-head">
+            <div>
+                <h2>Main Modules</h2>
+                <p>Each area has a distinct color mood so it is easier to scan and remember.</p>
             </div>
         </div>
-    </div>
-
-    <header class="mb-7 sm:mb-9">
-        <span class="section-label"><i class="ph-bold ph-squares-four"></i> Dashboard</span>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Quick Actions</h2>
-        <p class="text-slate-500 font-medium mt-1.5">Access all your DriveAway services from one place</p>
-    </header>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 mb-14">
-
-        <a th:href="@{/customer/fleet}" class="bento-card bento-card--blue group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
-            <div class="absolute -right-8 -top-8 w-32 h-32 bg-blue-100/70 rounded-full blur-2xl group-hover:bg-blue-200/80 transition-colors"></div>
-            <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-start justify-between gap-3 mb-4">
-                    <div class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-blue-500/25">
-                        <i class="ph-fill ph-car-profile"></i>
-                    </div>
-                    <i class="ph-bold ph-arrow-up-right text-slate-300 group-hover:text-blue-500 text-lg transition-colors"></i>
+        <div class="action-grid">
+            <a th:href="@{/customer/fleet}" class="action action--gold" data-tilt>
+                <div>
+                    <span class="action__icon"><i class="ph-bold ph-car-profile"></i></span>
+                    <h3>Browse Fleet</h3>
+                    <p>See available vehicles first and move directly into reservation creation.</p>
                 </div>
-                <h3 class="text-lg font-extrabold text-slate-900 mb-2">Rent a Vehicle</h3>
-                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">Browse our premium fleet and secure your booking in seconds.</p>
-                <span class="card-cta inline-flex items-center gap-2 text-blue-600 font-bold text-sm bg-blue-50 group-hover:bg-blue-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
-                    Explore Fleet <i class="ph-bold ph-arrow-right"></i>
-                </span>
-            </div>
-        </a>
-
-        <a th:href="@{/customer/bookings}" class="bento-card bento-card--green group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
-            <div class="absolute -right-8 -top-8 w-32 h-32 bg-emerald-100/70 rounded-full blur-2xl group-hover:bg-emerald-200/80 transition-colors"></div>
-            <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-start justify-between gap-3 mb-4">
-                    <div class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/25">
-                        <i class="ph-fill ph-calendar-check"></i>
-                    </div>
-                    <i class="ph-bold ph-arrow-up-right text-slate-300 group-hover:text-emerald-500 text-lg transition-colors"></i>
+                <span class="go">Open fleet</span>
+            </a>
+            <a th:href="@{/customer/bookings}" class="action action--emerald" data-tilt>
+                <div>
+                    <span class="action__icon"><i class="ph-bold ph-calendar-check"></i></span>
+                    <h3>Manage Bookings</h3>
+                    <p>Review approval state, trip dates, and any change requests in one view.</p>
                 </div>
-                <h3 class="text-lg font-extrabold text-slate-900 mb-2">My Bookings</h3>
-                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">View active rentals, history, and manage changes.</p>
-                <span class="card-cta inline-flex items-center gap-2 text-emerald-600 font-bold text-sm bg-emerald-50 group-hover:bg-emerald-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
-                    Manage Reservations <i class="ph-bold ph-arrow-right"></i>
-                </span>
-            </div>
-        </a>
-
-        <a th:href="@{/customer/billing}" class="bento-card bento-card--teal group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
-            <div class="absolute -right-8 -top-8 w-32 h-32 bg-teal-100/70 rounded-full blur-2xl group-hover:bg-teal-200/80 transition-colors"></div>
-            <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-start justify-between gap-3 mb-4">
-                    <div class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-teal-500/25">
-                        <i class="ph-fill ph-receipt"></i>
-                    </div>
-                    <i class="ph-bold ph-arrow-up-right text-slate-300 group-hover:text-teal-500 text-lg transition-colors"></i>
+                <span class="go">Open bookings</span>
+            </a>
+            <a th:href="@{/customer/billing}" class="action action--wine" data-tilt>
+                <div>
+                    <span class="action__icon"><i class="ph-bold ph-wallet"></i></span>
+                    <h3>Billing & Payments</h3>
+                    <p>Finish the payment step once a reservation is confirmed and ready.</p>
                 </div>
-                <h3 class="text-lg font-extrabold text-slate-900 mb-2">Billing &amp; Payments</h3>
-                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">Invoices, balances, and payment methods in one place.</p>
-                <span class="card-cta inline-flex items-center gap-2 text-teal-600 font-bold text-sm bg-teal-50 group-hover:bg-teal-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
-                    View Invoices <i class="ph-bold ph-arrow-right"></i>
-                </span>
-            </div>
-        </a>
-
-        <a th:href="@{/customers(action=editSelf)}" class="bento-card bento-card--purple bento-card--featured group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
-            <div class="absolute -right-8 -top-8 w-36 h-36 bg-violet-200/50 rounded-full blur-2xl group-hover:bg-violet-300/60 transition-colors"></div>
-            <span class="absolute top-4 right-4 text-[10px] font-extrabold uppercase tracking-wider text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full border border-violet-200">You</span>
-            <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-start justify-between gap-3 mb-4">
-                    <div class="shrink-0 rounded-2xl overflow-hidden ring-2 ring-violet-200 shadow-sm" th:if="${customer != null and customer.hasAvatar()}">
-                        <div th:replace="~{fragments/user-avatar :: avatar(user=${customer}, size=56)}"></div>
-                    </div>
-                    <div th:unless="${customer != null and customer.hasAvatar()}"
-                         class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-violet-500/25">
-                        <i class="ph-fill ph-identification-card"></i>
-                    </div>
-                    <i class="ph-bold ph-arrow-up-right text-violet-300 group-hover:text-violet-600 text-lg transition-colors"></i>
+                <span class="go">Open billing</span>
+            </a>
+            <a th:href="@{/customers(action=editSelf)}" class="action action--plum" data-tilt>
+                <div>
+                    <span class="action__icon"><i class="ph-bold ph-identification-card"></i></span>
+                    <h3>Profile Settings</h3>
+                    <p>Keep your identity details, contact data, and verification documents current.</p>
                 </div>
-                <h3 class="text-lg font-extrabold text-slate-900 mb-2">Profile Settings</h3>
-                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">Photo, contact info, documents, and password.</p>
-                <span class="card-cta inline-flex items-center gap-2 text-violet-600 font-bold text-sm bg-violet-100 group-hover:bg-violet-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
-                    Edit Profile <i class="ph-bold ph-arrow-right"></i>
-                </span>
-            </div>
-        </a>
-
-        <a th:href="@{/customer/reviews}" class="bento-card bento-card--orange group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
-            <div class="absolute -right-8 -top-8 w-32 h-32 bg-orange-100/70 rounded-full blur-2xl group-hover:bg-orange-200/80 transition-colors"></div>
-            <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-start justify-between gap-3 mb-4">
-                    <div class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center text-2xl shadow-lg shadow-orange-500/25">
-                        <i class="ph-fill ph-star"></i>
-                    </div>
-                    <i class="ph-bold ph-arrow-up-right text-slate-300 group-hover:text-orange-500 text-lg transition-colors"></i>
+                <span class="go">Open profile</span>
+            </a>
+            <a th:href="@{/customer/reviews}" class="action action--gold" data-tilt>
+                <div>
+                    <span class="action__icon"><i class="ph-bold ph-star"></i></span>
+                    <h3>Reviews</h3>
+                    <p>Share your experience and manage the reviews linked to your trips.</p>
                 </div>
-                <h3 class="text-lg font-extrabold text-slate-900 mb-2">My Reviews</h3>
-                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">Share feedback and manage your rental reviews.</p>
-                <span class="card-cta inline-flex items-center gap-2 text-orange-600 font-bold text-sm bg-orange-50 group-hover:bg-orange-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
-                    Manage Reviews <i class="ph-bold ph-arrow-right"></i>
-                </span>
-            </div>
-        </a>
-
-        <a th:href="@{/customer/support}" class="bento-card bento-card--rose group flex flex-col h-full p-6 sm:p-8 relative overflow-hidden">
-            <div class="absolute -right-8 -top-8 w-32 h-32 bg-rose-100/70 rounded-full blur-2xl group-hover:bg-rose-200/80 transition-colors"></div>
-            <div class="relative z-10 flex flex-col h-full">
-                <div class="flex items-start justify-between gap-3 mb-4">
-                    <div class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-rose-500/25">
-                        <i class="ph-fill ph-headset"></i>
-                    </div>
-                    <i class="ph-bold ph-arrow-up-right text-slate-300 group-hover:text-rose-500 text-lg transition-colors"></i>
+                <span class="go">Open reviews</span>
+            </a>
+            <a th:href="@{/customer/support}" class="action action--wine" data-tilt>
+                <div>
+                    <span class="action__icon"><i class="ph-bold ph-headset"></i></span>
+                    <h3>Support</h3>
+                    <p>Reach the help path quickly if you hit a vehicle, booking, or payment issue.</p>
                 </div>
-                <h3 class="text-lg font-extrabold text-slate-900 mb-2">Help &amp; Support</h3>
-                <p class="text-slate-500 text-sm leading-relaxed flex-grow mb-5">24/7 assistance, FAQs, and vehicle issue reports.</p>
-                <span class="card-cta inline-flex items-center gap-2 text-rose-600 font-bold text-sm bg-rose-50 group-hover:bg-rose-600 group-hover:text-white px-4 py-2.5 rounded-xl w-fit transition-all">
-                    Get Assistance <i class="ph-bold ph-arrow-right"></i>
-                </span>
+                <span class="go">Open support</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="section" th:if="${featuredVehicles != null and !featuredVehicles.isEmpty()}">
+        <div class="section-head">
+            <div>
+                <h2>Curated Fleet Preview</h2>
+                <p>Quick showroom picks so the next action feels obvious.</p>
             </div>
-        </a>
-
-    </div>
-
+        </div>
+        <div class="fleet-strip">
+            <article class="fleet-item" th:each="v : ${featuredVehicles}" data-tilt>
+                <img th:if="${v.imagePath != null and !#strings.isEmpty(v.imagePath)}" th:src="@{${v.imagePath}}" alt="Vehicle image"/>
+                <img th:unless="${v.imagePath != null and !#strings.isEmpty(v.imagePath)}" src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=700&q=80" alt="Vehicle image"/>
+                <div class="fleet-item__body">
+                    <p class="fleet-item__title" th:text="${v.brand + ' ' + v.model}">Vehicle</p>
+                    <div class="fleet-item__meta">
+                        <span th:text="${v.vehicleType}">Type</span>
+                        <span>LKR <span th:text="${#numbers.formatDecimal(v.calculateRentalRate(), 1, 2)}">0.00</span>/day</span>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
 </main>
 
+<script>
+    (function () {
+        const root = document.documentElement;
+        const body = document.body;
+
+        function setViewportVars() {
+            const w = Math.max(window.innerWidth || 0, root.clientWidth || 0);
+            const h = Math.max(window.innerHeight || 0, root.clientHeight || 0);
+            root.style.setProperty('--stage-width', Math.min(Math.round(w * 1.05), 1860) + 'px');
+            root.style.setProperty('--hero-height', Math.min(Math.round(h * 0.84), 980) + 'px');
+            root.style.setProperty('--display-size', Math.max(48, Math.min(92, Math.round(w * 0.047))) + 'px');
+            root.style.setProperty('--shell-pad', Math.max(18, Math.min(34, Math.round(w * 0.012))) + 'px');
+        }
+
+        setViewportVars();
+
+        requestAnimationFrame(function () {
+            body.classList.add('ready');
+        });
+
+        const hero = document.getElementById('hero3d');
+        if (!hero) return;
+
+        function clamp(v, min, max) {
+            return Math.max(min, Math.min(max, v));
+        }
+
+        function tilt(el, x, y, amount) {
+            const rect = el.getBoundingClientRect();
+            const px = (x - rect.left) / rect.width;
+            const py = (y - rect.top) / rect.height;
+            const rx = clamp((0.5 - py) * amount, -amount, amount);
+            const ry = clamp((px - 0.5) * amount, -amount, amount);
+            el.style.transform = "rotateX(" + rx.toFixed(2) + "deg) rotateY(" + ry.toFixed(2) + "deg)";
+        }
+
+        function reset(el) {
+            el.style.transform = '';
+        }
+
+        hero.addEventListener('mousemove', function (e) {
+            if (e.target.closest('a, button, input, select, textarea')) return;
+            tilt(hero, e.clientX, e.clientY, 7);
+        });
+        hero.addEventListener('mouseleave', function () {
+            reset(hero);
+        });
+
+        document.querySelectorAll('[data-tilt]').forEach(function (item) {
+            item.addEventListener('mousemove', function (e) {
+                if (e.target.closest('a, button, input, select, textarea')) return;
+                tilt(item, e.clientX, e.clientY, 5);
+            });
+            item.addEventListener('mouseleave', function () {
+                reset(item);
+            });
+        });
+
+        window.addEventListener('resize', setViewportVars);
+    })();
+</script>
 </body>
 </html>

@@ -3,80 +3,96 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>My Bookings - DriveAway</title>
+    <title>DriveAway | My Bookings</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <style>body { font-family: 'Inter', sans-serif; background: linear-gradient(160deg, #eff6ff 0%, #f8fafc 40%, #eef2ff 100%); }</style>
-    <link rel="stylesheet" th:href="@{/css/booking.css}"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/customer-portal.css}"/>
 </head>
-<body class="booking-theme min-h-screen pb-16">
-<th:block th:replace="~{fragments/layout :: globalPreloader}"></th:block>
-<div class="max-w-5xl mx-auto px-6 pt-10">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+<body class="customer-portal-theme">
+
+<nav class="cp-topbar">
+    <div class="cp-topbar__inner">
+        <a th:href="@{/customer/home}" class="cp-brand">
+            <span class="cp-brand__mark"><i class="ph-fill ph-car-profile text-xl"></i></span>
+            <span class="cp-brand__text">Drive<span>Away</span></span>
+        </a>
+        <div class="cp-nav-actions">
+            <a th:href="@{/customer/home}" class="cp-pill"><i class="ph-bold ph-house"></i> Portal</a>
+            <a th:href="@{/customer/fleet}" class="cp-btn-secondary"><i class="ph-bold ph-car"></i> Browse Fleet</a>
+        </div>
+    </div>
+</nav>
+
+<main class="cp-shell">
+    <section class="cp-page-head">
         <div>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">My bookings</h1>
-            <p class="text-gray-500 font-medium mt-1">Track confirmations, edits, and payments in one place.</p>
+            <span class="cp-section-label"><i class="ph-bold ph-calendar-check"></i> Reservations</span>
+            <h1 style="font-size: clamp(1.8rem, 4vw, 2.8rem); margin: 0;">My bookings</h1>
+            <p>Track confirmations, edit requests, cancellations, and the bookings that are ready for payment.</p>
         </div>
-        <div class="flex flex-wrap gap-3">
-            <a th:href="@{/customer/home}" class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-800 font-bold px-4 py-2.5 rounded-xl shadow-sm hover:bg-gray-50 transition">
-                <i class="ph-bold ph-house"></i> Portal
-            </a>
-            <a th:href="@{/customer/fleet}" class="inline-flex items-center gap-2 bg-indigo-600 text-white font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-indigo-600/25 hover:bg-indigo-700 transition">
-                <i class="ph-bold ph-car"></i> Browse fleet
-            </a>
-        </div>
+    </section>
+
+    <div th:if="${param.payment != null}" class="cp-alert cp-alert--warning">
+        <i class="ph-fill ph-warning-circle text-xl"></i>
+        <span>Payment information could not be loaded for that booking.</span>
     </div>
 
-    <div th:if="${param.payment != null}" class="mb-6 bg-amber-50 border border-amber-200 text-amber-900 font-semibold px-4 py-3 rounded-xl text-sm">
-        Payment information could not be loaded.
-    </div>
-
-    <div class="grid gap-6 md:grid-cols-2">
-        <article th:each="b : ${bookingList}" class="bg-white rounded-3xl border border-slate-200/80 shadow-xl p-6 flex flex-col hover:border-indigo-200 transition group">
-            <div class="flex justify-between items-start gap-3 mb-4">
+    <section class="cp-list">
+        <article th:each="b : ${bookingList}" class="cp-list-card">
+            <div class="cp-list-card__head">
                 <div>
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Booking</p>
-                    <p class="font-mono font-extrabold text-lg text-gray-900" th:text="${b.id}">id</p>
+                    <p class="cp-kpi__label">Booking reference</p>
+                    <h3 class="cp-card__title" style="margin: 0;" th:text="${b.id}">ID</h3>
                 </div>
                 <div>
-                    <span th:if="${#strings.equalsIgnoreCase(b.status,'CONFIRMED')}" class="inline-flex items-center gap-1 bg-green-50 text-green-800 border border-green-200 font-bold px-3 py-1 rounded-full text-xs">Confirmed</span>
-                    <span th:if="${#strings.equalsIgnoreCase(b.status,'PENDING')}" class="inline-flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-200 font-bold px-3 py-1 rounded-full text-xs">Pending</span>
-                    <span th:if="${#strings.equalsIgnoreCase(b.status,'RENTED')}" class="inline-flex items-center gap-1 bg-purple-50 text-purple-800 border border-purple-200 font-bold px-3 py-1 rounded-full text-xs">Rented</span>
-                    <span th:if="${#strings.equalsIgnoreCase(b.status,'MAINTENANCE')}" class="inline-flex items-center gap-1 bg-yellow-50 text-yellow-800 border border-yellow-200 font-bold px-3 py-1 rounded-full text-xs">Maintenance</span>
-                    <span th:if="${#strings.equalsIgnoreCase(b.status,'UPDATE_REQUESTED')}" class="inline-flex items-center gap-1 bg-blue-50 text-blue-800 border border-blue-200 font-bold px-3 py-1 rounded-full text-xs">Edit requested</span>
-                    <span th:if="${#strings.equalsIgnoreCase(b.status,'CANCELLATION_REQUESTED')}" class="inline-flex items-center gap-1 bg-red-50 text-red-800 border border-red-200 font-bold px-3 py-1 rounded-full text-xs">Cancel requested</span>
-                    <span th:if="${#strings.equalsIgnoreCase(b.status,'CANCELLED')}" class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 font-bold px-3 py-1 rounded-full text-xs">Cancelled</span>
-                    <span th:if="${#strings.equalsIgnoreCase(b.status,'REJECTED')}" class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 font-bold px-3 py-1 rounded-full text-xs">Rejected</span>
-                    <span th:if="${#strings.equalsIgnoreCase(b.status,'COMPLETED')}" class="inline-flex items-center gap-1 bg-indigo-50 text-indigo-800 border border-indigo-200 font-bold px-3 py-1 rounded-full text-xs">Completed</span>
-                    <span th:if="${!#strings.equalsIgnoreCase(b.status,'CONFIRMED') and !#strings.equalsIgnoreCase(b.status,'PENDING') and !#strings.equalsIgnoreCase(b.status,'RENTED') and !#strings.equalsIgnoreCase(b.status,'MAINTENANCE') and !#strings.equalsIgnoreCase(b.status,'UPDATE_REQUESTED') and !#strings.equalsIgnoreCase(b.status,'CANCELLATION_REQUESTED') and !#strings.equalsIgnoreCase(b.status,'CANCELLED') and !#strings.equalsIgnoreCase(b.status,'REJECTED') and !#strings.equalsIgnoreCase(b.status,'COMPLETED')}"
-                          class="inline-flex bg-gray-100 text-gray-700 font-bold px-3 py-1 rounded-full text-xs" th:text="${b.status}">Other</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'CONFIRMED')}" class="cp-badge cp-badge--ok">Confirmed</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'PENDING')}" class="cp-badge cp-badge--warn">Pending</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'RENTED')}" class="cp-badge" style="background:#e5dcfa; color:#6941c6;">Rented</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'MAINTENANCE')}" class="cp-badge cp-badge--warn">Maintenance</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'UPDATE_REQUESTED')}" class="cp-badge" style="background:#dbeafe; color:#1d4ed8;">Edit requested</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'CANCELLATION_REQUESTED')}" class="cp-badge cp-badge--danger">Cancel requested</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'CANCELLED')}" class="cp-badge" style="background:#ececec; color:#525252;">Cancelled</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'REJECTED')}" class="cp-badge cp-badge--danger">Rejected</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'COMPLETED')}" class="cp-badge" style="background:#e0f2fe; color:#0f766e;">Completed</span>
                 </div>
             </div>
-            <dl class="grid grid-cols-2 gap-3 text-sm flex-1">
-                <div class="col-span-2 flex items-center gap-2 text-gray-600">
-                    <i class="ph-bold ph-car-profile text-indigo-500"></i>
-                    <span class="font-semibold text-gray-900" th:text="${vehicleNames.get(b.vehicleId) ?: b.vehicleId}">vehicle</span>
+
+            <dl class="cp-meta-grid">
+                <div class="cp-meta" style="grid-column: 1 / -1;">
+                    <dt>Vehicle</dt>
+                    <dd th:text="${vehicleNames.get(b.vehicleId) ?: b.vehicleId}">Vehicle</dd>
                 </div>
-                <div>
-                    <dt class="text-gray-400 text-xs font-bold uppercase">Start</dt>
-                    <dd class="font-semibold text-gray-800" th:text="${b.rentalDate}">date</dd>
+                <div class="cp-meta">
+                    <dt>Start date</dt>
+                    <dd th:text="${b.rentalDate}">Date</dd>
                 </div>
-                <div>
-                    <dt class="text-gray-400 text-xs font-bold uppercase">Duration</dt>
-                    <dd class="font-semibold text-gray-800"><span th:text="${b.days}">1</span> days</dd>
+                <div class="cp-meta">
+                    <dt>Duration</dt>
+                    <dd><span th:text="${b.days}">1</span> days</dd>
                 </div>
             </dl>
-            <div class="mt-6 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
-                <a th:href="@{/customer/bookings/{id}/edit(id=${b.id})}" class="flex-1 min-w-[7rem] text-center bg-slate-900 text-white text-sm font-bold py-2.5 rounded-xl hover:bg-slate-800 transition">Edit</a>
-                <a th:href="@{/customer/bookings/{bid}/cancel(bid=${b.id})}" class="flex-1 min-w-[7rem] text-center bg-white border border-red-200 text-red-600 text-sm font-bold py-2.5 rounded-xl hover:bg-red-50 transition">Cancel</a>
+
+            <div class="cp-actions-row">
+                <a th:href="@{/customer/bookings/{id}/edit(id=${b.id})}" class="cp-btn-secondary">Edit</a>
+                <a th:href="@{/customer/bookings/{bid}/cancel(bid=${b.id})}" class="cp-btn-ghost">Cancel</a>
+                <a th:if="${payAllowed != null and payAllowed.get(b.id)}" th:href="@{/customer/billing/gateway(bookingId=${b.id})}" class="cp-btn">
+                    <i class="ph-bold ph-credit-card"></i>
+                    Pay now
+                </a>
             </div>
         </article>
-        <div th:if="${bookingList == null or bookingList.isEmpty()}" class="md:col-span-2 text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200 text-gray-500 font-medium">
-            <i class="ph-duotone ph-calendar-x text-4xl text-gray-300 mb-3 inline-block"></i>
-            <p>No bookings yet. Reserve a vehicle from the fleet.</p>
+
+        <div th:if="${bookingList == null or bookingList.isEmpty()}" class="cp-empty">
+            <i class="ph-duotone ph-calendar-x" style="font-size: 3rem; color: var(--cp-gold);"></i>
+            <h3 style="margin: 14px 0 6px; font-size: 1.4rem; font-weight: 800; color: var(--cp-ink);">No bookings yet</h3>
+            <p style="margin: 0 0 18px;">Reserve a vehicle from the fleet to start your first trip.</p>
+            <a th:href="@{/customer/fleet}" class="cp-btn">Browse fleet</a>
         </div>
-    </div>
-</div>
+    </section>
+</main>
+
 </body>
 </html>

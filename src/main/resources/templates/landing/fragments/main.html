@@ -1,30 +1,148 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-    <!--
-        Landing journey (UX-driven, not section-stacked):
-          ACT          hero  — search/book immediately
-          DISCOVER     fleet  — see the product first
-          PULSE        stats  — numbers as scroll-driven punctuation
-          UNDERSTAND   how-it-works → categories
-          TRUST        advantage → testimonials → locations → team → partners
-          RESOLVE      faq → experience (app) → cta → floating-actions
-    -->
-    <th:block th:fragment="landingMain">
-        <th:block th:replace="~{landing/fragments/sections/hero          :: heroSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/fleet         :: fleetSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/stats         :: statsSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/how-it-works  :: howItWorksSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/categories    :: categoriesSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/advantage     :: advantageSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/testimonials  :: testimonialsSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/locations     :: locationsSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/team          :: teamSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/partners      :: partnersSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/faq           :: faqSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/experience    :: experienceSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/cta           :: ctaSection}"/>
-        <th:block th:replace="~{landing/fragments/sections/floating-actions :: floatingActions}"/>
-    </th:block>
+<th:block th:fragment="landingMain">
+    <section class="mf-hero" id="top" aria-label="DriveAway opening">
+        <div class="mf-noise" aria-hidden="true"></div>
+        <div class="mf-orbit" data-depth="0.18" aria-hidden="true">
+            <span></span><span></span><span></span>
+        </div>
+
+        <div class="mf-hero__center" data-depth="0.08">
+            <div class="mf-mark" aria-hidden="true">
+                <span th:each="dot : ${#numbers.sequence(1, 42)}"></span>
+            </div>
+            <p class="mf-kicker">Sri Lanka / premium vehicle rentals</p>
+            <h1>DriveAway</h1>
+            <p class="mf-hero__line">Curated cars and motorcycles. Reserved with precision. Driven without delay.</p>
+        </div>
+
+        <div class="mf-hero__booking" data-depth="-0.1" aria-labelledby="mf-booking-title">
+            <div>
+                <span class="mf-panel-label">Availability</span>
+                <h2 id="mf-booking-title">Book the exact machine.</h2>
+            </div>
+            <form th:if="${#strings.isEmpty(userRole)}" th:action="@{/auth/login}" method="get" class="mf-form">
+                <label>
+                    <span>Hub</span>
+                    <select name="location">
+                        <option value="colombo">Colombo 03</option>
+                        <option value="airport">BIA Airport</option>
+                        <option value="kandy">Kandy</option>
+                        <option value="galle">Galle</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Pickup</span>
+                    <input type="date" name="pickupDate" required/>
+                </label>
+                <label>
+                    <span>Return</span>
+                    <input type="date" name="dropoffDate" required/>
+                </label>
+                <button type="submit">Check fleet <i class="ph ph-arrow-right" aria-hidden="true"></i></button>
+            </form>
+            <form th:if="${!#strings.isEmpty(userRole)}" th:action="@{/customer/fleet}" method="get" class="mf-form">
+                <label>
+                    <span>Hub</span>
+                    <select name="location">
+                        <option value="colombo">Colombo 03</option>
+                        <option value="airport">BIA Airport</option>
+                        <option value="kandy">Kandy</option>
+                        <option value="galle">Galle</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Pickup</span>
+                    <input type="date" name="pickupDate" required/>
+                </label>
+                <label>
+                    <span>Return</span>
+                    <input type="date" name="dropoffDate" required/>
+                </label>
+                <button type="submit">Check fleet <i class="ph ph-arrow-right" aria-hidden="true"></i></button>
+            </form>
+        </div>
+
+        <a href="#fleet" class="mf-scroll" aria-label="Scroll to fleet">
+            <span></span>
+        </a>
+    </section>
+
+    <section class="mf-intro" aria-label="DriveAway proposition">
+        <div class="mf-shell mf-intro__grid">
+            <p class="mf-index">01 / System</p>
+            <h2>Rental flow, engineered like a private mobility desk.</h2>
+            <p>
+                DriveAway brings the vehicle, customer, booking, payment, and review journey into one polished web system.
+                The public page is the front door: cinematic, calm, and direct.
+            </p>
+        </div>
+    </section>
+
+    <section class="mf-fleet" id="fleet" aria-label="Fleet preview">
+        <div class="mf-shell">
+            <header class="mf-section-head">
+                <p class="mf-index">02 / Collection</p>
+                <h2>Available divisions</h2>
+                <div class="mf-tabs" role="group" aria-label="Filter vehicles">
+                    <button type="button" class="filter-btn is-active" data-filter="all" aria-pressed="true">All</button>
+                    <button type="button" class="filter-btn" data-filter="sedan" aria-pressed="false">Sedan</button>
+                    <button type="button" class="filter-btn" data-filter="suv" aria-pressed="false">SUV</button>
+                    <button type="button" class="filter-btn" data-filter="luxury" aria-pressed="false">Luxury</button>
+                    <button type="button" class="filter-btn" data-filter="motorcycle" aria-pressed="false">Moto</button>
+                </div>
+            </header>
+
+            <div class="mf-fleet__grid" id="fleet-grid">
+                <th:block th:if="${fleetPreview != null and !fleetPreview.isEmpty()}">
+                    <article th:each="v, vStat : ${fleetPreview}"
+                             th:attr="data-category=${v.category}"
+                             class="mf-card car-item"
+                             data-tilt-card>
+                        <a th:if="${#strings.isEmpty(userRole)}" th:href="@{/auth/login}" class="mf-card__image transition-link">
+                            <img th:src="${v.imageUrl}" th:alt="|${v.brand} ${v.model}|" loading="lazy" width="900" height="620"/>
+                        </a>
+                        <a th:if="${!#strings.isEmpty(userRole)}" th:href="@{/customer/bookings/new(vehicleId=${v.id})}" class="mf-card__image transition-link">
+                            <img th:src="${v.imageUrl}" th:alt="|${v.brand} ${v.model}|" loading="lazy" width="900" height="620"/>
+                        </a>
+                        <div class="mf-card__body">
+                            <span class="mf-card__num" th:text="${vStat.index + 1 < 10 ? '0' + (vStat.index + 1) : vStat.index + 1}">01</span>
+                            <p th:text="${v.vehicleType}">Vehicle type</p>
+                            <h3><span th:text="${v.brand}">Brand</span> <span th:text="${v.model}">Model</span></h3>
+                            <div class="mf-card__meta">
+                                <span th:text="${v.specificDetail}">Detail</span>
+                                <strong>Rs. <span th:text="${v.ratePerDay}">0</span> / day</strong>
+                            </div>
+                        </div>
+                    </article>
+                </th:block>
+                <div th:if="${fleetPreview == null or fleetPreview.isEmpty()}" class="mf-empty">
+                    <p>No vehicles available at the moment.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mf-process" id="how-it-works" aria-label="How it works">
+        <div class="mf-shell">
+            <p class="mf-index">03 / Protocol</p>
+            <ol>
+                <li><span>01</span><strong>Select hub</strong><p>Colombo, airport, Kandy, or Galle.</p></li>
+                <li><span>02</span><strong>Confirm dates</strong><p>The system checks availability instantly.</p></li>
+                <li><span>03</span><strong>Arrive ready</strong><p>Collect the vehicle and start the journey.</p></li>
+            </ol>
+        </div>
+    </section>
+
+    <section class="mf-cta" aria-label="Start booking">
+        <div class="mf-shell">
+            <p class="mf-index">04 / Departure</p>
+            <h2>Reserve the road ahead.</h2>
+            <a th:if="${#strings.isEmpty(userRole)}" th:href="@{/auth/register}" class="mf-cta__button transition-link">Create account</a>
+            <a th:if="${!#strings.isEmpty(userRole)}" th:href="@{/customer/fleet}" class="mf-cta__button transition-link">Open fleet</a>
+        </div>
+    </section>
+</th:block>
 </body>
 </html>

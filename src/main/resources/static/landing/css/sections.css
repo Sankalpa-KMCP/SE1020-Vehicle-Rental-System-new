@@ -480,6 +480,57 @@
 }
 .da-card:hover .da-card__media img { transform: scale(1.04); }
 
+/* Extreme 3D Hover Matrices */
+.lux-card {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.6s var(--da-ease-out), filter 0.6s var(--da-ease-out), opacity 0.6s var(--da-ease-out);
+}
+.lux-card:hover {
+  transform: scale3d(1.08, 1.08, 1.08) !important;
+}
+.lux-card:hover .da-card__media {
+  transform: translateZ(50px);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+}
+.lux-card:hover .da-card__price, .lux-card:hover .da-card__chip {
+  transform: translateZ(80px);
+}
+
+/* Fleet Slider Blur Focus Effect */
+.da-cinema__track:hover .lux-card {
+  filter: blur(8px);
+  transform: scale(0.9);
+  opacity: 0.5;
+}
+.da-cinema__track .lux-card:hover {
+  filter: blur(0px);
+  transform: scale3d(1.08, 1.08, 1.08) !important;
+  opacity: 1;
+  z-index: 10;
+}
+
+/* Ultra-thin neon control rings */
+.fleet-glass-arrow {
+  background: transparent !important;
+  border: 1px solid var(--da-accent) !important;
+  color: var(--da-accent) !important;
+  border-radius: 50% !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s ease !important;
+  width: 3.5rem !important;
+  height: 3.5rem !important;
+}
+.fleet-glass-arrow svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.fleet-glass-arrow:hover {
+  background: var(--da-accent-glow) !important;
+  box-shadow: 0 0 20px var(--da-accent-glow) !important;
+  transform: scale(1.1) !important;
+}
+
 .da-card__chip {
   position: absolute;
   left: 0.85rem; bottom: 0.85rem;
@@ -692,6 +743,23 @@
   color: var(--da-text-secondary);
   line-height: var(--da-leading);
   margin: 0;
+}
+
+/* === Cinematic Prose (mont-fort inspired) ================================ */
+.da-prose-cinematic {
+  display: flex;
+  flex-direction: column;
+  gap: var(--da-space-mega);
+  margin-top: calc(var(--da-space-mega) * 0.8);
+  padding-bottom: var(--da-space-mega);
+}
+
+.da-prose-cinematic__block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 /* === 07 split — locations =============================================== */
@@ -947,82 +1015,133 @@
 }
 
 /* === 09 mosaic — team =================================================== */
+/* === 09 mosaic — team (Glassmorphic 3D Matrix) ============================== */
 .da-mosaic {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0;
-  border-top: 1px solid var(--da-border);
+  gap: 2rem;
+  padding: 2rem 0;
+  perspective: 1500px;
 }
 
 .da-member {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 2.5rem 0;
-  border-bottom: 1px solid var(--da-border);
+  gap: 0;
+  padding: 0;
+  border-radius: var(--da-radius-2xl);
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, box-shadow 0.4s ease;
+  will-change: transform, opacity;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .da-member__avatar {
-  height: clamp(9rem, 18vw, 11rem);
+  height: clamp(10rem, 20vw, 14rem);
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--da-surface-muted);
-  border-radius: var(--da-radius-lg);
-  padding: 1rem 0.75rem;
-  color: var(--da-text);
-  transition: background var(--da-duration) var(--da-ease), color var(--da-duration) var(--da-ease), box-shadow var(--da-duration) var(--da-ease);
+  background: transparent;
+  padding: 2rem;
+  color: var(--da-text-secondary);
+  transition: color var(--da-duration) var(--da-ease);
+  position: relative;
+}
+
+.da-member__avatar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to top, rgba(5, 5, 8, 0.6) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.da-member__info {
+  padding: 1.5rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: rgba(5, 5, 8, 0.4);
+  backdrop-filter: blur(10px);
+  flex-grow: 1;
 }
 
 .da-member__avatar .da-mascot {
   --stroke: currentColor;
   --stroke-w: 2.25;
   --da-mascot-accent: var(--da-accent);
+  transition: all 0.4s ease;
 }
 
 .da-member__avatar .da-mascot__fill path,
 .da-member__avatar .da-mascot__fill ellipse,
 .da-member__avatar .da-mascot__fill rect {
   opacity: 0.12;
+  transition: opacity 0.4s ease;
 }
 
-.da-member:hover .da-member__avatar {
-  background: var(--da-ink-900);
+/* Sibling Hover Effect */
+.group-hover-matrix:hover .da-member {
+  opacity: 0.3;
+  filter: blur(4px);
+  transform: scale(0.98);
+}
+
+.group-hover-matrix .da-member:hover {
+  opacity: 1;
+  filter: blur(0px);
+  transform: scale3d(1.05, 1.05, 1.05) translateY(-10px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  z-index: 10;
+}
+
+.group-hover-matrix .da-member:hover .da-member__avatar {
   color: var(--da-text-inverse);
-  box-shadow: 0 12px 32px rgba(10, 10, 11, 0.12);
 }
 
-.da-member:hover .da-member__avatar .da-mascot__fill path,
-.da-member:hover .da-member__avatar .da-mascot__fill ellipse,
-.da-member:hover .da-member__avatar .da-mascot__fill rect {
-  opacity: 0.2;
+.group-hover-matrix .da-member:hover .da-member__avatar .da-mascot__fill path,
+.group-hover-matrix .da-member:hover .da-member__avatar .da-mascot__fill ellipse,
+.group-hover-matrix .da-member:hover .da-member__avatar .da-mascot__fill rect {
+  opacity: 0.4;
 }
 
-.da-member:hover .da-member__avatar .da-mascot {
+.group-hover-matrix .da-member:hover .da-member__avatar .da-mascot {
   --stroke-w: 2.5;
+  transform: scale(1.1);
+}
+
+/* Neon Edge Utility */
+.glass--neon-edge:hover {
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.05) !important;
 }
 
 .da-member__role {
   font-size: var(--da-text-2xs);
-  font-weight: 500;
-  letter-spacing: var(--da-track-micro);
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--da-text-muted);
-  margin: 0;
+  color: var(--da-accent);
+  margin: 0 0 0.5rem;
 }
 
 .da-member__name {
-  font-size: var(--da-text-lg);
+  font-size: var(--da-text-xl);
   font-weight: 500;
   letter-spacing: var(--da-track-title);
   margin: 0;
+  color: var(--da-text);
 }
 
 .da-member__id {
   margin: 0;
-  font-size: var(--da-text-xs);
+  font-size: var(--da-text-sm);
   font-variant-numeric: tabular-nums;
   color: var(--da-text-muted);
 }

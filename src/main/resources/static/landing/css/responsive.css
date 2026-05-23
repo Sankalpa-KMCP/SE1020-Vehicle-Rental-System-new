@@ -11,8 +11,7 @@
 @media (min-width: 640px) {
   .da-band__numbers   { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .da-rail            { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .da-mosaic          { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2rem; }
-  .da-mosaic .da-member { padding: 2.5rem 0; }
+  .da-mosaic          { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2rem; row-gap: 2rem; }
   .da-footer__top     { grid-template-columns: 1.4fr 1fr; gap: 4rem; }
 
   /* Cinema track — slightly narrower cards so two peek in */
@@ -46,17 +45,19 @@
   .da-mosaic {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: 2.5rem;
+    row-gap: 4rem; /* add row gap since cards are large now */
   }
-  .da-mosaic .da-member--offset { transform: translateY(2rem); }
+  .da-mosaic .da-member--offset { transform: translateY(3rem); }
+  
+  /* Update lead avatar for the glass matrix */
   .da-mosaic .da-member--lead .da-member__avatar {
-    background: var(--da-ink-900);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
     color: var(--da-text-inverse);
-    box-shadow: 0 12px 32px rgba(10, 10, 11, 0.14);
   }
   .da-mosaic .da-member--lead .da-member__avatar .da-mascot__fill path,
   .da-mosaic .da-member--lead .da-member__avatar .da-mascot__fill ellipse,
   .da-mosaic .da-member--lead .da-member__avatar .da-mascot__fill rect {
-    opacity: 0.18;
+    opacity: 0.3;
   }
 
   .da-inset { grid-template-columns: 1.1fr 0.9fr; padding: clamp(3rem, 6vw, 5rem); }

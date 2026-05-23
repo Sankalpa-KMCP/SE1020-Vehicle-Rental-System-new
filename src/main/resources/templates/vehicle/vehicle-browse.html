@@ -3,95 +3,110 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>DriveAway | Browse Vehicles</title>
+    <title>DriveAway | Fleet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
-        body {
-            font-family: 'Manrope', sans-serif;
-            background-color: #050506;
-            background-image: 
-                radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
-                radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.06), transparent 50%),
-                radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.04), transparent 45%);
-            background-size: 24px 24px, auto, auto;
-            color: #f4f2ee;
-        }
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/customer-portal.css}"/>
 </head>
-<body class="min-h-screen p-6 md:p-10 relative">
-<div class="max-w-7xl mx-auto flex justify-between items-center mb-10">
-    <a th:href="@{/customer/home}" class="flex items-center gap-2 bg-white/5 px-5 py-2.5 rounded-xl font-bold text-[#f4f2ee] shadow-sm border border-white/10 hover:bg-white/10 hover:border-[#c9a962]/50 hover:text-white transition-all duration-200">
-        <i class="ph-bold ph-arrow-left text-xl"></i>
-        <span>Back to Portal</span>
-    </a>
-    <h1 class="text-3xl font-extrabold text-[#f4f2ee] tracking-tight flex items-center gap-3">
-        <i class="ph-fill ph-car-profile text-[#c9a962]"></i> Available Fleet
-    </h1>
-</div>
-<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 fade-in">
-    <div th:each="v : ${vehicles}" class="bg-[#0c0c0e]/85 backdrop-blur-md rounded-2xl shadow-2xl border border-white/5 overflow-hidden hover:-translate-y-2 hover:border-[#c9a962]/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300 flex flex-col">
+<body class="customer-portal-theme">
 
-        <div class="bg-slate-950 h-48 bg-cover bg-center text-white relative overflow-hidden border-b border-white/5"
-             th:style="'background-image: url(' + ${v.imagePath} + ');'">
-            <div class="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-[#0c0c0e]/50 to-transparent"></div>
-            
-            <div class="absolute top-4 right-4 z-20">
-                <span th:if="${v.status == 'AVAILABLE' || v.status == null || v.status == ''}" class="bg-emerald-500/10 backdrop-blur-md text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-emerald-500/20">🟢 AVAILABLE</span>
-                <span th:if="${v.status == 'MAINTENANCE'}" class="bg-amber-500/10 backdrop-blur-md text-amber-400 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-amber-500/20">🟡 MAINTENANCE</span>
-                <span th:if="${v.status == 'RENTED'}" class="bg-cyan-500/10 backdrop-blur-md text-cyan-400 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-cyan-500/20">🚗 RENTED</span>
-            </div>
-
-            <div class="relative z-10 p-6 h-full flex flex-col justify-end">
-                <p class="text-[#c9a962] font-bold tracking-wider text-sm uppercase mb-1" th:text="${v.brand}">Brand</p>
-                <h2 class="text-2xl font-extrabold truncate drop-shadow-md text-[#f4f2ee]" th:text="${v.model}">Model</h2>
-            </div>
-        </div>
-
-        <div class="p-6 flex-grow">
-            <div class="flex justify-between items-center mb-6">
-                <div class="bg-white/5 text-[#a8a6a0] border border-white/5 font-semibold px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="ph-bold ph-steering-wheel"></i> <span th:text="${v.vehicleType}">Car</span>
-                </div>
-                <div class="bg-white/5 text-[#a8a6a0] border border-white/5 font-semibold px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="ph-bold ph-list-checks"></i> <span th:text="${v.specificDetail}">detail</span>
-                </div>
-            </div>
-            <div class="border-t border-b border-white/5 py-4 mb-6 text-center">
-                <p class="text-[#a8a6a0] font-medium text-sm">Daily Rental Rate</p>
-                <p class="text-3xl font-extrabold text-[#f4f2ee] mt-1">LKR <span class="text-[#c9a962]" th:text="${#numbers.formatDecimal(v.calculateRentalRate(), 1, 2)}">0</span> <span class="text-sm text-[#a8a6a0] font-medium">/day</span></p>
-            </div>
-            <ul class="text-sm text-[#a8a6a0] space-y-2 font-medium mb-6">
-                <li class="flex items-center gap-2"><i class="ph-bold ph-check-circle text-[#c9a962] text-lg"></i> Vehicle ID: <span th:text="${v.id}">id</span></li>
-                <li class="flex items-center gap-2"><i class="ph-bold ph-check-circle text-[#c9a962] text-lg"></i> Fully Insured &amp; Inspected</li>
-            </ul>
-        </div>
-        <div class="p-4 bg-[#0c0c0e] border-t border-white/5">
-            <a th:if="${v.status == 'AVAILABLE' || v.status == null || v.status == ''}"
-               th:href="@{/customer/bookings/new(vehicleId=${v.id},rate=${v.calculateRentalRate()})}"
-               class="w-full block text-center bg-gradient-to-r from-[#c9a962] to-[#e8d5a3] text-[#050506] font-bold py-3.5 rounded-xl hover:from-[#e8d5a3] hover:to-[#c9a962] hover:shadow-[0_0_20px_rgba(201,169,98,0.4)] transition-all duration-300 text-lg">
-                Book This Vehicle
-            </a>
-
-            <button th:if="${v.status == 'MAINTENANCE'}" disabled
-                    class="w-full flex justify-center items-center gap-2 bg-white/5 text-[#a8a6a0]/40 border border-white/5 font-bold py-3.5 rounded-xl cursor-not-allowed shadow-inner text-lg">
-                <i class="ph-bold ph-wrench"></i> Under Maintenance
-            </button>
-
-            <button th:if="${v.status == 'RENTED'}" disabled
-                    class="w-full flex justify-center items-center gap-2 bg-white/5 text-[#a8a6a0]/40 border border-white/5 font-bold py-3.5 rounded-xl cursor-not-allowed shadow-inner text-lg">
-                <i class="ph-bold ph-car-profile"></i> On The Road
-            </button>
+<nav class="cp-topbar">
+    <div class="cp-topbar__inner">
+        <a th:href="@{/customer/home}" class="cp-brand">
+            <span class="cp-brand__mark"><i class="ph-fill ph-car-profile text-xl"></i></span>
+            <span class="cp-brand__text">Drive<span>Away</span></span>
+        </a>
+        <div class="cp-nav-actions">
+            <a th:href="@{/customer/home}" class="cp-pill"><i class="ph-bold ph-arrow-left"></i> Portal</a>
+            <a th:href="@{/customer/bookings}" class="cp-btn-secondary"><i class="ph-bold ph-calendar-check"></i> Bookings</a>
         </div>
     </div>
-    <div th:if="${vehicles == null or vehicles.isEmpty()}" class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-[#0c0c0e]/60 rounded-2xl shadow-2xl border border-white/10 border-dashed">
-        <i class="ph-fill ph-car-profile text-6xl text-white/20 mb-4"></i>
-        <h3 class="text-2xl font-bold text-[#f4f2ee]">No Vehicles Available</h3>
-        <p class="text-[#a8a6a0] mt-2">No vehicles are currently open for booking decisions.</p>
-    </div>
-</div>
+</nav>
+
+<main class="cp-shell">
+    <section class="cp-hero" style="margin-bottom: 24px;">
+        <div class="cp-hero__content">
+            <div>
+                <span class="cp-eyebrow"><i class="ph-bold ph-car-profile"></i> Fleet</span>
+                <h1>Choose the right vehicle for the trip.</h1>
+                <p>Availability, pricing, and booking action are surfaced together so customers can compare quickly and move without hunting through the page.</p>
+            </div>
+            <div class="cp-stat-grid">
+                <div class="cp-stat">
+                    <span class="cp-stat__label">Vehicles</span>
+                    <div class="cp-stat__value" th:text="${#lists.size(vehicles)}">0</div>
+                </div>
+                <div class="cp-stat">
+                    <span class="cp-stat__label">Ready to book</span>
+                    <div class="cp-stat__value" th:text="${vehicles != null ? vehicles.?[status == 'AVAILABLE'].size() : 0}">0</div>
+                </div>
+                <div class="cp-stat">
+                    <span class="cp-stat__label">Support</span>
+                    <div class="cp-stat__value">24/7</div>
+                </div>
+                <div class="cp-stat">
+                    <span class="cp-stat__label">Pricing</span>
+                    <div class="cp-stat__value">Live</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cp-grid cp-grid--cards">
+        <article th:each="v : ${vehicles}" class="cp-card" style="overflow:hidden;">
+            <div style="height: 200px; border-radius: 18px; margin-bottom: 18px; background: linear-gradient(135deg, rgba(15,118,110,0.14), rgba(186,122,47,0.12)); position: relative; overflow: hidden;">
+                <img th:if="${v.imagePath != null and !#strings.isEmpty(v.imagePath)}" th:src="@{${v.imagePath}}" alt="" style="width:100%; height:100%; object-fit:cover;"/>
+                <div style="position:absolute; inset:0; background: linear-gradient(180deg, transparent 40%, rgba(17,24,39,0.58));"></div>
+                <div style="position:absolute; left:16px; right:16px; bottom:16px; display:flex; justify-content:space-between; gap:12px; align-items:end;">
+                    <div>
+                        <p style="margin:0; color:#fff7ea; font-size:.72rem; font-weight:800; text-transform:uppercase;" th:text="${v.brand}">Brand</p>
+                        <h3 style="margin:4px 0 0; color:#fffaf3; font-size:1.35rem; font-weight:800;" th:text="${v.model}">Model</h3>
+                    </div>
+                    <span class="cp-badge"
+                          th:classappend="${v.status == 'AVAILABLE' || v.status == null || v.status == ''} ? ' cp-badge--ok' : (${v.status == 'MAINTENANCE'} ? ' cp-badge--warn' : ' cp-badge--danger')"
+                          th:text="${v.status != null ? v.status : 'AVAILABLE'}">AVAILABLE</span>
+                </div>
+            </div>
+
+            <div class="cp-actions-row" style="margin-top: 0;">
+                <span class="cp-badge" style="background: rgba(15,118,110,0.08); color: var(--cp-teal);"><i class="ph-bold ph-steering-wheel"></i> <span th:text="${v.vehicleType}">Car</span></span>
+                <span class="cp-badge" style="background: rgba(186,122,47,0.08); color: var(--cp-gold-deep);"><i class="ph-bold ph-list-checks"></i> <span th:text="${v.specificDetail}">Detail</span></span>
+            </div>
+
+            <h3 class="cp-card__title" style="margin-top: 16px;" th:text="${v.brand + ' ' + v.model}">Vehicle</h3>
+            <p class="cp-card__text">Vehicle ID <strong th:text="${v.id}">ID</strong></p>
+
+            <div class="cp-kpi" style="margin: 18px 0 0; padding: 16px;">
+                <p class="cp-kpi__label">Daily rate</p>
+                <p class="cp-kpi__value" style="font-size: 1.6rem;">LKR <span th:text="${#numbers.formatDecimal(v.calculateRentalRate(), 1, 2)}">0.00</span></p>
+            </div>
+
+            <div style="margin-top: 18px;">
+                <a th:if="${v.status == 'AVAILABLE' || v.status == null || v.status == ''}"
+                   th:href="@{/customer/bookings/new(vehicleId=${v.id},rate=${v.calculateRentalRate()})}"
+                   class="cp-btn" style="width:100%; justify-content:center;">
+                    <i class="ph-bold ph-calendar-plus"></i>
+                    Book this vehicle
+                </a>
+                <div th:if="${v.status == 'MAINTENANCE'}" class="cp-pill" style="width:100%; justify-content:center; opacity:.82;">
+                    <i class="ph-bold ph-wrench"></i> Under maintenance
+                </div>
+                <div th:if="${v.status == 'RENTED'}" class="cp-pill" style="width:100%; justify-content:center; opacity:.82;">
+                    <i class="ph-bold ph-car-profile"></i> Currently rented
+                </div>
+            </div>
+        </article>
+
+        <div th:if="${vehicles == null or vehicles.isEmpty()}" class="cp-empty" style="grid-column: 1 / -1;">
+            <i class="ph-fill ph-car-profile" style="font-size:3rem; color: var(--cp-gold);"></i>
+            <h3 style="margin: 14px 0 6px; font-size: 1.4rem; font-weight: 800; color: var(--cp-ink);">No vehicles available</h3>
+            <p style="margin: 0;">Check back soon or contact support for help with your booking.</p>
+        </div>
+    </section>
+</main>
+
 </body>
 </html>

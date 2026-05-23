@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <th:block th:fragment="teamSection">
@@ -12,66 +12,78 @@
             <p class="da-lede da-scene__head-right">The engineering and design minds behind the DriveAway architecture.</p>
         </header>
 
-        <ol class="da-mosaic">
-            <li class="da-member da-member--lead da-reveal">
+        <ol class="da-mosaic group-hover-matrix">
+            <li class="da-member da-member--lead glass glass--neon-edge da-reveal" data-3d-hover="true">
                 <div class="da-member__avatar">
                     <div id="mascot-1" class="mascot-avatar mascot-avatar--team" data-float>
                         <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('founder')}"></th:block>
                     </div>
                 </div>
-                <p class="da-member__role">Founder &amp; CEO</p>
-                <h3 class="da-member__name">Sankalpa K.M.C.P</h3>
-                <p class="da-member__id">IT25100142</p>
+                <div class="da-member__info">
+                    <p class="da-member__role">Founder &amp; CEO</p>
+                    <h3 class="da-member__name">Sankalpa K.M.C.P</h3>
+                    <p class="da-member__id">IT25100142</p>
+                </div>
             </li>
-            <li class="da-member da-reveal" style="transition-delay:60ms">
+            <li class="da-member glass glass--neon-edge da-reveal" style="transition-delay:60ms" data-3d-hover="true">
                 <div class="da-member__avatar">
                     <div id="mascot-2" class="mascot-avatar mascot-avatar--team" data-float style="--float-delay:600ms">
                         <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('senior-dev')}"></th:block>
                     </div>
                 </div>
-                <p class="da-member__role">Senior Developer</p>
-                <h3 class="da-member__name">Weerakoon W.M.Y.B</h3>
-                <p class="da-member__id">IT25100565</p>
+                <div class="da-member__info">
+                    <p class="da-member__role">Senior Developer</p>
+                    <h3 class="da-member__name">Weerakoon W.M.Y.B</h3>
+                    <p class="da-member__id">IT25100565</p>
+                </div>
             </li>
-            <li class="da-member da-member--offset da-reveal" style="transition-delay:120ms">
+            <li class="da-member da-member--offset glass glass--neon-edge da-reveal" style="transition-delay:120ms" data-3d-hover="true">
                 <div class="da-member__avatar">
                     <div id="mascot-3" class="mascot-avatar mascot-avatar--team" data-float style="--float-delay:1200ms">
                         <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('cx')}"></th:block>
                     </div>
                 </div>
-                <p class="da-member__role">Operations</p>
-                <h3 class="da-member__name">Miftha N.S</h3>
-                <p class="da-member__id">IT24100879</p>
+                <div class="da-member__info">
+                    <p class="da-member__role">Operations</p>
+                    <h3 class="da-member__name">Miftha N.S</h3>
+                    <p class="da-member__id">IT24100879</p>
+                </div>
             </li>
-            <li class="da-member da-reveal" style="transition-delay:60ms">
+            <li class="da-member glass glass--neon-edge da-reveal" style="transition-delay:60ms" data-3d-hover="true">
                 <div class="da-member__avatar">
                     <div id="mascot-4" class="mascot-avatar mascot-avatar--team" data-float style="--float-delay:1800ms">
                         <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('ops')}"></th:block>
                     </div>
                 </div>
-                <p class="da-member__role">Customer Exp.</p>
-                <h3 class="da-member__name">Rajapakse J.A.C.D.</h3>
-                <p class="da-member__id">IT25100385</p>
+                <div class="da-member__info">
+                    <p class="da-member__role">Customer Exp.</p>
+                    <h3 class="da-member__name">Rajapakse J.A.C.D.</h3>
+                    <p class="da-member__id">IT25100385</p>
+                </div>
             </li>
-            <li class="da-member da-member--offset da-reveal" style="transition-delay:120ms">
+            <li class="da-member da-member--offset glass glass--neon-edge da-reveal" style="transition-delay:120ms" data-3d-hover="true">
                 <div class="da-member__avatar">
                     <div id="mascot-5" class="mascot-avatar mascot-avatar--team" data-float style="--float-delay:2400ms">
                         <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('tech-director')}"></th:block>
                     </div>
                 </div>
-                <p class="da-member__role">Tech Director</p>
-                <h3 class="da-member__name">Liyanage H.K</h3>
-                <p class="da-member__id">IT25100429</p>
+                <div class="da-member__info">
+                    <p class="da-member__role">Tech Director</p>
+                    <h3 class="da-member__name">Liyanage H.K</h3>
+                    <p class="da-member__id">IT25100429</p>
+                </div>
             </li>
-            <li class="da-member da-reveal" style="transition-delay:180ms">
+            <li class="da-member glass glass--neon-edge da-reveal" style="transition-delay:180ms" data-3d-hover="true">
                 <div class="da-member__avatar">
                     <div id="mascot-6" class="mascot-avatar mascot-avatar--team" data-float style="--float-delay:3000ms">
                         <th:block th:replace="~{landing/fragments/mascots/mascot-svg :: mascot('marketing')}"></th:block>
                     </div>
                 </div>
-                <p class="da-member__role">Marketing Lead</p>
-                <h3 class="da-member__name">Arusha H M D K</h3>
-                <p class="da-member__id">IT25100445</p>
+                <div class="da-member__info">
+                    <p class="da-member__role">Marketing Lead</p>
+                    <h3 class="da-member__name">Arusha H M D K</h3>
+                    <p class="da-member__id">IT25100445</p>
+                </div>
             </li>
         </ol>
     </div>

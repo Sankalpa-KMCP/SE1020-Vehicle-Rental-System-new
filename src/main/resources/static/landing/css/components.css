@@ -1,4 +1,4 @@
-﻿/* ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * components.css — buttons, nav, footer, cards, filters, FAQ, mascots, FABs
  * Editorial monochrome: hairlines, no decorative shadows, tactile press feel.
  * -------------------------------------------------------------------------- */
@@ -64,6 +64,65 @@
   --btn-border: var(--da-ink-700);
 }
 .da-btn--primary:hover::after { opacity: 0.65; }
+
+/* === Magnetic 3D Buttons (mont-fort inspired) ========================= */
+.da-btn--magnetic {
+  position: relative;
+  background: transparent !important;
+  border: none !important;
+  transform-style: preserve-3d;
+  transition: transform 0.4s var(--da-ease-out);
+  overflow: visible;
+  min-height: 4rem;
+}
+
+.da-btn__bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--da-accent), var(--da-accent-hover));
+  border-radius: var(--da-radius-full);
+  transform: translateZ(0);
+  transition: transform 0.4s var(--da-ease-out);
+  z-index: 1;
+}
+
+.da-btn__ring {
+  position: absolute;
+  inset: -6px;
+  border: 1px solid rgba(217, 119, 6, 0.4); /* Translucent gold stroke */
+  border-radius: var(--da-radius-full);
+  transform: translateZ(-20px);
+  transition: transform 0.4s var(--da-ease-out), border-color 0.4s var(--da-ease);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.da-btn__text {
+  position: relative;
+  z-index: 2;
+  transform: translateZ(10px);
+  transition: transform 0.4s var(--da-ease-out);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.da-btn--magnetic:hover {
+  transform: scale3d(1.05, 1.05, 1.05);
+}
+
+.da-btn--magnetic:hover .da-btn__bg {
+  transform: translateZ(10px);
+}
+
+.da-btn--magnetic:hover .da-btn__ring {
+  transform: translateZ(25px);
+  border-color: rgba(217, 119, 6, 0.8);
+}
+
+.da-btn--magnetic:hover .da-btn__text {
+  transform: translateZ(40px);
+}
 
 .da-btn--secondary {
   --btn-bg: transparent;
@@ -294,12 +353,12 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -2px;
+  bottom: -4px;
   height: 1px;
-  background: var(--da-text);
+  background: var(--da-accent);
   transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--da-duration) var(--da-ease-out);
+  transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .da-nav__link:hover,
@@ -307,7 +366,10 @@
   color: var(--da-text);
 }
 .da-nav__link:hover::after,
-.da-nav__link.is-active::after { transform: scaleX(1); }
+.da-nav__link.is-active::after { 
+  transform: scaleX(1); 
+  transform-origin: left;
+}
 
 .da-nav__actions {
   display: none;

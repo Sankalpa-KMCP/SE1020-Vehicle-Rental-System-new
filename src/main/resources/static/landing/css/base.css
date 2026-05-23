@@ -1,4 +1,4 @@
-﻿/* ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * base.css — reset, shell, typographic baseline
  * -------------------------------------------------------------------------- */
 
@@ -15,12 +15,18 @@ body.index-landing {
   line-height: var(--da-leading);
   letter-spacing: var(--da-track-body);
   color: var(--da-text);
-  background: var(--da-bg);
+  background-color: #050508;
+  background-image: radial-gradient(circle at 100% 0%, rgba(58, 58, 255, 0.12) 0%, rgba(76, 29, 149, 0.08) 40%, #050508 80%);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  perspective: var(--da-perspective);
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
 }
+
+
 
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }

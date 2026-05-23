@@ -67,6 +67,7 @@
                                 <article th:each="v, vStat : ${fleetPreview}"
                                     th:attr="data-category=${v.category}, data-index=${vStat.index}"
                                     class="da-card da-card--vehicle car-item da-reveal lux-card"
+                                    data-3d-hover="true"
                                     style="--card-index: 0;" th:style="'--card-index:' + ${vStat.index} + ';'">
                                     <div class="lux-card__media">
                                         <img th:src="${v.imageUrl}" alt="Vehicle photo" th:alt="|${v.brand} ${v.model}|"

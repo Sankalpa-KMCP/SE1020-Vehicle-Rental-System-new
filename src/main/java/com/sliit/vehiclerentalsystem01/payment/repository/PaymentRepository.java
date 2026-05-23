@@ -5,6 +5,8 @@ import com.sliit.vehiclerentalsystem01.payment.entity.CardPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.CashPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
 import com.sliit.vehiclerentalsystem01.payment.entity.PaymentStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
@@ -18,12 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 @Repository
 public class PaymentRepository {
 
     private static final String FILE_NAME = "payments.txt";
+    private static final Logger log = LoggerFactory.getLogger(PaymentRepository.class);
 
     // Concurrency control to allow multiple thread reads but exclusive writes
     private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
@@ -52,12 +54,19 @@ public class PaymentRepository {
             if (!Files.exists(p)) {
                 return new ArrayList<>();
             }
-            // Read lines from file, parse them into Payment objects, and collect to list
-            return Files.readAllLines(p, StandardCharsets.UTF_8).stream()
-                    .map(String::trim)
-                    .filter(line -> !line.isEmpty() && !line.startsWith("#")) // Skip empty lines and comments
-                    .map(this::parseLine)
-                    .collect(Collectors.toCollection(ArrayList::new));
+            List<Payment> loaded = new ArrayList<>();
+            for (String raw : Files.readAllLines(p, StandardCharsets.UTF_8)) {
+                String line = raw.trim();
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+                try {
+                    loaded.add(parseLine(line));
+                } catch (RuntimeException ex) {
+                    log.warn("Skipping malformed payment line: {}", line, ex);
+                }
+            }
+            return loaded;
         } catch (IOException e) {
             throw new StorageException("Payment repository file operation failed", e);
         } finally {

@@ -3,6 +3,8 @@ package com.sliit.vehiclerentalsystem01.reservation.repository;
 import com.sliit.vehiclerentalsystem01.core.exceptions.StorageException;
 import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
 import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -14,12 +16,19 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 @Repository
 public class ReservationRepository {
 
     private static final String FILE_NAME = "bookings.txt";
+    private static final Logger log = LoggerFactory.getLogger(ReservationRepository.class);
+
+    private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final Lock readLock = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
 
     @Value("${app.data.directory:data}")
     private String dataDirectory;
@@ -29,24 +38,36 @@ public class ReservationRepository {
     }
 
     public List<Booking> findAll() {
-        Path p = path();
-        if (!Files.exists(p)) {
-            return new ArrayList<>();
-        }
+        readLock.lock();
         try {
-            return Files.readAllLines(p, StandardCharsets.UTF_8).stream()
-                    .map(String::trim)
-                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-                    .map(this::parseLine)
-                    .collect(Collectors.toCollection(ArrayList::new));
+            Path p = path();
+            if (!Files.exists(p)) {
+                return new ArrayList<>();
+            }
+            List<Booking> result = new ArrayList<>();
+            for (String raw : Files.readAllLines(p, StandardCharsets.UTF_8)) {
+                String line = raw.trim();
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+                try {
+                    result.add(parseLine(line));
+                } catch (RuntimeException ex) {
+                    log.warn("Skipping malformed booking line: {}", line, ex);
+                }
+            }
+            return result;
         } catch (IOException e) {
             throw new StorageException("Reservation repository file operation failed", e);
+        } finally {
+            readLock.unlock();
         }
     }
 
     public void saveAll(List<Booking> bookings) {
-        Path p = path();
+        writeLock.lock();
         try {
+            Path p = path();
             Files.createDirectories(p.getParent());
             List<String> lines = new ArrayList<>();
             lines.add("# transactionId,customerName,rentalDate,vehicleId,durationDays,status,staffMessage");
@@ -55,6 +76,8 @@ public class ReservationRepository {
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             throw new StorageException("Reservation repository file operation failed", e);
+        } finally {
+            writeLock.unlock();
         }
     }
 
