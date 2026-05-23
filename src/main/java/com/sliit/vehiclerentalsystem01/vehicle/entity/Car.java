@@ -1,6 +1,6 @@
 package com.sliit.vehiclerentalsystem01.vehicle.entity;
 
-//inheritance
+// Inheritance
 public class Car extends Vehicle {
 
     private int seatingCapacity;
@@ -10,9 +10,15 @@ public class Car extends Vehicle {
         this.seatingCapacity = 0;
     }
 
-
     public Car(String id, String brand, String model, double dailyRate, int seatingCapacity, String imagePath, String status) {
+        // Constructor Chaining to the parent
         super(id, brand, model, dailyRate, imagePath, status);
+
+        // Child-specific validation
+        if (seatingCapacity <= 0) {
+            throw new IllegalArgumentException("Data Security Error: Car seating capacity must be greater than zero.");
+        }
+
         this.seatingCapacity = seatingCapacity;
     }
 
@@ -30,7 +36,6 @@ public class Car extends Vehicle {
 
     @Override
     public String toCSV() {
-        // Also appending the status here for the database!
         return "Car," + getId() + "," + getBrand() + "," + getModel() + "," + getDailyRate() + "," + seatingCapacity + "," + getImagePath() + "," + getStatus();
     }
 }

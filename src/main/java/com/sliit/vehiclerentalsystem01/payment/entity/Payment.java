@@ -1,10 +1,6 @@
 package com.sliit.vehiclerentalsystem01.payment.entity;
 
-/**
- * Abstract base class for all payment types in the system.
- * This demonstrates the Object-Oriented concept of Abstraction and Encapsulation.
- * By defining common properties and methods here, subclasses can inherit them.
- */
+
 public abstract class Payment {
 
     // Encapsulated fields (accessible only via getters/setters)

@@ -18,9 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * PaymentController: Manages administrative and customer payment workflows.
- */
 @Controller
 @RequestMapping("/payments")
 public class PaymentController {
@@ -208,10 +205,32 @@ public class PaymentController {
     public String customerSubmit(@RequestParam String bookingId, HttpSession session, RedirectAttributes ra) {
         if (!isCustomer(session)) return "redirect:/auth/login";
         paymentService.findLatestByBookingId(bookingId).ifPresent(p -> {
-            p.setStatus("VERIFYING");
-            try { paymentService.save(p); } catch (Exception ignored) {}
+            if (p instanceof CashPayment) {
+                Payment newCardPayment = new CardPayment(p.getId(), p.getBookingId(), p.getAmount(), "VERIFYING");
+                try { paymentService.save(newCardPayment); } catch (Exception ignored) {}
+            } else {
+                p.setStatus("VERIFYING");
+                try { paymentService.save(p); } catch (Exception ignored) {}
+            }
         });
         ra.addFlashAttribute("paymentMessage", "Payment submitted for verification.");
         return "redirect:/customer/billing";
+    }
+
+    /**
+     * Intercept the user's attempt to go to the card gateway.
+     * Prevents access if the payment is already marked as CASH by staff.
+     */
+    @GetMapping("/customer/validate-gateway")
+    public String validateGateway(@RequestParam("bookingId") String bookingId, HttpSession session, RedirectAttributes ra) {
+        if (!isCustomer(session)) return "redirect:/auth/login";
+        
+        if (paymentService.hasPaidPaymentForBooking(bookingId)) {
+            ra.addFlashAttribute("paymentMessage", "This booking is already paid.");
+            return "redirect:/customer/billing";
+        }
+        
+        // Allowed: Forward the customer to the actual gateway handled by the external Customer Portal Controller
+        return "redirect:/customer/billing/gateway?bookingId=" + bookingId;
     }
 }

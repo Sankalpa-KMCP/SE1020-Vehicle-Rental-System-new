@@ -23,100 +23,56 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * MaintenanceRepository is a Spring repository class that manages persistent storage 
- * of maintenance records and logs.
- * <p>
- * Instead of using a traditional relational database, this repository implements 
- * a simple file-based storage mechanism. It persists vehicle maintenance records 
- * and maintenance log entries into delimited text files under a configurable data directory.
- * <p>
- * Thread safety is guaranteed using a {@link ReentrantReadWriteLock}, allowing concurrent 
- * reads but serializing write operations to prevent data corruption during disk updates.
+ * Repository managing file-based persistent storage of maintenance records and logs.
+ * Uses a ReentrantReadWriteLock for thread safety.
  */
 @Repository
 public class MaintenanceRepository {
 
-    /**
-     * File name for storing the active vehicle fleet maintenance details.
-     */
+    /** File name for storing active vehicle fleet maintenance details. */
     private static final String FLEET_FILE_NAME = "maintenance-fleet.txt";
 
-    /**
-     * File name for storing historical maintenance log entries (history of servicing).
-     */
+    /** File name for storing historical maintenance log entries. */
     private static final String LOG_FILE_NAME = "maintenance-log.txt";
 
-    /**
-     * File name for legacy maintenance data (used for backwards compatibility migrations).
-     */
+    /** File name for legacy maintenance data. */
     private static final String LEGACY_FILE_NAME = "maintenance.txt";
 
-    /**
-     * Regular expression delimiter used to split field values within a single line of text files.
-     * The fields are delimited by a pipe character ('|').
-     */
+    /** Delimiter pattern for parsing pipe-separated fields. */
     private static final String DELIMITER = "\\|";
 
-    /**
-     * Minimum number of fields required in legacy format records.
-     */
+    /** Minimum fields required in legacy format records. */
     private static final int LEGACY_MIN_FIELD_COUNT = 6;
 
-    /**
-     * Field count for legacy records that explicitly contain a vehicle type field.
-     */
+    /** Field count for legacy records with vehicle type. */
     private static final int LEGACY_WITH_TYPE_FIELD_COUNT = 7;
 
-    /**
-     * Field count for merged/combined legacy records.
-     */
+    /** Field count for combined legacy records. */
     private static final int LEGACY_COMBINED_FIELD_COUNT = 10;
 
-    /**
-     * Standard number of fields expected in the current maintenance-fleet file.
-     */
+    /** Expected field count in the maintenance-fleet file. */
     private static final int FLEET_FIELD_COUNT = 8;
 
-    /**
-     * Standard number of fields expected in the current maintenance-log file.
-     */
+    /** Expected field count in the maintenance-log file. */
     private static final int LOG_FIELD_COUNT = 5;
 
-    /**
-     * Logger utility for recording operational activities, warnings, and errors.
-     */
+    /** Logger instance. */
     private static final Logger log = LoggerFactory.getLogger(MaintenanceRepository.class);
 
-    /**
-     * A read-write lock to orchestrate concurrent access to file resources.
-     */
+    /** Read-write lock for thread safety. */
     private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
 
-    /**
-     * Lock used specifically for read operations. Multiple threads can acquire this lock simultaneously
-     * as long as no thread has acquired the write lock.
-     */
+    /** Shared read lock. */
     private final Lock readLock = rwLock.readLock();
 
-    /**
-     * Lock used for write operations. Exclusive access is granted. Only one thread can write at a time,
-     * and no reads are permitted during write operations.
-     */
+    /** Exclusive write lock. */
     private final Lock writeLock = rwLock.writeLock();
 
-    /**
-     * Configurable path to the directory where data files are stored.
-     * Defaults to the relative directory "data" in the project root if not specified in properties.
-     */
+    /** Configurable path to the data storage directory. */
     @Value("${app.data.directory:data}")
     private String dataDirectory;
 
-    /**
-     * Helper method to construct the absolute normalized file path for a given file name.
-     *
-     * @param fileName the name of the file
-     * @return the resolved Path object
-     */
+    /** Resolves a file name to its absolute normalized path in the data directory. */
     private Path dataPath(String fileName) {
         Path resolvedPath = Paths.get(dataDirectory)
                                  .toAbsolutePath()
@@ -125,43 +81,33 @@ public class MaintenanceRepository {
         return resolvedPath;
     }
 
-    /**
-     * Retrieves all vehicle maintenance records from persistence.
-     * If the main fleet file does not exist, it falls back to reading and migrating legacy data.
-     *
-     * @return a List containing all active {@link MaintenanceRecord} entries
-     */
+    /** Retrieves all vehicle maintenance records, falling back to legacy data if needed. */
     public List<MaintenanceRecord> findAllVehicles() {
-        // Acquire the read lock to prevent concurrent writes from mutating the files during read.
+        // Acquire read lock
         readLock.lock();
         try {
-            // Determine if the fleet file currently exists on disk.
+            // Check if file exists
             Path fleetFilePath = dataPath(FLEET_FILE_NAME);
             boolean fleetFileExists = Files.exists(fleetFilePath);
 
-            // Read vehicle records from the standard fleet storage file.
+            // Read standard records
             List<MaintenanceRecord> vehicles = readVehiclesFromDiskUnlocked();
 
-            // If the standard fleet file is absent and no vehicles could be parsed,
-            // fall back to migrate/load records from the legacy format file.
+            // Migrate legacy data if necessary
             if (!fleetFileExists && vehicles.isEmpty()) {
                 vehicles = readLegacyVehiclesFromDiskUnlocked();
             }
 
             return vehicles;
         } finally {
-            // Always release the lock in a finally block to avoid deadlocks in case of unexpected exceptions.
+            // Release read lock
             readLock.unlock();
         }
     }
 
-    /**
-     * Retrieves all maintenance log entries from persistence.
-     *
-     * @return a List containing all {@link MaintenanceEntry} records
-     */
+    /** Retrieves all maintenance log entries from persistence. */
     public List<MaintenanceEntry> findAllEntries() {
-        // Acquire the read lock for thread-safe concurrent access.
+        // Acquire read lock
         readLock.lock();
         try {
             List<MaintenanceEntry> entries = readEntriesFromDiskUnlocked();
@@ -171,78 +117,65 @@ public class MaintenanceRepository {
         }
     }
 
-    /**
-     * Saves a vehicle maintenance record. If a record with the same vehicle ID already exists,
-     * it is updated; otherwise, it is appended as a new record.
-     *
-     * @param record the {@link MaintenanceRecord} to save
-     */
+    /** Saves or updates a vehicle maintenance record. */
     public void saveVehicle(MaintenanceRecord record) {
-        // Acquire the write lock to serialize file write operations.
+        // Acquire write lock
         writeLock.lock();
         try {
-            // Step 1: Read all existing vehicle records.
+            // Read existing records
             List<MaintenanceRecord> records = readVehiclesFromDiskUnlocked();
 
-            // Step 2: Remove any existing record with the matching vehicle ID (updates are performed by replacement).
+            // Remove existing record for the same vehicle ID
             String vehicleIdToSave = record.getVehicleId();
             records.removeIf(existingRecord -> vehicleIdToSave.equals(existingRecord.getVehicleId()));
 
-            // Step 3: Add the new/updated record.
+            // Add the new record
             records.add(record);
 
-            // Step 4: Write the updated list back to the physical disk.
+            // Save back to disk
             writeVehiclesToDiskUnlocked(records);
         } finally {
             writeLock.unlock();
         }
     }
 
-    /**
-     * Appends a new maintenance entry to the maintenance logs.
-     *
-     * @param entry the {@link MaintenanceEntry} to save
-     */
+    /** Appends a new maintenance entry to the logs. */
     public void saveEntry(MaintenanceEntry entry) {
-        // Acquire exclusive write lock.
+        // Acquire write lock
         writeLock.lock();
         try {
-            // Step 1: Read the current list of maintenance log entries.
+            // Read current log entries
             List<MaintenanceEntry> entries = readEntriesFromDiskUnlocked();
 
-            // Step 2: Append the new entry to the list.
+            // Append new entry
             entries.add(entry);
 
-            // Step 3: Write the updated list back to the physical disk.
+            // Save back to disk
             writeEntriesToDiskUnlocked(entries);
         } finally {
             writeLock.unlock();
         }
     }
 
-    /**
-     * Removes a vehicle and all of its associated maintenance entries by vehicle ID.
-     *
-     * @param vehicleId the unique ID of the vehicle to delete
-     */
+    /** Removes a vehicle and its associated entries by vehicle ID. */
     public void deleteVehicleByVehicleId(String vehicleId) {
-        // Guard check: do nothing if the input ID is invalid or empty.
+        // Do nothing if ID is blank
         if (vehicleId == null || vehicleId.isBlank()) {
             return;
         }
 
-        // Acquire exclusive write lock.
+        // Acquire write lock
         writeLock.lock();
         try {
-            // Step 1: Retrieve existing vehicles and log entries.
+            // Retrieve records
             List<MaintenanceRecord> vehicles = readVehiclesFromDiskUnlocked();
             List<MaintenanceEntry> entries = readEntriesFromDiskUnlocked();
 
-            // Step 2: Delete records matching the target vehicle ID.
+            // Delete matching records
             vehicles.removeIf(record -> vehicleId.equals(record.getVehicleId()));
             entries.removeIf(entry -> vehicleId.equals(entry.getVehicleId()));
 
-            // Step 3: Persist changes back to disk.
+            // Persist changes
             writeVehiclesToDiskUnlocked(vehicles);
             writeEntriesToDiskUnlocked(entries);
         } finally {
@@ -250,40 +183,32 @@ public class MaintenanceRepository {
         }
     }
 
-    /**
-     * Deletes a single maintenance entry by its unique ID.
-     *
-     * @param entryId the unique ID of the maintenance entry to remove
-     */
+    /** Deletes a maintenance entry by its ID. */
     public void deleteEntryById(String entryId) {
-        // Guard check: do nothing if the input ID is invalid.
+        // Do nothing if ID is blank
         if (entryId == null || entryId.isBlank()) {
             return;
         }
 
-        // Acquire exclusive write lock.
+        // Acquire write lock
         writeLock.lock();
         try {
-            // Step 1: Retrieve all existing log entries.
+            // Retrieve log entries
             List<MaintenanceEntry> entries = readEntriesFromDiskUnlocked();
 
-            // Step 2: Remove the entry that matches the specified ID.
+            // Remove entry
             entries.removeIf(entry -> entryId.equals(entry.getId()));
 
-            // Step 3: Persist the modified list back to disk.
+            // Persist changes
             writeEntriesToDiskUnlocked(entries);
         } finally {
             writeLock.unlock();
         }
     }
 
-    /**
-     * Overwrites all active vehicle maintenance records on disk.
-     *
-     * @param records the new list of {@link MaintenanceRecord} objects to persist
-     */
+    /** Overwrites all vehicle maintenance records on disk. */
     public void saveAllVehicles(List<MaintenanceRecord> records) {
-        // Acquire exclusive write lock.
+        // Acquire write lock
         writeLock.lock();
         try {
             writeVehiclesToDiskUnlocked(records);
@@ -292,13 +217,9 @@ public class MaintenanceRepository {
         }
     }
 
-    /**
-     * Overwrites all maintenance log entries on disk.
-     *
-     * @param entries the new list of {@link MaintenanceEntry} objects to persist
-     */
+    /** Overwrites all maintenance log entries on disk. */
     public void saveAllEntries(List<MaintenanceEntry> entries) {
-        // Acquire exclusive write lock.
+        // Acquire write lock
         writeLock.lock();
         try {
             writeEntriesToDiskUnlocked(entries);
@@ -307,31 +228,25 @@ public class MaintenanceRepository {
         }
     }
 
-    /**
-     * Internal helper method to read vehicle records from disk. 
-     * Assumes the caller has already acquired the appropriate lock.
-     *
-     * @return a List containing parsed MaintenanceRecord objects
-     * @throws StorageException if an filesystem I/O exception occurs
-     */
+    /** Reads vehicle records from disk (unlocked). */
     private List<MaintenanceRecord> readVehiclesFromDiskUnlocked() {
         Path path = dataPath(FLEET_FILE_NAME);
 
-        // If the file does not exist, return an empty mutable list.
+        // Return empty list if file doesn't exist
         if (!Files.exists(path)) {
             return new ArrayList<>();
         }
 
         List<MaintenanceRecord> vehicles = new ArrayList<>();
 
-        // Read using a BufferedReader for efficiency.
+        // Read file contents
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             String line;
 
             while ((line = reader.readLine()) != null) {
                 String trimmed = line.trim();
 
-                // Skip blank lines and lines starting with '#' which serve as comment headers.
+                // Skip blank lines and header comments
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                     continue;
                 }
@@ -340,7 +255,7 @@ public class MaintenanceRepository {
                     MaintenanceRecord record = parseVehicleLine(trimmed);
                     vehicles.add(record);
                 } catch (RuntimeException ex) {
-                    // Log warning and skip bad lines, continuing to parse the rest of the file.
+                    // Skip and log invalid line
                     log.warn("Skipping invalid fleet line: {} - {}", trimmed, ex.getMessage());
                 }
             }
@@ -351,17 +266,11 @@ public class MaintenanceRepository {
         }
     }
 
-    /**
-     * Internal helper method to read maintenance entries from disk. 
-     * Assumes the caller has already acquired the appropriate lock.
-     *
-     * @return a List containing parsed MaintenanceEntry objects
-     * @throws StorageException if an filesystem I/O exception occurs
-     */
+    /** Reads maintenance entries from disk (unlocked). */
     private List<MaintenanceEntry> readEntriesFromDiskUnlocked() {
         Path path = dataPath(LOG_FILE_NAME);
 
-        // Return a mutable empty list if the log file is not yet initialized.
+        // Return empty list if file doesn't exist
         if (!Files.exists(path)) {
             return new ArrayList<>();
         }
@@ -374,7 +283,7 @@ public class MaintenanceRepository {
             while ((line = reader.readLine()) != null) {
                 String trimmed = line.trim();
 
-                // Skip blank lines and comment headers.
+                // Skip blank lines and header comments
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                     continue;
                 }
@@ -393,13 +302,7 @@ public class MaintenanceRepository {
         }
     }
 
-    /**
-     * Internal helper method to read and migrate legacy vehicle records from legacy storage.
-     * Assumes the caller has already acquired the appropriate lock.
-     *
-     * @return a List containing parsed legacy MaintenanceRecord objects
-     * @throws StorageException if a filesystem I/O exception occurs
-     */
+    /** Reads legacy vehicle records from disk (unlocked). */
     private List<MaintenanceRecord> readLegacyVehiclesFromDiskUnlocked() {
         Path path = dataPath(LEGACY_FILE_NAME);
 
@@ -415,7 +318,7 @@ public class MaintenanceRepository {
             while ((line = reader.readLine()) != null) {
                 String trimmed = line.trim();
 
-                // Skip empty lines or header comments.
+                // Skip blank lines and header comments
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                     continue;
                 }
@@ -434,32 +337,26 @@ public class MaintenanceRepository {
         }
     }
 
-    /**
-     * Writes vehicle maintenance records to the primary fleet storage file.
-     * Assumes the caller has acquired the write lock.
-     *
-     * @param records the list of records to persist
-     * @throws StorageException if an I/O exception occurs during file creation or writing
-     */
+    /** Writes vehicle maintenance records to disk (unlocked). */
     private void writeVehiclesToDiskUnlocked(List<MaintenanceRecord> records) {
         Path path = dataPath(FLEET_FILE_NAME);
 
         try {
-            // Ensure parent directories exist.
+            // Ensure directories exist
             Files.createDirectories(path.getParent());
 
-            // Write to file, truncating existing data.
+            // Write to file (truncate)
             try (BufferedWriter writer = Files.newBufferedWriter(
                     path,
                     StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING)) {
 
-                // Write descriptive header line.
+                // Write file header
                 writer.write("# id|vehicleId|vehicleType|vehicleModel|mileage|photoFileName|lastServiceDate|nextServiceDate");
                 writer.newLine();
 
-                // Format and write each vehicle record.
+                // Format and write each record
                 for (MaintenanceRecord record : records) {
                     String lineContent = formatVehicleLine(record);
                     writer.write(lineContent);
@@ -471,32 +368,26 @@ public class MaintenanceRepository {
         }
     }
 
-    /**
-     * Writes maintenance entry records to the primary log storage file.
-     * Assumes the caller has acquired the write lock.
-     *
-     * @param entries the list of entries to persist
-     * @throws StorageException if an I/O exception occurs during file creation or writing
-     */
+    /** Writes maintenance log entries to disk (unlocked). */
     private void writeEntriesToDiskUnlocked(List<MaintenanceEntry> entries) {
         Path path = dataPath(LOG_FILE_NAME);
 
         try {
-            // Ensure parent directories exist.
+            // Ensure directories exist
             Files.createDirectories(path.getParent());
 
-            // Open buffered writer with create/truncate options.
+            // Write to file (truncate)
             try (BufferedWriter writer = Files.newBufferedWriter(
                     path,
                     StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING)) {
 
-                // Write metadata header.
+                // Write file header
                 writer.write("# id|vehicleId|reason|maintenanceDate|notes");
                 writer.newLine();
 
-                // Format and write each log entry.
+                // Format and write each entry
                 for (MaintenanceEntry entry : entries) {
                     String lineContent = formatEntryLine(entry);
                     writer.write(lineContent);
@@ -508,23 +399,17 @@ public class MaintenanceRepository {
         }
     }
 
-    /**
-     * Parses a single row from the fleet file into a {@link MaintenanceRecord} object.
-     *
-     * @param line the text line to parse
-     * @return the parsed MaintenanceRecord
-     * @throws IllegalArgumentException if the line format is invalid
-     */
+    /** Parses a line into a MaintenanceRecord object. */
     private MaintenanceRecord parseVehicleLine(String line) {
-        // Split line by pipe character. Passing -1 allows trailing empty fields.
+        // Split by delimiter
         String[] parts = line.split(DELIMITER, -1);
 
-        // Verify that the line contains the required amount of columns.
+        // Validate column count
         if (parts.length < FLEET_FIELD_COUNT) {
             throw new IllegalArgumentException("Expected " + FLEET_FIELD_COUNT + " fields, got " + parts.length);
         }
 
-        // Clean up individual string properties.
+        // Clean fields
         String id = nullSafeTrim(parts[0]);
         String vehicleId = nullSafeTrim(parts[1]);
         String vehicleType = nullSafeTrim(parts[2]);
@@ -534,12 +419,12 @@ public class MaintenanceRepository {
         LocalDate lastServiceDate = parseDate(parts[6]);
         LocalDate nextServiceDate = parseDate(parts[7]);
 
-        // Validate mandatory identifier properties.
+        // Validate identifiers
         if (id.isEmpty() || vehicleId.isEmpty()) {
             throw new IllegalArgumentException("id and vehicleId are required");
         }
 
-        // Return a constructed record object.
+        // Return constructed object
         MaintenanceRecord record = new MaintenanceRecord(
                 id,
                 vehicleId,
@@ -554,29 +439,23 @@ public class MaintenanceRepository {
         return record;
     }
 
-    /**
-     * Parses a single row from the log file into a {@link MaintenanceEntry} object.
-     *
-     * @param line the text line to parse
-     * @return the parsed MaintenanceEntry
-     * @throws IllegalArgumentException if the line format is invalid
-     */
+    /** Parses a line into a MaintenanceEntry object. */
     private MaintenanceEntry parseEntryLine(String line) {
         String[] parts = line.split(DELIMITER, -1);
 
-        // Verify minimum field count matches standard requirements.
+        // Validate field count
         if (parts.length < LOG_FIELD_COUNT) {
             throw new IllegalArgumentException("Expected " + LOG_FIELD_COUNT + " fields, got " + parts.length);
         }
 
-        // Clean and prepare values.
+        // Clean fields
         String id = nullSafeTrim(parts[0]);
         String vehicleId = nullSafeTrim(parts[1]);
         String reason = nullSafeTrim(parts[2]);
         LocalDate maintenanceDate = parseDate(parts[3]);
         String notes = nullSafeTrim(parts[4]);
 
-        // Assert mandatory fields.
+        // Validate identifiers
         if (id.isEmpty() || vehicleId.isEmpty()) {
             throw new IllegalArgumentException("id and vehicleId are required");
         }
@@ -592,23 +471,16 @@ public class MaintenanceRepository {
         return entry;
     }
 
-    /**
-     * Parses legacy formats of vehicle maintenance lines and constructs a normalized 
-     * {@link MaintenanceRecord} object. Handles multiple historical variations of field lengths.
-     *
-     * @param line the text line to parse
-     * @return the normalized MaintenanceRecord
-     * @throws IllegalArgumentException if the layout is unrecognized
-     */
+    /** Parses legacy format lines into a MaintenanceRecord. */
     private MaintenanceRecord parseLegacyVehicleLine(String line) {
         String[] parts = line.split(DELIMITER, -1);
 
-        // Legacy format must contain at least 6 fields.
+        // Legacy format validation
         if (parts.length < LEGACY_MIN_FIELD_COUNT) {
             throw new IllegalArgumentException("Expected at least " + LEGACY_MIN_FIELD_COUNT + " fields, got " + parts.length);
         }
 
-        // Format Case 1: Legacy combined record (10+ fields).
+        // Combined legacy record parsing
         if (parts.length >= LEGACY_COMBINED_FIELD_COUNT) {
             String id = nullSafeTrim(parts[0]);
             String vehicleId = nullSafeTrim(parts[1]);
@@ -632,7 +504,7 @@ public class MaintenanceRepository {
             return record;
         }
 
-        // Format Case 2: Shorter legacy layouts. Determine field offsets based on size.
+        // Shorter legacy layout parsing
         boolean hasVehicleType = parts.length >= LEGACY_WITH_TYPE_FIELD_COUNT;
         
         String id = nullSafeTrim(parts[0]);
@@ -642,7 +514,7 @@ public class MaintenanceRepository {
         String mileage = "";
         String photoFileName = "";
         
-        // Date positions change depending on presence of the vehicle type field.
+        // Determine date offsets
         String lastServiceDateRaw = hasVehicleType ? parts[4] : parts[3];
         String nextServiceDateRaw = hasVehicleType ? parts[5] : parts[4];
         
@@ -662,12 +534,7 @@ public class MaintenanceRepository {
         return record;
     }
 
-    /**
-     * Formats a {@link MaintenanceRecord} into a pipe-delimited text line suitable for storage.
-     *
-     * @param record the MaintenanceRecord to format
-     * @return the formatted, serialized line string
-     */
+    /** Formats a MaintenanceRecord into a pipe-delimited string. */
     private String formatVehicleLine(MaintenanceRecord record) {
         String serializedLine = String.join("|",
                 storageSafe(record.getId()),
@@ -682,12 +549,7 @@ public class MaintenanceRepository {
         return serializedLine;
     }
 
-    /**
-     * Formats a {@link MaintenanceEntry} into a pipe-delimited text line suitable for storage.
-     *
-     * @param entry the MaintenanceEntry to format
-     * @return the formatted, serialized line string
-     */
+    /** Formats a MaintenanceEntry into a pipe-delimited string. */
     private String formatEntryLine(MaintenanceEntry entry) {
         String serializedLine = String.join("|",
                 storageSafe(entry.getId()),
@@ -699,12 +561,7 @@ public class MaintenanceRepository {
         return serializedLine;
     }
 
-    /**
-     * Parses a string representation of a date into a {@link LocalDate} object.
-     *
-     * @param value the raw date string (expected in ISO format like YYYY-MM-DD)
-     * @return the parsed LocalDate, or null if the string is empty or blank
-     */
+    /** Parses a string into a LocalDate. */
     private static LocalDate parseDate(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -714,12 +571,7 @@ public class MaintenanceRepository {
         return date;
     }
 
-    /**
-     * Formats a {@link LocalDate} object into its string representation (YYYY-MM-DD).
-     *
-     * @param date the LocalDate to format
-     * @return the formatted date string, or an empty string if the input is null
-     */
+    /** Formats a LocalDate into a string. */
     private static String formatDate(LocalDate date) {
         if (date == null) {
             return "";
@@ -729,12 +581,7 @@ public class MaintenanceRepository {
         return dateString;
     }
 
-    /**
-     * Helper to safely trim a string. Returns an empty string if the input is null.
-     *
-     * @param value the string to trim
-     * @return the trimmed string, or empty string if input was null
-     */
+    /** Safely trims a string, returning an empty string if null. */
     private static String nullSafeTrim(String value) {
         if (value == null) {
             return "";
@@ -744,12 +591,7 @@ public class MaintenanceRepository {
         return trimmed;
     }
 
-    /**
-     * Helper that returns the original string, or an empty string if the input is null.
-     *
-     * @param value the string to inspect
-     * @return the original string or empty string
-     */
+    /** Returns empty string if input is null. */
     private static String nullSafe(String value) {
         if (value == null) {
             return "";
@@ -758,13 +600,7 @@ public class MaintenanceRepository {
         return value;
     }
 
-    /**
-     * Escapes separator characters ('|') inside fields to avoid breaking the file layout.
-     * Replaces any pipe character with a forward slash ('/').
-     *
-     * @param value the raw field value
-     * @return the sanitized, safe field string
-     */
+    /** Replaces pipe character with a forward slash to prevent delimiter conflicts. */
     private static String storageSafe(String value) {
         String sanitized = nullSafe(value).replace("|", "/");
         return sanitized;

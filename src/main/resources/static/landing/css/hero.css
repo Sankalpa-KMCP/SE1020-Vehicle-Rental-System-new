@@ -1,4 +1,4 @@
-﻿/* ----------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * hero.css — action-first hero
  *
  * Layout (desktop):
@@ -48,7 +48,7 @@
   letter-spacing: -0.06em;
   color: var(--da-ink-100);
   white-space: nowrap;
-  font-family: 'Instrument Serif', 'Inter', serif;
+  font-family: var(--da-font-display);
   font-style: italic;
 }
 
@@ -114,7 +114,7 @@
 
 .da-hero__title-line--quiet {
   color: var(--da-text-secondary);
-  font-family: 'Instrument Serif', 'Inter', serif;
+  font-family: var(--da-font-display);
   font-style: italic;
   font-weight: 400;
   letter-spacing: -0.02em;
@@ -179,7 +179,7 @@
   letter-spacing: var(--da-track-title);
   margin: 0;
   color: var(--da-text-inverse);
-  font-family: 'Instrument Serif', 'Inter', serif;
+  font-family: var(--da-font-display);
 }
 
 .da-act__sub {

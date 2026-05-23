@@ -153,7 +153,7 @@ body.is-revealed .da-signal-card:nth-child(4) { animation-delay: 2100ms; }
 
 .da-marquee__word--quiet {
   color: var(--da-text-muted);
-  font-family: 'Instrument Serif', 'Inter', serif;
+  font-family: var(--da-font-display);
   font-style: italic;
   font-weight: 400;
 }

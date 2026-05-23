@@ -128,7 +128,7 @@ public class VehicleRepository {
 
         String imagePath = (p.length > 6 && !p[6].isBlank()) ? p[6].trim() : "/images/default-vehicle.png";
 
-        // Dynamic status parsing logic (extracting the 8th array column safely)
+
         String status = (p.length > 7 && !p[7].isBlank()) ? p[7].trim() : "AVAILABLE";
 
         if (type.equalsIgnoreCase("Car")) {
