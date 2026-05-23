@@ -21,20 +21,7 @@ import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/**
- * STAFF ONBOARDING WORKFLOW — separate from users.txt until approved.
- * <p>
- * WHY not save password in the pending file?
- * Security: only the username is queued; master admin creates account with a generated temp password.
- * <p>
- * HOW request → account:
- * 1. UserAuthController.staffAccessRequest() appends "timestamp,username" to staff_access_requests.txt.
- * 2. MasterConsoleController shows lines to master admin (session isMasterAdmin).
- * 3. approve() builds SupportStaff, calls userService.save(), removes line, returns temp password to UI.
- * 4. reject() only removes the line.
- * <p>
- * Uses same read/write lock pattern as UserRepository for concurrent safety.
- */
+// Pending staff sign-up requests for master admin
 @Service
 public class MasterAdminPendingService {
 
@@ -61,7 +48,7 @@ public class MasterAdminPendingService {
         return Paths.get(System.getProperty("user.home"), "RentalData", "pending_admins.txt");
     }
 
-    /** READ pending request lines for master console */
+    // Read pending request lines
     public List<String> readPendingLines() {
         readLock.lock();
         try {
@@ -74,7 +61,7 @@ public class MasterAdminPendingService {
         }
     }
 
-    /** CREATE: append username + timestamp (password is never stored here) */
+    // Add a new staff access request
     public void appendStaffAccessRequestLine(String username) throws IOException {
         if (username == null || username.isBlank()) {
             throw new IOException("username required");
@@ -140,11 +127,7 @@ public class MasterAdminPendingService {
         }
     }
 
-    /**
-     * APPROVE = CREATE user + DELETE pending line.
-     * HOW: Parse username from line, generate EMP- id and temp password, hash password, userService.save(staff).
-     * WHY SupportStaff not AdminStaff: new self-service requests are support-level by default.
-     */
+    // Approve request and create support staff account
     public String approve(String pendingLine) {
         String username = parseUsername(pendingLine);
         if (username.isEmpty()) {

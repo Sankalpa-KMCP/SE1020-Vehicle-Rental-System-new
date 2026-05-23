@@ -2,9 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:replace="~{fragments/admin-shell :: adminHead('Reviews - DriveAway')}">Reviews - DriveAway</title>
+    <th:block th:replace="~{fragments/admin-shell :: adminHead('Reviews - DriveAway')}"></th:block>
     <style>
         /* ── Core Variables for Obsidian & Gold Theme ── */
         :root {
@@ -125,11 +123,9 @@
             mix-blend-mode: overlay;
             pointer-events: none;
         }
-
         /* ── Stat cards ── */
         .stat-card {
             background: rgba(18, 18, 24, 0.65);
-            -webkit-backdrop-filter: blur(12px);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: var(--da-radius);
@@ -203,7 +199,6 @@
         /* ── Review card ── */
         .review-card {
             background: rgba(18, 18, 24, 0.7);
-            -webkit-backdrop-filter: blur(12px);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: var(--da-radius);
@@ -258,126 +253,12 @@
             color: var(--da-accent) !important;
         }
 
+        .bg-amber-50 {
+            background-color: rgba(201, 162, 39, 0.08) !important;
+        }
+
         .border-amber-200 {
             border-color: rgba(201, 162, 39, 0.2) !important;
-        }
-
-        /* ── Gold Text Gradient ── */
-        .gold-text-gradient {
-            background: linear-gradient(90deg, #c9a227, #f0d080);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* ── Review View Button ── */
-        .review-view-btn {
-            background: rgba(201, 162, 39, 0.12) !important;
-            border: 1px solid rgba(201, 162, 39, 0.25) !important;
-            color: #c9a227 !important;
-            transition: all 0.2s ease !important;
-        }
-
-        .review-view-btn:hover {
-            background: rgba(201, 162, 39, 0.22) !important;
-            color: #fff !important;
-        }
-
-        /* ── Review image ── */
-        .review-img {
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* ── Stat card accent borders ── */
-        .stat-card-gold {
-            border-left: 3px solid rgba(201, 162, 39, 0.5);
-        }
-
-        .stat-card-emerald {
-            border-left: 3px solid rgba(16, 185, 129, 0.5);
-        }
-
-        .stat-card-rose {
-            border-left: 3px solid rgba(239, 68, 68, 0.5);
-        }
-
-        .stat-card-amber {
-            border-left: 3px solid rgba(245, 158, 11, 0.5);
-        }
-
-        /* ── Stat card value & label ── */
-        .stat-value {
-            font-size: 2.5rem;
-            line-height: 1;
-        }
-
-        .stat-label {
-            font-size: 0.72rem;
-            color: #9ca3af;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        /* ── Review card accent ── */
-        .review-card-accent {
-            border-left: 3px solid rgba(201, 162, 39, 0.25);
-        }
-
-        /* ── Search icon ── */
-        .search-icon {
-            color: #9ca3af;
-            font-size: 1rem;
-        }
-
-        /* ── Stat icon wrap styles ── */
-        .stat-icon-wrap {
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .stat-icon-wrap-gold {
-            background: rgba(201, 162, 39, 0.1);
-            border: 1px solid rgba(201, 162, 39, 0.2);
-        }
-
-        .stat-icon-gold {
-            font-size: 1.4rem;
-            color: #c9a227;
-        }
-
-        .stat-icon-wrap-emerald {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        .stat-icon-emerald {
-            font-size: 1.4rem;
-            color: #10b981;
-        }
-
-        .stat-icon-wrap-rose {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-
-        .stat-icon-rose {
-            font-size: 1.4rem;
-            color: #ef4444;
-        }
-
-        .stat-icon-wrap-amber {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.2);
-        }
-
-        .stat-icon-amber {
-            font-size: 1.4rem;
-            color: #f59e0b;
         }
 
         /* ── Avatar ── */
@@ -391,12 +272,6 @@
             font-weight: 900;
             font-size: 1.1rem;
             flex-shrink: 0;
-        }
-
-        .avatar-sm {
-            width: 34px !important;
-            height: 34px !important;
-            font-size: 0.85rem !important;
         }
 
         .avatar-customer {
@@ -592,8 +467,8 @@
         /* ── Glass box container ── */
         .glass-container-box {
             background: rgba(12, 12, 14, 0.65) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
             backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
             border-radius: 1.75rem !important;
             /* rounded-3xl equivalent */
@@ -611,8 +486,8 @@
         /* ── Glass stats box ── */
         .glass-stats-box {
             background: rgba(12, 12, 14, 0.65) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
             backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
             border-radius: 1.75rem !important;
             padding: 1.5rem !important;
@@ -637,7 +512,8 @@
             <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                 <div>
                     <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">
-                        Customer <span class="gold-text-gradient">Reviews</span>
+                        Customer <span
+                            style="background: linear-gradient(90deg, #c9a227, #f0d080); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Reviews</span>
                     </h1>
                     <p class="text-[#a8a6a0] text-lg font-medium max-w-2xl leading-relaxed">
                         Monitor ratings, manage feedback, and craft professional staff responses.
@@ -664,61 +540,66 @@
                     </div>
                 </div>
             </div>
-            <i
-                class="ph-fill ph-star absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
+            <i class="ph-fill ph-star absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
         </div>
 
         <!-- ── KPI stat cards ── -->
         <div class="glass-stats-box mb-10">
             <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
-                <div class="stat-card stat-card-gold">
+                <div class="stat-card" style="border-left: 3px solid rgba(201,162,39,0.5);">
                     <div class="flex items-center justify-between mb-5">
-                        <div class="stat-icon-wrap stat-icon-wrap-gold">
-                            <i class="ph-fill ph-chats-circle stat-icon-gold"></i>
+                        <div
+                            style="width:46px;height:46px;border-radius:14px;background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.2);display:flex;align-items:center;justify-content:center;">
+                            <i class="ph-fill ph-chats-circle" style="font-size:1.4rem;color:#c9a227;"></i>
                         </div>
                         <span class="badge badge-default">TOTAL</span>
                     </div>
-                    <p class="stat-value font-black text-white mb-1"
-                        th:text="${totalReviews}">
+                    <p class="font-black text-white mb-1" style="font-size:2.5rem;line-height:1;" th:text="${totalReviews}">
                         0</p>
-                    <p class="stat-label">
+                    <p
+                        style="font-size:0.72rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">
                         All reviews submitted</p>
                 </div>
-                <div class="stat-card stat-card-emerald">
+                <div class="stat-card" style="border-left: 3px solid rgba(16,185,129,0.5);">
                     <div class="flex items-center justify-between mb-5">
-                        <div class="stat-icon-wrap stat-icon-wrap-emerald">
-                            <i class="ph-fill ph-check-fat stat-icon-emerald"></i>
+                        <div
+                            style="width:46px;height:46px;border-radius:14px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;">
+                            <i class="ph-fill ph-check-fat" style="font-size:1.4rem;color:#10b981;"></i>
                         </div>
                         <span class="badge badge-published">LIVE</span>
                     </div>
-                    <p class="stat-value font-black text-white mb-1"
+                    <p class="font-black text-white mb-1" style="font-size:2.5rem;line-height:1;"
                         th:text="${publishedCount}">0</p>
-                    <p class="stat-label">
+                    <p
+                        style="font-size:0.72rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">
                         Visible to customers</p>
                 </div>
-                <div class="stat-card stat-card-rose">
+                <div class="stat-card" style="border-left: 3px solid rgba(239,68,68,0.5);">
                     <div class="flex items-center justify-between mb-5">
-                        <div class="stat-icon-wrap stat-icon-wrap-rose">
-                            <i class="ph-fill ph-flag stat-icon-rose"></i>
+                        <div
+                            style="width:46px;height:46px;border-radius:14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;">
+                            <i class="ph-fill ph-flag" style="font-size:1.4rem;color:#ef4444;"></i>
                         </div>
                         <span class="badge badge-flagged">FLAGGED</span>
                     </div>
-                    <p class="stat-value font-black text-white mb-1"
-                        th:text="${flaggedCount}">
+                    <p class="font-black text-white mb-1" style="font-size:2.5rem;line-height:1;" th:text="${flaggedCount}">
                         0</p>
-                    <p class="stat-label">
+                    <p
+                        style="font-size:0.72rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">
                         Needs your attention</p>
                 </div>
-                <div class="stat-card stat-card-amber">
+                <div class="stat-card" style="border-left: 3px solid rgba(245,158,11,0.5);">
                     <div class="flex items-center justify-between mb-5">
-                        <div class="stat-icon-wrap stat-icon-wrap-amber">
-                            <i class="ph-fill ph-star stat-icon-amber"></i>
+                        <div
+                            style="width:46px;height:46px;border-radius:14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);display:flex;align-items:center;justify-content:center;">
+                            <i class="ph-fill ph-star" style="font-size:1.4rem;color:#f59e0b;"></i>
                         </div>
                         <span class="badge badge-pending">RATING</span>
                     </div>
-                    <p class="stat-value font-black text-white mb-1"
+                    <p class="font-black text-white mb-1" style="font-size:2.5rem;line-height:1;"
                         th:text="${#numbers.formatDecimal(avgRating, 1, 1)}">0.0</p>
-                    <p class="stat-label">
+                    <p
+                        style="font-size:0.72rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">
                         Average customer score</p>
                 </div>
             </div>
@@ -738,18 +619,19 @@
                 </h2>
 
                 <div class="relative w-full sm:w-80">
-                    <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 search-icon"></i>
+                    <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2"
+                        style="color:#9ca3af;font-size:1rem;"></i>
                     <input type="text" id="reviewFilter" placeholder="Search reviews, names, IDs…"
-                        aria-label="Search reviews"
-                        class="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm font-medium outline-none transition">
+                        class="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm font-medium outline-none transition"
+                        style="background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.08);color:#fff;">
                 </div>
             </div>
 
             <!-- ── Review cards ── -->
             <div th:if="${customerReviews != null and !#lists.isEmpty(customerReviews)}" class="review-list">
 
-                <article th:each="r, stat : ${customerReviews}" class="review-card review-card-accent"
-                    th:data-review-id="${r.id}">
+                <article th:each="r, stat : ${customerReviews}" class="review-card"
+                    style="border-left: 3px solid rgba(201,162,39,0.25);" th:attr="data-review-id=${r.id}">
 
                     <!-- Top row: avatar + name + meta -->
                     <div class="flex items-start gap-4">
@@ -795,13 +677,17 @@
                             <!-- Attached Image -->
                             <div th:if="${r.imageUrl != null and !#strings.isEmpty(r.imageUrl)}" class="mt-3">
                                 <img th:src="@{${r.imageUrl}}" alt="Review photo"
-                                    class="review-img h-28 w-auto rounded-xl object-cover shadow-sm" />
+                                    class="h-28 w-auto rounded-xl object-cover shadow-sm"
+                                    style="border:1px solid rgba(255,255,255,0.1);" />
                             </div>
                         </div>
 
                         <!-- View button -->
                         <a th:href="@{/reviews/{id}(id=${r.id})}"
-                            class="review-view-btn shrink-0 inline-flex items-center gap-1.5 font-bold text-xs px-4 py-2.5 rounded-xl transition">
+                            class="shrink-0 inline-flex items-center gap-1.5 font-bold text-xs px-4 py-2.5 rounded-xl transition"
+                            style="background:rgba(201,162,39,0.12);border:1px solid rgba(201,162,39,0.25);color:#c9a227;"
+                            onmouseover="this.style.background='rgba(201,162,39,0.22)';this.style.color='#fff'"
+                            onmouseout="this.style.background='rgba(201,162,39,0.12)';this.style.color='#c9a227'">
                             <i class="ph-bold ph-eye"></i> View
                         </a>
                     </div>
@@ -809,7 +695,7 @@
                     <!-- Existing staff reply bubble -->
                     <div th:if="${r.staffReply != null and !#strings.isEmpty(r.staffReply)}" class="mt-4 ml-14">
                         <div class="reply-bubble">
-                            <div class="avatar avatar-staff avatar-sm"
+                            <div class="avatar avatar-staff" style="width:34px;height:34px;font-size:0.85rem;"
                                 th:text="${!#strings.isEmpty(r.repliedBy) ? #strings.toUpperCase(#strings.substring(r.repliedBy, 0, 1)) : 'S'}">
                                 S</div>
                             <div>
@@ -828,8 +714,8 @@
                         <div class="mt-4 ml-14">
                             <!-- Toggle button -->
                             <button type="button" class="reply-toggle-btn" th:id="|toggle-${stat.index}|"
-                                th:data-panel-id="|panel-${stat.index}|"
-                                onclick="toggleReply(this.getAttribute('data-panel-id'), this.id)">
+                                th:attr="data-panel-id=|panel-${stat.index}|"
+                                onclick="toggleReply(this.dataset.panelId, this.id)">
                                 <i class="ph-bold ph-chat-centered-text"></i>
                                 <span
                                     th:text="${r.staffReply != null and !#strings.isEmpty(r.staffReply)} ? 'Edit reply' : 'Write a reply'">Write
@@ -850,7 +736,7 @@
                                     </div>
 
                                     <textarea name="staffReply" rows="3" class="reply-textarea"
-                                        placeholder="Type a professional, helpful response…" aria-label="Staff reply"
+                                        placeholder="Type a professional, helpful response…"
                                         th:text="${r.staffReply}"></textarea>
 
                                     <div class="flex items-center justify-between gap-3">

@@ -165,9 +165,15 @@
             <h2 class="text-2xl font-bold text-gray-900">Your Invoice Ledger</h2>
             <p class="text-gray-500 mt-1">Invoices are matched using the bookings on your account.</p>
         </div>
-        <div class="flex gap-3">
-            <a th:href="@{/customer/bookings}" class="bg-white border border-gray-200 text-gray-700 font-bold px-5 py-3 rounded-xl hover:bg-gray-50 transition shadow-sm">My Bookings</a>
-            <a th:href="@{/customer/fleet}" class="bg-[#0D6EFD] text-white font-bold px-5 py-3 rounded-xl hover:bg-blue-700 transition shadow-sm">Browse Fleet</a>
+        <div class="flex gap-3 items-center">
+            <div class="relative w-full sm:w-64">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <i class="ph-bold ph-magnifying-glass text-gray-400 text-lg"></i>
+                </div>
+                <input type="text" id="customerSearchInput" placeholder="Search invoices..." class="w-full bg-slate-50 border border-slate-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block pl-10 p-2.5 shadow-sm">
+            </div>
+            <a th:href="@{/customer/bookings}" class="bg-white border border-gray-200 text-gray-700 font-bold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition shadow-sm whitespace-nowrap">My Bookings</a>
+            <a th:href="@{/customer/fleet}" class="bg-[#0D6EFD] text-white font-bold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-sm whitespace-nowrap">Browse Fleet</a>
         </div>
     </div>
 
@@ -214,6 +220,29 @@
     </div>
 </main>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('customerSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const filter = this.value.toUpperCase();
+                const table = document.getElementById('customerPaymentsTable');
+                const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+                
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (row.children.length < 5) continue; // Skip empty message
+                    
+                    const text = row.textContent || row.innerText;
+                    if (text.toUpperCase().indexOf(filter) > -1) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                }
+            });
+        }
+    });
 </script>
 </body>
 </html>

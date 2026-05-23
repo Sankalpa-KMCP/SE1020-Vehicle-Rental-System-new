@@ -696,15 +696,53 @@
 .da-mascot--accent { --stroke: var(--da-accent); }
 .da-mascot--muted  { --stroke: var(--da-text-muted); }
 
+/* Soft silhouette behind ink lines — team characters only */
+.da-mascot__fill path,
+.da-mascot__fill ellipse,
+.da-mascot__fill rect,
+.da-mascot__fill circle {
+  fill: var(--stroke);
+  stroke: none;
+  opacity: 0.14;
+}
+
+/* Accent strokes (tie, crown, laptop highlight) */
+.da-mascot__accent line {
+  fill: none;
+  stroke: var(--da-mascot-accent, var(--da-accent));
+  stroke-width: calc(var(--stroke-w) * 0.85);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.9;
+}
+
+.da-mascot__accent circle {
+  fill: var(--da-mascot-accent, var(--da-accent));
+  stroke: none;
+  opacity: 0.85;
+}
+
+.da-mascot__accent line {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 700ms var(--da-ease-spring) 200ms;
+}
+
+.da-mascot.is-drawn .da-mascot__accent line {
+  stroke-dashoffset: 0;
+}
+
 /* Team avatar wrapper — used in team.html, sized for mosaic context */
 .mascot-avatar {
   position: relative;
   margin: 0 auto;
-  width: 5rem;
-  height: 5rem;
+  width: clamp(5.5rem, 14vw, 7.5rem);
+  height: clamp(5.5rem, 14vw, 7.5rem);
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: drop-shadow(0 1px 0 rgba(10, 10, 11, 0.06));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -712,6 +750,11 @@
   .da-mascot .da-mascot__draw circle,
   .da-mascot .da-mascot__draw rect,
   .da-mascot .da-mascot__draw line {
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+    transition: none !important;
+  }
+  .da-mascot__accent line {
     stroke-dasharray: none !important;
     stroke-dashoffset: 0 !important;
     transition: none !important;

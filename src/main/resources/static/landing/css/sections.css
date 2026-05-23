@@ -964,23 +964,44 @@
 }
 
 .da-member__avatar {
-  height: 8rem;
+  height: clamp(9rem, 18vw, 11rem);
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--da-surface-muted);
   border-radius: var(--da-radius-lg);
-  padding: 0.75rem;
+  padding: 1rem 0.75rem;
   color: var(--da-text);
-  transition: background var(--da-duration) var(--da-ease), color var(--da-duration) var(--da-ease);
+  transition: background var(--da-duration) var(--da-ease), color var(--da-duration) var(--da-ease), box-shadow var(--da-duration) var(--da-ease);
 }
 
-.da-member__avatar .da-mascot { --stroke: currentColor; }
+.da-member__avatar .da-mascot {
+  --stroke: currentColor;
+  --stroke-w: 2.25;
+  --da-mascot-accent: var(--da-accent);
+}
+
+.da-member__avatar .da-mascot__fill path,
+.da-member__avatar .da-mascot__fill ellipse,
+.da-member__avatar .da-mascot__fill rect {
+  opacity: 0.12;
+}
 
 .da-member:hover .da-member__avatar {
   background: var(--da-ink-900);
   color: var(--da-text-inverse);
+  box-shadow: 0 12px 32px rgba(10, 10, 11, 0.12);
+}
+
+.da-member:hover .da-member__avatar .da-mascot__fill path,
+.da-member:hover .da-member__avatar .da-mascot__fill ellipse,
+.da-member:hover .da-member__avatar .da-mascot__fill rect {
+  opacity: 0.2;
+}
+
+.da-member:hover .da-member__avatar .da-mascot {
+  --stroke-w: 2.5;
 }
 
 .da-member__role {

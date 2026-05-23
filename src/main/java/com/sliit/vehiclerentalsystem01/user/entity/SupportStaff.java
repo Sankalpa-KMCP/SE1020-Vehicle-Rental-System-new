@@ -1,9 +1,6 @@
 package com.sliit.vehiclerentalsystem01.user.entity;
 
-/**
- * Support desk staff — limited session (STAFF_LOGGED_IN). Often created when master admin
- * approves a row in staff_access_requests.txt (see MasterAdminPendingService).
- */
+// Support staff with limited access
 public class SupportStaff extends Staff {
 
     public SupportStaff() {

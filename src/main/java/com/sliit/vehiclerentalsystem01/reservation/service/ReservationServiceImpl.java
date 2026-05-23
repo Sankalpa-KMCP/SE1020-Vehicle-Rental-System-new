@@ -288,6 +288,7 @@ public class ReservationServiceImpl implements ReservationService {
             isNewBooking = reservationRepository.findAll().stream().noneMatch(b -> booking.getId().equals(b.getId()));
         }
         if (isNewBooking) {
+            validateCustomerVerifiedForNewBooking(booking);
             Optional<Vehicle> vOpt = vehicleService.findById(vehicleId);
             if (vOpt.isEmpty() || !"AVAILABLE".equalsIgnoreCase(vOpt.get().getStatus())) {
                 throw new ValidationException("vehicle_unavailable");
@@ -342,5 +343,29 @@ public class ReservationServiceImpl implements ReservationService {
 
     private static String normalized(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    /**
+     * New bookings require a verified customer profile (NIC + license on file).
+     * Skips when the booking customer name does not match a stored customer.
+     */
+    private void validateCustomerVerifiedForNewBooking(Booking booking) {
+        String customerRef = normalized(booking.getCustomerName());
+        if (customerRef.isEmpty()) {
+            return;
+        }
+        Optional<Customer> customer = userService.findByUsername(customerRef)
+                .filter(u -> u instanceof Customer)
+                .map(u -> (Customer) u);
+        if (customer.isEmpty()) {
+            customer = userService.findById(customerRef)
+                    .filter(u -> u instanceof Customer)
+                    .map(u -> (Customer) u);
+        }
+        customer.ifPresent(c -> {
+            if (!c.isVerified()) {
+                throw new ValidationException("verification_required");
+            }
+        });
     }
 }

@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/field-counter.css}"/>
   <style>
     body {
       font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -94,6 +95,18 @@
     <i class="ph-fill ph-info text-xl"></i>
     <span class="font-semibold text-sm">Enter your current password to set a new one.</span>
   </div>
+  <div th:if="${param.error != null and param.error[0] == 'invalid_phone'}"
+       class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+    Phone must be exactly 10 digits (e.g. 0712345678).
+  </div>
+  <div th:if="${param.error != null and param.error[0] == 'invalid_nic'}"
+       class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+    NIC must be 12 digits (new) or 9 digits followed by V or X (old).
+  </div>
+  <div th:if="${param.error != null and param.error[0] == 'invalid_license'}"
+       class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+    Driver's license must be one letter followed by 7 digits (e.g. B1234567).
+  </div>
   <div th:if="${param.error != null and param.error[0] == 'password_too_short'}"
        class="mb-6 card rounded-xl px-4 py-3 flex items-center gap-3 text-red-800 bg-red-50 border-red-200">
     <i class="ph-fill ph-warning-circle text-xl"></i>
@@ -167,6 +180,9 @@
           <div>
             <label class="block text-sm font-bold text-slate-700 mb-1.5">Phone <span class="text-red-500">*</span></label>
             <input type="tel" name="phone" th:value="${customer.phoneNumber}" required autocomplete="tel"
+                   pattern="[0-9]{10}" title="Please enter exactly 10 digits"
+                   data-field-counter="10" maxlength="10" inputmode="numeric"
+                   placeholder="0712345678"
                    class="field-input w-full border border-slate-300 rounded-lg px-4 py-3 text-sm font-medium bg-white"/>
           </div>
           <div class="sm:col-span-2">
@@ -247,13 +263,17 @@
             <input type="text" name="nic"
                    th:value="${(customer.nic != null and !#strings.equalsIgnoreCase(customer.nic, 'N/A')) ? customer.nic : ''}"
                    placeholder="e.g. 200012345678"
+                   pattern="([0-9]{12}|[0-9]{9}[VvXx])"
+                   title="12-digit new NIC or 9 digits + V/X for old NIC"
                    class="field-input w-full border border-slate-300 rounded-lg px-4 py-3 text-sm font-medium bg-white"/>
           </div>
           <div>
             <label class="block text-sm font-bold text-slate-700 mb-1.5">Driver's license</label>
             <input type="text" name="license"
                    th:value="${(customer.licenseNumber != null and !#strings.equalsIgnoreCase(customer.licenseNumber, 'N/A')) ? customer.licenseNumber : ''}"
-                   placeholder="License number"
+                   placeholder="e.g. B1234567"
+                   pattern="[A-Za-z][0-9]{7}"
+                   title="One letter followed by 7 digits (e.g. B1234567)"
                    class="field-input w-full border border-slate-300 rounded-lg px-4 py-3 text-sm font-medium bg-white"/>
           </div>
         </div>
@@ -278,6 +298,7 @@
   </form>
 </main>
 
+<script defer th:src="@{/js/field-counter.js}"></script>
 <script>
   document.querySelectorAll('.pw-toggle').forEach(function (btn) {
     btn.addEventListener('click', function () {

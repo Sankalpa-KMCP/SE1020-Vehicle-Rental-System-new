@@ -1,10 +1,14 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
-import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
+import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
+import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.maintenance.service.MaintenanceService;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
+import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
 import com.sliit.vehiclerentalsystem01.review.service.ReviewService;
-import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
+import com.sliit.vehiclerentalsystem01.user.entity.Customer;
+import com.sliit.vehiclerentalsystem01.user.entity.Staff;
+import com.sliit.vehiclerentalsystem01.user.entity.User;
 import com.sliit.vehiclerentalsystem01.user.service.MasterAdminPendingService;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
@@ -12,14 +16,13 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- * Admin dashboard at /user/admin-dashboard — aggregates counts from user module AND other modules
- * (vehicles, bookings, payments, etc.) for a single overview screen after staff login.
- */
+// Admin dashboard, user hub, and master console
 @Controller
-@RequestMapping("/user")
 public class UserAdminHomeController {
 
     private final UserService userService;
@@ -47,15 +50,22 @@ public class UserAdminHomeController {
         this.maintenanceService = maintenanceService;
     }
 
-    @GetMapping("/admin-home")
+    private static boolean admin(HttpSession session) {
+        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
+    }
+
+    private static boolean master(HttpSession session) {
+        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.IS_MASTER_ADMIN));
+    }
+
+    @GetMapping("/user/admin-home")
     public String adminHomeLegacy(HttpSession session, Model model) {
         return adminDashboard(session, model);
     }
 
-    /** Admin dashboard metrics (users + other modules); requires ADMIN_LOGGED_IN */
-    @GetMapping("/admin-dashboard")
+    @GetMapping("/user/admin-dashboard")
     public String adminDashboard(HttpSession session, Model model) {
-        if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
+        if (!admin(session)) {
             return "redirect:/auth/staff-login";
         }
 
@@ -69,13 +79,147 @@ public class UserAdminHomeController {
         model.addAttribute("paymentCount", paymentService.findAll().size());
         model.addAttribute("reviewCount", reviewService.findAll().size());
         model.addAttribute("maintenanceCount", maintenanceService.countInMaintenance());
-
-        int pendingAccessCount = 0;
-        if (Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.IS_MASTER_ADMIN))) {
-            pendingAccessCount = masterAdminPendingService.readPendingLines().size();
-        }
-        model.addAttribute("pendingAccessCount", pendingAccessCount);
+        model.addAttribute("pendingAccessCount", master(session) ? masterAdminPendingService.readPendingLines().size() : 0);
 
         return "user/admin-dashboard";
+    }
+
+    @GetMapping("/user-management")
+    public String userManagement(HttpSession session, Model model) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        model.addAttribute("customerCount", userService.findAllCustomers().size());
+        model.addAttribute("staffCount", userService.findAllStaff().size());
+        model.addAttribute("pendingAccessCount", master(session) ? masterAdminPendingService.readPendingLines().size() : 0);
+        return "user/user-management";
+    }
+
+    @GetMapping("/user/master-console")
+    public String masterConsole(HttpSession session, Model model) {
+        if (!master(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        var pendingLines = masterAdminPendingService.readPendingLines();
+        model.addAttribute("pendingLines", pendingLines);
+        model.addAttribute("pendingAccessCount", pendingLines.size());
+        return "user/master-console";
+    }
+
+    @PostMapping("/user/master-console")
+    public String masterConsoleAction(HttpSession session,
+                                     @RequestParam String action,
+                                     @RequestParam("request") String requestLine,
+                                     RedirectAttributes ra) {
+        if (!master(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        switch (action) {
+            case "approve" -> {
+                try {
+                    String tempPassword = masterAdminPendingService.approve(requestLine);
+                    ra.addFlashAttribute("message",
+                            "Approved " + MasterAdminPendingService.parseUsername(requestLine)
+                                    + ". Temporary password: " + tempPassword);
+                } catch (IllegalArgumentException ex) {
+                    ra.addFlashAttribute("error", "Cannot parse the request line.");
+                } catch (IllegalStateException ex) {
+                    ra.addFlashAttribute("error", "Username already exists; request was discarded.");
+                } catch (ValidationException ex) {
+                    ra.addFlashAttribute("error", ex.getMessage());
+                }
+            }
+            case "reject" -> {
+                if (masterAdminPendingService.removeLine(requestLine)) {
+                    ra.addFlashAttribute("message",
+                            "Rejected request for "
+                                    + MasterAdminPendingService.parseUsername(requestLine) + ".");
+                } else {
+                    ra.addFlashAttribute("error", "Could not remove that request line.");
+                }
+            }
+            default -> ra.addFlashAttribute("error", "Unknown action.");
+        }
+        return "redirect:/user/master-console";
+    }
+
+    // Old /users URLs redirect to new pages
+
+    @GetMapping("/users")
+    public String legacyUserList(HttpSession session) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        return "redirect:/user-management";
+    }
+
+    @GetMapping("/users/new")
+    public String legacyNewUser(HttpSession session) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        return "redirect:/customers?action=view_directory";
+    }
+
+    @GetMapping("/users/{id}")
+    public String legacyUserDetail(@PathVariable String id, HttpSession session) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        return legacyEditRedirect(id);
+    }
+
+    @GetMapping("/users/{id}/edit")
+    public String legacyUserEdit(@PathVariable String id, HttpSession session) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        return legacyEditRedirect(id);
+    }
+
+    @PostMapping("/users")
+    public String legacyCreate(HttpSession session) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        return "redirect:/user-management";
+    }
+
+    @PostMapping("/users/{id}")
+    public String legacyUpdate(@PathVariable String id, HttpSession session) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        return legacyEditRedirect(id);
+    }
+
+    @PostMapping("/users/{id}/delete")
+    public String legacyDelete(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
+        if (!admin(session)) {
+            return "redirect:/auth/staff-login";
+        }
+        try {
+            userService.deleteById(id);
+            ra.addFlashAttribute("message", "User deleted.");
+        } catch (IllegalStateException ex) {
+            ra.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/user-management";
+    }
+
+    private String legacyEditRedirect(String id) {
+        return userService.findById(id)
+                .map(UserAdminHomeController::editRedirectFor)
+                .orElse("redirect:/user-management");
+    }
+
+    private static String editRedirectFor(User user) {
+        if (user instanceof Customer) {
+            return "redirect:/customers?action=edit&id=" + user.getId();
+        }
+        if (user instanceof Staff) {
+            return "redirect:/staff?action=edit&id=" + user.getId();
+        }
+        return "redirect:/user-management";
     }
 }

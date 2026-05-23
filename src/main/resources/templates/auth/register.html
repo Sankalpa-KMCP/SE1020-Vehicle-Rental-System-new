@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" th:href="@{/css/auth-portal.css}"/>
+  <link rel="stylesheet" th:href="@{/css/field-counter.css}"/>
 </head>
 <body class="min-h-screen flex flex-col lg:flex-row bg-white text-gray-900 relative" data-auth-mode="register">
 
@@ -43,6 +44,26 @@
       <i class="ph-bold ph-warning-circle text-2xl"></i>
       Please fill in all required fields before submitting.
     </div>
+    <div th:if="${param.error != null and param.error[0] == 'invalid_phone'}"
+         class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-600 font-bold flex items-center gap-3 mb-10 shadow-sm">
+      <i class="ph-bold ph-warning-circle text-2xl"></i>
+      Phone must be exactly 10 digits (e.g. 0712345678).
+    </div>
+    <div th:if="${param.error != null and param.error[0] == 'invalid_nic'}"
+         class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-600 font-bold flex items-center gap-3 mb-10 shadow-sm">
+      <i class="ph-bold ph-warning-circle text-2xl"></i>
+      NIC must be 12 digits (new) or 9 digits followed by V or X (old).
+    </div>
+    <div th:if="${param.error != null and param.error[0] == 'invalid_license'}"
+         class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-600 font-bold flex items-center gap-3 mb-10 shadow-sm">
+      <i class="ph-bold ph-warning-circle text-2xl"></i>
+      Driver's license must be one letter followed by 7 digits (e.g. B1234567).
+    </div>
+    <div th:if="${param.error != null and param.error[0] == 'invalid_email'}"
+         class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-600 font-bold flex items-center gap-3 mb-10 shadow-sm">
+      <i class="ph-bold ph-warning-circle text-2xl"></i>
+      Please enter a valid email address.
+    </div>
     <div th:if="${error}"
          class="auth-error-alert bg-red-50 p-5 rounded-xl border border-red-200 text-base text-red-600 font-bold flex items-center gap-3 mb-10 shadow-sm">
       <i class="ph-bold ph-warning-circle text-2xl"></i>
@@ -73,6 +94,7 @@
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Phone Number <span class="text-red-500">*</span></label>
           <input type="tel" name="phone" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required placeholder="0712345678"
+                 data-field-counter="10" maxlength="10" inputmode="numeric" autocomplete="tel"
                  class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
         </div>
       </div>
@@ -92,11 +114,15 @@
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">NIC Number</label>
             <input type="text" name="nic" placeholder="e.g. 199912345678"
+                   pattern="([0-9]{12}|[0-9]{9}[VvXx])"
+                   title="12-digit new NIC or 9 digits + V/X for old NIC"
                    class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
           </div>
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Driver's License</label>
             <input type="text" name="license" placeholder="e.g. B1234567"
+                   pattern="[A-Za-z][0-9]{7}"
+                   title="One letter followed by 7 digits (e.g. B1234567)"
                    class="inspectable-input w-full border-b-2 border-gray-300 py-3 focus:border-[#0D6EFD] outline-none transition-colors text-xl font-bold bg-transparent"/>
           </div>
         </div>
@@ -119,5 +145,6 @@
 <th:block th:replace="~{fragments/auth-mascot :: artPanel(true)}"/>
 
 <script defer th:src="@{/js/auth-portal.js}"></script>
+<script defer th:src="@{/js/field-counter.js}"></script>
 </body>
 </html>

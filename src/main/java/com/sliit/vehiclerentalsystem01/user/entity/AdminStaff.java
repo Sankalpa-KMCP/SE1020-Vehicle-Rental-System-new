@@ -1,9 +1,6 @@
 package com.sliit.vehiclerentalsystem01.user.entity;
 
-/**
- * Administrator staff — can access customer/staff CRUD pages (session ADMIN_LOGGED_IN).
- * WHY separate class? Demonstrates multi-level inheritance and polymorphic getAccessLevel().
- */
+// Admin staff with full access
 public class AdminStaff extends Staff {
 
     public AdminStaff() {

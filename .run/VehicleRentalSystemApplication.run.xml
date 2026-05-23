@@ -1,0 +1,27 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="VehicleRentalSystemApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="VehicleRentalSystem01" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.sliit.vehiclerentalsystem01.VehicleRentalSystemApplication" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.sliit.vehiclerentalsystem01.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_action="RunConfigurationTask" run_configuration_name="Sync Resources" />
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+  <configuration default="false" name="Sync Resources" type="ShConfigurationType">
+    <option name="SCRIPT_TEXT" value="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$PROJECT_DIR$/scripts/sync-resources.ps1&quot;" />
+    <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+    <option name="SCRIPT_PATH" value="" />
+    <option name="SCRIPT_OPTIONS" value="" />
+    <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="INTERPRETER_PATH" value="" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <method v="2" />
+  </configuration>
+</component>
