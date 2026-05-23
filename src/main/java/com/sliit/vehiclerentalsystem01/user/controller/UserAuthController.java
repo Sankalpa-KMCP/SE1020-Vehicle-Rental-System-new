@@ -21,19 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.util.UUID;
 
-/**
- * WEB LAYER — authentication entry points (no admin CRUD here).
- * <p>
- * WHY HttpSession instead of JWT?
- * Matches legacy JSP design and keeps coursework simple: flags like customerLoggedIn gate each page.
- * <p>
- * TWO login URLs on purpose:
- * - POST /auth/login → customers only (rejects Staff accounts)
- * - POST /auth/staff-login → staff only (rejects Customer accounts)
- * That stops customers from reaching admin dashboards with the wrong form.
- * <p>
- * CREATE user path: POST /auth/register builds Customer, hashes password, optional avatar, userService.save().
- */
+// Handles login, register, and logout
 @Controller
 @RequestMapping("/auth")
 public class UserAuthController {
@@ -49,7 +37,7 @@ public class UserAuthController {
         this.imageStorageService = imageStorageService;
     }
 
-    // --- Login / register pages (GET) ---
+    // Login pages
 
     @GetMapping("/login")
     public String showLoginPage() {
@@ -66,7 +54,7 @@ public class UserAuthController {
         return "auth/register";
     }
 
-    /** Customer login only (staff must use staff-login) */
+    // Customer login only
     @PostMapping("/login")
     public String login(
             @RequestParam String username,
@@ -85,9 +73,7 @@ public class UserAuthController {
                 .orElseGet(() -> "redirect:/auth/login?error=1");
     }
 
-    /**
-     * Staff portal sign-in: only {@link Staff} accounts may complete here; customers use {@code POST /auth/login}.
-     */
+    // Staff login only
     @PostMapping("/staff-login")
     public String staffLogin(
             @RequestParam String username,
@@ -109,9 +95,7 @@ public class UserAuthController {
                 });
     }
 
-    /**
-     * Records a pending staff access request (username only; password is never persisted).
-     */
+    // Request staff account (username only)
     @PostMapping("/staff-access-request")
     public String staffAccessRequest(
             @RequestParam("new_username") String newUsername,
@@ -135,13 +119,7 @@ public class UserAuthController {
         return "redirect:/auth/staff-login?success=requested";
     }
 
-    /**
-     * HOW session knows who logged in:
-     * - Customer → customerLoggedIn + ROLE_CUSTOMER
-     * - Staff with Admin role → adminLoggedIn + ROLE_ADMIN; usernames admin/master1 also set isMasterAdmin
-     * - Other staff → staffLoggedIn + ROLE_STAFF
-     * Controllers check these flags instead of re-reading users.txt on every page.
-     */
+    // Save login type in session (customer vs admin vs staff)
     private void establishAuthenticatedSession(HttpSession session, User u) {
         clearAuthFlags(session);
         session.setAttribute(UserSessionKeys.USERNAME, sessionUsername(u));
@@ -160,7 +138,7 @@ public class UserAuthController {
         }
     }
 
-    /** Master console and highest-privilege UI (legacy usernames plus dedicated master account). */
+    // Check if this staff user is the master admin
     private static boolean isMasterAdminAccount(Staff s) {
         String u = s.getUsername();
         if (u == null || u.isBlank()) {
@@ -180,7 +158,7 @@ public class UserAuthController {
         return "";
     }
 
-    /** CREATE customer + optional avatar, then redirect to login */
+    // Register new customer
     @PostMapping("/register")
     public String register(
             @RequestParam String name,
@@ -229,7 +207,7 @@ public class UserAuthController {
         return "redirect:" + target;
     }
 
-    /** Legacy admin dashboard POST sign-out ({@code action=logout}). */
+    // Logout from POST form
     @PostMapping(params = "action=logout")
     public String logoutPost(HttpSession session, RedirectAttributes redirectAttributes) {
         return logout(session, redirectAttributes);

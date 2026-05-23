@@ -1,25 +1,12 @@
 package com.sliit.vehiclerentalsystem01.user.entity;
 
-/**
- * DOMAIN MODEL — abstract parent for every account in the system.
- * <p>
- * WHY abstract?
- * - Customer and Staff share id/name/email but differ in login fields and CSV layout.
- * - Code can use {@code User} references (lists, save method) while runtime objects are subclasses.
- * <p>
- * ENCAPSULATION: fields are private; callers use getters/setters. {@link #normalize(String)} trims input
- * so users.txt does not get accidental spaces.
- * <p>
- * ABSTRACTION: {@link #getUserRole()} and {@link #toCSV()} force each subtype to define how it is stored.
- */
+// Base class for Customer and Staff
 public abstract class User {
 
-    // Shared identity fields stored in users.txt for every user type
     private String id;
     private String name;
     private String email;
-    /** Avatar filename under data/avatars/, or "N/A" when none uploaded */
-    private String profilePicture = "N/A";
+    private String profilePicture = "N/A"; // image file name or N/A
 
     protected static String normalize(String value) {
         return value == null ? "" : value.trim();
@@ -35,7 +22,6 @@ public abstract class User {
         this.email = normalize(email);
     }
 
-    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -60,13 +46,10 @@ public abstract class User {
         this.email = normalize(email);
     }
 
-    /** Role label for polymorphism (e.g. CUSTOMER, STAFF). */
     public abstract String getUserRole();
 
-    /** Serialized form for flat-file storage (CSV). */
     public abstract String toCSV();
 
-    /** Login id; overridden by {@link Customer} and {@link Staff}. */
     public String getUsername() {
         return "";
     }
@@ -79,7 +62,6 @@ public abstract class User {
         return profilePicture;
     }
 
-    /** Normalizes empty values to "N/A" so the CSV column is always present */
     public void setProfilePicture(String profilePicture) {
         if (profilePicture == null || profilePicture.isBlank()) {
             this.profilePicture = "N/A";
@@ -88,20 +70,13 @@ public abstract class User {
         }
     }
 
-    /*
-     * AVATAR helpers — HOW upload works end-to-end:
-     * 1. HTML form uses enctype=multipart/form-data and input name avatarImage.
-     * 2. ImageStorageService saves bytes to data/avatars/ and calls setProfilePicture(filename).
-     * 3. users.txt stores only the filename; browser loads /avatars/filename via WebMvcConfig.
-     */
-    /** True when a real image file was saved (not N/A) */
+    // Profile picture file name for the web page
     public boolean hasAvatar() {
         return profilePicture != null
                 && !profilePicture.isBlank()
                 && !"N/A".equalsIgnoreCase(profilePicture);
     }
 
-    /** Web path served by WebMvcConfig from data/avatars/ */
     public String getAvatarUrl() {
         return hasAvatar() ? "/avatars/" + profilePicture : null;
     }

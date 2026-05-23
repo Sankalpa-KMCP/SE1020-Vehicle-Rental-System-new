@@ -20,13 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * STAFF management at /staff — list dashboard, add AdminStaff or SupportStaff, edit, delete.
- * <p>
- * HOW create picks subtype: HTML role field "Admin" → new AdminStaff(...), else SupportStaff(...).
- * HOW update preserves admin vs support: loads existing instance type before rebuilding object.
- * Password always passed through hashPasswordIfNeeded before save so users.txt stores hash.
- */
+// Add, edit, and delete staff at /staff
 @Controller
 @RequestMapping("/staff")
 public class StaffAdminController {
@@ -39,7 +33,7 @@ public class StaffAdminController {
         this.imageStorageService = imageStorageService;
     }
 
-    /** GET: staff list, edit form, or delete by action param */
+    // Show staff list or edit form
     @GetMapping
     public String handleGet(
             HttpSession session,
@@ -75,7 +69,7 @@ public class StaffAdminController {
         return "user/staff-dashboard";
     }
 
-    /** POST: create/update/delete staff (AdminStaff or SupportStaff) */
+    // Save or delete staff
     @PostMapping
     public String handlePost(HttpSession session, @RequestParam Map<String, String> params,
                              @RequestParam(value = "avatarImage", required = false) MultipartFile avatarImage) {

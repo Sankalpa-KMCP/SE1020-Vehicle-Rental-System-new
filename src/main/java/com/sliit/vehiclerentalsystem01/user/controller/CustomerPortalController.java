@@ -33,16 +33,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * CUSTOMER PORTAL at /customer/* (after login).
- * <p>
- * WHY in the user package but mostly other domains?
- * Legacy structure: one controller per old JSP customer area. User-related part is session check +
- * findByUsername for dashboard; fleet/bookings/billing/reviews delegate to other services.
- * <p>
- * HOW access is guarded: private customer(session) checks customerLoggedIn on HttpSession;
- * if false, redirect to /auth/login. No Spring Security filter — manual checks per handler.
- */
+// Customer pages after login (dashboard, bookings, payments, reviews)
 @Controller
 @RequestMapping("/customer")
 public class CustomerPortalController {
@@ -77,7 +68,7 @@ public class CustomerPortalController {
         return u == null ? "" : u.toString().trim();
     }
 
-    // --- Customer dashboard (loads profile via UserService) ---
+    // Customer dashboard
 
     @GetMapping("/home")
     public String home(HttpSession session, Model model) {
@@ -126,7 +117,7 @@ public class CustomerPortalController {
         return "user/customer-dashboard";
     }
 
-    // --- Vehicle browse (VehicleService) ---
+    // Browse vehicles
 
     @GetMapping("/fleet")
     public String fleet(HttpSession session, Model model) {
@@ -138,7 +129,7 @@ public class CustomerPortalController {
         return "vehicle/vehicle-browse";
     }
 
-    // --- Bookings (ReservationService) ---
+    // Bookings
 
     @GetMapping("/bookings")
     public String myBookings(HttpSession session, Model model) {
@@ -151,7 +142,7 @@ public class CustomerPortalController {
         for (Booking b : list) {
             payAllowed.put(b.getId(), reservationService.isPaymentAllowed(b.getId()));
         }
-        // Fetch vehicle names for display
+        // Get vehicle names for the list
         java.util.Map<String, String> vehicleNames = vehicleService.findAll().stream()
                 .collect(Collectors.toMap(Vehicle::getId, v -> v.getBrand() + " " + v.getModel()));
         model.addAttribute("bookingList", list);
@@ -170,6 +161,7 @@ public class CustomerPortalController {
         model.addAttribute("sessionUsername", username(session));
         model.addAttribute("preselectedVehicleId", vehicleId == null ? "" : vehicleId);
         model.addAttribute("vehicleUnavailable", "vehicle_unavailable".equals(error));
+        model.addAttribute("verificationRequired", "verification_required".equals(error));
         return "booking/booking-form";
     }
 
@@ -239,7 +231,7 @@ public class CustomerPortalController {
         return "redirect:/customer/bookings";
     }
 
-    // --- Payments / billing (PaymentService) ---
+    // Payments
 
     @GetMapping("/billing")
     public String billing(HttpSession session, Model model, @RequestParam(required = false) String payment) {
@@ -462,7 +454,7 @@ public class CustomerPortalController {
         return customerKey.equalsIgnoreCase(Objects.toString(cr.getReviewerName(), "").trim());
     }
 
-    // --- Reviews (ReviewService) ---
+    // Reviews
 
     @GetMapping("/reviews")
     public String reviewList(HttpSession session, Model model) {
@@ -650,10 +642,7 @@ public class CustomerPortalController {
         return "booking/edit-booking";
     }
 
-    /**
-     * Customer-side booking edit. Only PENDING / UPDATE_REQUESTED bookings can be edited;
-     * confirmed or cancelled bookings must go through admin reservation actions instead.
-     */
+    // Customer edits their own pending booking
     @PostMapping("/bookings/{id}/edit")
     public String editBookingSubmit(HttpSession session, @PathVariable String id,
                                     @RequestParam String rentalDate,

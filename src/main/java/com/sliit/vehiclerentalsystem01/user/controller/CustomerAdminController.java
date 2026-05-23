@@ -22,13 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * CUSTOMER management at /customers — directory, search, admin edit, and customer self-service.
- * <p>
- * HOW actions work: ?action= on GET (view_directory, edit, delete, search, editSelf) and action= on POST.
- * WHY editSelf? Logged-in customers update their own row without admin session — still uses userService.save().
- * WHY ReservationService injected? Search shows bookings for a customer; delete rule is in UserServiceImpl.
- */
+// Manage customers at /customers
 @Controller
 @RequestMapping("/customers")
 public class CustomerAdminController {
@@ -61,7 +55,7 @@ public class CustomerAdminController {
         return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
     }
 
-    /** READ stats for customer-directory (total / verified / unverified) */
+    // Load customer counts for the directory page
     private void loadDashboard(Model model) {
         List<Customer> allCustomers = userService.findAllCustomers();
         if (allCustomers == null) {
@@ -79,7 +73,7 @@ public class CustomerAdminController {
         model.addAttribute("unverifiedGuests", allCustomers.size() - verifiedGuests);
     }
 
-    /** GET: directory, search, edit, delete, or customer self-edit (editSelf) */
+    // Show directory, search, or edit form
     @GetMapping
     public String handleGet(
             @RequestParam(required = false, defaultValue = "view_directory") String action,
@@ -164,7 +158,7 @@ public class CustomerAdminController {
         }
     }
 
-    /** POST: create, update, or delete customer (action param) */
+    // Create, update, or delete customer
     @PostMapping
     public String handlePost(@RequestParam Map<String, String> params, HttpSession session,
                              @RequestParam(value = "avatarImage", required = false) MultipartFile avatarImage) {
@@ -287,9 +281,7 @@ public class CustomerAdminController {
         return "redirect:/customers?action=editSelf&error=" + error;
     }
 
-    /**
-     * @return error code for redirect, or null when password is unchanged or updated successfully
-     */
+    // Update password if user entered a new one
     private static String applyPasswordChange(Customer existing, boolean isAdmin,
                                               String adminPassword, String currentPassword,
                                               String newPassword, String confirmPassword) {
