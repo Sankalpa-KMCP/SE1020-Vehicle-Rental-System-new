@@ -1,9 +1,12 @@
 package com.sliit.vehiclerentalsystem01.review.repository;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.StorageException;
+import com.sliit.vehiclerentalsystem01.core.io.FileDbHelper;
 import com.sliit.vehiclerentalsystem01.review.entity.CustomerReview;
 import com.sliit.vehiclerentalsystem01.review.entity.Feedback;
 import org.springframework.beans.factory.annotation.Value;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -20,6 +23,10 @@ public class ReviewRepository {
 
     private static final String FILE_NAME = "reviews.txt";
 
+    private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final Lock readLock = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
+
     @Value("${app.data.directory:data}")
     private String dataDirectory;
 
@@ -28,40 +35,44 @@ public class ReviewRepository {
     }
 
     public List<Feedback> findAll() {
-        Path p = path();
-        if (!Files.exists(p)) {
-            return new ArrayList<>();
-        }
+        readLock.lock();
         try {
-            List<Feedback> loaded = new ArrayList<>();
-            for (String raw : Files.readAllLines(p, StandardCharsets.UTF_8)) {
-                String line = raw.trim();
-                if (line.isEmpty() || line.startsWith("#")) {
-                    continue;
-                }
-                try {
-                    loaded.add(parseLine(line));
-                } catch (RuntimeException ex) {
-                    // Skip corrupt rows so one bad line does not break the reviews page.
-                }
+            Path p = path();
+            if (!Files.exists(p)) {
+                return new ArrayList<>();
             }
-            return loaded;
-        } catch (IOException e) {
-            throw new StorageException("Review repository file operation failed", e);
+            try {
+                List<Feedback> loaded = new ArrayList<>();
+                for (String raw : Files.readAllLines(p, StandardCharsets.UTF_8)) {
+                    String line = raw.trim();
+                    if (line.isEmpty() || line.startsWith("#")) {
+                        continue;
+                    }
+                    try {
+                        loaded.add(parseLine(line));
+                    } catch (RuntimeException ex) {
+                        // Skip corrupt rows so one bad line does not break the reviews page.
+                    }
+                }
+                return loaded;
+            } catch (IOException e) {
+                throw new StorageException("Review repository file operation failed", e);
+            }
+        } finally {
+            readLock.unlock();
         }
     }
 
     public void saveAll(List<Feedback> reviews) {
-        Path p = path();
+        writeLock.lock();
         try {
-            Files.createDirectories(p.getParent());
+            Path p = path();
             List<String> lines = new ArrayList<>();
             lines.add("# reviewId,reviewerName,rating,comments,status,bookingId,vehicleId,staffReply,repliedBy,repliedAt");
             lines.addAll(reviews.stream().map(this::toLine).toList());
-            Files.write(p, lines, StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new StorageException("Review repository file operation failed", e);
+            FileDbHelper.writeAtomic(p, lines);
+        } finally {
+            writeLock.unlock();
         }
     }
 

@@ -5,6 +5,7 @@ import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Car;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Vehicle;
+import com.sliit.vehiclerentalsystem01.core.service.ImageStorageService;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -33,12 +34,11 @@ import java.util.UUID;
 public class VehicleController {
 
     private final VehicleService vehicleService;
+    private final ImageStorageService imageStorageService;
 
-    @Value("${app.data.directory:data}")
-    private String dataDirectory;
-
-    public VehicleController(VehicleService vehicleService) {
+    public VehicleController(VehicleService vehicleService, ImageStorageService imageStorageService) {
         this.vehicleService = vehicleService;
+        this.imageStorageService = imageStorageService;
     }
 
     private static boolean admin(HttpSession session) {
@@ -156,23 +156,7 @@ public class VehicleController {
                 String imagePath = "/images/default-vehicle.png";
 
                 if (imageFile != null && !imageFile.isEmpty()) {
-                    try {
-                        File uploadDir = new File(dataDirectory, "vehicles");
-                        if (!uploadDir.exists()) uploadDir.mkdirs();
-
-                        String originalName = imageFile.getOriginalFilename();
-                        String extension = originalName != null && originalName.contains(".")
-                                ? originalName.substring(originalName.lastIndexOf(".")) : ".jpg";
-                        String fileName = targetId + extension;
-                        File targetFile = new File(uploadDir, fileName);
-
-                        try (InputStream in = imageFile.getInputStream(); FileOutputStream out = new FileOutputStream(targetFile)) {
-                            byte[] buffer = new byte[4096];
-                            int bytesRead;
-                            while ((bytesRead = in.read(buffer)) != -1) { out.write(buffer, 0, bytesRead); }
-                        }
-                        imagePath = "/images/vehicles/" + fileName;
-                    } catch (IOException e) { e.printStackTrace(); }
+                    imagePath = imageStorageService.saveVehicleImage(imageFile, targetId);
                 } else if ("update".equals(action) && idParam != null && !idParam.isBlank()) {
                     Optional<Vehicle> existingVehicle = vehicleService.findById(targetId);
                     if (existingVehicle.isPresent()) imagePath = existingVehicle.get().getImagePath();

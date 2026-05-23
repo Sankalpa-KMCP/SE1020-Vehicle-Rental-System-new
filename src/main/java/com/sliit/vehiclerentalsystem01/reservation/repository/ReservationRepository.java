@@ -1,6 +1,7 @@
 package com.sliit.vehiclerentalsystem01.reservation.repository;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.StorageException;
+import com.sliit.vehiclerentalsystem01.core.io.FileDbHelper;
 import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
 import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
@@ -68,14 +69,10 @@ public class ReservationRepository {
         writeLock.lock();
         try {
             Path p = path();
-            Files.createDirectories(p.getParent());
             List<String> lines = new ArrayList<>();
             lines.add("# transactionId,customerName,rentalDate,vehicleId,durationDays,status,staffMessage");
             lines.addAll(bookings.stream().map(this::toLine).toList());
-            Files.write(p, lines, StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new StorageException("Reservation repository file operation failed", e);
+            FileDbHelper.writeAtomic(p, lines);
         } finally {
             writeLock.unlock();
         }

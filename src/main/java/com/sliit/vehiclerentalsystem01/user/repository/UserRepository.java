@@ -1,6 +1,7 @@
 package com.sliit.vehiclerentalsystem01.user.repository;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.StorageException;
+import com.sliit.vehiclerentalsystem01.core.io.FileDbHelper;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.entity.Staff;
 import com.sliit.vehiclerentalsystem01.user.entity.User;
@@ -121,17 +122,11 @@ public class UserRepository {
     // Write all users back to file
     private void writeUsersToDiskUnlocked(List<User> users) {
         Path path = usersPath();
-        try {
-            Files.createDirectories(path.getParent());
-            List<String> lines = new ArrayList<>();
-            lines.add("# Customer: id,name,email,username,password,nic,license,phone,profilePicture (9 CSV fields)");
-            lines.add("# Staff: id,name,email,phone,username,password,role,profilePicture (8 CSV fields)");
-            lines.addAll(users.stream().map(this::toLine).toList());
-            Files.write(path, lines, StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new StorageException("Database file operation failed", e);
-        }
+        List<String> lines = new ArrayList<>();
+        lines.add("# Customer: id,name,email,username,password,nic,license,phone,profilePicture (9 CSV fields)");
+        lines.add("# Staff: id,name,email,phone,username,password,role,profilePicture (8 CSV fields)");
+        lines.addAll(users.stream().map(this::toLine).toList());
+        FileDbHelper.writeAtomic(path, lines);
     }
 
     // Turn one file line into a Customer or Staff object

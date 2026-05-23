@@ -1,6 +1,7 @@
 package com.sliit.vehiclerentalsystem01.vehicle.repository;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.StorageException;
+import com.sliit.vehiclerentalsystem01.core.io.FileDbHelper;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Car;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Vehicle;
@@ -107,16 +108,10 @@ public class VehicleRepository {
 
     private void writeVehiclesToDiskUnlocked(List<Vehicle> vehicles) {
         Path path = vehiclesPath();
-        try {
-            Files.createDirectories(path.getParent());
-            List<String> lines = new ArrayList<>();
-            lines.add("# Car,id,brand,model,dailyRate,seatingCapacity,imagePath,status | Motorcycle,id,brand,model,dailyRate,helmetIncluded,imagePath,status");
-            lines.addAll(vehicles.stream().map(this::toLine).toList());
-            Files.write(path, lines, StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new StorageException("Vehicle repository file operation failed", e);
-        }
+        List<String> lines = new ArrayList<>();
+        lines.add("# Car,id,brand,model,dailyRate,seatingCapacity,imagePath,status | Motorcycle,id,brand,model,dailyRate,helmetIncluded,imagePath,status");
+        lines.addAll(vehicles.stream().map(this::toLine).toList());
+        FileDbHelper.writeAtomic(path, lines);
     }
 
     private Vehicle parseLine(String line) {

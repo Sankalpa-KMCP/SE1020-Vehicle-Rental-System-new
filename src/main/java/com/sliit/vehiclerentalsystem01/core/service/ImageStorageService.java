@@ -69,4 +69,46 @@ public class ImageStorageService {
         }
         return userId.trim().replaceAll("[^a-zA-Z0-9\\-]", "_");
     }
+
+    public String saveVehicleImage(MultipartFile file, String vehicleId) {
+        if (file == null || file.isEmpty()) {
+            return "/images/default-vehicle.png";
+        }
+        try {
+            Path vehiclesDir = Paths.get(dataDirectory).toAbsolutePath().normalize().resolve("vehicles");
+            Files.createDirectories(vehiclesDir);
+
+            String originalName = file.getOriginalFilename();
+            String extension = originalName != null && originalName.contains(".")
+                    ? originalName.substring(originalName.lastIndexOf('.')) : ".jpg";
+            String filename = vehicleId + extension;
+
+            Path target = vehiclesDir.resolve(filename);
+            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+            return "/images/vehicles/" + filename;
+        } catch (IOException e) {
+            throw new StorageException("Failed to save vehicle image", e);
+        }
+    }
+
+    public String saveReviewImage(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return "";
+        }
+        try {
+            Path reviewDir = Paths.get("uploads", "reviews");
+            Files.createDirectories(reviewDir);
+
+            String originalName = file.getOriginalFilename();
+            String extension = originalName != null && originalName.contains(".")
+                    ? originalName.substring(originalName.lastIndexOf('.')) : ".jpg";
+            String filename = UUID.randomUUID() + extension;
+
+            Path target = reviewDir.resolve(filename);
+            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+            return "/uploads/reviews/" + filename;
+        } catch (IOException e) {
+            throw new StorageException("Failed to save review image", e);
+        }
+    }
 }

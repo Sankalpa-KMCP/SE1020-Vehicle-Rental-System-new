@@ -8,6 +8,7 @@ import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
 import com.sliit.vehiclerentalsystem01.review.entity.CustomerReview;
 import com.sliit.vehiclerentalsystem01.review.service.ReviewService;
+import com.sliit.vehiclerentalsystem01.core.service.ImageStorageService;
 import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
@@ -43,17 +44,20 @@ public class CustomerPortalController {
     private final VehicleService vehicleService;
     private final PaymentService paymentService;
     private final ReviewService reviewService;
+    private final ImageStorageService imageStorageService;
 
     public CustomerPortalController(UserService userService,
                                     ReservationService reservationService,
                                     VehicleService vehicleService,
                                     PaymentService paymentService,
-                                    ReviewService reviewService) {
+                                    ReviewService reviewService,
+                                    ImageStorageService imageStorageService) {
         this.userService = userService;
         this.reservationService = reservationService;
         this.vehicleService = vehicleService;
         this.paymentService = paymentService;
         this.reviewService = reviewService;
+        this.imageStorageService = imageStorageService;
     }
 
     private static boolean customer(HttpSession session) {
@@ -694,22 +698,6 @@ public class CustomerPortalController {
     }
 
     private String saveReviewImage(org.springframework.web.multipart.MultipartFile image) {
-        if (image == null || image.isEmpty()) {
-            return "";
-        }
-        try {
-            String uploadDir = "uploads/reviews/";
-            java.io.File dir = new java.io.File(uploadDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            String filename = UUID.randomUUID().toString() + "_" + org.springframework.util.StringUtils.cleanPath(image.getOriginalFilename());
-            java.nio.file.Path path = java.nio.file.Paths.get(uploadDir + filename);
-            java.nio.file.Files.copy(image.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            return "/uploads/reviews/" + filename;
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            return "";
-        }
+        return imageStorageService.saveReviewImage(image);
     }
 }

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle} ?: 'Error | DriveAway'">Error | DriveAway</title>
+    <meta name="theme-color" content="#050506"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" th:href="@{/landing/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/sections.css}"/>
+    <link rel="stylesheet" th:href="@{/landing/css/loader.css}"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        body {
+            background-color: #050506;
+            color: #ffffff;
+            font-family: 'Manrope', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+        .error-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .error-icon {
+            font-size: 5rem;
+            color: #ff3b30;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+        .error-code {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-style: italic;
+            font-weight: 600;
+            margin: 0 0 1rem 0;
+            background: linear-gradient(135deg, #fff 30%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .error-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+        .error-msg {
+            font-size: 1rem;
+            color: #a1a1aa;
+            line-height: 1.6;
+            margin: 0 0 2.5rem 0;
+        }
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #ffffff;
+            color: #050506;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid #ffffff;
+        }
+        .btn-action:hover {
+            background-color: transparent;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.05);
+        }
+        .btn-action i {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="error-card">
+    <div class="error-icon" id="errorIcon">
+        <i class="ph ph-warning-octagon"></i>
+    </div>
+    <h1 class="error-code" id="errorCode" th:text="${status} ?: 'Error'">Error</h1>
+    <h2 class="error-title" id="errorTitle" th:text="${errorTitle} ?: 'Something Went Wrong'">Something Went Wrong</h2>
+    <p class="error-msg" id="errorMessage" th:text="${errorMessage} ?: 'An unexpected error has occurred. Please check back later.'">An unexpected error has occurred. Please check back later.</p>
+    
+    <a href="/" class="btn-action" id="btnReturnToSafety">
+        <i class="ph ph-arrow-left"></i>
+        <span>Return to Safety</span>
+    </a>
+</div>
+
+</body>
+</html>

@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -340,14 +341,19 @@ public class MaintenanceRepository {
     /** Writes vehicle maintenance records to disk (unlocked). */
     private void writeVehiclesToDiskUnlocked(List<MaintenanceRecord> records) {
         Path path = dataPath(FLEET_FILE_NAME);
-
+        Path parent = path.getParent();
+        if (parent != null) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                throw new StorageException("Failed to create parent directories", e);
+            }
+        }
+        Path tempFile = null;
         try {
-            // Ensure directories exist
-            Files.createDirectories(path.getParent());
-
-            // Write to file (truncate)
+            tempFile = Files.createTempFile(parent, path.getFileName().toString(), ".tmp");
             try (BufferedWriter writer = Files.newBufferedWriter(
-                    path,
+                    tempFile,
                     StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -363,7 +369,15 @@ public class MaintenanceRepository {
                     writer.newLine();
                 }
             }
+            Files.move(tempFile, path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e) {
+            if (tempFile != null) {
+                try {
+                    Files.deleteIfExists(tempFile);
+                } catch (IOException ex) {
+                    log.warn("Failed to delete temp file {}", tempFile, ex);
+                }
+            }
             throw new StorageException("Maintenance fleet file operation failed", e);
         }
     }
@@ -371,14 +385,19 @@ public class MaintenanceRepository {
     /** Writes maintenance log entries to disk (unlocked). */
     private void writeEntriesToDiskUnlocked(List<MaintenanceEntry> entries) {
         Path path = dataPath(LOG_FILE_NAME);
-
+        Path parent = path.getParent();
+        if (parent != null) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                throw new StorageException("Failed to create parent directories", e);
+            }
+        }
+        Path tempFile = null;
         try {
-            // Ensure directories exist
-            Files.createDirectories(path.getParent());
-
-            // Write to file (truncate)
+            tempFile = Files.createTempFile(parent, path.getFileName().toString(), ".tmp");
             try (BufferedWriter writer = Files.newBufferedWriter(
-                    path,
+                    tempFile,
                     StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -394,7 +413,15 @@ public class MaintenanceRepository {
                     writer.newLine();
                 }
             }
+            Files.move(tempFile, path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e) {
+            if (tempFile != null) {
+                try {
+                    Files.deleteIfExists(tempFile);
+                } catch (IOException ex) {
+                    log.warn("Failed to delete temp file {}", tempFile, ex);
+                }
+            }
             throw new StorageException("Maintenance log file operation failed", e);
         }
     }

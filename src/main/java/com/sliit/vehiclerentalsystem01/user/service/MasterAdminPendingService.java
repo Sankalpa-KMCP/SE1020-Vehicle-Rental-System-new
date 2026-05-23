@@ -1,5 +1,6 @@
 package com.sliit.vehiclerentalsystem01.user.service;
 
+import com.sliit.vehiclerentalsystem01.core.io.FileDbHelper;
 import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.user.entity.SupportStaff;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,12 +69,14 @@ public class MasterAdminPendingService {
         }
         writeLock.lock();
         try {
-            Path dir = Paths.get(dataDirectory).toAbsolutePath().normalize();
-            Files.createDirectories(dir);
-            Path file = dir.resolve(PRIMARY_FILE);
-            String line = Instant.now().toString() + "," + username.trim() + System.lineSeparator();
-            Files.writeString(file, line, StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            Path file = primaryPath();
+            List<String> lines = new ArrayList<>();
+            if (Files.exists(file)) {
+                lines.addAll(Files.readAllLines(file, StandardCharsets.UTF_8));
+            }
+            String line = Instant.now().toString() + "," + username.trim();
+            lines.add(line);
+            FileDbHelper.writeAtomic(file, lines);
         } finally {
             writeLock.unlock();
         }
@@ -115,8 +118,7 @@ public class MasterAdminPendingService {
                     kept.add(raw);
                 }
                 if (removed) {
-                    Files.write(file, kept, StandardCharsets.UTF_8,
-                            StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                    FileDbHelper.writeAtomic(file, kept);
                 }
                 return removed;
             } catch (IOException e) {

@@ -1,6 +1,7 @@
 package com.sliit.vehiclerentalsystem01.payment.repository;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.StorageException;
+import com.sliit.vehiclerentalsystem01.core.io.FileDbHelper;
 import com.sliit.vehiclerentalsystem01.payment.entity.CardPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.CashPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
@@ -83,19 +84,10 @@ public class PaymentRepository {
         writeLock.lock();
         try {
             Path p = path();
-            Files.createDirectories(p.getParent()); // Ensure the directory structure exists
-            
             List<String> lines = new ArrayList<>();
             lines.add("# CARD|CASH,id,bookingId,amount,status"); // Write header line
-            
-            // Map payment objects back into strings for file writing
             lines.addAll(payments.stream().map(this::toLine).toList());
-            
-            // Overwrite the existing file with the updated payment data
-            Files.write(p, lines, StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new StorageException("Payment repository file operation failed", e);
+            FileDbHelper.writeAtomic(p, lines);
         } finally {
             writeLock.unlock(); // Release write lock
         }
