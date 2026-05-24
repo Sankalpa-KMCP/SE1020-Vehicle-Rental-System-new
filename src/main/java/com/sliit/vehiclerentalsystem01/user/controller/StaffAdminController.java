@@ -88,7 +88,10 @@ public class StaffAdminController {
             Staff existing = userService.findById(id)
                     .filter(u -> u instanceof Staff)
                     .map(u -> (Staff) u)
-                    .orElseThrow();
+                    .orElse(null);
+            if (existing == null) {
+                return "redirect:/staff?action=list";
+            }
             // Only update password if a new one was provided
             String passwordToStore = (password == null || password.isBlank())
                     ? existing.getPassword()

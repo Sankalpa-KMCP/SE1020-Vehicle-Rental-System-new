@@ -135,22 +135,20 @@ public class UserAuthController {
     }
 
     private void establishAuthenticatedSession(HttpSession session, User u) {
-        session.invalidate();
-        org.springframework.mock.web.MockHttpSession newSession = new org.springframework.mock.web.MockHttpSession();
-        session = newSession;
-
         session.setAttribute("username", sessionUsername(u));
         session.setAttribute("name", u.getName());
         session.setAttribute("avatarUrl", u.getAvatarUrl());
 
         if (u instanceof Customer) {
             session.setAttribute("customerLoggedIn", Boolean.TRUE);
+            session.setAttribute("adminLoggedIn", Boolean.FALSE);
+            session.setAttribute("staffLoggedIn", Boolean.FALSE);
             session.setAttribute("authRole", "ROLE_CUSTOMER");
         } else if (u instanceof Staff s) {
+            session.setAttribute("customerLoggedIn", Boolean.FALSE);
             session.setAttribute("adminLoggedIn", s.isAdminRole());
             session.setAttribute("staffLoggedIn", !s.isAdminRole());
             session.setAttribute("authRole", s.isAdminRole() ? "ROLE_ADMIN" : "ROLE_STAFF");
-            // Master admin = ROLE_ADMIN with no Staff object (system account)
         }
     }
 

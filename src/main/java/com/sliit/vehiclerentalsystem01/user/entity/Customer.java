@@ -1,26 +1,12 @@
 package com.sliit.vehiclerentalsystem01.user.entity;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-
 // Customer who rents vehicles
 public class Customer extends User {
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
     private String password; // SHA-256 hash or BCrypt after registration
-
-    @Pattern(regexp = "([0-9]{12}|[0-9]{9}[VvXx])?", message = "NIC must be 12 digits or 9 digits followed by V or X")
     private String nic;
-
-    @Pattern(regexp = "[A-Za-z][0-9]{7}?", message = "Driver's license must be one letter followed by 7 digits")
     private String licenseNumber;
-
-    @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "[0-9]{10}", message = "Phone must be exactly 10 digits")
     private String phoneNumber;
 
     public Customer() {

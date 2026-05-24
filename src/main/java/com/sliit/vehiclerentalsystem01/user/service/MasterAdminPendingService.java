@@ -1,9 +1,9 @@
 package com.sliit.vehiclerentalsystem01.user.service;
 
 import com.sliit.vehiclerentalsystem01.core.io.FileDbHelper;
-import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.user.entity.SupportStaff;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,12 +32,14 @@ public class MasterAdminPendingService {
     private final Lock writeLock = rwLock.writeLock();
 
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${app.data.directory:data}")
     private String dataDirectory;
 
-    public MasterAdminPendingService(UserService userService) {
+    public MasterAdminPendingService(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private Path primaryPath() {
@@ -142,7 +143,7 @@ public class MasterAdminPendingService {
         String tempPassword = "temp-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
         String id = "EMP-" + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
         String email = username.toLowerCase() + "@staff.driveaway.local";
-        SupportStaff staff = new SupportStaff(id, username, email, "", username, SecurityUtils.hashPassword(tempPassword));
+        SupportStaff staff = new SupportStaff(id, username, email, "", username, passwordEncoder.encode(tempPassword));
         userService.save(staff);
         removeLine(pendingLine);
         return tempPassword;

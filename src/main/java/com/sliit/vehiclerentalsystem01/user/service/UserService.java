@@ -26,4 +26,7 @@ public interface UserService {
 
     // Check username/password and return the user if valid
     Optional<User> authenticate(String username, String password);
+
+    // Encode a new password with BCrypt
+    String encodeNewPassword(String plainPassword);
 }

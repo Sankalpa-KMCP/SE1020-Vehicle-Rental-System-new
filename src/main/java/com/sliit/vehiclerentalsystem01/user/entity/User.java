@@ -1,21 +1,10 @@
 package com.sliit.vehiclerentalsystem01.user.entity;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-
 // Base class for Customer and Staff
 public abstract class User {
 
     private String id;
-
-    @NotBlank(message = "Name is required")
-    @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
     private String name;
-
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
     private String email;
     private String profilePicture = "N/A"; // image file name or N/A
 
@@ -67,6 +56,10 @@ public abstract class User {
 
     public String getPassword() {
         return "";
+    }
+
+    public void setPassword(String password) {
+        // Base class does nothing; subclasses override
     }
 
     public String getProfilePicture() {

@@ -92,14 +92,31 @@ public class AppUserDetailsService implements UserDetailsService {
         return auths;
     }
 
-    public record AppUserDetails(
-            String userId,
-            String username,
-            String password,
-            Collection<? extends GrantedAuthority> authorities,
-            String displayName,
-            String avatarUrl
-    ) implements UserDetails {
+    public static final class AppUserDetails implements UserDetails {
+
+        private final String userId;
+        private final String username;
+        private final String password;
+        private final Collection<? extends GrantedAuthority> authorities;
+        private final String displayName;
+        private final String avatarUrl;
+
+        public AppUserDetails(String userId, String username, String password,
+                              Collection<? extends GrantedAuthority> authorities,
+                              String displayName, String avatarUrl) {
+            this.userId = userId;
+            this.username = username;
+            this.password = password;
+            this.authorities = authorities;
+            this.displayName = displayName;
+            this.avatarUrl = avatarUrl;
+        }
+
+        @Override public String getUsername() { return username; }
+
+        @Override public String getPassword() { return password; }
+
+        @Override public Collection<? extends GrantedAuthority> getAuthorities() { return authorities; }
 
         @Override public boolean isAccountNonExpired() { return true; }
 
@@ -108,5 +125,11 @@ public class AppUserDetailsService implements UserDetailsService {
         @Override public boolean isCredentialsNonExpired() { return true; }
 
         @Override public boolean isEnabled() { return true; }
+
+        public String getUserId() { return userId; }
+
+        public String getDisplayName() { return displayName; }
+
+        public String getAvatarUrl() { return avatarUrl; }
     }
 }

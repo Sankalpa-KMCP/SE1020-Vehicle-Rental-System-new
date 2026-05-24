@@ -61,4 +61,9 @@ public interface PaymentService {
      * Checks if the latest payment for a booking is a Cash payment.
      */
     boolean isCashPaymentForBooking(String bookingId);
+
+    /**
+     * Sync pending payments - creates PENDING payment records for confirmed bookings without payments.
+     */
+    void triggerSync();
 }

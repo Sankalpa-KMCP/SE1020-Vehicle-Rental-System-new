@@ -1,23 +1,13 @@
 package com.sliit.vehiclerentalsystem01.reservation.entity;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
 /**
  * Vehicle reservation transaction. {@link #getId()} aliases {@link #getTransactionId()}.
  * Bookings store {@code customerName} as the customer's login username when created via the app.
  */
 public class Booking extends Transaction {
 
-    @NotBlank(message = "Vehicle ID is required")
     private String vehicleId;
-
-    @NotNull(message = "Duration days is required")
-    @Min(value = 1, message = "Duration must be at least 1 day")
     private int durationDays;
-
-    @NotBlank(message = "Status is required")
     private String status;
     private String staffMessage;
 
