@@ -22,11 +22,7 @@
 body.customer-portal-theme {
   min-height: 100vh;
   color: var(--cp-text);
-  background:
-    radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 28%),
-    radial-gradient(circle at top right, rgba(186, 122, 47, 0.18), transparent 30%),
-    linear-gradient(180deg, #fbf8f2 0%, #f5efe5 52%, #f7f2e9 100%);
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
 }
 
 .customer-portal-theme a {
@@ -119,9 +115,9 @@ body.customer-portal-theme {
 
 .cp-btn {
   padding: 12px 18px;
-  color: #fffaf3;
-  background: linear-gradient(135deg, #0f766e 0%, #1f5a80 55%, #ba7a2f 100%);
-  box-shadow: 0 14px 28px rgba(31, 90, 128, 0.18);
+  color: #fff8ef;
+  background: linear-gradient(135deg, #19120d 0%, #6d4f30 46%, #b98a43 100%);
+  box-shadow: 0 14px 28px rgba(108, 80, 49, 0.2);
 }
 
 .cp-btn:hover {
@@ -195,6 +191,7 @@ body.customer-portal-theme {
   line-height: 1.02;
   font-weight: 800;
   color: inherit;
+  font-family: "Playfair Display", serif;
 }
 
 .cp-hero p {
@@ -459,8 +456,8 @@ body.customer-portal-theme {
 .cp-select:focus,
 .cp-textarea:focus {
   outline: none;
-  border-color: rgba(15, 118, 110, 0.5);
-  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+  border-color: rgba(185, 138, 67, 0.5);
+  box-shadow: 0 0 0 4px rgba(185, 138, 67, 0.12);
 }
 
 .cp-textarea {

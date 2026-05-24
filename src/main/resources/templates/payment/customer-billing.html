@@ -1,257 +1,126 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>DriveAway | Billing &amp; Payments</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F4F7F6; }
-        .fade-in { animation: fadeIn 0.35s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Premium Obsidian Dark theme overrides matching Central Dashboard */
-        body, .customer-shell {
-          background:
-            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
-            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
-            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
-            #050506 !important;
-          background-size: 24px 24px, auto, auto, auto;
-          color: #f4f2ee !important;
-        }
+<head th:replace="~{fragments/customer-shell :: head(pageTitle='DriveAway | Billing &amp; Payments')}"></head>
+<body class="customer-premium-theme customer-checkout-theme">
+<div th:replace="~{fragments/customer-shell :: grain}"></div>
+<nav th:replace="~{fragments/customer-shell :: topbar(activeNav='billing')}"></nav>
 
-        .bg-white, .bg-slate-\[50\], .bg-gray-100 { background: #0c0c0e !important; border-color: rgba(255,255,255,0.08) !important; color: #f4f2ee !important; }
-        .text-gray-900, .text-gray-800, .text-gray-700 { color: #f4f2ee !important; }
-        .text-gray-500, .text-gray-600, .text-slate-500 { color: #a8a6a0 !important; }
-        .bg-slate-50, .bg-gray-50 { background: #050506 !important; border-color: rgba(255,255,255,0.08) !important; color: #f4f2ee !important; }
-        .border-slate-100, .border-slate-200, .border-slate-600, .border-white\/20, .border-b, .border-gray-200, .border-gray-100 { border-color: rgba(255,255,255,0.05) !important; }
-        
-        .hover\:bg-gray-50:hover { background-color: rgba(201, 169, 98, 0.05) !important; }
-        td, th, span:not(.font-bold):not(.text-blue-600), div, label, p, h1, h2, h3, select, input, dt, dd { color: #f4f2ee !important; }
-        
-        input, select { background-color: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #f4f2ee !important; }
-        input:focus, select:focus { border-color: #c9a962 !important; box-shadow: 0 0 0 2px rgba(201,169,98,0.2) !important; }
-        
-        button[type="submit"], .btn-primary, .bg-blue-600, .bg-slate-800, .bg-slate-700, .bg-sky-600 { background: #c9a962 !important; color: #050506 !important; border: none !important; }
-        button[type="submit"]:hover, .btn-primary:hover, .hover\:bg-blue-700:hover, .hover\:bg-slate-900:hover, .hover\:bg-slate-600:hover, .hover\:bg-sky-500:hover { background: #e8d5a3 !important; }
-        
-        .text-emerald-700, .text-blue-700 { color: #f4f2ee !important; }
-        .bg-green-50, .bg-blue-50 { background-color: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
-        .bg-amber-50, .bg-yellow-50 { background-color: rgba(245,158,11,0.1) !important; border-color: rgba(245,158,11,0.2) !important; }
-        
-        /* Clear tags for dark theme */
-        .status-tag { padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-weight: 700 !important; font-size: 0.75rem !important; border: 1px solid transparent; }
-        .tag-paid { background: rgba(16,185,129,0.15) !important; border-color: rgba(16,185,129,0.3) !important; color: #34d399 !important; }
-        .tag-pending { background: rgba(245,158,11,0.15) !important; border-color: rgba(245,158,11,0.3) !important; color: #fbbf24 !important; }
-        .tag-verifying { background: rgba(59,130,246,0.15) !important; border-color: rgba(59,130,246,0.3) !important; color: #60a5fa !important; }
-        .tag-refunded { background: rgba(239,68,68,0.15) !important; border-color: rgba(239,68,68,0.3) !important; color: #f87171 !important; }
-        
-        #bookingId option { background-color: #0c0c0e !important; color: #f4f2ee !important; }
-    </style>
-</head>
-<body class="min-h-screen text-gray-800 customer-shell">
+<main class="cp-shell">
+    <section class="cp-page-head reveal">
+        <span class="cp-section-label"><i class="ph-bold ph-wallet"></i> Billing</span>
+        <h1>Billing &amp; payments</h1>
+        <p>Track invoices linked to your bookings, review payment status, and settle pending balances.</p>
+    </section>
 
-<nav class="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
-    <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
-        <a th:href="@{/customer/home}" class="flex items-center gap-2 text-gray-900">
-            <i class="ph-bold ph-car-profile text-3xl text-blue-600"></i>
-            <span class="text-2xl font-extrabold tracking-tight">DriveAway</span>
-        </a>
-
-        <div class="flex items-center gap-6">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-50 text-blue-600 p-2 rounded-full border border-blue-100">
-                    <i class="ph-bold ph-receipt text-xl"></i>
-                </div>
-                <div class="hidden sm:block">
-                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">Billing Account</p>
-                    <p class="font-bold text-gray-900 leading-tight" th:text="${displayName}">Customer</p>
-                </div>
-            </div>
-            <div class="w-px h-8 bg-gray-200 hidden sm:block"></div>
-            <form th:action="@{/auth}" method="post" class="m-0">
-                <input type="hidden" name="action" value="logout"/>
-                <button type="submit" class="text-gray-600 hover:text-red-700 font-bold border border-gray-200 bg-white hover:bg-red-50 hover:border-red-200 px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-sm">
-                    Logout <i class="ph-bold ph-sign-out text-lg"></i>
-                </button>
-            </form>
+    <div class="cp-kpi-row reveal" style="margin-bottom: 1.5rem;">
+        <div class="cp-kpi">
+            <p class="cp-kpi__label">Bookings</p>
+            <p class="cp-kpi__value" th:text="${#lists.size(myBookings)}">0</p>
         </div>
-    </div>
-</nav>
-
-<main class="max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
-    <div class="bg-gradient-to-br from-[#0D6EFD] to-[#0a58ca] rounded-3xl p-10 sm:p-12 text-white shadow-lg mb-10 relative overflow-hidden">
-        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div>
-                <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Billing &amp; Payments</h1>
-                <p class="text-blue-100 text-lg font-medium max-w-2xl leading-relaxed">Track the invoices linked to your bookings, review payment status, and keep an eye on any pending balances from your DriveAway reservations.</p>
-            </div>
-
-            <div class="flex gap-3 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
-                <div class="text-center px-4 border-r border-white/20">
-                    <p class="text-blue-100 text-xs font-bold uppercase tracking-wider mb-1">Bookings</p>
-                    <p class="text-white font-extrabold" th:text="${#lists.size(myBookings)}">0</p>
-                </div>
-                <div class="text-center px-4">
-                    <p class="text-blue-100 text-xs font-bold uppercase tracking-wider mb-1">Invoices</p>
-                    <p class="text-white font-extrabold" th:text="${#lists.size(myPayments)}">0</p>
-                </div>
-            </div>
+        <div class="cp-kpi">
+            <p class="cp-kpi__label">Invoices</p>
+            <p class="cp-kpi__value" th:text="${#lists.size(myPayments)}">0</p>
         </div>
-        <i class="ph-fill ph-receipt absolute -right-10 -bottom-20 text-[300px] text-white opacity-10 transform -rotate-12 pointer-events-none"></i>
-        <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
-    </div>
-
-    <div th:if="${paymentMessage}" class="bg-yellow-50 border border-yellow-200 text-yellow-800 font-semibold px-5 py-4 rounded-xl mb-6 text-center" th:text="${paymentMessage}"></div>
-    <div th:if="${paymentStatus == 'success'}" class="bg-green-50 border border-green-200 text-green-800 font-semibold px-5 py-4 rounded-xl mb-6">
-        Payment completed successfully through the payment gateway.
-    </div>
-    <div th:if="${paymentStatus == 'booking_not_found'}" class="bg-red-50 border border-red-200 text-red-800 font-semibold px-5 py-4 rounded-xl mb-6">
-        Booking ID was not found for your account.
-    </div>
-    <div th:if="${paymentStatus == 'booking_not_confirmed'}" class="bg-amber-50 border border-amber-200 text-amber-900 font-semibold px-5 py-4 rounded-xl mb-6">
-        Payment is only available for confirmed bookings.
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
-        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Total Invoices</p>
-            <p class="text-3xl font-extrabold text-gray-900" th:text="${#lists.size(myPayments)}">0</p>
-            <p class="text-sm text-gray-500 mt-2">All billing records linked to your bookings.</p>
+        <div class="cp-kpi">
+            <p class="cp-kpi__label">Paid total</p>
+            <p class="cp-kpi__value">LKR <span th:text="${#numbers.formatDecimal(paidTotal, 1, 2)}">0</span></p>
         </div>
-        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Paid Total</p>
-            <p class="text-3xl font-extrabold text-green-600">LKR <span th:text="${#numbers.formatDecimal(paidTotal, 1, 2)}">0.00</span></p>
-            <p class="text-sm text-gray-500 mt-2">Completed transactions.</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Pending Total</p>
-            <p class="text-3xl font-extrabold text-yellow-600">LKR <span th:text="${#numbers.formatDecimal(pendingTotal, 1, 2)}">0.00</span></p>
-            <p class="text-sm text-gray-500 mt-2">Waiting to be settled.</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Total Billed</p>
-            <p class="text-3xl font-extrabold text-gray-900">LKR <span th:text="${#numbers.formatDecimal(totalBilled, 1, 2)}">0.00</span></p>
-            <p class="text-sm text-gray-500 mt-2">All invoices linked to your account. Refunds total LKR <span th:text="${#numbers.formatDecimal(refundedTotal, 1, 2)}">0.00</span>.</p>
+        <div class="cp-kpi">
+            <p class="cp-kpi__label">Pending total</p>
+            <p class="cp-kpi__value">LKR <span th:text="${#numbers.formatDecimal(pendingTotal, 1, 2)}">0</span></p>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-10">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <div>
-                <h2 class="text-2xl font-bold text-gray-900">Pay for your booking</h2>
-                <p class="text-gray-500 mt-1">Select your booking to create a new payment request.</p>
-            </div>
-        </div>
+    <div th:if="${paymentStatus == 'success'}" class="cp-alert cp-alert--success reveal">
+        <i class="ph-fill ph-check-circle"></i>
+        <span>Payment completed successfully through the payment gateway.</span>
+    </div>
+    <div th:if="${paymentStatus == 'booking_not_found'}" class="cp-alert cp-alert--error reveal">
+        <i class="ph-fill ph-warning-circle"></i>
+        <span>Booking ID was not found for your account.</span>
+    </div>
+    <div th:if="${paymentStatus == 'booking_not_confirmed'}" class="cp-alert cp-alert--warning reveal">
+        <i class="ph-fill ph-warning"></i>
+        <span>Payment is only available for confirmed bookings.</span>
+    </div>
 
-        <form th:action="@{/payments/customer/validate-gateway}" method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="md:col-span-2">
-                <label for="bookingId" class="block text-sm font-bold text-gray-700 mb-2">Booking</label>
-                <select id="bookingId" name="bookingId" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+    <section class="cp-card reveal" style="margin-bottom: 1.5rem;">
+        <h2 class="cp-card__title">Pay for your booking</h2>
+        <p class="cp-card__text">Select a booking to open the secure payment gateway.</p>
+        <form th:action="@{/payments/customer/validate-gateway}" method="get" class="cp-form-grid" style="margin-top: 1rem;">
+            <div class="cp-field cp-field--full">
+                <label for="bookingId">Booking</label>
+                <select id="bookingId" name="bookingId" class="cp-select" required>
                     <option value="" disabled selected>Select a booking</option>
                     <option th:each="b : ${myBookings}" th:value="${b.id}" th:text="'Booking #' + ${b.id} + ' - ' + ${b.vehicleId}"></option>
                 </select>
             </div>
-
-            <div class="flex items-end">
-                <button
-                        type="submit"
-                        class="w-full bg-[#0D6EFD] text-white font-bold px-5 py-3 rounded-xl hover:bg-blue-700 transition shadow-sm"
-                >
-                    Pay for your booking
-                </button>
+            <div class="cp-field cp-field--full">
+                <button type="submit" class="cp-btn"><i class="ph-bold ph-credit-card"></i> Pay for booking</button>
             </div>
         </form>
-    </div>
+    </section>
 
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+    <section class="cp-page-head reveal" style="margin-bottom: 1rem;">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900">Your Invoice Ledger</h2>
-            <p class="text-gray-500 mt-1">Invoices are matched using the bookings on your account.</p>
+            <h2 style="margin:0; font-size:1.5rem;">Your invoice ledger</h2>
+            <p style="margin:0.35rem 0 0;">Invoices matched to bookings on your account.</p>
         </div>
-        <div class="flex gap-3 items-center">
-            <div class="relative w-full sm:w-64">
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i class="ph-bold ph-magnifying-glass text-gray-400 text-lg"></i>
-                </div>
-                <input type="text" id="customerSearchInput" placeholder="Search invoices..." class="w-full bg-slate-50 border border-slate-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block pl-10 p-2.5 shadow-sm">
-            </div>
-            <a th:href="@{/customer/bookings}" class="bg-white border border-gray-200 text-gray-700 font-bold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition shadow-sm whitespace-nowrap">My Bookings</a>
-            <a th:href="@{/customer/fleet}" class="bg-[#0D6EFD] text-white font-bold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-sm whitespace-nowrap">Browse Fleet</a>
+        <div class="cp-search" style="min-width: 14rem;">
+            <i class="ph-bold ph-magnifying-glass"></i>
+            <input type="text" id="customerSearchInput" placeholder="Search invoices..." class="cp-input"/>
         </div>
-    </div>
+    </section>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <table class="w-full text-left border-collapse" id="customerPaymentsTable">
+    <div class="cp-table-wrap reveal">
+        <table class="cp-table" id="customerPaymentsTable">
             <thead>
-            <tr class="border-b border-gray-100 bg-gray-50">
-                <th class="py-5 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Invoice ID</th>
-                <th class="py-5 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Booking Ref</th>
-                <th class="py-5 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Amount</th>
-                <th class="py-5 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Method</th>
-                <th class="py-5 px-8 text-xs font-extrabold text-gray-500 uppercase tracking-widest">Status</th>
+            <tr>
+                <th>Invoice ID</th>
+                <th>Booking ref</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Status</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="p : ${myPayments}" class="hover:bg-blue-50/30 transition-colors border-b border-gray-50 last:border-none">
-                <td class="py-5 px-8 whitespace-nowrap font-bold text-gray-900" th:text="'#' + ${p.paymentId}">#</td>
-                <td class="py-5 px-8 whitespace-nowrap text-gray-600 font-medium" th:text="${p.bookingId}">b</td>
-                <td class="py-5 px-8 whitespace-nowrap font-bold text-green-600">LKR <span th:text="${#numbers.formatDecimal(p.amount, 1, 2)}">0.00</span></td>
-                <td class="py-5 px-8 whitespace-nowrap text-gray-700" th:text="${p.paymentMethod}">m</td>
-                <td class="py-5 px-8 whitespace-nowrap font-bold">
-                    <span th:if="${#strings.equalsIgnoreCase(p.status,'PAID')}" class="status-tag tag-paid">PAID</span>
-                    <span th:if="${#strings.equalsIgnoreCase(p.status,'PENDING')}" class="status-tag tag-pending">PENDING</span>
-                    <span th:if="${#strings.equalsIgnoreCase(p.status,'VERIFYING')}" class="status-tag tag-verifying">VERIFYING</span>
-                    <span th:if="${#strings.equalsIgnoreCase(p.status,'REFUNDED')}" class="status-tag tag-refunded">REFUNDED</span>
-                    <span th:if="${!#strings.equalsIgnoreCase(p.status,'PAID') and !#strings.equalsIgnoreCase(p.status,'PENDING') and !#strings.equalsIgnoreCase(p.status,'VERIFYING') and !#strings.equalsIgnoreCase(p.status,'REFUNDED')}" class="status-tag tag-pending" th:text="${p.status}">S</span>
-                </td>
-            </tr>
-            <tr th:if="${myPayments == null or myPayments.isEmpty()}">
-                <td colspan="5" class="py-20 text-center">
-                    <div class="flex flex-col items-center justify-center">
-                        <i class="ph-fill ph-receipt-x text-6xl text-gray-300 mb-4"></i>
-                        <p class="text-2xl font-bold text-gray-900 mb-2 tracking-tight">No Invoices Yet</p>
-                        <p class="text-sm text-gray-500 font-medium max-w-md">Your payment records will appear here once an admin creates a transaction for one of your bookings.</p>
-                        <div class="mt-6 flex gap-3">
-                            <a th:href="@{/customer/bookings}" class="bg-[#0D6EFD] text-white font-bold px-5 py-3 rounded-xl hover:bg-blue-700 transition">Check My Bookings</a>
-                            <a th:href="@{/customer/home}" class="bg-gray-100 text-gray-700 font-bold px-5 py-3 rounded-xl hover:bg-gray-200 transition">Back to Portal</a>
-                        </div>
-                    </div>
+            <tr th:each="p : ${myPayments}">
+                <td th:text="'#' + ${p.paymentId}">#</td>
+                <td th:text="${p.bookingId}">b</td>
+                <td>LKR <span th:text="${#numbers.formatDecimal(p.amount, 1, 2)}">0</span></td>
+                <td th:text="${p.paymentMethod}">m</td>
+                <td>
+                    <span th:if="${#strings.equalsIgnoreCase(p.status,'PAID')}" class="cp-badge cp-badge--ok">Paid</span>
+                    <span th:if="${#strings.equalsIgnoreCase(p.status,'PENDING')}" class="cp-badge cp-badge--warn">Pending</span>
+                    <span th:if="${#strings.equalsIgnoreCase(p.status,'VERIFYING')}" class="cp-badge">Verifying</span>
+                    <span th:if="${#strings.equalsIgnoreCase(p.status,'REFUNDED')}" class="cp-badge cp-badge--danger">Refunded</span>
+                    <span th:if="${!#strings.equalsIgnoreCase(p.status,'PAID') and !#strings.equalsIgnoreCase(p.status,'PENDING') and !#strings.equalsIgnoreCase(p.status,'VERIFYING') and !#strings.equalsIgnoreCase(p.status,'REFUNDED')}" class="cp-badge" th:text="${p.status}">S</span>
                 </td>
             </tr>
             </tbody>
         </table>
+        <div th:if="${myPayments == null or myPayments.isEmpty()}" class="cp-empty">
+            <i class="ph-fill ph-receipt-x" style="font-size:3rem; color: var(--gold);"></i>
+            <h3 style="margin: 14px 0 6px;">No invoices yet</h3>
+            <p style="margin: 0 0 18px;">Payment records appear here once a transaction is created for your bookings.</p>
+            <a th:href="@{/customer/bookings}" class="cp-btn">Check my bookings</a>
+        </div>
     </div>
 </main>
-
+<script th:src="@{/js/customer-portal.js}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('customerSearchInput');
-        if (searchInput) {
-            searchInput.addEventListener('keyup', function() {
-                const filter = this.value.toUpperCase();
-                const table = document.getElementById('customerPaymentsTable');
-                const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-                
-                for (let i = 0; i < rows.length; i++) {
-                    const row = rows[i];
-                    if (row.children.length < 5) continue; // Skip empty message
-                    
-                    const text = row.textContent || row.innerText;
-                    if (text.toUpperCase().indexOf(filter) > -1) {
-                        row.style.display = "";
-                    } else {
-                        row.style.display = "none";
-                    }
-                }
-            });
-        }
+document.addEventListener('DOMContentLoaded', function () {
+    var searchInput = document.getElementById('customerSearchInput');
+    if (!searchInput) return;
+    searchInput.addEventListener('keyup', function () {
+        var filter = this.value.toUpperCase();
+        var rows = document.querySelectorAll('#customerPaymentsTable tbody tr');
+        rows.forEach(function (row) {
+            var text = row.textContent || row.innerText;
+            row.style.display = text.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
+        });
     });
+});
 </script>
 </body>
 </html>

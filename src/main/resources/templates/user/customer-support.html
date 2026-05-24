@@ -1,169 +1,75 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>DriveAway | Help &amp; Support</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background:
-                radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
-                radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.05), transparent 50%),
-                radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
-                #050506;
-            background-size: 24px 24px, auto, auto, auto;
-            color: #f4f2ee;
-        }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+<head th:replace="~{fragments/customer-shell :: head(pageTitle='DriveAway | Help &amp; Support')}"></head>
+<body class="customer-premium-theme customer-portal-theme">
+<div th:replace="~{fragments/customer-shell :: grain}"></div>
+<nav th:replace="~{fragments/customer-shell :: topbar(activeNav='support')}"></nav>
 
-        /* Clean styling for the native HTML accordion */
-        details > summary { list-style: none; }
-        details > summary::-webkit-details-marker { display: none; }
-    </style>
-</head>
-<body class="min-h-screen text-[#f4f2ee] flex flex-col">
-
-<nav class="bg-[#0c0c0e]/80 glass-effect border-b border-white/5 sticky top-0 z-20 shadow-lg">
-    <div class="max-w-screen-xl mx-auto px-8 h-20 flex items-center justify-between">
-        <div class="flex items-center gap-2 text-[#f4f2ee]">
-            <i class="ph-bold ph-car-profile text-3xl text-[#c9a962]"></i>
-            <span class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-[#f4f2ee] to-[#a8a6a0] bg-clip-text text-transparent">DriveAway</span>
-        </div>
-        <a th:href="@{/customer/home}" class="text-[#f4f2ee] hover:text-[#c9a962] font-bold border border-white/10 bg-white/5 hover:bg-white/10 hover:border-[#c9a962]/40 px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-sm">
-            <i class="ph-bold ph-arrow-left text-lg"></i> Back to Portal
-        </a>
-    </div>
-</nav>
-
-<main class="flex-grow max-w-screen-xl mx-auto w-full px-8 py-10 fade-in">
-
-    <div class="bg-gradient-to-br from-[#180f10] to-[#140b0c] border border-red-500/10 rounded-3xl p-10 sm:p-12 text-[#f4f2ee] shadow-lg mb-10 relative overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_0%_0%,rgba(244,63,94,0.06),transparent_60%)]"></div>
-        <div class="relative z-10">
-            <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight text-white">How can we help you?</h1>
-            <p class="text-rose-100/70 text-lg font-medium max-w-2xl leading-relaxed">Whether you have a question about your current reservation, need help with billing, or want to report an issue, our 24/7 support team is here for you.</p>
-        </div>
-        <i class="ph-fill ph-headset absolute -right-10 -bottom-10 text-[250px] text-white opacity-[0.02] transform -rotate-12 pointer-events-none"></i>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-
-        <div class="lg:col-span-7 space-y-6">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 rounded-xl bg-[#141418] text-[#c9a962] border border-white/5 flex items-center justify-center text-2xl">
-                    <i class="ph-bold ph-question"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-white">Frequently Asked Questions</h2>
+<main class="cp-shell">
+    <section class="cp-hero reveal" style="margin-bottom: 1.5rem;">
+        <div class="cp-hero__content">
+            <div>
+                <span class="cp-eyebrow"><i class="ph-bold ph-headset"></i> Support</span>
+                <h1>How can we help you?</h1>
+                <p>Questions about reservations, billing, or vehicle issues — our support team is here for you.</p>
             </div>
-
-            <details class="group bg-[#0c0c0e] rounded-2xl border border-white/10 shadow-sm overflow-hidden open:ring-2 open:ring-[#c9a962]/20 transition-all">
-                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-[#f4f2ee] hover:text-[#c9a962] transition-colors">
-                    <span>What happens if I return the vehicle late?</span>
-                    <span class="transition group-open:rotate-180">
-                        <i class="ph-bold ph-caret-down text-white/40 group-hover:text-[#c9a962]"></i>
-                    </span>
-                </summary>
-                <div class="text-[#a8a6a0] font-medium px-6 pb-6 leading-relaxed">
-                    A grace period of 2 hours is provided for all returns. After that, you will be charged for an additional full day of rental. If you know you will be late, please contact support immediately to extend your booking.
-                </div>
-            </details>
-
-            <details class="group bg-[#0c0c0e] rounded-2xl border border-white/10 shadow-sm overflow-hidden open:ring-2 open:ring-[#c9a962]/20 transition-all">
-                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-[#f4f2ee] hover:text-[#c9a962] transition-colors">
-                    <span>What do I do in case of an accident or breakdown?</span>
-                    <span class="transition group-open:rotate-180">
-                        <i class="ph-bold ph-caret-down text-white/40 group-hover:text-[#c9a962]"></i>
-                    </span>
-                </summary>
-                <div class="text-[#a8a6a0] font-medium px-6 pb-6 leading-relaxed">
-                    First, ensure you are in a safe location. Then, immediately call our emergency roadside assistance number listed below. Do not attempt to repair the vehicle yourself. If another vehicle is involved, please obtain a police report.
-                </div>
-            </details>
-
-            <details class="group bg-[#0c0c0e] rounded-2xl border border-white/10 shadow-sm overflow-hidden open:ring-2 open:ring-[#c9a962]/20 transition-all">
-                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-[#f4f2ee] hover:text-[#c9a962] transition-colors">
-                    <span>How do I cancel or modify my reservation?</span>
-                    <span class="transition group-open:rotate-180">
-                        <i class="ph-bold ph-caret-down text-white/40 group-hover:text-[#c9a962]"></i>
-                    </span>
-                </summary>
-                <div class="text-[#a8a6a0] font-medium px-6 pb-6 leading-relaxed">
-                    You can modify or cancel your booking directly from the "My Bookings" module on your dashboard. Cancellations made 24 hours before the pickup time are fully refunded.
-                </div>
-            </details>
         </div>
+    </section>
 
-        <div class="lg:col-span-5 space-y-8">
+    <div class="cp-two-col reveal">
+        <section class="cp-faq">
+            <h2 class="cp-card__title">Frequently asked questions</h2>
+            <details>
+                <summary>What happens if I return the vehicle late?</summary>
+                <p>A grace period of 2 hours is provided. After that, an additional full day is charged. Contact support early if you expect a delay.</p>
+            </details>
+            <details>
+                <summary>What do I do in case of an accident or breakdown?</summary>
+                <p>Move to a safe location, then call emergency roadside assistance. Do not attempt repairs yourself. Obtain a police report if another vehicle is involved.</p>
+            </details>
+            <details>
+                <summary>How do I cancel or modify my reservation?</summary>
+                <p>Use My Bookings to edit or request cancellation. Cancellations 24 hours before pickup are fully refunded after staff approval.</p>
+            </details>
+        </section>
 
-            <div class="bg-[#0c0c0e] rounded-2xl p-8 border border-white/10 shadow-sm">
-                <h3 class="text-xl font-extrabold text-white mb-6 flex items-center gap-2">
-                    <i class="ph-fill ph-paper-plane-tilt text-rose-500"></i> Send a Message
-                </h3>
-
-                <div th:if="${param.status != null and param.status[0] == 'sent'}" class="mb-6 bg-green-500/10 text-green-400 p-4 rounded-xl border border-green-500/20 font-bold flex items-center gap-2">
-                    <i class="ph-bold ph-check-circle text-xl"></i> Message sent successfully!
+        <section>
+            <div class="cp-card" style="margin-bottom: 1rem;">
+                <h2 class="cp-card__title"><i class="ph-bold ph-paper-plane-tilt"></i> Send a message</h2>
+                <div th:if="${param.status != null and param.status[0] == 'sent'}" class="cp-alert cp-alert--success">
+                    <i class="ph-fill ph-check-circle"></i>
+                    <span>Message sent successfully.</span>
                 </div>
-
-                <form th:action="@{/customer/support/ticket}" method="POST" class="space-y-5">
+                <form th:action="@{/customer/support/ticket}" method="post" class="cp-form-grid">
                     <input type="hidden" name="action" value="submit_ticket"/>
                     <input type="hidden" name="username" th:value="${supportUsername}"/>
-
-                    <div>
-                        <label class="block text-sm font-bold text-[#a8a6a0] mb-2">Subject</label>
-                        <select name="subject" class="w-full bg-[#141418] border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all font-medium text-[#f4f2ee]" required>
-                            <option value="" disabled selected class="bg-[#0c0c0e]">Select an issue type...</option>
-                            <option value="Vehicle Issue" class="bg-[#0c0c0e]">Report a Vehicle Issue</option>
-                            <option value="Billing Question" class="bg-[#0c0c0e]">Billing &amp; Payments</option>
-                            <option value="Reservation Change" class="bg-[#0c0c0e]">Modify Reservation</option>
-                            <option value="Other" class="bg-[#0c0c0e]">Other / General Inquiry</option>
+                    <div class="cp-field cp-field--full">
+                        <label for="subject">Subject</label>
+                        <select id="subject" name="subject" class="cp-select" required>
+                            <option value="" disabled selected>Select an issue type...</option>
+                            <option value="Vehicle Issue">Report a vehicle issue</option>
+                            <option value="Billing Question">Billing &amp; payments</option>
+                            <option value="Reservation Change">Modify reservation</option>
+                            <option value="Other">Other / general inquiry</option>
                         </select>
                     </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-[#a8a6a0] mb-2">Message</label>
-                        <textarea name="message" rows="4" placeholder="Please describe your issue in detail..." class="w-full bg-[#141418] border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all font-medium text-[#f4f2ee] resize-none" required></textarea>
+                    <div class="cp-field cp-field--full">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="4" required placeholder="Describe your issue in detail..." class="cp-textarea"></textarea>
                     </div>
-
-                    <button type="submit" class="w-full bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-rose-500/20 hover:shadow-rose-500/40 flex items-center justify-center gap-2">
-                        Submit Ticket <i class="ph-bold ph-arrow-right"></i>
-                    </button>
+                    <div class="cp-field cp-field--full">
+                        <button type="submit" class="cp-btn" style="width:100%;justify-content:center;">Submit ticket</button>
+                    </div>
                 </form>
             </div>
-
-            <div class="bg-[#0c0c0e] rounded-2xl p-8 text-white shadow-lg border border-white/10">
-                <h3 class="text-lg font-bold mb-6 text-slate-100">Direct Contact</h3>
-                <div class="space-y-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-lg bg-[#141418] flex items-center justify-center text-rose-400 border border-white/5">
-                            <i class="ph-fill ph-phone text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-[#a8a6a0] font-bold uppercase tracking-wider">Emergency Roadside</p>
-                            <p class="font-semibold text-white">+94 77 123 4567</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-lg bg-[#141418] flex items-center justify-center text-rose-400 border border-white/5">
-                            <i class="ph-fill ph-envelope text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs text-[#a8a6a0] font-bold uppercase tracking-wider">Email Support</p>
-                            <p class="font-semibold text-white">support@driveaway.lk</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="cp-card">
+                <h3 class="cp-card__title">Direct contact</h3>
+                <p class="cp-card__text"><i class="ph-fill ph-phone"></i> Emergency roadside: <strong>+94 77 123 4567</strong></p>
+                <p class="cp-card__text" style="margin-top:0.75rem;"><i class="ph-fill ph-envelope"></i> Email: <strong>support@driveaway.lk</strong></p>
             </div>
-
-        </div>
+        </section>
     </div>
 </main>
-
+<script th:src="@{/js/customer-portal.js}"></script>
 </body>
 </html>

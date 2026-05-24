@@ -24,10 +24,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Objects;
@@ -72,6 +76,39 @@ public class CustomerPortalController {
         return u == null ? "" : u.toString().trim();
     }
 
+    private static LocalDate parseRentalDate(String rentalDate) {
+        if (rentalDate == null || rentalDate.isBlank()) {
+            return LocalDate.MIN;
+        }
+        try {
+            return LocalDate.parse(rentalDate.trim());
+        } catch (Exception ignored) {
+            return LocalDate.MIN;
+        }
+    }
+
+    private static int bookingPriority(Booking booking, Map<String, Boolean> payAllowed) {
+        String status = booking.getStatus() == null ? "" : booking.getStatus().trim().toUpperCase();
+        if ("CONFIRMED".equals(status) && Boolean.TRUE.equals(payAllowed.get(booking.getId()))) {
+            return 0;
+        }
+        if ("PENDING".equals(status) || "UPDATE_REQUESTED".equals(status) || "CANCELLATION_REQUESTED".equals(status)) {
+            return 1;
+        }
+        return 2;
+    }
+
+    private void enrichCustomerNav(HttpSession session, Model model, String activeNav) {
+        model.addAttribute("activeNav", activeNav);
+        if (!model.containsAttribute("displayName")) {
+            Object name = session != null ? session.getAttribute(UserSessionKeys.NAME) : null;
+            String displayName = name != null && !name.toString().isBlank()
+                    ? name.toString().trim()
+                    : "@" + username(session);
+            model.addAttribute("displayName", displayName);
+        }
+    }
+
     // Customer dashboard
 
     @GetMapping("/home")
@@ -96,10 +133,23 @@ public class CustomerPortalController {
                 .filter(v -> v.getStatus() == null || "AVAILABLE".equalsIgnoreCase(v.getStatus()))
                 .limit(3)
                 .toList();
-        Vehicle featuredVehicle = fleet.stream()
-                .filter(v -> v.getStatus() == null || "AVAILABLE".equalsIgnoreCase(v.getStatus()))
-                .findFirst()
-                .orElseGet(() -> fleet.isEmpty() ? null : fleet.get(0));
+        List<Booking> customerBookings = reservationService.findBookingsLinkedToCustomer(customer);
+        Map<String, Boolean> payAllowed = new HashMap<>();
+        for (Booking booking : customerBookings) {
+            payAllowed.put(booking.getId(), reservationService.isPaymentAllowed(booking.getId()));
+        }
+        Map<String, String> vehicleNames = fleet.stream()
+                .collect(Collectors.toMap(Vehicle::getId, v -> v.getBrand() + " " + v.getModel(), (a, b) -> a));
+        List<Booking> recentBookings = customerBookings.stream()
+                .sorted(Comparator
+                        .comparingInt((Booking b) -> bookingPriority(b, payAllowed))
+                        .thenComparing((Booking b) -> parseRentalDate(b.getRentalDate()), Comparator.reverseOrder())
+                        .thenComparing(Booking::getId, Comparator.reverseOrder()))
+                .limit(3)
+                .toList();
+        long paymentReadyCount = customerBookings.stream()
+                .filter(b -> Boolean.TRUE.equals(payAllowed.get(b.getId())))
+                .count();
         String firstName = displayName;
         String fullName = customer.getName();
         if (fullName != null && !fullName.isBlank()) {
@@ -107,25 +157,25 @@ public class CustomerPortalController {
             int space = trimmed.indexOf(' ');
             firstName = space > 0 ? trimmed.substring(0, space) : trimmed;
         }
-        model.addAttribute("customer", customer);
         model.addAttribute("displayName", displayName);
         model.addAttribute("firstName", firstName);
         model.addAttribute("verified", customer.isVerified());
-        model.addAttribute("bookingCount", reservationService.findBookingsLinkedToCustomer(customer).size());
+        model.addAttribute("bookingCount", customerBookings.size());
         model.addAttribute("fleetCount", fleet.size());
         model.addAttribute("availableFleetCount", fleet.stream()
                 .filter(v -> v.getStatus() == null || "AVAILABLE".equalsIgnoreCase(v.getStatus()))
                 .count());
-        model.addAttribute("featuredVehicle", featuredVehicle);
         model.addAttribute("featuredVehicles", featuredVehicles);
+        model.addAttribute("recentBookings", recentBookings);
+        model.addAttribute("vehicleNames", vehicleNames);
+        model.addAttribute("payAllowed", payAllowed);
+        model.addAttribute("paymentReadyCount", paymentReadyCount);
         List<String> notices = new ArrayList<>();
-        for (Booking booking : reservationService.findAll()) {
-            String owner = booking.getCustomerName();
-            boolean isOwner = owner != null && un.equalsIgnoreCase(owner.trim());
+        for (Booking booking : customerBookings) {
             boolean hasNotice = booking.getStaffMessage() != null && !booking.getStaffMessage().trim().isEmpty();
             boolean decision = "CONFIRMED".equalsIgnoreCase(booking.getStatus())
                     || "REJECTED".equalsIgnoreCase(booking.getStatus());
-            if (isOwner && hasNotice && decision) {
+            if (hasNotice && decision) {
                 notices.add("Booking " + booking.getId() + " - " + booking.getStatus() + ": " + booking.getStaffMessage());
             }
         }
@@ -133,6 +183,7 @@ public class CustomerPortalController {
         List<String> noticeSlice = new ArrayList<>(notices.subList(from, notices.size()));
         Collections.reverse(noticeSlice);
         model.addAttribute("bookingNotices", noticeSlice);
+        enrichCustomerNav(session, model, "home");
         return "user/customer-dashboard";
     }
 
@@ -145,6 +196,7 @@ public class CustomerPortalController {
         }
         List<Vehicle> all = vehicleService.findAll();
         model.addAttribute("vehicles", all);
+        enrichCustomerNav(session, model, "fleet");
         return "vehicle/vehicle-browse";
     }
 
@@ -167,6 +219,7 @@ public class CustomerPortalController {
         model.addAttribute("bookingList", list);
         model.addAttribute("payAllowed", payAllowed);
         model.addAttribute("vehicleNames", vehicleNames);
+        enrichCustomerNav(session, model, "bookings");
         return "booking/my-bookings";
     }
 
@@ -181,6 +234,7 @@ public class CustomerPortalController {
         model.addAttribute("preselectedVehicleId", vehicleId == null ? "" : vehicleId);
         model.addAttribute("vehicleUnavailable", "vehicle_unavailable".equals(error));
         model.addAttribute("verificationRequired", "verification_required".equals(error));
+        enrichCustomerNav(session, model, "bookings");
         return "booking/booking-form";
     }
 
@@ -225,6 +279,7 @@ public class CustomerPortalController {
             return "redirect:/customer/home";
         }
         model.addAttribute("bookingToCancel", b);
+        enrichCustomerNav(session, model, "bookings");
         return "booking/cancel-booking";
     }
 
@@ -294,6 +349,7 @@ public class CustomerPortalController {
         model.addAttribute("refundedTotal", refundedTotal);
         model.addAttribute("totalBilled", totalBilled);
         model.addAttribute("paymentStatus", payment);
+        enrichCustomerNav(session, model, "billing");
         return "payment/customer-billing";
     }
 
@@ -326,6 +382,7 @@ public class CustomerPortalController {
         model.addAttribute("payment", payment);
         model.addAttribute("vehicle", vehicleService.findById(booking.getVehicleId()).orElse(null));
         model.addAttribute("gatewayError", error);
+        enrichCustomerNav(session, model, "billing");
         return "payment/fake-payment-gateway";
     }
 
@@ -400,6 +457,7 @@ public class CustomerPortalController {
         }
         model.addAttribute("booking", booking);
         model.addAttribute("payment", pay.get());
+        enrichCustomerNav(session, model, "billing");
         return "payment/customer-payment";
     }
 
@@ -437,6 +495,7 @@ public class CustomerPortalController {
             return "redirect:/auth/login";
         }
         model.addAttribute("supportUsername", username(session));
+        enrichCustomerNav(session, model, "support");
         return "user/customer-support";
     }
 
@@ -501,6 +560,7 @@ public class CustomerPortalController {
         }
         model.addAttribute("myReviews", myReviews);
         model.addAttribute("avgRating", avgRating);
+        enrichCustomerNav(session, model, "reviews");
         return "review/customer-reviews-list";
     }
 
@@ -524,6 +584,7 @@ public class CustomerPortalController {
         List<Booking> customerBookings = reservationService.findByCustomerId(customerKey);
         model.addAttribute("reviewerName", reviewerName);
         model.addAttribute("customerBookings", customerBookings);
+        enrichCustomerNav(session, model, "reviews");
         return "review/customer-review-form";
     }
 
@@ -588,6 +649,7 @@ public class CustomerPortalController {
         return ownReview(session, id)
                 .map(cr -> {
                     model.addAttribute("customerReview", cr);
+                    enrichCustomerNav(session, model, "reviews");
                     return "review/edit-review";
                 })
                 .orElse("redirect:/customer/reviews");
@@ -658,6 +720,7 @@ public class CustomerPortalController {
             return "redirect:/customer/home";
         }
         model.addAttribute("booking", b);
+        enrichCustomerNav(session, model, "bookings");
         return "booking/edit-booking";
     }
 

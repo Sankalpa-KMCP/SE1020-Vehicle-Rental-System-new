@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:fragment="head(pageTitle)">
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title th:text="${pageTitle != null ? pageTitle : 'DriveAway | Customer Portal'}">DriveAway</title>
+        <script src="https://unpkg.com/@phosphor-icons/web"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com"/>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+        <link rel="stylesheet" th:href="@{/css/customer-premium.css}"/>
+        <link rel="stylesheet" th:href="@{/css/customer-portal.css}"/>
+    </th:block>
+</head>
+<body>
+
+<div th:fragment="grain" class="grain" aria-hidden="true"></div>
+
+<nav th:fragment="topbar(activeNav)" class="topbar cp-topbar" id="topbar">
+    <div class="topbar__inner cp-topbar__inner">
+        <a th:href="@{/customer/home}" class="brand cp-brand">
+            <span class="brand__mark cp-brand__mark"><i class="ph-fill ph-car-profile text-xl"></i></span>
+            <span class="brand__name cp-brand__text">Drive<span>Away</span></span>
+        </a>
+        <div class="top-actions cp-nav-actions">
+            <a th:href="@{/customers(action=editSelf)}" class="chip nav-link"
+               th:classappend="${activeNav == 'profile'} ? ' is-active' : ''"
+               th:attr="aria-label=${'Profile: ' + (displayName != null ? displayName : 'Customer')}">
+                <img th:if="${session.avatarUrl != null}" th:src="${session.avatarUrl}" class="chip__avatar" alt=""/>
+                <i th:unless="${session.avatarUrl != null}" class="ph-bold ph-user-circle"></i>
+                <span class="chip__name btn-label" th:text="${displayName != null ? displayName : 'Customer'}">Customer</span>
+            </a>
+            <a th:href="@{/customer/home}" class="btn-alt cp-btn-secondary nav-link"
+               th:classappend="${activeNav == 'home'} ? ' is-active' : ''" aria-label="Home">
+                <i class="ph-bold ph-house"></i><span class="btn-label">Home</span>
+            </a>
+            <a th:href="@{/customer/fleet}" class="btn-alt cp-btn-secondary nav-link"
+               th:classappend="${activeNav == 'fleet'} ? ' is-active' : ''" aria-label="Fleet">
+                <i class="ph-bold ph-car-profile"></i><span class="btn-label">Fleet</span>
+            </a>
+            <a th:href="@{/customer/bookings}" class="btn-alt cp-btn-secondary nav-link"
+               th:classappend="${activeNav == 'bookings'} ? ' is-active' : ''" aria-label="Bookings">
+                <i class="ph-bold ph-calendar-check"></i><span class="btn-label">Bookings</span>
+            </a>
+            <a th:href="@{/customer/billing}" class="btn-alt cp-btn-secondary nav-link"
+               th:classappend="${activeNav == 'billing'} ? ' is-active' : ''" aria-label="Billing">
+                <i class="ph-bold ph-wallet"></i><span class="btn-label">Billing</span>
+            </a>
+            <a th:href="@{/customer/reviews}" class="btn-alt cp-btn-secondary nav-link"
+               th:classappend="${activeNav == 'reviews'} ? ' is-active' : ''" aria-label="Reviews">
+                <i class="ph-bold ph-star"></i><span class="btn-label">Reviews</span>
+            </a>
+            <a th:href="@{/customer/support}" class="btn-alt cp-btn-secondary nav-link"
+               th:classappend="${activeNav == 'support'} ? ' is-active' : ''" aria-label="Support">
+                <i class="ph-bold ph-headset"></i><span class="btn-label">Support</span>
+            </a>
+            <form th:action="@{/auth}" method="post" class="m-0">
+                <input type="hidden" name="action" value="logout"/>
+                <button type="submit" class="btn-alt cp-btn-secondary" aria-label="Logout">
+                    <i class="ph-bold ph-sign-out"></i><span class="btn-label">Logout</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+</body>
+</html>

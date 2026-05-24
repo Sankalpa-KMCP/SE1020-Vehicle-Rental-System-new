@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" th:href="@{/css/field-counter.css}"/>
+  <link th:if="${isCustomerMode}" rel="stylesheet" th:href="@{/css/customer-premium.css}"/>
+  <link th:if="${isCustomerMode}" rel="stylesheet" th:href="@{/css/customer-portal.css}"/>
   <style>
     body {
       font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -41,9 +43,12 @@
     }
   </style>
 </head>
-<body class="min-h-screen text-slate-800 antialiased">
+<body th:class="${isCustomerMode} ? 'customer-premium-theme customer-portal-theme min-h-screen antialiased' : 'min-h-screen text-slate-800 antialiased'">
 
-<header class="nav-glass sticky top-0 z-40">
+<div th:if="${isCustomerMode}" th:replace="~{fragments/customer-shell :: grain}"></div>
+<nav th:if="${isCustomerMode}" th:replace="~{fragments/customer-shell :: topbar(activeNav='profile')}"></nav>
+
+<header th:unless="${isCustomerMode}" class="nav-glass sticky top-0 z-40">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
     <a th:href="@{/customer/home}" th:if="${isCustomerMode}"
        class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">
@@ -62,7 +67,7 @@
   </div>
 </header>
 
-<main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+<main th:class="${isCustomerMode} ? 'cp-shell' : 'max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10'">
   <div class="mb-8">
     <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight"
         th:text="${isCustomerMode ? 'Account settings' : 'Edit guest profile'}">Account settings</h1>
@@ -299,6 +304,7 @@
 </main>
 
 <script defer th:src="@{/js/field-counter.js}"></script>
+<script th:if="${isCustomerMode}" th:src="@{/js/customer-portal.js}"></script>
 <script>
   document.querySelectorAll('.pw-toggle').forEach(function (btn) {
     btn.addEventListener('click', function () {

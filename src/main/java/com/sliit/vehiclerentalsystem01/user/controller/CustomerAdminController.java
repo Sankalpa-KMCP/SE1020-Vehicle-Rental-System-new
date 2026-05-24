@@ -96,6 +96,12 @@ public class CustomerAdminController {
                 }
                 model.addAttribute("customer", loggedIn);
                 model.addAttribute("isCustomerMode", true);
+                Object name = session.getAttribute(UserSessionKeys.NAME);
+                String displayName = name != null && !name.toString().isBlank()
+                        ? name.toString().trim()
+                        : "@" + loggedIn.getUsername();
+                model.addAttribute("displayName", displayName);
+                model.addAttribute("activeNav", "profile");
                 return "user/edit-customer";
             }
 

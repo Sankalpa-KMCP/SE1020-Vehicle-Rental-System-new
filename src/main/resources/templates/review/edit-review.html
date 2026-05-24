@@ -1,443 +1,64 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Edit Review — DriveAway</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" th:href="@{/landing/css/components.css}"/>
-    <link rel="stylesheet" th:href="@{/landing/css/sections.css}"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <style>
-        body.index-landing {
-            background-color: var(--lux-obsidian);
-            background-image:
-                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,169,98,0.08), transparent 60%),
-                radial-gradient(ellipse 55% 40% at 90% 85%, rgba(34,211,238,0.04), transparent 55%);
-            min-height: 100vh;
-        }
+<head th:replace="~{fragments/customer-shell :: head(pageTitle='DriveAway | Edit Review')}"></head>
+<body class="customer-premium-theme customer-portal-theme">
+<div th:replace="~{fragments/customer-shell :: grain}"></div>
+<nav th:replace="~{fragments/customer-shell :: topbar(activeNav='reviews')}"></nav>
 
-        /* ── Orbs ── */
-        .orb { position: fixed; border-radius: 50%; pointer-events: none; filter: blur(90px); z-index: 0; }
-        .orb-1 { width: 440px; height: 440px; top: -100px; right: -80px;
-                  background: radial-gradient(circle, rgba(201,169,98,0.1), transparent 70%); }
-        .orb-2 { width: 380px; height: 380px; bottom: -60px; left: -80px;
-                  background: radial-gradient(circle, rgba(34,211,238,0.05), transparent 70%); }
+<main class="cp-shell">
+    <section class="cp-page-head reveal">
+        <nav class="cp-breadcrumb"><a th:href="@{/customer/reviews}">Reviews</a><i class="ph-bold ph-caret-right"></i><span>Edit</span></nav>
+        <h1>Edit review</h1>
+        <p>Update your rating, comments, or photo.</p>
+    </section>
 
-        .page-wrap { position: relative; z-index: 1; min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+    <section class="cp-card cp-form-card reveal">
+        <div th:if="${param.error != null and param.error[0] == 'missing_fields'}" class="cp-alert cp-alert--error"><span>Please enter a comment before saving.</span></div>
 
-        /* ── Top nav ── */
-        .top-nav {
-            padding: 1.1rem clamp(1.25rem,4.5vw,2.75rem);
-            display: flex; align-items: center; justify-content: space-between;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .top-nav__brand {
-            display: inline-flex; align-items: center; gap: 0.6rem;
-            font-family: var(--da-font-display); font-size: 1.05rem;
-            font-weight: 500; color: var(--lux-ink-soft); text-decoration: none;
-        }
-        .top-nav__mark {
-            width: 1.75rem; height: 1.75rem; border-radius: var(--da-radius);
-            background: linear-gradient(135deg, var(--lux-gold), var(--lux-gold-light));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; font-weight: 700; color: var(--lux-obsidian);
-            box-shadow: 0 0 10px var(--lux-gold-glow);
-        }
-        .back-link {
-            display: inline-flex; align-items: center; gap: 7px;
-            font-size: var(--da-text-xs); font-weight: 600;
-            letter-spacing: 0.06em; text-transform: uppercase;
-            color: var(--lux-ink-muted); text-decoration: none;
-            transition: color var(--da-duration) var(--da-ease-out);
-        }
-        .back-link:hover { color: var(--lux-ink-soft); }
+        <form th:action="@{/customer/reviews/{id}(id=${customerReview.id})}" th:object="${customerReview}" method="post" enctype="multipart/form-data" class="cp-form-grid">
+            <input type="hidden" name="rating" id="ratingInput" th:value="${customerReview.rating}"/>
 
-        /* ── Content ── */
-        .form-shell {
-            display: flex; align-items: flex-start; justify-content: center;
-            padding: 2.5rem clamp(1.25rem,4.5vw,2.75rem) 5rem;
-        }
-        .form-card {
-            width: 100%; max-width: 580px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(201,169,98,0.18);
-            border-radius: var(--da-radius-xl); overflow: hidden;
-            box-shadow: 0 24px 72px rgba(0,0,0,0.5), 0 0 40px rgba(201,169,98,0.04),
-                        inset 0 1px 0 rgba(201,169,98,0.08);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            animation: formRise 0.55s var(--da-ease-out) both;
-        }
-        @keyframes formRise { from { opacity:0; transform: translateY(18px); } to { opacity:1; transform: translateY(0); } }
-
-        /* ── Header ── */
-        .form-card__header {
-            padding: 2rem 2rem 1.75rem;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            position: relative; overflow: hidden;
-        }
-        .form-card__header::before {
-            content: ''; position: absolute; right: -40px; top: -40px;
-            width: 200px; height: 200px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(201,169,98,0.06), transparent 70%);
-            pointer-events: none;
-        }
-        .header-icon {
-            width: 48px; height: 48px; margin-bottom: 1.1rem;
-            background: rgba(201,169,98,0.07); border: 1px solid rgba(201,169,98,0.2);
-            border-radius: var(--da-radius-lg);
-            display: flex; align-items: center; justify-content: center; position: relative; z-index: 1;
-        }
-        .form-card__title {
-            font-family: var(--da-font-display); font-size: 1.6rem; font-weight: 500;
-            letter-spacing: -0.025em; color: var(--lux-ink-soft); margin: 0 0 0.25rem;
-            position: relative; z-index: 1;
-        }
-        .form-card__sub { font-size: var(--da-text-sm); color: var(--lux-ink-muted); margin: 0; position: relative; z-index: 1; }
-
-        /* ── Booking chip ── */
-        .booking-chip {
-            display: flex; align-items: center; gap: 0.75rem;
-            background: rgba(201,169,98,0.04); border: 1px solid rgba(201,169,98,0.2);
-            border-radius: var(--da-radius-lg); padding: 0.85rem 1rem;
-        }
-        .booking-chip__icon {
-            width: 36px; height: 36px; flex-shrink: 0;
-            background: rgba(201,169,98,0.1); border: 1px solid rgba(201,169,98,0.22);
-            border-radius: var(--da-radius); display: flex; align-items: center; justify-content: center;
-            color: var(--lux-gold); font-size: 1rem;
-        }
-        .booking-chip__label { font-size: 0.68rem; font-weight: 700; color: var(--lux-gold); text-transform: uppercase; letter-spacing: 0.09em; }
-        .booking-chip__val { font-family: 'Courier New', monospace; font-size: 0.9rem; font-weight: 700; color: var(--lux-ink-soft); }
-
-        /* ── Card body ── */
-        .form-card__body { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
-
-        /* ── Notices ── */
-        .notice {
-            border-radius: var(--da-radius-lg); padding: 0.8rem 1rem;
-            font-size: var(--da-text-sm); font-weight: 500;
-            display: flex; align-items: flex-start; gap: 10px;
-            border: 1px solid transparent;
-        }
-        .notice-error { background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.2); color: #fecaca; }
-
-        /* ── Fields ── */
-        .field-group { display: flex; flex-direction: column; gap: 0.45rem; }
-        .field-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--lux-ink-muted); }
-
-        .input-wrap {
-            background: rgba(255, 255, 255, 0.015);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: var(--da-radius-lg);
-            transition: all var(--da-duration) var(--da-ease-out);
-            overflow: hidden;
-            position: relative;
-        }
-        .input-wrap:hover { 
-            background: rgba(255, 255, 255, 0.03); 
-            border-color: rgba(255, 255, 255, 0.15); 
-        }
-        .input-wrap:focus-within {
-            background: rgba(255, 255, 255, 0.035);
-            border-color: rgba(201, 169, 98, 0.6);
-            box-shadow: 0 0 0 4px rgba(201, 169, 98, 0.1), inset 0 2px 12px rgba(0, 0, 0, 0.3);
-            transform: translateY(-1px);
-        }
-        .form-input {
-            width: 100%; border: none; outline: none;
-            background: transparent; color: var(--lux-ink-soft);
-            font: inherit; font-size: 0.9rem; padding: 0.85rem 1rem;
-        }
-        .form-input::placeholder { color: var(--lux-ink-muted); }
-        textarea.form-input { resize: none; min-height: 130px; line-height: 1.6; }
-
-        .char-row { display: flex; justify-content: space-between; align-items: center; }
-        .char-count { font-size: 0.7rem; font-weight: 600; }
-        .char-ok   { color: var(--lux-ink-muted); }
-        .char-warn { color: var(--lux-gold); }
-        .char-over { color: #ef4444; }
-
-        /* ── Stars ── */
-        .hidden-select { display: none; }
-        .star-picker { display: flex; gap: 4px; align-items: center; }
-        .star-picker .s {
-            font-size: 2.4rem; cursor: pointer; line-height: 1;
-            color: rgba(255,255,255,0.1); user-select: none;
-            transition: color 0.12s ease, transform 0.1s ease, text-shadow 0.12s ease;
-        }
-        .star-picker .s:hover,
-        .star-picker .s.active { color: var(--lux-gold); text-shadow: 0 0 14px rgba(201,169,98,0.6); }
-        .star-picker .s:active { transform: scale(0.85); }
-        .star-label {
-            margin-left: 0.75rem;
-            font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
-            color: var(--lux-gold); background: rgba(201,169,98,0.07); border: 1px solid rgba(201,169,98,0.22);
-            border-radius: var(--da-radius-full); padding: 4px 14px; transition: all 0.15s ease;
-        }
-
-        /* ── Current photo ── */
-        .current-photo {
-            position: relative; display: inline-flex; align-items: flex-start; gap: 0.75rem;
-            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07);
-            border-radius: var(--da-radius-lg); padding: 0.75rem;
-        }
-        .current-photo img {
-            height: 80px; width: auto; max-width: 160px;
-            border-radius: var(--da-radius); object-fit: cover;
-            border: 1px solid rgba(255,255,255,0.07);
-        }
-        .current-photo__label { font-size: 0.72rem; color: var(--lux-ink-muted); margin-top: 4px; }
-
-        /* ── File zone ── */
-        .file-zone {
-            border: 2px dashed rgba(255, 255, 255, 0.12);
-            border-radius: var(--da-radius-lg);
-            padding: 2rem 1.25rem;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 0.75rem; text-align: center; cursor: pointer;
-            background: rgba(255, 255, 255, 0.015);
-            transition: all var(--da-duration) var(--da-ease-out);
-            position: relative; overflow: hidden;
-        }
-        .file-zone:hover, .file-zone.dragover {
-            border-color: rgba(201, 169, 98, 0.5);
-            background: rgba(201, 169, 98, 0.05);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-        }
-        .file-zone input[type="file"] {
-            position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-        }
-        .file-zone__icon {
-            width: 48px; height: 48px;
-            background: rgba(201, 169, 98, 0.08); 
-            border: 1px solid rgba(201, 169, 98, 0.25);
-            border-radius: var(--da-radius-lg);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--lux-gold); font-size: 1.4rem;
-            transition: transform var(--da-duration-slow) var(--da-ease-out);
-        }
-        .file-zone:hover .file-zone__icon, .file-zone.dragover .file-zone__icon {
-            transform: scale(1.1) translateY(-3px);
-            background: rgba(201, 169, 98, 0.15);
-        }
-        .file-zone__label { font-size: var(--da-text-sm); color: var(--lux-ink-muted); }
-        .file-zone__chosen { font-size: 0.8rem; color: var(--lux-gold); font-weight: 600; }
-
-        /* ── Action buttons ── */
-        .action-row { display: flex; gap: 0.75rem; }
-        .btn-cancel {
-            flex: 1; padding: 0.9rem; border-radius: var(--da-radius-lg);
-            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
-            color: var(--lux-ink-muted); font-family: inherit; font-size: 0.8rem; font-weight: 700;
-            letter-spacing: 0.06em; text-transform: uppercase;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
-            text-decoration: none;
-            transition: all var(--da-duration) var(--da-ease-out);
-        }
-        .btn-cancel:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); color: var(--lux-ink-soft); }
-
-        .btn-save {
-            flex: 2; padding: 0.9rem; border-radius: var(--da-radius-lg);
-            background: linear-gradient(135deg, var(--lux-gold) 0%, var(--lux-gold-light) 100%);
-            border: 1px solid rgba(232,213,163,0.4);
-            color: var(--lux-obsidian); font-family: inherit; font-size: 0.8rem; font-weight: 700;
-            letter-spacing: 0.06em; text-transform: uppercase;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
-            box-shadow: 0 0 20px var(--lux-gold-glow), 0 4px 12px rgba(0,0,0,0.3);
-            transition: all var(--da-duration) var(--da-ease-out);
-        }
-        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 0 32px var(--lux-gold-glow), 0 8px 20px rgba(0,0,0,0.4); }
-        .btn-save:active { transform: translateY(0); }
-    </style>
-</head>
-<body class="index-landing lux-landing">
-
-<!-- Orbs -->
-<div class="orb orb-1" aria-hidden="true"></div>
-<div class="orb orb-2" aria-hidden="true"></div>
-
-<div class="page-wrap">
-
-    <!-- Top nav -->
-    <nav class="top-nav">
-        <a th:href="@{/customer/home}" class="top-nav__brand">
-            <span class="top-nav__mark">D</span>
-            DriveAway
-        </a>
-        <a th:href="@{/customer/reviews}" class="back-link">
-            <i class="ph ph-arrow-left"></i> My Reviews
-        </a>
-    </nav>
-
-    <!-- Form shell -->
-    <div class="form-shell">
-        <div class="form-card">
-
-            <!-- Header -->
-            <div class="form-card__header">
-                <div class="header-icon">
-                    <i class="ph ph-pencil-simple" style="color:var(--lux-gold);font-size:1.4rem;"></i>
+            <div class="cp-field cp-field--full">
+                <label>Your rating</label>
+                <div class="cp-star-picker" id="starPicker" role="group" aria-label="Rating">
+                    <span th:each="i : ${#numbers.sequence(1,5)}" class="s" th:classappend="${i <= customerReview.rating} ? ' fill' : ''" th:attr="data-val=${i}">★</span>
                 </div>
-                <h1 class="form-card__title">Edit Review</h1>
-                <p class="form-card__sub">Update your rating or comments. Booking details cannot be changed.</p>
             </div>
 
-            <!-- Card body -->
-            <div class="form-card__body">
-
-                <!-- Booking chip -->
-                <div class="booking-chip" th:if="${customerReview.bookingId != null and !#strings.isEmpty(customerReview.bookingId)}">
-                    <div class="booking-chip__icon"><i class="ph ph-receipt"></i></div>
-                    <div>
-                        <p class="booking-chip__label">Linked booking</p>
-                        <p class="booking-chip__val" th:text="${customerReview.bookingId}">BK-001</p>
-                    </div>
-                </div>
-
-                <!-- Error notices -->
-                <div th:if="${param.error != null and param.error[0] == 'missing_fields'}" class="notice notice-error">
-                    <i class="ph-fill ph-x-circle" style="font-size:1.1rem;flex-shrink:0;margin-top:2px;"></i>
-                    Please enter a comment before saving.
-                </div>
-                <div th:if="${param.error != null and param.error[0] == 'invalid_rating'}" class="notice notice-error">
-                    <i class="ph-fill ph-x-circle" style="font-size:1.1rem;flex-shrink:0;margin-top:2px;"></i>
-                    Rating must be between 1 and 5 stars.
-                </div>
-
-                <form th:action="@{/customer/reviews/{id}(id=${customerReview.id})}"
-                      th:object="${customerReview}"
-                      method="post" enctype="multipart/form-data"
-                      style="display:flex;flex-direction:column;gap:1.5rem;">
-
-                    <!-- Hidden select for Thymeleaf -->
-                    <select th:field="*{rating}" class="hidden-select" id="ratingSelect">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-
-                    <!-- Star rating -->
-                    <div class="field-group">
-                        <label class="field-label">Your Rating</label>
-                        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:0.5rem;padding:0.5rem 0;">
-                            <div class="star-picker" id="starPicker" role="group" aria-label="Rating">
-                                <span class="s" data-val="1" title="1 — Very poor">★</span>
-                                <span class="s" data-val="2" title="2 — Poor">★</span>
-                                <span class="s" data-val="3" title="3 — OK">★</span>
-                                <span class="s" data-val="4" title="4 — Good">★</span>
-                                <span class="s" data-val="5" title="5 — Excellent">★</span>
-                            </div>
-                            <span class="star-label" id="ratingLabel">—</span>
-                        </div>
-                    </div>
-
-                    <!-- Comments -->
-                    <div class="field-group">
-                        <div class="char-row">
-                            <label for="commentsArea" class="field-label">Comments</label>
-                            <span id="charCount" class="char-count char-ok">0 / 2000</span>
-                        </div>
-                        <div class="input-wrap">
-                            <textarea id="commentsArea" name="comments" rows="6" required maxlength="2000"
-                                      th:field="*{comments}" class="form-input"
-                                      placeholder="Describe your experience…"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Image update -->
-                    <div class="field-group">
-                        <label class="field-label">Update Photo</label>
-
-                        <!-- Current photo preview -->
-                        <div class="current-photo" th:if="${customerReview.imageUrl != null and !#strings.isEmpty(customerReview.imageUrl)}"
-                             style="margin-bottom:0.65rem;">
-                            <img th:src="@{${customerReview.imageUrl}}" alt="Current review photo"/>
-                            <div>
-                                <p style="font-size:0.72rem;font-weight:600;color:var(--lux-ink-soft);margin:0 0 2px 0;">Current photo</p>
-                                <p class="current-photo__label">Upload a new image below to replace it.</p>
-                            </div>
-                        </div>
-
-                        <div class="file-zone" id="fileZone">
-                            <input type="file" id="image" name="image" accept="image/*"
-                                   onchange="handleFileChange(this)"/>
-                            <div class="file-zone__icon"><i class="ph ph-upload-simple"></i></div>
-                            <span class="file-zone__label">Choose new photo (optional)</span>
-                            <span class="file-zone__chosen" id="chosenFile" style="display:none;"></span>
-                        </div>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="action-row">
-                        <a th:href="@{/customer/reviews}" class="btn-cancel">
-                            <i class="ph ph-x"></i> Cancel
-                        </a>
-                        <button type="submit" class="btn-save">
-                            <i class="ph ph-floppy-disk"></i> Save Changes
-                        </button>
-                    </div>
-                </form>
+            <div class="cp-field cp-field--full">
+                <label for="commentsArea">Comments</label>
+                <textarea id="commentsArea" name="comments" rows="6" required maxlength="2000" class="cp-textarea" th:field="*{comments}"></textarea>
             </div>
-        </div>
-    </div>
-</div>
 
+            <div class="cp-field cp-field--full" th:if="${customerReview.imageUrl != null and !#strings.isEmpty(customerReview.imageUrl)}">
+                <label>Current photo</label>
+                <img th:src="@{${customerReview.imageUrl}}" alt="Current review photo" class="cp-review-image"/>
+            </div>
+
+            <div class="cp-field cp-field--full">
+                <label for="image">Replace photo (optional)</label>
+                <div class="cp-upload"><input type="file" id="image" name="image" accept="image/*"/></div>
+            </div>
+
+            <div class="cp-actions-row cp-field--full">
+                <a th:href="@{/customer/reviews}" class="cp-btn-secondary">Cancel</a>
+                <button type="submit" class="cp-btn">Save changes</button>
+            </div>
+        </form>
+    </section>
+</main>
+<script th:src="@{/js/customer-portal.js}"></script>
 <script>
-    // ── Star picker ──
-    const stars    = document.querySelectorAll('#starPicker .s');
-    const select   = document.getElementById('ratingSelect');
-    const ratingLb = document.getElementById('ratingLabel');
-    const labels   = { 1:'Very poor', 2:'Poor', 3:'OK', 4:'Good', 5:'Excellent' };
-    let current    = parseInt(select.value) || 5;
-
-    function paint(n) {
-        stars.forEach(s => s.classList.toggle('active', +s.dataset.val <= n));
-        ratingLb.textContent = n + ' — ' + labels[n];
+(function () {
+    var stars = document.querySelectorAll('#starPicker .s');
+    var input = document.getElementById('ratingInput');
+    function paint(val) {
+        stars.forEach(function (s) { s.classList.toggle('fill', parseInt(s.dataset.val, 10) <= val); });
+        input.value = val;
     }
-    paint(current);
-
-    stars.forEach(s => {
-        s.addEventListener('mouseenter', () => paint(+s.dataset.val));
-        s.addEventListener('mouseleave', () => paint(current));
-        s.addEventListener('click', () => {
-            current = +s.dataset.val;
-            select.value = current;
-            select.dispatchEvent(new Event('change'));
-            paint(current);
-        });
-    });
-
-    // ── Character counter ──
-    const textarea  = document.getElementById('commentsArea');
-    const charCount = document.getElementById('charCount');
-    function updateCounter() {
-        const n = textarea.value.length;
-        charCount.textContent = n + ' / 2000';
-        charCount.className = 'char-count ' + (n > 1900 ? 'char-over' : n > 1600 ? 'char-warn' : 'char-ok');
-    }
-    textarea.addEventListener('input', updateCounter);
-    updateCounter();
-
-    // ── File zone ──
-    const zone = document.getElementById('fileZone');
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
-    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('dragover'); });
-
-    function handleFileChange(input) {
-        const chosen = document.getElementById('chosenFile');
-        if (input.files && input.files[0]) {
-            chosen.textContent = '✓ ' + input.files[0].name;
-            chosen.style.display = 'block';
-        }
-    }
+    paint(parseInt(input.value, 10) || 5);
+    stars.forEach(function (s) { s.addEventListener('click', function () { paint(parseInt(s.dataset.val, 10)); }); });
+})();
 </script>
 </body>
 </html>

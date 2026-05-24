@@ -1,65 +1,53 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Edit Booking - DriveAway</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
-  <style>body { font-family: 'Inter', sans-serif; }</style>
-  <link rel="stylesheet" th:href="@{/css/booking.css}"/>
-</head>
-<body class="booking-theme bg-[#FAFAFA] min-h-screen flex items-center justify-center p-6">
+<head th:replace="~{fragments/customer-shell :: head(pageTitle='DriveAway | Edit Booking')}"></head>
+<body class="customer-premium-theme customer-portal-theme">
+<div th:replace="~{fragments/customer-shell :: grain}"></div>
+<nav th:replace="~{fragments/customer-shell :: topbar(activeNav='bookings')}"></nav>
 
-<div class="w-full max-w-2xl bg-white p-10 rounded-[24px] shadow-lg border-[3px] border-[#F59E0B]">
+<main class="cp-shell">
+    <section class="cp-page-head reveal">
+        <nav class="cp-breadcrumb" aria-label="Breadcrumb">
+            <a th:href="@{/customer/bookings}">Bookings</a>
+            <i class="ph-bold ph-caret-right"></i>
+            <span>Edit booking</span>
+        </nav>
+        <h1>Modify dates</h1>
+        <p>Update your rental date and duration. Changes apply while the booking is still pending.</p>
+    </section>
 
-  <div class="flex justify-between items-center mb-8">
-    <h2 class="text-3xl font-bold text-[#F59E0B] flex items-center gap-3">
-      <i class="ph-bold ph-pencil-simple"></i> Modify Dates
-    </h2>
-    <button onclick="history.back()" class="text-gray-500 hover:text-gray-800 transition-colors">
-      <i class="ph-bold ph-x text-2xl"></i>
-    </button>
-  </div>
+    <section class="cp-alert cp-alert--warning reveal">
+        <i class="ph-fill ph-pencil-simple"></i>
+        <span>You are editing booking <strong th:text="${booking.id}">ID</strong>. Only pending bookings can be changed directly.</span>
+    </section>
 
-  <form th:action="@{/customer/bookings/{id}/edit(id=${booking.id})}" method="POST" class="space-y-6">
-    <input type="hidden" name="action" value="update"/>
-    <input type="hidden" name="id" th:value="${booking.id}"/>
-
-    <div>
-      <label class="block font-bold text-gray-700 mb-1">Customer Name:</label>
-      <input type="text" name="customerName" th:value="${booking.customerName}" readonly
-             class="w-full bg-gray-100 text-gray-500 border border-gray-300 rounded-lg p-3 outline-none cursor-not-allowed"/>
-    </div>
-
-    <div>
-      <label class="block font-bold text-gray-700 mb-1">Vehicle ID:</label>
-      <input type="text" name="vehicleId" th:value="${booking.vehicleId}" readonly
-             class="w-full bg-gray-100 text-gray-500 border border-gray-300 rounded-lg p-3 outline-none cursor-not-allowed"/>
-    </div>
-
-    <div class="flex gap-4">
-      <div class="flex-1">
-        <label class="block font-bold text-gray-700 mb-1">New Rental Date:</label>
-        <input type="date" name="rentalDate" th:value="${booking.rentalDate}" required
-               class="w-full border border-gray-300 rounded-lg p-3 outline-none focus:border-[#F59E0B] focus:ring-2 focus:ring-yellow-200 transition-all"/>
-      </div>
-      <div class="w-1/3">
-        <label class="block font-bold text-gray-700 mb-1">Duration (Days):</label>
-        <input type="number" name="days" th:value="${booking.days}" min="1" required
-               class="w-full border border-gray-300 rounded-lg p-3 outline-none focus:border-[#F59E0B] focus:ring-2 focus:ring-yellow-200 transition-all"/>
-      </div>
-    </div>
-
-    <button type="submit" class="w-full bg-[#F59E0B] hover:bg-yellow-600 text-white font-bold text-lg py-4 rounded-xl flex justify-center items-center gap-3 mt-8 shadow-md transition-all">
-      <i class="ph-bold ph-floppy-disk text-2xl"></i> Save Changes
-    </button>
-  </form>
-
-</div>
-
+    <section class="cp-card cp-form-card reveal">
+        <form th:action="@{/customer/bookings/{id}/edit(id=${booking.id})}" method="post" class="cp-form-grid">
+            <div class="cp-field cp-field--full">
+                <label>Customer name</label>
+                <input type="text" name="customerName" th:value="${booking.customerName}" readonly class="cp-input"/>
+            </div>
+            <div class="cp-field cp-field--full">
+                <label>Vehicle ID</label>
+                <input type="text" name="vehicleId" th:value="${booking.vehicleId}" readonly class="cp-input"/>
+            </div>
+            <div class="cp-field">
+                <label for="rentalDate">New rental date</label>
+                <input id="rentalDate" type="date" name="rentalDate" th:value="${booking.rentalDate}" required class="cp-input"/>
+            </div>
+            <div class="cp-field">
+                <label for="days">Duration (days)</label>
+                <input id="days" type="number" name="days" th:value="${booking.days}" min="1" required class="cp-input"/>
+            </div>
+            <div class="cp-actions-row cp-field--full">
+                <a th:href="@{/customer/bookings}" class="cp-btn-secondary">Cancel</a>
+                <button type="submit" class="cp-btn">
+                    <i class="ph-bold ph-floppy-disk"></i> Save changes
+                </button>
+            </div>
+        </form>
+    </section>
+</main>
+<script th:src="@{/js/customer-portal.js}"></script>
 </body>
 </html>

@@ -10,7 +10,10 @@
             var w = Math.max(window.innerWidth || 0, root.clientWidth || 0);
             var h = Math.max(window.innerHeight || 0, root.clientHeight || 0);
             root.style.setProperty('--stage-width', Math.min(Math.round(w * 1.05), 1860) + 'px');
-            root.style.setProperty('--hero-height', Math.min(Math.round(h * 0.84), 980) + 'px');
+            var heroHeight = w < 860
+                ? Math.min(Math.round(h * 0.62), 520)
+                : Math.min(Math.round(h * 0.84), 980);
+            root.style.setProperty('--hero-height', heroHeight + 'px');
             root.style.setProperty('--display-size', Math.max(48, Math.min(92, Math.round(w * 0.047))) + 'px');
             root.style.setProperty('--shell-pad', Math.max(18, Math.min(34, Math.round(w * 0.012))) + 'px');
         })();
@@ -20,6 +23,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/customer-premium.css}"/>
+    <link rel="stylesheet" th:href="@{/css/customer-portal.css}"/>
     <style>
         :root {
             --ink: #18120d;
@@ -39,9 +44,15 @@
             --charcoal: #1c1712;
             --shadow: 0 22px 64px rgba(49, 35, 18, 0.12);
             --shadow-strong: 0 34px 100px rgba(49, 35, 18, 0.2);
+            --panel: rgba(255, 250, 243, 0.88);
+            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
 
         html, body {
             margin: 0;
@@ -58,10 +69,55 @@
 
         body {
             opacity: 0;
-            transition: opacity 180ms ease;
+            transition: opacity 280ms var(--ease-out);
         }
 
         body.ready { opacity: 1; }
+
+        .reveal {
+            opacity: 1;
+            transform: none;
+        }
+
+        .reveal--pending {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 560ms var(--ease-out), transform 560ms var(--ease-out);
+        }
+
+        .reveal--visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .chip:focus-visible,
+        .btn-main:focus-visible,
+        .btn-alt:focus-visible,
+        .booking-cta:focus-visible,
+        .fleet-item:focus-visible,
+        .action:focus-visible,
+        .section-link:focus-visible,
+        .payment-callout:focus-visible,
+        .alert__close:focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 3px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            body { opacity: 1; }
+
+            .reveal--pending {
+                opacity: 1;
+                transform: none;
+            }
+        }
 
         .grain {
             position: fixed;
@@ -89,6 +145,12 @@
             background: rgba(255, 251, 244, 0.74);
             border-bottom: 1px solid rgba(56, 42, 27, 0.08);
             box-shadow: 0 1px 0 rgba(255,255,255,0.88), 0 10px 36px rgba(49, 35, 18, 0.05);
+            transition: box-shadow 280ms var(--ease-out), background 280ms var(--ease-out);
+        }
+
+        .topbar--scrolled {
+            background: rgba(255, 251, 244, 0.92);
+            box-shadow: 0 1px 0 rgba(255,255,255,0.88), 0 14px 40px rgba(49, 35, 18, 0.1);
         }
 
         .topbar__inner {
@@ -148,7 +210,7 @@
             text-decoration: none;
             font-size: 0.82rem;
             font-weight: 900;
-            transition: all 0.2s ease;
+            transition: transform 280ms var(--ease-out), box-shadow 280ms var(--ease-out), opacity 280ms var(--ease-out), border-color 280ms var(--ease-out);
             cursor: pointer;
             pointer-events: auto;
             touch-action: manipulation;
@@ -160,6 +222,288 @@
             background: rgba(255, 255, 255, 0.92);
             border-color: rgba(56, 42, 27, 0.08);
             box-shadow: 0 10px 18px rgba(49, 35, 18, 0.04);
+            max-width: 14rem;
+        }
+
+        .chip__name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        .chip__avatar {
+            width: 1.65rem;
+            height: 1.65rem;
+            border-radius: 999px;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid rgba(56, 42, 27, 0.1);
+        }
+
+        .alert {
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.72rem;
+            border-radius: 1rem;
+            padding: 0.9rem 1.04rem;
+            font-size: 0.88rem;
+            font-weight: 700;
+            line-height: 1.45;
+            box-shadow: 0 12px 22px rgba(49, 35, 18, 0.06);
+            transition: opacity 320ms var(--ease-out), transform 320ms var(--ease-out);
+        }
+
+        .alert--hide {
+            opacity: 0;
+            transform: translateY(-8px);
+            pointer-events: none;
+        }
+
+        .alert__close {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.75rem;
+            height: 1.75rem;
+            border: none;
+            border-radius: 999px;
+            background: rgba(21, 114, 95, 0.1);
+            color: var(--emerald);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 280ms var(--ease-out), transform 280ms var(--ease-out);
+        }
+
+        .alert__close:hover {
+            background: rgba(21, 114, 95, 0.18);
+            transform: scale(1.05);
+        }
+
+        .alert--success {
+            border: 1px solid rgba(21, 114, 95, 0.22);
+            background: linear-gradient(180deg, #f1faf6 0%, #d8efe5 100%);
+            color: #145a4c;
+        }
+
+        .alert--success i {
+            color: var(--emerald);
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .payment-callout {
+            margin-top: 0.78rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.72rem;
+            padding: 0.78rem 0.9rem;
+            border-radius: 0.92rem;
+            border: 1px solid rgba(185, 138, 67, 0.22);
+            background: linear-gradient(180deg, #fff8ef 0%, #f7ebd4 100%);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #5d4320;
+            text-decoration: none;
+            transition: transform 280ms var(--ease-out), box-shadow 280ms var(--ease-out);
+            box-shadow: 0 10px 18px rgba(49, 35, 18, 0.04);
+        }
+
+        .payment-callout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 24px rgba(49, 35, 18, 0.08);
+        }
+
+        .payment-callout__action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.28rem;
+            color: var(--gold);
+            font-size: 0.72rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+
+        .section-link {
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 0.78rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+
+        .section-link:hover {
+            text-decoration: underline;
+        }
+
+        .booking-list {
+            margin-top: 0.9rem;
+            display: grid;
+            gap: 0.62rem;
+        }
+
+        .booking-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            padding: 0.92rem 1rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(56, 42, 27, 0.1);
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(249,245,239,0.94) 100%);
+            box-shadow: 0 12px 20px rgba(49, 35, 18, 0.04);
+            transition: transform 280ms var(--ease-out), box-shadow 280ms var(--ease-out);
+        }
+
+        .booking-row:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 28px rgba(49, 35, 18, 0.08);
+        }
+
+        .booking-row__ref span {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .booking-row__main {
+            min-width: 0;
+            flex: 1 1 14rem;
+        }
+
+        .booking-row__ref {
+            margin: 0 0 0.28rem;
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        .booking-row__title {
+            margin: 0 0 0.22rem;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--ink);
+        }
+
+        .booking-row__meta {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .booking-row__side {
+            display: flex;
+            align-items: center;
+            gap: 0.62rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .booking-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.34rem 0.62rem;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border: 1px solid transparent;
+        }
+
+        .booking-badge--confirmed {
+            background: var(--emerald-soft);
+            color: var(--emerald);
+            border-color: rgba(21, 114, 95, 0.16);
+        }
+
+        .booking-badge--pending {
+            background: #fff7ec;
+            color: #8b5a12;
+            border-color: rgba(185, 138, 67, 0.18);
+        }
+
+        .booking-badge--warn {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-color: rgba(29, 78, 216, 0.14);
+        }
+
+        .booking-badge--danger {
+            background: var(--wine-soft);
+            color: var(--wine);
+            border-color: rgba(157, 93, 70, 0.16);
+        }
+
+        .booking-badge--neutral {
+            background: #ececec;
+            color: #525252;
+            border-color: rgba(82, 82, 82, 0.12);
+        }
+
+        .booking-badge--ok {
+            background: #e0f2fe;
+            color: #0f766e;
+            border-color: rgba(15, 118, 110, 0.14);
+        }
+
+        .booking-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.38rem;
+            padding: 0.62rem 0.92rem;
+            border-radius: 999px;
+            text-decoration: none;
+            font-size: 0.76rem;
+            font-weight: 900;
+            color: #fff8ef;
+            background: linear-gradient(135deg, #19120d 0%, #6d4f30 46%, #b98a43 100%);
+            box-shadow: 0 10px 18px rgba(108, 80, 49, 0.18);
+            white-space: nowrap;
+            transition: transform 280ms var(--ease-out), box-shadow 280ms var(--ease-out);
+        }
+
+        .booking-cta:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 22px rgba(108, 80, 49, 0.24);
+        }
+
+        .booking-cta--alt {
+            color: var(--ink);
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(56, 42, 27, 0.08);
+            box-shadow: 0 8px 14px rgba(49, 35, 18, 0.04);
+        }
+
+        .booking-empty {
+            margin-top: 0.9rem;
+            padding: 1.4rem 1rem;
+            border-radius: 1rem;
+            border: 1px dashed rgba(56, 42, 27, 0.16);
+            background: rgba(255,255,255,0.72);
+            text-align: center;
+        }
+
+        .booking-empty__icon {
+            display: block;
+            margin: 0 auto 0.72rem;
+            font-size: 2rem;
+            color: var(--gold);
+            opacity: 0.85;
+        }
+
+        .booking-empty p {
+            margin: 0 0 0.9rem;
+            color: var(--muted);
+            font-size: 0.9rem;
         }
 
         .btn-main {
@@ -192,9 +536,6 @@
             background-position: center;
             border: 1px solid rgba(56, 42, 27, 0.12);
             box-shadow: var(--shadow-strong);
-            transform-style: preserve-3d;
-            transition: transform 0.12s linear;
-            will-change: transform;
             margin-top: 1rem;
         }
 
@@ -287,7 +628,9 @@
             box-shadow: 0 22px 36px rgba(49, 35, 18, 0.08);
             backdrop-filter: blur(12px);
             padding: 1.08rem;
-            transform: translateZ(64px);
+            transform-style: preserve-3d;
+            transition: transform 0.12s linear;
+            will-change: transform;
         }
 
         .flow-panel h3 {
@@ -500,6 +843,9 @@
         }
 
         .notice {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.72rem;
             border-radius: 0.96rem;
             border: 1px solid rgba(185, 138, 67, 0.18);
             background: linear-gradient(180deg, #fffdf9 0%, #fbf4e8 100%);
@@ -509,6 +855,17 @@
             font-weight: 600;
             line-height: 1.46;
             box-shadow: 0 10px 18px rgba(49, 35, 18, 0.05);
+        }
+
+        .notice__icon {
+            color: var(--gold);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .notice__text {
+            font-variant-numeric: tabular-nums;
         }
 
         .action-grid {
@@ -529,13 +886,12 @@
             justify-content: space-between;
             gap: 0.82rem;
             box-shadow: 0 16px 28px rgba(49, 35, 18, 0.08);
-            transform-style: preserve-3d;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 280ms var(--ease-out), box-shadow 280ms var(--ease-out);
             position: relative;
         }
 
         .action:hover {
-            transform: translateY(-3px) translateZ(8px);
+            transform: translateY(-3px);
             box-shadow: 0 22px 38px rgba(49, 35, 18, 0.12);
         }
 
@@ -595,25 +951,38 @@
         }
 
         .fleet-item {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
             border-radius: 0.98rem;
             border: 1px solid rgba(56, 42, 27, 0.1);
-            background: var(--panel-strong);
+            background: var(--paper-strong);
             overflow: hidden;
             box-shadow: 0 14px 24px rgba(49, 35, 18, 0.08);
-            transform-style: preserve-3d;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 280ms var(--ease-out), box-shadow 280ms var(--ease-out);
         }
 
         .fleet-item:hover {
-            transform: translateY(-2px) translateZ(6px);
+            transform: translateY(-2px);
             box-shadow: 0 18px 32px rgba(49, 35, 18, 0.12);
+        }
+
+        .fleet-item__media {
+            overflow: hidden;
+            height: 6.5rem;
         }
 
         .fleet-item img {
             width: 100%;
-            height: 6.5rem;
+            height: 100%;
             object-fit: cover;
             display: block;
+            transition: transform 420ms var(--ease-out);
+        }
+
+        .fleet-item:hover img {
+            transform: scale(1.03);
         }
 
         .fleet-item__body {
@@ -639,19 +1008,23 @@
             color: var(--muted);
         }
 
-        .desktop-badge {
+        .fleet-item__cta {
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
-            padding: 0.56rem 0.8rem;
+            gap: 0.28rem;
+            margin-top: 0.52rem;
+            padding: 0.34rem 0.62rem;
             border-radius: 999px;
-            background: rgba(255,255,255,0.86);
-            border: 1px solid rgba(56, 42, 27, 0.08);
+            background: rgba(185, 138, 67, 0.12);
             color: var(--gold);
             font-size: 0.68rem;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.09em;
+            letter-spacing: 0.08em;
+        }
+
+        .fleet-item:hover .fleet-item__cta {
+            background: rgba(185, 138, 67, 0.2);
         }
 
         @media (max-width: 1180px) {
@@ -662,48 +1035,39 @@
 
         @media (max-width: 860px) {
             .shell, .topbar__inner { width: calc(100vw - 1.2rem); }
-            .topbar { position: static; }
+            .topbar__inner { padding: 0.72rem 0; }
             .hero-grid { padding: 1.1rem; }
             .hero-copy h1 { font-size: clamp(2.3rem, 10vw, 3.1rem); }
             .hero, .summary-strip, .action-grid, .fleet-strip, .hero-stats { grid-template-columns: 1fr; }
-            .top-actions { width: 100%; justify-content: flex-start; }
+            .top-actions { width: 100%; justify-content: flex-start; gap: 0.48rem; }
+            .top-actions .btn-label { display: none; }
+            .chip { max-width: 10rem; padding: 0.62rem 0.82rem; }
+            .btn-alt, .btn-main { padding: 0.72rem 0.82rem; }
         }
     </style>
 </head>
-<body>
-<div class="grain" aria-hidden="true"></div>
+<body class="customer-premium-theme">
+<div th:replace="~{fragments/customer-shell :: grain}"></div>
 
-<nav class="topbar">
-    <div class="topbar__inner">
-        <a th:href="@{/customer/home}" class="brand">
-            <span class="brand__mark"><i class="ph-fill ph-car-profile text-xl"></i></span>
-            <span class="brand__name">Drive<span>Away</span></span>
-        </a>
-
-        <div class="top-actions">
-            <span class="desktop-badge"><i class="ph-bold ph-monitor"></i> Desktop View</span>
-            <a th:href="@{/customers(action=editSelf)}" class="chip"><i class="ph-bold ph-user-circle"></i> <span th:text="${displayName}">Customer</span></a>
-            <a th:href="@{/customer/fleet}" class="btn-alt"><i class="ph-bold ph-car-profile"></i> Fleet</a>
-            <a th:href="@{/customer/bookings}" class="btn-alt"><i class="ph-bold ph-calendar-check"></i> Bookings</a>
-            <form th:action="@{/auth}" method="post" class="m-0">
-                <input type="hidden" name="action" value="logout"/>
-                <button type="submit" class="btn-alt"><i class="ph-bold ph-sign-out"></i> Logout</button>
-            </form>
-        </div>
-    </div>
-</nav>
+<nav th:replace="~{fragments/customer-shell :: topbar(activeNav='home')}"></nav>
 
 <main class="shell">
-    <section class="hero" id="hero3d">
+    <div th:if="${param.msg != null and param.msg[0] == 'updated'}" id="profile-alert" class="alert alert--success reveal reveal--visible" role="status">
+        <i class="ph-fill ph-check-circle"></i>
+        <span>Your profile was saved successfully.</span>
+        <button type="button" class="alert__close" aria-label="Dismiss notification"><i class="ph-bold ph-x"></i></button>
+    </div>
+
+    <section class="hero reveal">
         <div class="hero-grid">
             <div class="hero-copy">
                 <span class="eyebrow"><i class="ph-bold ph-car"></i> Welcome Back, <span th:text="${firstName}">Customer</span></span>
                 <h1>Your Premium Rental Experience.</h1>
                 <p>Manage your reservations, explore our luxurious fleet, and handle payments seamlessly from your personalized dashboard. Everything you need for your next journey is right here.</p>
                 <div class="hero-actions">
-                    <a th:href="@{/customer/fleet}" class="btn-main"><i class="ph-bold ph-steering-wheel"></i> 1. Browse Fleet</a>
-                    <a th:href="@{/customer/bookings}" class="btn-alt"><i class="ph-bold ph-calendar-check"></i> 2. Manage Booking</a>
-                    <a th:href="@{/customer/billing}" class="btn-alt"><i class="ph-bold ph-wallet"></i> 3. Pay & Finish</a>
+                    <a th:href="@{/customer/fleet}" class="btn-main"><i class="ph-bold ph-steering-wheel"></i> <span class="btn-label">Browse Fleet</span></a>
+                    <a th:href="@{/customer/bookings}" class="btn-alt"><i class="ph-bold ph-calendar-check"></i> <span class="btn-label">My Bookings</span></a>
+                    <a th:href="@{/customer/billing}" class="btn-alt"><i class="ph-bold ph-wallet"></i> <span class="btn-label">Billing</span></a>
                 </div>
             </div>
 
@@ -733,6 +1097,13 @@
                     </div>
                 </div>
 
+                <a th:if="${paymentReadyCount != null and paymentReadyCount > 0}"
+                   th:href="@{/customer/billing}"
+                   class="payment-callout">
+                    <span><i class="ph-bold ph-wallet"></i> <span th:text="${paymentReadyCount}">1</span> booking<span th:if="${paymentReadyCount != 1}">s</span> ready for payment</span>
+                    <span class="payment-callout__action">Pay now <i class="ph-bold ph-arrow-right"></i></span>
+                </a>
+
                 <div class="hero-stats">
                     <div class="mini-stat mini-stat--gold">
                         <span class="label">Bookable now</span>
@@ -757,7 +1128,49 @@
 
     <!-- Removed redundant summary strip to declutter and optimize -->
 
-    <section class="section" th:if="${bookingNotices != null and !bookingNotices.isEmpty()}">
+    <section class="section reveal">
+        <div class="section-head">
+            <div>
+                <h2>Your Recent Activity</h2>
+                <p>Latest reservations and the next step for each booking.</p>
+            </div>
+            <a th:href="@{/customer/bookings}" class="section-link">View all</a>
+        </div>
+
+        <div th:if="${recentBookings != null and !recentBookings.isEmpty()}" class="booking-list">
+            <article th:each="b : ${recentBookings}" class="booking-row">
+                <div class="booking-row__main">
+                    <p class="booking-row__ref">Booking <span th:text="${b.id}">ID</span></p>
+                    <h3 class="booking-row__title" th:text="${vehicleNames[b.vehicleId] ?: 'Vehicle reservation'}">Vehicle</h3>
+                    <p class="booking-row__meta">
+                        <span th:text="${b.rentalDate != null and !#strings.isEmpty(b.rentalDate) ? b.rentalDate : 'Date pending'}">Date</span>
+                        <span th:if="${b.durationDays > 0}"> · <span th:text="${b.durationDays}">0</span> day(s)</span>
+                    </p>
+                </div>
+                <div class="booking-row__side">
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'CONFIRMED')}" class="booking-badge booking-badge--confirmed">Confirmed</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'PENDING')}" class="booking-badge booking-badge--pending">Pending</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'RENTED')}" class="booking-badge booking-badge--warn">Rented</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'UPDATE_REQUESTED')}" class="booking-badge booking-badge--warn">Edit requested</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'CANCELLATION_REQUESTED')}" class="booking-badge booking-badge--danger">Cancel requested</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'CANCELLED')}" class="booking-badge booking-badge--neutral">Cancelled</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'REJECTED')}" class="booking-badge booking-badge--danger">Rejected</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'COMPLETED')}" class="booking-badge booking-badge--ok">Completed</span>
+                    <span th:if="${#strings.equalsIgnoreCase(b.status,'MAINTENANCE')}" class="booking-badge booking-badge--pending">Maintenance</span>
+                    <a th:if="${payAllowed != null and payAllowed[b.id]}" th:href="@{/customer/billing}" class="booking-cta"><i class="ph-bold ph-wallet"></i> Pay now</a>
+                    <a th:if="${payAllowed == null or !payAllowed[b.id]}" th:href="@{/customer/bookings}" class="booking-cta booking-cta--alt"><i class="ph-bold ph-calendar-check"></i> Manage</a>
+                </div>
+            </article>
+        </div>
+
+        <div th:if="${recentBookings == null or recentBookings.isEmpty()}" class="booking-empty">
+            <i class="ph-bold ph-calendar-blank booking-empty__icon" aria-hidden="true"></i>
+            <p>No bookings yet. Browse the fleet to reserve your first vehicle.</p>
+            <a th:href="@{/customer/fleet}" class="btn-main"><i class="ph-bold ph-steering-wheel"></i> Browse Fleet</a>
+        </div>
+    </section>
+
+    <section class="section reveal" th:if="${bookingNotices != null and !bookingNotices.isEmpty()}">
         <div class="section-head">
             <div>
                 <h2>Recent Booking Updates</h2>
@@ -765,11 +1178,14 @@
             </div>
         </div>
         <div class="notice-list">
-            <article class="notice" th:each="n : ${bookingNotices}" th:text="${n}">Notice</article>
+            <article class="notice" th:each="n : ${bookingNotices}">
+                <i class="ph-bold ph-chat-circle-text notice__icon" aria-hidden="true"></i>
+                <span class="notice__text" th:text="${n}">Notice</span>
+            </article>
         </div>
     </section>
 
-    <section class="section">
+    <section class="section reveal">
         <div class="section-head">
             <div>
                 <h2>Dashboard Actions</h2>
@@ -777,7 +1193,7 @@
             </div>
         </div>
         <div class="action-grid">
-            <a th:href="@{/customer/fleet}" class="action action--gold" data-tilt>
+            <a th:href="@{/customer/fleet}" class="action action--gold">
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-car-profile"></i></span>
                     <h3>Browse Fleet</h3>
@@ -785,7 +1201,7 @@
                 </div>
                 <span class="go">Open fleet</span>
             </a>
-            <a th:href="@{/customer/bookings}" class="action action--emerald" data-tilt>
+            <a th:href="@{/customer/bookings}" class="action action--emerald">
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-calendar-check"></i></span>
                     <h3>Manage Bookings</h3>
@@ -793,7 +1209,7 @@
                 </div>
                 <span class="go">Open bookings</span>
             </a>
-            <a th:href="@{/customer/billing}" class="action action--wine" data-tilt>
+            <a th:href="@{/customer/billing}" class="action action--wine">
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-wallet"></i></span>
                     <h3>Billing & Payments</h3>
@@ -801,7 +1217,7 @@
                 </div>
                 <span class="go">Open billing</span>
             </a>
-            <a th:href="@{/customers(action=editSelf)}" class="action action--plum" data-tilt>
+            <a th:href="@{/customers(action=editSelf)}" class="action action--plum">
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-identification-card"></i></span>
                     <h3>Profile Settings</h3>
@@ -809,7 +1225,7 @@
                 </div>
                 <span class="go">Open profile</span>
             </a>
-            <a th:href="@{/customer/reviews}" class="action action--gold" data-tilt>
+            <a th:href="@{/customer/reviews}" class="action action--gold">
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-star"></i></span>
                     <h3>Reviews</h3>
@@ -817,7 +1233,7 @@
                 </div>
                 <span class="go">Open reviews</span>
             </a>
-            <a th:href="@{/customer/support}" class="action action--wine" data-tilt>
+            <a th:href="@{/customer/support}" class="action action--wine">
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-headset"></i></span>
                     <h3>Support</h3>
@@ -828,7 +1244,7 @@
         </div>
     </section>
 
-    <section class="section" th:if="${featuredVehicles != null and !featuredVehicles.isEmpty()}">
+    <section class="section reveal" th:if="${featuredVehicles != null and !featuredVehicles.isEmpty()}">
         <div class="section-head">
             <div>
                 <h2>Featured Vehicles</h2>
@@ -836,95 +1252,41 @@
             </div>
         </div>
         <div class="fleet-strip">
-            <article class="fleet-item" th:each="v : ${featuredVehicles}" data-tilt>
-                <img th:if="${v.imagePath != null and !#strings.isEmpty(v.imagePath)}" th:src="@{${v.imagePath}}" alt="Vehicle image"/>
-                <img th:unless="${v.imagePath != null and !#strings.isEmpty(v.imagePath)}" src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=700&q=80" alt="Vehicle image"/>
+            <a th:each="v : ${featuredVehicles}"
+               th:href="@{/customer/bookings/new(vehicleId=${v.id}, rate=${v.calculateRentalRate()})}"
+               class="fleet-item">
+                <div class="fleet-item__media">
+                <img th:if="${v.imagePath != null and !#strings.isEmpty(v.imagePath)}" th:src="@{${v.imagePath}}" alt="Vehicle image" loading="lazy"/>
+                <img th:unless="${v.imagePath != null and !#strings.isEmpty(v.imagePath)}" src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=700&q=80" alt="Vehicle image" loading="lazy"/>
+                </div>
                 <div class="fleet-item__body">
                     <p class="fleet-item__title" th:text="${v.brand + ' ' + v.model}">Vehicle</p>
                     <div class="fleet-item__meta">
                         <span th:text="${v.vehicleType}">Type</span>
                         <span>LKR <span th:text="${#numbers.formatDecimal(v.calculateRentalRate(), 1, 2)}">0.00</span>/day</span>
                     </div>
+                    <span class="fleet-item__cta"><i class="ph-bold ph-calendar-plus"></i> Book now</span>
                 </div>
-            </article>
+            </a>
         </div>
     </section>
 </main>
 
+<script th:src="@{/js/customer-portal.js}"></script>
 <script>
-    (function () {
-        const root = document.documentElement;
-        const body = document.body;
-
-        function setViewportVars() {
-            const w = Math.max(window.innerWidth || 0, root.clientWidth || 0);
-            const h = Math.max(window.innerHeight || 0, root.clientHeight || 0);
-            root.style.setProperty('--stage-width', Math.min(Math.round(w * 1.05), 1860) + 'px');
-            root.style.setProperty('--hero-height', Math.min(Math.round(h * 0.84), 980) + 'px');
-            root.style.setProperty('--display-size', Math.max(48, Math.min(92, Math.round(w * 0.047))) + 'px');
-            root.style.setProperty('--shell-pad', Math.max(18, Math.min(34, Math.round(w * 0.012))) + 'px');
-        }
-
-        setViewportVars();
-
-        requestAnimationFrame(function () {
-            body.classList.add('ready');
-        });
-
-        const hero = document.getElementById('hero3d');
-        if (!hero) return;
-
-        function clamp(v, min, max) {
-            return Math.max(min, Math.min(max, v));
-        }
-
-        function tilt(el, x, y, amount) {
-            const rect = el.getBoundingClientRect();
-            const px = (x - rect.left) / rect.width;
-            const py = (y - rect.top) / rect.height;
-            const rx = clamp((0.5 - py) * amount, -amount, amount);
-            const ry = clamp((px - 0.5) * amount, -amount, amount);
-            el.style.transform = "rotateX(" + rx.toFixed(2) + "deg) rotateY(" + ry.toFixed(2) + "deg)";
-        }
-
-        function reset(el) {
-            el.style.transform = '';
-        }
-
-        let heroTicking = false;
-        hero.addEventListener('mousemove', function (e) {
-            if (e.target.closest('a, button, input, select, textarea')) return;
-            if (!heroTicking) {
-                window.requestAnimationFrame(function () {
-                    tilt(hero, e.clientX, e.clientY, 7);
-                    heroTicking = false;
-                });
-                heroTicking = true;
-            }
-        });
-        hero.addEventListener('mouseleave', function () {
-            reset(hero);
-        });
-
-        document.querySelectorAll('[data-tilt]').forEach(function (item) {
-            let itemTicking = false;
-            item.addEventListener('mousemove', function (e) {
-                if (e.target.closest('a, button, input, select, textarea')) return;
-                if (!itemTicking) {
-                    window.requestAnimationFrame(function () {
-                        tilt(item, e.clientX, e.clientY, 5);
-                        itemTicking = false;
-                    });
-                    itemTicking = true;
-                }
-            });
-            item.addEventListener('mouseleave', function () {
-                reset(item);
-            });
-        });
-
-        window.addEventListener('resize', setViewportVars);
-    })();
+(function () {
+    var root = document.documentElement;
+    function setHeroVars() {
+        var w = Math.max(window.innerWidth || 0, root.clientWidth || 0);
+        var h = Math.max(window.innerHeight || 0, root.clientHeight || 0);
+        var heroHeight = w < 860 ? Math.min(Math.round(h * 0.62), 520) : Math.min(Math.round(h * 0.84), 980);
+        root.style.setProperty('--hero-height', heroHeight + 'px');
+        root.style.setProperty('--display-size', Math.max(48, Math.min(92, Math.round(w * 0.047))) + 'px');
+        root.style.setProperty('--shell-pad', Math.max(18, Math.min(34, Math.round(w * 0.012))) + 'px');
+    }
+    setHeroVars();
+    window.addEventListener('resize', setHeroVars);
+})();
 </script>
 </body>
 </html>

@@ -1,146 +1,88 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>DriveAway | Payment Gateway</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <style>
-        body { font-family: 'Inter', sans-serif; background: #F4F7F6; }
-        
-        /* Premium Obsidian Dark theme overrides matching Central Dashboard */
-        body {
-          background:
-            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.02) 1px, transparent 0),
-            radial-gradient(ellipse 80% 50% at 0% 0%, rgba(201, 169, 98, 0.04), transparent 50%),
-            radial-gradient(ellipse 60% 40% at 100% 0%, rgba(34, 211, 238, 0.03), transparent 45%),
-            #050506 !important;
-          background-size: 24px 24px, auto, auto, auto;
-          color: #f4f2ee !important;
-        }
+<head th:replace="~{fragments/customer-shell :: head(pageTitle='DriveAway | Payment Gateway')}"></head>
+<body class="customer-premium-theme customer-checkout-theme">
+<div th:replace="~{fragments/customer-shell :: grain}"></div>
+<nav th:replace="~{fragments/customer-shell :: topbar(activeNav='billing')}"></nav>
 
-        .bg-white, .bg-slate-\[50\], .bg-gray-100 { background: #0c0c0e !important; border-color: rgba(255,255,255,0.08) !important; color: #f4f2ee !important; }
-        .text-gray-900, .text-gray-800, .text-gray-700 { color: #f4f2ee !important; }
-        .text-gray-500, .text-gray-600, .text-slate-500 { color: #a8a6a0 !important; }
-        .bg-slate-50, .bg-gray-50 { background: #050506 !important; border-color: rgba(255,255,255,0.08) !important; color: #f4f2ee !important; }
-        .border-slate-100, .border-slate-200, .border-slate-600, .border-gray-200, .border-gray-100 { border-color: rgba(255,255,255,0.05) !important; }
-        
-        td, th, span:not(.font-bold):not(.text-blue-600), div, label, p, h1, h2, h3, select, input, dt, dd { color: #f4f2ee !important; }
-        
-        input, select { background-color: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #f4f2ee !important; }
-        input:focus, select:focus { border-color: #c9a962 !important; box-shadow: 0 0 0 2px rgba(201,169,98,0.2) !important; }
-        
-        button[type="submit"], .btn-primary, .bg-blue-600, .bg-slate-800, .bg-slate-700, .bg-sky-600 { background: #c9a962 !important; color: #050506 !important; border: none !important; }
-        button[type="submit"]:hover, .btn-primary:hover { background: #e8d5a3 !important; }
-        
-        .text-emerald-700, .text-blue-700, .text-green-700 { color: #f4f2ee !important; }
-        .bg-green-50, .bg-blue-50 { background-color: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
-        .bg-gradient-to-br.from-blue-600 { background: linear-gradient(135deg, #0a0a0b 0%, #141418 100%) !important; border: 1px solid rgba(201, 169, 98, 0.2) !important; }
-        .gateway-status {
-          background: rgba(201, 169, 98, 0.18) !important;
-          border: 1px solid rgba(201, 169, 98, 0.55) !important;
-          color: #f7df9e !important;
-          box-shadow: 0 12px 30px rgba(201, 169, 98, 0.12);
-        }
-        .gateway-error {
-          background: rgba(239, 68, 68, 0.12) !important;
-          border: 1px solid rgba(239, 68, 68, 0.35) !important;
-          color: #fecaca !important;
-        }
-    </style>
-</head>
-<body class="min-h-screen text-gray-800">
-<main class="max-w-5xl mx-auto px-6 py-10">
-    <a th:href="@{/customer/billing}" class="inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-900 mb-6">
-        <i class="ph-bold ph-arrow-left"></i> Back to Billing
-    </a>
+<main class="cp-shell">
+    <section class="cp-page-head reveal">
+        <nav class="cp-breadcrumb" aria-label="Breadcrumb">
+            <a th:href="@{/customer/billing}">Billing</a>
+            <i class="ph-bold ph-caret-right"></i>
+            <span>Secure checkout</span>
+        </nav>
+        <h1>Payment gateway</h1>
+        <p>Complete your card payment in this secure checkout window.</p>
+    </section>
 
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <section class="lg:col-span-2 bg-slate-950 text-white rounded-2xl p-8 shadow-xl">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center">
-                    <i class="ph-bold ph-shield-check text-2xl"></i>
-                </div>
+    <div class="cp-checkout-grid reveal">
+        <aside class="cp-gateway-summary">
+            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem;">
+                <span style="width:3rem;height:3rem;border-radius:1rem;background:rgba(185,138,67,0.2);display:grid;place-items:center;"><i class="ph-bold ph-shield-check"></i></span>
                 <div>
-                    <p class="text-xs uppercase tracking-wider text-slate-400 font-bold">Payment Gateway</p>
-                    <h1 class="text-2xl font-extrabold">DriveAway Pay</h1>
+                    <p style="margin:0;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:#a89f92;font-weight:800;">DriveAway Pay</p>
+                    <p style="margin:0;font-size:1.25rem;font-weight:900;">Secure checkout</p>
                 </div>
             </div>
+            <p class="cp-kpi__label">Booking ID</p>
+            <p style="font-family:monospace;margin:0 0 1rem;" th:text="${booking.id}">B001</p>
+            <p class="cp-kpi__label">Vehicle</p>
+            <p style="margin:0 0 1rem;font-weight:800;" th:text="${vehicle != null ? vehicle.brand + ' ' + vehicle.model : booking.vehicleId}">Vehicle</p>
+            <p class="cp-kpi__label">Amount due</p>
+            <p class="cp-gateway-summary__amount">LKR <span th:text="${#numbers.formatDecimal(payment.amount, 1, 2)}">0.00</span></p>
+            <p style="margin-top:1rem;color:#a89f92;font-size:0.88rem;">Card details are recorded for this demo gateway only.</p>
+        </aside>
 
-            <div class="space-y-5">
+        <section class="cp-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.25rem;">
                 <div>
-                    <p class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-1">Booking ID</p>
-                    <p class="font-mono text-sm bg-white/10 border border-white/10 rounded-xl px-4 py-3" th:text="${booking.id}">B001</p>
+                    <p class="cp-kpi__label">Status</p>
+                    <h2 class="cp-card__title" style="margin:0;">Enter card details</h2>
                 </div>
-                <div>
-                    <p class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-1">Vehicle</p>
-                    <p class="text-lg font-bold" th:text="${vehicle != null ? vehicle.brand + ' ' + vehicle.model : booking.vehicleId}">Vehicle</p>
-                </div>
-                <div class="pt-5 border-t border-white/10">
-                    <p class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-1">Amount Due</p>
-                    <p class="text-4xl font-extrabold text-emerald-300">LKR <span th:text="${#numbers.formatDecimal(payment.amount, 1, 2)}">0.00</span></p>
-                </div>
-                <div class="bg-white/10 border border-white/10 rounded-xl p-4">
-                    <p class="text-sm text-slate-300">This payment window records card payment details for your booking.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="lg:col-span-3 bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
-            <div class="flex items-center justify-between gap-4 mb-8">
-                <div>
-                    <p class="text-xs uppercase tracking-wider text-gray-400 font-bold mb-1">Secure Checkout</p>
-                    <h2 class="text-3xl font-extrabold text-gray-900">Payment Gateway</h2>
-                </div>
-                <span class="gateway-status text-xs font-extrabold px-4 py-2 rounded-lg" th:text="${payment.status}">PENDING</span>
+                <span class="cp-badge cp-badge--warn" th:text="${payment.status}">PENDING</span>
             </div>
 
-            <div th:if="${gatewayError == 'amount_mismatch'}" class="gateway-error rounded-xl px-4 py-3 mb-5 text-sm font-bold">
-                Entered amount must match the amount due for this booking.
+            <div th:if="${gatewayError == 'amount_mismatch'}" class="cp-alert cp-alert--error">
+                <i class="ph-fill ph-warning-circle"></i>
+                <span>Entered amount must match the amount due for this booking.</span>
             </div>
-            <div th:if="${gatewayError == 'missing_card_details'}" class="gateway-error rounded-xl px-4 py-3 mb-5 text-sm font-bold">
-                Complete the card details before submitting the payment.
+            <div th:if="${gatewayError == 'missing_card_details'}" class="cp-alert cp-alert--error">
+                <i class="ph-fill ph-warning-circle"></i>
+                <span>Complete the card details before submitting the payment.</span>
             </div>
 
-            <form th:action="@{/customer/billing/gateway/complete}" method="post" class="space-y-5">
+            <form th:action="@{/customer/billing/gateway/complete}" method="post" class="cp-form-grid">
                 <input type="hidden" name="bookingId" th:value="${booking.id}"/>
-
-                <label class="block">
-                    <span class="text-sm font-bold text-gray-700">Name on Card</span>
-                    <input type="text" name="cardName" required autocomplete="cc-name" placeholder="Name printed on card" class="mt-2 w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-                </label>
-
-                <label class="block">
-                    <span class="text-sm font-bold text-gray-700">Card Number</span>
-                    <input type="text" name="cardNumber" inputmode="numeric" maxlength="19" required autocomplete="cc-number" placeholder="1234 5678 9012 3456" class="mt-2 w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-                </label>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <label class="block">
-                        <span class="text-sm font-bold text-gray-700">Expiry Date</span>
-                        <input type="text" name="expiry" maxlength="5" required autocomplete="cc-exp" placeholder="MM/YY" class="mt-2 w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-                    </label>
-                    <label class="block">
-                        <span class="text-sm font-bold text-gray-700">CVV</span>
-                        <input type="text" name="cvv" inputmode="numeric" maxlength="4" required autocomplete="cc-csc" placeholder="3 or 4 digits" class="mt-2 w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-                    </label>
+                <div class="cp-field cp-field--full">
+                    <label for="cardName">Name on card</label>
+                    <input id="cardName" type="text" name="cardName" required autocomplete="cc-name" placeholder="Name printed on card" class="cp-input"/>
                 </div>
-
-                <label class="block">
-                    <span class="text-sm font-bold text-gray-700">Amount to Pay (LKR)</span>
-                    <input type="number" name="paymentAmount" min="0" step="0.01" required th:value="${payment.amount}" class="mt-2 w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-                </label>
-
-                <button type="submit" class="w-full bg-[#0D6EFD] hover:bg-blue-700 text-white font-extrabold py-4 rounded-xl transition shadow-sm flex items-center justify-center gap-2">
-                    <i class="ph-bold ph-lock-key"></i> Pay Securely
-                </button>
+                <div class="cp-field cp-field--full">
+                    <label for="cardNumber">Card number</label>
+                    <input id="cardNumber" type="text" name="cardNumber" inputmode="numeric" maxlength="19" required autocomplete="cc-number" placeholder="1234 5678 9012 3456" class="cp-input"/>
+                </div>
+                <div class="cp-field">
+                    <label for="expiry">Expiry date</label>
+                    <input id="expiry" type="text" name="expiry" maxlength="5" required autocomplete="cc-exp" placeholder="MM/YY" class="cp-input"/>
+                </div>
+                <div class="cp-field">
+                    <label for="cvv">CVV</label>
+                    <input id="cvv" type="text" name="cvv" inputmode="numeric" maxlength="4" required autocomplete="cc-csc" placeholder="3 or 4 digits" class="cp-input"/>
+                </div>
+                <div class="cp-field cp-field--full">
+                    <label for="paymentAmount">Amount to pay (LKR)</label>
+                    <input id="paymentAmount" type="number" name="paymentAmount" min="0" step="0.01" required th:value="${payment.amount}" class="cp-input"/>
+                </div>
+                <div class="cp-field cp-field--full">
+                    <button type="submit" class="cp-btn" style="width:100%;justify-content:center;padding:1rem;">
+                        <i class="ph-bold ph-lock-key"></i> Pay securely
+                    </button>
+                </div>
             </form>
         </section>
     </div>
 </main>
+<script th:src="@{/js/customer-portal.js}"></script>
 </body>
 </html>
