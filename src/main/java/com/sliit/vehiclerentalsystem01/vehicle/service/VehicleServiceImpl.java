@@ -1,9 +1,12 @@
 package com.sliit.vehiclerentalsystem01.vehicle.service;
 
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
+import com.sliit.vehiclerentalsystem01.core.config.CachingConfig;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Vehicle;
 import com.sliit.vehiclerentalsystem01.vehicle.repository.VehicleRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +26,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
+    @Cacheable(CachingConfig.VEHICLES_CACHE)
     public List<Vehicle> findAll() {
         return vehicleRepository.findAll();
     }
@@ -34,10 +38,10 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
+    @CacheEvict(value = CachingConfig.VEHICLES_CACHE, allEntries = true)
     public void save(Vehicle vehicle) {
         if (vehicle.getDailyRate() <= 0) throw new ValidationException("invalid_daily_rate");
 
-        // DUPLICATE DEFENSE: This protects your fleet inventory integrity.
         boolean isDuplicate = vehicleRepository.findAll().stream()
                 .anyMatch(existing ->
                         existing.getBrand().equalsIgnoreCase(vehicle.getBrand()) &&
@@ -54,14 +58,13 @@ public class VehicleServiceImpl implements VehicleService {
             vehicle.setId(UUID.randomUUID().toString());
         }
 
-
         vehicleRepository.saveVehicle(vehicle);
     }
 
     @Override
+    @CacheEvict(value = CachingConfig.VEHICLES_CACHE, allEntries = true)
     public void deleteById(String id) {
         if (id == null || id.isBlank()) return;
-        // This maintains the integrity between modules
         if (reservationService.findUnavailableVehicleIds().contains(id.trim())) {
             throw new IllegalStateException("vehicle_in_use");
         }

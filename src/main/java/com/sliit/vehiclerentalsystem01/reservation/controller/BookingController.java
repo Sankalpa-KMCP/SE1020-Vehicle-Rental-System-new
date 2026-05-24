@@ -1,13 +1,11 @@
 package com.sliit.vehiclerentalsystem01.reservation.controller;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
-import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,9 +19,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Admin booking management. Every endpoint requires an {@code ADMIN_LOGGED_IN} session.
- */
 @Controller
 @RequestMapping("/bookings")
 public class BookingController {
@@ -38,10 +33,6 @@ public class BookingController {
         this.reservationService = reservationService;
         this.userService = userService;
         this.vehicleService = vehicleService;
-    }
-
-    private static boolean admin(HttpSession session) {
-        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
     }
 
     private static void addBookingStats(Model model, List<Booking> bookingList) {
@@ -66,10 +57,7 @@ public class BookingController {
     }
 
     @GetMapping
-    public String list(HttpSession session, Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String list(Model model) {
         List<Booking> all = reservationService.findAll();
         model.addAttribute("bookings", all);
         addBookingStats(model, all);
@@ -77,10 +65,7 @@ public class BookingController {
     }
 
     @GetMapping("/new")
-    public String newForm(HttpSession session, Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String newForm(Model model) {
         model.addAttribute("mode", "create");
         model.addAttribute("entityId", null);
         model.addAttribute("booking", new Booking());
@@ -92,12 +77,7 @@ public class BookingController {
     }
 
     @GetMapping("/search")
-    public String searchBooking(HttpSession session,
-                                @RequestParam(required = false) String id,
-                                Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String searchBooking(@RequestParam(required = false) String id, Model model) {
         boolean attempted = id != null && !id.isBlank();
         model.addAttribute("searchAttempted", attempted);
         model.addAttribute("searchedBooking", attempted
@@ -107,11 +87,7 @@ public class BookingController {
     }
 
     @GetMapping("/view-all")
-    public String viewAllBookings(HttpSession session, Model model,
-                                  @RequestParam(required = false) String q) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String viewAllBookings(@RequestParam(required = false) String q, Model model) {
         List<Booking> all = reservationService.findAll();
         if (q != null && !q.isBlank()) {
             String needle = q.trim().toLowerCase(Locale.ROOT);
@@ -134,10 +110,7 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable String id, HttpSession session, Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String detail(@PathVariable String id, Model model) {
         return reservationService.findById(id)
                 .map(b -> {
                     model.addAttribute("booking", b);
@@ -150,10 +123,7 @@ public class BookingController {
     }
 
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable String id, HttpSession session, Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String edit(@PathVariable String id, Model model) {
         return reservationService.findById(id)
                 .map(b -> {
                     model.addAttribute("mode", "edit");
@@ -169,10 +139,7 @@ public class BookingController {
     }
 
     @PostMapping
-    public String create(HttpSession session, @ModelAttribute Booking booking) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String create(@ModelAttribute Booking booking) {
         try {
             reservationService.save(booking);
         } catch (ValidationException ex) {
@@ -182,10 +149,7 @@ public class BookingController {
     }
 
     @PostMapping("/{id}")
-    public String update(@PathVariable String id, HttpSession session, @ModelAttribute Booking booking) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String update(@PathVariable String id, @ModelAttribute Booking booking) {
         booking.setId(id);
         try {
             reservationService.save(booking);
@@ -196,10 +160,7 @@ public class BookingController {
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String delete(@PathVariable String id, RedirectAttributes ra) {
         try {
             reservationService.deleteById(id);
         } catch (IllegalStateException ex) {

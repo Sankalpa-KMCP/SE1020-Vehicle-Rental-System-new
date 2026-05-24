@@ -2,13 +2,13 @@ package com.sliit.vehiclerentalsystem01.user.controller;
 
 import com.sliit.vehiclerentalsystem01.core.service.ImageStorageService;
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
-import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
-import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-// Manage customers at /customers
 @Controller
 @RequestMapping("/customers")
 public class CustomerAdminController {
@@ -51,11 +50,11 @@ public class CustomerAdminController {
         return value == null || value.trim().isEmpty();
     }
 
-    private static boolean adminSession(HttpSession session) {
-        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
+    private String sessionUsername(HttpSession session) {
+        Object u = session != null ? session.getAttribute("username") : null;
+        return u == null ? "" : u.toString().trim();
     }
 
-    // Load customer counts for the directory page
     private void loadDashboard(Model model) {
         List<Customer> allCustomers = userService.findAllCustomers();
         if (allCustomers == null) {
@@ -73,7 +72,6 @@ public class CustomerAdminController {
         model.addAttribute("unverifiedGuests", allCustomers.size() - verifiedGuests);
     }
 
-    // Show directory, search, or edit form
     @GetMapping
     public String handleGet(
             @RequestParam(required = false, defaultValue = "view_directory") String action,
@@ -84,10 +82,12 @@ public class CustomerAdminController {
             Model model) {
         try {
             if ("editSelf".equals(action)) {
-                if (session == null || !Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN))) {
+                // Customers can edit their own profile
+                String un = sessionUsername(session);
+                if (un.isEmpty()) {
                     return "redirect:/auth/login";
                 }
-                Customer loggedIn = userService.findByUsername(normalized((String) session.getAttribute(UserSessionKeys.USERNAME)))
+                Customer loggedIn = userService.findByUsername(un)
                         .filter(u -> u instanceof Customer)
                         .map(u -> (Customer) u)
                         .orElse(null);
@@ -96,17 +96,12 @@ public class CustomerAdminController {
                 }
                 model.addAttribute("customer", loggedIn);
                 model.addAttribute("isCustomerMode", true);
-                Object name = session.getAttribute(UserSessionKeys.NAME);
-                String displayName = name != null && !name.toString().isBlank()
-                        ? name.toString().trim()
+                String displayName = loggedIn.getName() != null && !loggedIn.getName().isBlank()
+                        ? loggedIn.getName().trim()
                         : "@" + loggedIn.getUsername();
                 model.addAttribute("displayName", displayName);
                 model.addAttribute("activeNav", "profile");
                 return "user/edit-customer";
-            }
-
-            if (!adminSession(session)) {
-                return "redirect:/auth/staff-login";
             }
 
             if ("delete".equals(action)) {
@@ -167,7 +162,6 @@ public class CustomerAdminController {
         }
     }
 
-    // Create, update, or delete customer
     @PostMapping
     public String handlePost(@RequestParam Map<String, String> params, HttpSession session,
                              @RequestParam(value = "avatarImage", required = false) MultipartFile avatarImage) {
@@ -177,9 +171,6 @@ public class CustomerAdminController {
         }
 
         if ("delete".equals(action)) {
-            if (!adminSession(session)) {
-                return "redirect:/auth/staff-login";
-            }
             String id = normalized(params.get("id"));
             if (!id.isEmpty()) {
                 try {
@@ -189,10 +180,6 @@ public class CustomerAdminController {
                 }
             }
             return "redirect:/customers?action=view_directory&msg=deleted";
-        }
-
-        if ("create".equals(action) && !adminSession(session)) {
-            return "redirect:/auth/staff-login";
         }
 
         String id = normalized(params.get("id"));
@@ -207,11 +194,11 @@ public class CustomerAdminController {
         String nic = normalizeOptionalDoc(params.get("nic"));
         String license = normalizeOptionalDoc(params.get("license"));
 
-        boolean isAdmin = adminSession(session);
+        boolean isCustomerSelfEdit = "update".equals(action) && id.equals(sessionUsername(session));
 
         if ("update".equals(action)) {
             if (isBlank(name) || isBlank(email) || isBlank(username) || isBlank(phone)) {
-                return profileUpdateRedirect(isAdmin, id, "missing_fields");
+                return profileUpdateRedirect(isCustomerSelfEdit, id, "missing_fields");
             }
         } else if (isBlank(name) || isBlank(email) || isBlank(username) || isBlank(password) || isBlank(phone)) {
             if ("create".equals(action)) {
@@ -225,21 +212,21 @@ public class CustomerAdminController {
                 Customer existing = userService.findById(id)
                         .filter(u -> u instanceof Customer)
                         .map(u -> (Customer) u)
-                        .orElseThrow();
+                        .orElse(null);
 
-                if (!isAdmin) {
-                    String sessionUser = normalized((String) session.getAttribute(UserSessionKeys.USERNAME));
-                    boolean ownsProfile = userService.findByUsername(sessionUser)
-                            .filter(u -> u instanceof Customer c && existing.getId().equals(c.getId()))
-                            .isPresent();
-                    if (!ownsProfile) {
-                        return "redirect:/auth/login?error=unauthorized";
-                    }
+                if (existing == null) {
+                    return "redirect:/auth/login?error=unauthorized";
                 }
 
-                String passwordError = applyPasswordChange(existing, isAdmin, password, currentPassword, newPassword, confirmPassword);
+                // Customer self-edit: verify ownership
+                if (isCustomerSelfEdit) {
+                    // Already confirmed above via id.equals(sessionUsername)
+                }
+
+                String passwordError = applyPasswordChange(existing, isCustomerSelfEdit,
+                        password, currentPassword, newPassword, confirmPassword);
                 if (passwordError != null) {
-                    return profileUpdateRedirect(isAdmin, id, passwordError);
+                    return profileUpdateRedirect(isCustomerSelfEdit, id, passwordError);
                 }
 
                 existing.setUsername(username);
@@ -250,20 +237,18 @@ public class CustomerAdminController {
                 existing.setFullName(name);
                 imageStorageService.attachAvatar(existing, avatarImage);
                 userService.save(existing);
-                if (!isAdmin) {
-                    session.setAttribute(UserSessionKeys.NAME, existing.getName());
-                    session.setAttribute(UserSessionKeys.AVATAR_URL, existing.getAvatarUrl());
+
+                if (!isCustomerSelfEdit) {
+                    return "redirect:/customers?action=view_directory&msg=updated";
                 }
-                return isAdmin
-                        ? "redirect:/customers?action=view_directory&msg=updated"
-                        : "redirect:/customer/home?msg=updated";
+                return "redirect:/customer/home?msg=updated";
             }
 
             String newId = "C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
             Customer created = new Customer();
             created.setId(newId);
             created.setUsername(username);
-            created.setPassword(SecurityUtils.hashPasswordIfNeeded(password));
+            created.setPassword(userService.encodeNewPassword(password));
             created.setEmail(email);
             created.setPhone(phone);
             created.setNic(nic);
@@ -272,13 +257,13 @@ public class CustomerAdminController {
             imageStorageService.attachAvatar(created, avatarImage);
             userService.save(created);
 
-            if ("create".equals(action) || (session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN)))) {
+            if ("create".equals(action)) {
                 return "redirect:/customers?action=view_directory&msg=created";
             }
             return "redirect:/auth/login?success=registered";
         } catch (ValidationException ex) {
             if ("update".equals(action)) {
-                return profileUpdateRedirect(adminSession(session), id, ex.getMessage());
+                return profileUpdateRedirect(isCustomerSelfEdit, id, ex.getMessage());
             }
             if ("create".equals(action)) {
                 return "redirect:/customers?action=view_directory&error=" + ex.getMessage();
@@ -287,41 +272,42 @@ public class CustomerAdminController {
         }
     }
 
-    private static String profileUpdateRedirect(boolean isAdmin, String id, String error) {
-        if (isAdmin) {
-            return "redirect:/customers?action=edit&id=" + id + "&error=" + error;
+    private static String profileUpdateRedirect(boolean isCustomer, String id, String error) {
+        if (isCustomer) {
+            return "redirect:/customers?action=editSelf&error=" + error;
         }
-        return "redirect:/customers?action=editSelf&error=" + error;
+        return "redirect:/customers?action=edit&id=" + id + "&error=" + error;
     }
 
-    // Update password if user entered a new one
-    private static String applyPasswordChange(Customer existing, boolean isAdmin,
-                                              String adminPassword, String currentPassword,
-                                              String newPassword, String confirmPassword) {
-        if (isAdmin) {
-            if (!isBlank(adminPassword)) {
-                existing.setPassword(SecurityUtils.hashPasswordIfNeeded(adminPassword));
+    private String applyPasswordChange(Customer existing, boolean isCustomerSelfEdit,
+                                         String adminPassword, String currentPassword,
+                                         String newPassword, String confirmPassword) {
+        if (isCustomerSelfEdit) {
+            // Customer changing their own password
+            if (isBlank(newPassword)) {
+                return null;
             }
+            if (isBlank(currentPassword)) {
+                return "current_password_required";
+            }
+            if (!newPassword.equals(confirmPassword)) {
+                return "password_mismatch";
+            }
+            if (newPassword.length() < 6) {
+                return "password_too_short";
+            }
+            // Verify current password
+            if (!userService.authenticate(existing.getUsername(), currentPassword).isPresent()) {
+                return "wrong_current_password";
+            }
+            existing.setPassword(userService.encodeNewPassword(newPassword));
             return null;
         }
 
-        if (isBlank(newPassword)) {
-            return null;
+        // Admin setting/updating password
+        if (!isBlank(adminPassword)) {
+            existing.setPassword(userService.encodeNewPassword(adminPassword));
         }
-
-        if (isBlank(currentPassword)) {
-            return "current_password_required";
-        }
-        if (!newPassword.equals(confirmPassword)) {
-            return "password_mismatch";
-        }
-        if (newPassword.length() < 6) {
-            return "password_too_short";
-        }
-        if (!SecurityUtils.verifyPassword(currentPassword, existing.getPassword())) {
-            return "wrong_current_password";
-        }
-        existing.setPassword(SecurityUtils.hashPassword(newPassword));
         return null;
     }
 }

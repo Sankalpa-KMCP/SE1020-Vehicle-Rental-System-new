@@ -284,7 +284,7 @@
               <input type="hidden" name="action" id="manageAction" value="update"/>
               <input type="hidden" name="id" th:value="${foundCustomer.id}"/>
               <input type="hidden" name="username" th:value="${foundCustomer.username}"/>
-              <input type="hidden" name="password" th:value="${foundCustomer.password}"/>
+              <!-- Password: never transmitted to client — use admin reset flow instead -->
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div class="space-y-5">

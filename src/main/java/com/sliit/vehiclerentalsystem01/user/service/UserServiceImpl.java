@@ -1,5 +1,6 @@
 package com.sliit.vehiclerentalsystem01.user.service;
 
+import com.sliit.vehiclerentalsystem01.core.config.CachingConfig;
 import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
 import com.sliit.vehiclerentalsystem01.core.validation.CustomerFieldValidator;
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
@@ -8,7 +9,10 @@ import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.entity.Staff;
 import com.sliit.vehiclerentalsystem01.user.entity.User;
 import com.sliit.vehiclerentalsystem01.user.repository.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,7 +22,6 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-// User business rules: validate, login, save, delete
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -26,14 +29,18 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ReservationService reservationService;
+    private final PasswordEncoder passwordEncoder;
 
-    // Avoid circular dependency with ReservationService
-    public UserServiceImpl(UserRepository userRepository, @Lazy ReservationService reservationService) {
+    public UserServiceImpl(UserRepository userRepository,
+                           @Lazy ReservationService reservationService,
+                           PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.reservationService = reservationService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
+    @Cacheable(CachingConfig.USERS_CACHE)
     public List<User> findAll() {
         return userRepository.findAll();
     }
@@ -43,22 +50,21 @@ public class UserServiceImpl implements UserService {
         if (id == null || id.isBlank()) {
             return Optional.empty();
         }
-        return userRepository.findAll().stream().filter(u -> id.equals(u.getId())).findFirst();
+        return findAll().stream().filter(u -> id.equals(u.getId())).findFirst();
     }
 
-    // Find user by username
     @Override
     public Optional<User> findByUsername(String username) {
         if (username == null || username.isBlank()) {
             return Optional.empty();
         }
         String key = username.trim();
-        return userRepository.findAll().stream()
-                .filter(u -> {
-                    if (u instanceof Customer c) {
+        return findAll().stream()
+                .filter(user -> {
+                    if (user instanceof Customer c) {
                         return key.equalsIgnoreCase(c.getUsername());
                     }
-                    if (u instanceof Staff s) {
+                    if (user instanceof Staff s) {
                         return key.equalsIgnoreCase(s.getUsername());
                     }
                     return false;
@@ -68,7 +74,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Customer> findAllCustomers() {
-        return userRepository.findAll().stream()
+        return findAll().stream()
                 .filter(u -> u instanceof Customer)
                 .map(u -> (Customer) u)
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -76,14 +82,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Staff> findAllStaff() {
-        return userRepository.findAll().stream()
+        return findAll().stream()
                 .filter(u -> u instanceof Staff)
                 .map(u -> (Staff) u)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    // Save new user or update existing one
     @Override
+    @CacheEvict(value = CachingConfig.USERS_CACHE, allEntries = true)
     public void save(User user) {
         if (user.getId() == null || user.getId().isBlank()) {
             user.setId(UUID.randomUUID().toString());
@@ -92,8 +98,8 @@ public class UserServiceImpl implements UserService {
         userRepository.saveUser(user);
     }
 
-    // Delete user (blocked if customer still has bookings)
     @Override
+    @CacheEvict(value = CachingConfig.USERS_CACHE, allEntries = true)
     public void deleteById(String id) {
         if (id == null || id.isBlank()) {
             return;
@@ -110,7 +116,11 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteUserById(id);
     }
 
-    // Login: match username/email and password
+    /**
+     * Verify credentials. On first successful login of a legacy SHA-256 user,
+     * the password is upgraded to BCrypt and persisted so future logins use
+     * the stronger hash.
+     */
     @Override
     public Optional<User> authenticate(String username, String password) {
         if (username == null || password == null) {
@@ -121,26 +131,69 @@ public class UserServiceImpl implements UserService {
         if (u.isEmpty() || p.isEmpty()) {
             return Optional.empty();
         }
-        return userRepository.findAll().stream()
-                .filter(user -> {
-                    String storedUser = "";
-                    String storedPass = "";
-                    if (user instanceof Customer c) {
-                        storedUser = c.getUsername() == null ? "" : c.getUsername().trim();
-                        String storedEmail = c.getEmail() == null ? "" : c.getEmail().trim();
-                        storedPass = c.getPassword() == null ? "" : c.getPassword().trim();
-                        boolean idMatches = u.equalsIgnoreCase(storedUser) || u.equalsIgnoreCase(storedEmail);
-                        return idMatches && SecurityUtils.verifyPassword(p, storedPass);
-                    } else if (user instanceof Staff s) {
-                        storedUser = s.getUsername() == null ? "" : s.getUsername().trim();
-                        storedPass = s.getPassword() == null ? "" : s.getPassword().trim();
-                    }
-                    return u.equalsIgnoreCase(storedUser) && SecurityUtils.verifyPassword(p, storedPass);
-                })
+        Optional<User> found = findAll().stream()
+                .filter(user -> matchesUsername(user, u))
                 .findFirst();
+
+        if (found.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User user = found.get();
+        String storedPass = user.getPassword() == null ? "" : user.getPassword().trim();
+
+        if (SecurityUtils.isBCrypt(storedPass)) {
+            if (!passwordEncoder.matches(p, storedPass)) {
+                return Optional.empty();
+            }
+            // Already BCrypt — login succeeds
+            return Optional.of(user);
+        }
+
+        // Legacy SHA-256 or plain-text — verify and upgrade
+        if (!legacyVerify(p, storedPass)) {
+            return Optional.empty();
+        }
+
+        // Upgrade to BCrypt
+        String bcryptHash = passwordEncoder.encode(p);
+        user.setPassword(bcryptHash);
+        userRepository.saveUser(user);
+
+        return Optional.of(user);
     }
 
-    // Check email and username before saving
+    private boolean matchesUsername(User user, String username) {
+        if (user instanceof Customer c) {
+            String storedUser = c.getUsername() == null ? "" : c.getUsername().trim();
+            String storedEmail = c.getEmail() == null ? "" : c.getEmail().trim();
+            return username.equalsIgnoreCase(storedUser) || username.equalsIgnoreCase(storedEmail);
+        }
+        if (user instanceof Staff s) {
+            String storedUser = s.getUsername() == null ? "" : s.getUsername().trim();
+            return username.equalsIgnoreCase(storedUser);
+        }
+        return false;
+    }
+
+    private boolean legacyVerify(String plain, String stored) {
+        if (SecurityUtils.isSha256Hex(stored)) {
+            return SecurityUtils.sha256Hex(plain).equalsIgnoreCase(stored);
+        }
+        return plain.equals(stored);
+    }
+
+    /**
+     * Encode a new (pre-registration) password with BCrypt.
+     * Call this for all new Customer and Staff registrations.
+     */
+    public String encodeNewPassword(String plainPassword) {
+        if (plainPassword == null || plainPassword.isBlank()) {
+            throw new IllegalArgumentException("Password cannot be blank");
+        }
+        return passwordEncoder.encode(plainPassword);
+    }
+
     private void validateBeforeSave(User user) {
         String email = user.getEmail() == null ? "" : user.getEmail().trim();
         if (email.isEmpty() || !EMAIL_FORMAT.matcher(email).matches()) {
@@ -149,7 +202,7 @@ public class UserServiceImpl implements UserService {
 
         String username = resolveUsername(user);
         if (!username.isBlank()) {
-            boolean usernameTaken = userRepository.findAll().stream()
+            boolean usernameTaken = findAll().stream()
                     .filter(u -> !user.getId().equals(u.getId()))
                     .anyMatch(u -> username.equalsIgnoreCase(resolveUsername(u)));
             if (usernameTaken) {
@@ -158,7 +211,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (user instanceof Customer customer) {
-            boolean emailTaken = userRepository.findAll().stream()
+            boolean emailTaken = findAll().stream()
                     .filter(u -> u instanceof Customer)
                     .filter(u -> !user.getId().equals(u.getId()))
                     .anyMatch(u -> email.equalsIgnoreCase(u.getEmail() == null ? "" : u.getEmail().trim()));
@@ -177,12 +230,5 @@ public class UserServiceImpl implements UserService {
             return s.getUsername() == null ? "" : s.getUsername().trim();
         }
         return "";
-    }
-
-    private static boolean passwordsMatch(String plainPassword, String hashedInput, String storedPass) {
-        if (SecurityUtils.isSha256Hex(storedPass)) {
-            return hashedInput.equalsIgnoreCase(storedPass);
-        }
-        return plainPassword.equals(storedPass);
     }
 }

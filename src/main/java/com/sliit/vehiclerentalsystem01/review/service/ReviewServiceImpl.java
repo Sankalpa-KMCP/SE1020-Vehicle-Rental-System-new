@@ -1,9 +1,14 @@
 package com.sliit.vehiclerentalsystem01.review.service;
 
+import com.sliit.vehiclerentalsystem01.core.config.CachingConfig;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.review.entity.CustomerReview;
 import com.sliit.vehiclerentalsystem01.review.entity.Feedback;
 import com.sliit.vehiclerentalsystem01.review.repository.ReviewRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,6 +19,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReviewServiceImpl.class);
 
     private final ReviewRepository reviewRepository;
 
@@ -43,14 +50,16 @@ public class ReviewServiceImpl implements ReviewService {
             for (java.io.File file : files) {
                 if (file.isFile() && !activeImages.contains(file.getName())) {
                     java.nio.file.Files.deleteIfExists(file.toPath());
+                    log.info("Cleaned orphaned review image: {}", file.getName());
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Failed to clean orphaned review images", e);
         }
     }
 
     @Override
+    @Cacheable(CachingConfig.REVIEWS_CACHE)
     public List<Feedback> findAll() {
         return reviewRepository.findAll();
     }
@@ -61,6 +70,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @CacheEvict(value = CachingConfig.REVIEWS_CACHE, allEntries = true)
     public void save(Feedback review) {
         if (!(review instanceof CustomerReview cr)) {
             throw new IllegalArgumentException("Only CustomerReview is persisted");
@@ -74,23 +84,27 @@ public class ReviewServiceImpl implements ReviewService {
         }
         List<Feedback> list = new ArrayList<>(reviewRepository.findAll());
         String rid = cr.getReviewId();
-        list.removeIf(r -> r instanceof CustomerReview x && rid.equals(x.getReviewId()));
+        list.removeIf(r -> {
+            if (r instanceof CustomerReview c) return rid.equals(c.getReviewId());
+            return false;
+        });
         list.add(cr);
         reviewRepository.saveAll(list);
     }
 
     @Override
+    @CacheEvict(value = CachingConfig.REVIEWS_CACHE, allEntries = true)
     public void deleteById(String id) {
         findById(id).ifPresent(f -> {
             if (f instanceof CustomerReview cr) {
                 String imageUrl = cr.getImageUrl();
                 if (imageUrl != null && !imageUrl.isBlank()) {
                     try {
-                        String pathStr = imageUrl.startsWith("/") ? imageUrl.substring(1) : imageUrl;
-                        java.nio.file.Path path = java.nio.file.Paths.get(pathStr);
-                        java.nio.file.Files.deleteIfExists(path);
+                        java.nio.file.Path target = sanitizeAndResolve(imageUrl, "uploads/reviews");
+                        java.nio.file.Files.deleteIfExists(target);
+                        log.info("Deleted review image: {}", target);
                     } catch (java.io.IOException e) {
-                        e.printStackTrace();
+                        log.warn("Failed to delete review image: {}", imageUrl, e);
                     }
                 }
             }
@@ -141,5 +155,15 @@ public class ReviewServiceImpl implements ReviewService {
 
     private static String nullSafe(String s) {
         return s == null ? "" : s.trim();
+    }
+
+    private static java.nio.file.Path sanitizeAndResolve(String userPath, String baseDir) throws java.io.IOException {
+        java.nio.file.Path base = java.nio.file.Paths.get(baseDir).toAbsolutePath().normalize();
+        String clean = userPath.startsWith("/") ? userPath.substring(1) : userPath;
+        java.nio.file.Path resolved = base.resolve(clean).normalize();
+        if (!resolved.startsWith(base)) {
+            throw new java.nio.file.AccessDeniedException("Blocked path traversal: " + userPath);
+        }
+        return resolved;
     }
 }

@@ -4,8 +4,6 @@ import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.review.entity.CustomerReview;
 import com.sliit.vehiclerentalsystem01.review.entity.Feedback;
 import com.sliit.vehiclerentalsystem01.review.service.ReviewService;
-import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,19 +32,13 @@ public class ReviewController {
             "Reviews can only be submitted by customers from their account.";
 
     @GetMapping("/form/admin")
-    public String adminReviewForm(HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/staff-login";
-        }
+    public String adminReviewForm(RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("reviewNotice", REVIEW_CUSTOMER_ONLY_MSG);
         return "redirect:/reviews";
     }
 
     @GetMapping
-    public String list(Model model, HttpSession session) {
-        if (!Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/staff-login";
-        }
+    public String list(Model model) {
         List<Feedback> all = reviewService.findAll();
         model.addAttribute("reviews", all);
         List<CustomerReview> customerReviews = all.stream()
@@ -68,30 +60,18 @@ public class ReviewController {
         model.addAttribute("flaggedCount", flaggedCount);
         double avgRating = customerReviews.stream().mapToInt(CustomerReview::getRating).average().orElse(0.0);
         model.addAttribute("avgRating", avgRating);
-
-        String staffUser = "";
-        if (Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            Object u = session.getAttribute(UserSessionKeys.USERNAME);
-            staffUser = u == null ? "" : u.toString().trim();
-        }
-        model.addAttribute("currentStaffUsername", staffUser);
+        model.addAttribute("currentStaffUsername", "");
         return "review/review-dashboard";
     }
 
     @GetMapping("/new")
-    public String newForm(HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/staff-login";
-        }
+    public String newForm(RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("reviewNotice", REVIEW_CUSTOMER_ONLY_MSG);
         return "redirect:/reviews";
     }
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable String id, HttpSession session, Model model) {
-        if (!Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/staff-login";
-        }
+    public String detail(@PathVariable String id, Model model) {
         return reviewService.findById(id)
                 .map(r -> {
                     model.addAttribute("review", r);
@@ -101,16 +81,11 @@ public class ReviewController {
     }
 
     @PostMapping
-    public String create(
-            HttpSession session,
-            @RequestParam(required = false) String reviewType,
-            @RequestParam(required = false) String parentReviewId,
-            @RequestParam(required = false) String repliedBy,
-            @RequestParam(required = false) String staffReply,
-            RedirectAttributes redirectAttributes) {
-        if (!Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))) {
-            return "redirect:/auth/staff-login";
-        }
+    public String create(@RequestParam(required = false) String reviewType,
+                          @RequestParam(required = false) String parentReviewId,
+                          @RequestParam(required = false) String repliedBy,
+                          @RequestParam(required = false) String staffReply,
+                          RedirectAttributes redirectAttributes) {
         if (!"STAFF_REPLY".equalsIgnoreCase(reviewType)) {
             redirectAttributes.addFlashAttribute("reviewNotice", REVIEW_CUSTOMER_ONLY_MSG);
             return "redirect:/reviews";
@@ -131,5 +106,4 @@ public class ReviewController {
                 })
                 .orElse("redirect:/reviews");
     }
-
 }

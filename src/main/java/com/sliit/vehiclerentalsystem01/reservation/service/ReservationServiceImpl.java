@@ -1,5 +1,6 @@
 package com.sliit.vehiclerentalsystem01.reservation.service;
 
+import com.sliit.vehiclerentalsystem01.core.config.CachingConfig;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
 import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
@@ -8,6 +9,8 @@ import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Vehicle;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +43,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @Cacheable(CachingConfig.BOOKINGS_CACHE)
     public List<Booking> findAll() {
         return reservationRepository.findAll();
     }
@@ -78,6 +82,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @CacheEvict(value = CachingConfig.BOOKINGS_CACHE, allEntries = true)
     public void save(Booking booking) {
         if (booking.getTransactionId() == null || booking.getTransactionId().isBlank()) {
             booking.setTransactionId(UUID.randomUUID().toString());
@@ -102,6 +107,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @CacheEvict(value = CachingConfig.BOOKINGS_CACHE, allEntries = true)
     public void deleteById(String id) {
         if (id != null && !id.isBlank() && paymentService.hasAnyPaymentForBooking(id)) {
             throw new IllegalStateException("booking_in_use");
@@ -113,6 +119,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @CacheEvict(value = CachingConfig.BOOKINGS_CACHE, allEntries = true)
     public void updateStatus(String bookingId, String newStatus) {
         if (bookingId == null || bookingId.isBlank() || newStatus == null) {
             return;
@@ -140,6 +147,14 @@ public class ReservationServiceImpl implements ReservationService {
         }
         if (changed) {
             reservationRepository.saveAll(list);
+            // Sync payments when a booking is confirmed — creates a PENDING payment record if none exists
+            if ("CONFIRMED".equalsIgnoreCase(newStatus) || "COMPLETED".equalsIgnoreCase(newStatus)) {
+                try {
+                    paymentService.triggerSync();
+                } catch (Exception ignored) {
+                    // Non-critical: log at WARN if needed; don't block the booking status update
+                }
+            }
             if (vehicleIdToUpdate != null && statusToSet != null) {
                 if ("AVAILABLE".equals(statusToSet)) {
                     final String targetStatus = statusToSet;
@@ -189,20 +204,18 @@ public class ReservationServiceImpl implements ReservationService {
             return keys;
         }
         keys.add(t);
+
+        // Single batch lookup: find the customer once and extract all keys
         userService.findByUsername(t)
                 .filter(u -> u instanceof Customer)
                 .map(u -> (Customer) u)
                 .ifPresent(c -> {
-                    keys.add(c.getId());
-                    keys.add(c.getUsername());
+                    String id = c.getId();
+                    String un = c.getUsername();
+                    if (id != null && !id.isBlank()) keys.add(id.trim());
+                    if (un != null && !un.isBlank()) keys.add(un.trim());
                 });
-        userService.findById(t)
-                .filter(u -> u instanceof Customer)
-                .map(u -> (Customer) u)
-                .ifPresent(c -> {
-                    keys.add(c.getId());
-                    keys.add(c.getUsername());
-                });
+
         return keys;
     }
 

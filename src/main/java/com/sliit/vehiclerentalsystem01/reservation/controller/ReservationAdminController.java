@@ -1,11 +1,9 @@
 package com.sliit.vehiclerentalsystem01.reservation.controller;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
-import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,9 +18,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * Admin reservation panel (legacy {@code booking-dashboard.jsp}).
- */
 @Controller
 @RequestMapping("/admin/reservations")
 public class ReservationAdminController {
@@ -30,21 +25,13 @@ public class ReservationAdminController {
     private final ReservationService reservationService;
     private final VehicleService vehicleService;
 
-    public ReservationAdminController(ReservationService reservationService,
-                                       VehicleService vehicleService) {
+    public ReservationAdminController(ReservationService reservationService, VehicleService vehicleService) {
         this.reservationService = reservationService;
         this.vehicleService = vehicleService;
     }
 
-    private static boolean admin(HttpSession session) {
-        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
-    }
-
     @GetMapping
-    public String panel(HttpSession session, Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String panel(Model model) {
         List<Booking> bookingList = reservationService.findAll();
         int totalBookings = bookingList.size();
         int cancellationRequests = 0;
@@ -65,31 +52,21 @@ public class ReservationAdminController {
         model.addAttribute("cancellationRequests", cancellationRequests);
         model.addAttribute("pendingBookings", pendingBookings);
         model.addAttribute("updateRequests", updateRequests);
-        
-        // Populate vehicle names map
         Map<String, String> vehicleNames = new HashMap<>();
-        vehicleService.findAll().forEach(v -> 
+        vehicleService.findAll().forEach(v ->
             vehicleNames.put(v.getId(), v.getBrand() + " " + v.getModel())
         );
         model.addAttribute("vehicleNames", vehicleNames);
-        
         return "booking/booking-dashboard";
     }
 
     @GetMapping("/search")
-    public String searchBooking(HttpSession session) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String searchBooking() {
         return "booking/search-booking";
     }
 
     @GetMapping("/view-all")
-    public String viewAllBookings(HttpSession session, Model model,
-                                  @RequestParam(required = false) String q) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String viewAllBookings(@RequestParam(required = false) String q, Model model) {
         List<Booking> all = reservationService.findAll();
         if (q != null && !q.isBlank()) {
             String needle = q.trim().toLowerCase(Locale.ROOT);
@@ -104,14 +81,11 @@ public class ReservationAdminController {
         model.addAttribute("searchQuery", q == null ? "" : q.trim());
         model.addAttribute("useAdminReservationBase", true);
         addViewAllStats(model, all);
-        
-        // Populate vehicle names map
         Map<String, String> vehicleNames = new HashMap<>();
-        vehicleService.findAll().forEach(v -> 
+        vehicleService.findAll().forEach(v ->
             vehicleNames.put(v.getId(), v.getBrand() + " " + v.getModel())
         );
         model.addAttribute("vehicleNames", vehicleNames);
-        
         return "booking/view-all-bookings";
     }
 
@@ -141,14 +115,7 @@ public class ReservationAdminController {
     }
 
     @PostMapping
-    public String post(
-            HttpSession session,
-            @RequestParam String action,
-            @RequestParam String id,
-            RedirectAttributes ra) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String post(@RequestParam String action, @RequestParam String id, RedirectAttributes ra) {
         Booking b = reservationService.findById(id).orElse(null);
         if (b == null) {
             return "redirect:/admin/reservations";
@@ -184,8 +151,7 @@ public class ReservationAdminController {
                         ra.addAttribute("error", ex.getMessage());
                     }
                 }
-                default -> {
-                }
+                default -> { }
             }
         } catch (ValidationException ex) {
             return "redirect:/admin/reservations?error=" + ex.getMessage();
@@ -194,14 +160,7 @@ public class ReservationAdminController {
     }
 
     @PostMapping("/{id}/action")
-    public String handleAction(
-            @PathVariable String id,
-            HttpSession session,
-            @RequestParam String action,
-            RedirectAttributes ra) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
+    public String handleAction(@PathVariable String id, @RequestParam String action, RedirectAttributes ra) {
         Booking b = reservationService.findById(id).orElse(null);
         if (b == null) {
             return "redirect:/bookings";
@@ -230,8 +189,7 @@ public class ReservationAdminController {
                     b.setStaffMessage("");
                     reservationService.save(b);
                 }
-                default -> {
-                }
+                default -> { }
             }
         } catch (ValidationException ex) {
             return "redirect:/bookings?error=" + ex.getMessage();

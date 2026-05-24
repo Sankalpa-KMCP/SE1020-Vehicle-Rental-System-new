@@ -1,17 +1,14 @@
 package com.sliit.vehiclerentalsystem01.vehicle.controller;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
-import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Car;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Motorcycle;
 import com.sliit.vehiclerentalsystem01.vehicle.entity.Vehicle;
 import com.sliit.vehiclerentalsystem01.core.service.ImageStorageService;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,11 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,20 +33,12 @@ public class VehicleController {
         this.imageStorageService = imageStorageService;
     }
 
-    private static boolean admin(HttpSession session) {
-        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
-    }
-
     @GetMapping
     public String vehiclesEntry(
             @RequestParam(required = false) String action,
             @RequestParam(required = false) String id,
-            HttpSession session,
             RedirectAttributes ra,
             Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
         if ("delete".equals(action) && id != null && !id.isBlank()) {
             try {
                 vehicleService.deleteById(id.trim());
@@ -91,15 +75,12 @@ public class VehicleController {
     }
 
     @GetMapping("/add")
-    public String addLegacyForm(HttpSession session) {
-        if (!admin(session)) { return "redirect:/auth/staff-login"; }
+    public String addLegacyForm() {
         return "vehicle/add-vehicle";
     }
 
-    // FIXED ROUTING: Now points to the correct Tailwind Add Form!
     @GetMapping("/new")
-    public String newForm(HttpSession session) {
-        if (!admin(session)) { return "redirect:/auth/staff-login"; }
+    public String newForm() {
         return "vehicle/add-vehicle";
     }
 
@@ -111,10 +92,8 @@ public class VehicleController {
         }).orElse("redirect:/vehicles");
     }
 
-    // FIXED ROUTING: Now points to the correct Tailwind Edit Form!
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable String id, HttpSession session, Model model) {
-        if (!admin(session)) { return "redirect:/auth/staff-login"; }
+    public String edit(@PathVariable String id, Model model) {
         return vehicleService.findById(id).map(v -> {
             model.addAttribute("vehicle", v);
             return "vehicle/edit-vehicle";
@@ -123,15 +102,10 @@ public class VehicleController {
 
     @PostMapping
     public String postRoot(
-            HttpSession session,
             @RequestParam Map<String, String> params,
             @RequestParam(required = false) String vehicleType,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
             RedirectAttributes ra) {
-
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
 
         String action = params.get("action");
         String idParam = params.get("id");
@@ -222,8 +196,7 @@ public class VehicleController {
     private static String normalized(String value) { return value == null ? "" : value.trim(); }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
-        if (!admin(session)) return "redirect:/auth/staff-login";
+    public String delete(@PathVariable String id, RedirectAttributes ra) {
         try { vehicleService.deleteById(id); }
         catch (IllegalStateException ex) { ra.addAttribute("error", ex.getMessage()); }
         return "redirect:/vehicles";

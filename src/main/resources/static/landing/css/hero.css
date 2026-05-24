@@ -495,16 +495,16 @@
 }
 
 .da-layer--base {
-  background-image: url('https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&q=80&w=2000');
+  background-image: url('https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=2000');
   z-index: 1;
 }
 
 .da-layer--mid {
-  /* Using a dark mountain range PNG-like overlay */
-  background-image: linear-gradient(to top, #050508 0%, transparent 30%), url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2000');
+  /* Night city with car light trails - vehicle motion theme */
+  background-image: linear-gradient(to top, #050508 0%, transparent 30%), url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=2000');
   background-size: 100% 100%, cover;
   z-index: 3;
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 .da-layer--fog-1, .da-layer--fog-2 {
@@ -522,11 +522,12 @@
   inset: 0;
   width: 200%;
   height: 100%;
-  background-image: url('https://images.unsplash.com/photo-1485236715568-ddc5ee6ca227?auto=format&fit=crop&q=80&w=2000');
+  /* Night traffic with light trails - vehicle motion theme */
+  background-image: url('https://images.unsplash.com/photo-1471479917193-f00955256257?auto=format&fit=crop&q=80&w=2000');
   background-size: 50% 100%;
   background-repeat: repeat-x;
   animation: fogDrift 90s linear infinite;
-  filter: contrast(1.1) brightness(0.6);
+  filter: contrast(1.1) brightness(0.5);
 }
 
 .da-fog-drift--alt {
@@ -542,7 +543,8 @@
 
 .da-layer--overlay {
   z-index: 5;
-  background: linear-gradient(to bottom, rgba(5,5,8,0.2) 0%, rgba(5,5,8,0.7) 60%, #050508 100%);
+  /* Darker overlay for night driving scenes to ensure text readability */
+  background: linear-gradient(to bottom, rgba(5,5,8,0.4) 0%, rgba(5,5,8,0.75) 50%, rgba(5,5,8,0.95) 100%);
 }
 
 .da-hero__content-stack {

@@ -1,5 +1,6 @@
 package com.sliit.vehiclerentalsystem01.payment.service;
 
+import com.sliit.vehiclerentalsystem01.core.config.CachingConfig;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.payment.entity.CardPayment;
 import com.sliit.vehiclerentalsystem01.payment.entity.Payment;
@@ -8,9 +9,12 @@ import com.sliit.vehiclerentalsystem01.payment.repository.PaymentRepository;
 import com.sliit.vehiclerentalsystem01.reservation.entity.Booking;
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
 import com.sliit.vehiclerentalsystem01.vehicle.service.VehicleService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -79,11 +83,27 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     /**
+     * Run sync once at startup so confirmed bookings without payment records
+     * are backfilled without doing a full scan on every read.
+     */
+    @PostConstruct
+    public void syncOnStartup() {
+        syncPendingPayments();
+    }
+
+    /**
+     * Called only at startup or when a booking status transitions to CONFIRMED/COMPLETED.
+     */
+    public void triggerSync() {
+        syncPendingPayments();
+    }
+
+    /**
      * CRUD: READ
      */
     @Override
+    @Cacheable(CachingConfig.PAYMENTS_CACHE)
     public List<Payment> findAll() {
-        syncPendingPayments(); // Ensure data is up to date before fetching
         return paymentRepository.findAll().stream()
                 .filter(p -> !PaymentStatus.fromString(p.getStatus()).isDeleted())
                 .collect(Collectors.toList());
@@ -94,7 +114,6 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     public Optional<Payment> findById(String id) {
-        syncPendingPayments();
         return paymentRepository.findAll().stream()
                 .filter(p -> id.equals(p.getId()) && !PaymentStatus.fromString(p.getStatus()).isDeleted())
                 .findFirst();
@@ -105,6 +124,7 @@ public class PaymentServiceImpl implements PaymentService {
      * Updates an existing payment or saves a new one if it doesn't exist.
      */
     @Override
+    @CacheEvict(value = CachingConfig.PAYMENTS_CACHE, allEntries = true)
     public void save(Payment payment) {
         if (payment.getAmount() < 0) {
             throw new ValidationException("invalid_amount"); // Business rule validation
@@ -128,6 +148,7 @@ public class PaymentServiceImpl implements PaymentService {
      * CRUD: DELETE
      */
     @Override
+    @CacheEvict(value = CachingConfig.PAYMENTS_CACHE, allEntries = true)
     public void deleteById(String id) {
         paymentRepository.findAll().stream()
                 .filter(p -> id.equals(p.getId()))
@@ -145,15 +166,11 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     public Optional<Payment> findLatestByBookingId(String bookingId) {
-        syncPendingPayments();
         if (bookingId == null || bookingId.isBlank()) {
             return Optional.empty();
         }
-        
         String key = bookingId.trim();
         List<Payment> all = paymentRepository.findAll();
-        
-        // Search backwards to quickly find the latest entry
         for (int i = all.size() - 1; i >= 0; i--) {
             Payment p = all.get(i);
             if (key.equals(p.getBookingId()) && !PaymentStatus.fromString(p.getStatus()).isDeleted()) {
@@ -168,7 +185,6 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     public boolean hasAnyPaymentForBooking(String bookingId) {
-        syncPendingPayments();
         if (bookingId == null || bookingId.isBlank()) {
             return false;
         }
@@ -182,7 +198,6 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     public boolean hasPaidPaymentForBooking(String bookingId) {
-        syncPendingPayments();
         if (bookingId == null || bookingId.isBlank()) {
             return false;
         }
@@ -197,7 +212,6 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     public List<Payment> findAllByBookingId(String bookingId) {
-        syncPendingPayments();
         if (bookingId == null || bookingId.isBlank()) return new ArrayList<>();
         String key = bookingId.trim();
         return paymentRepository.findAll().stream()

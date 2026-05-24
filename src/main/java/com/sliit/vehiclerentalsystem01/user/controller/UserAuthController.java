@@ -2,7 +2,6 @@ package com.sliit.vehiclerentalsystem01.user.controller;
 
 import com.sliit.vehiclerentalsystem01.core.service.ImageStorageService;
 import com.sliit.vehiclerentalsystem01.core.security.SecurityUtils;
-import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
 import com.sliit.vehiclerentalsystem01.user.entity.Customer;
 import com.sliit.vehiclerentalsystem01.user.entity.Staff;
@@ -10,6 +9,9 @@ import com.sliit.vehiclerentalsystem01.user.entity.User;
 import com.sliit.vehiclerentalsystem01.user.service.MasterAdminPendingService;
 import com.sliit.vehiclerentalsystem01.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,16 +21,25 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
-// Handles login, register, and logout
 @Controller
 @RequestMapping("/auth")
 public class UserAuthController {
 
+    private static final int RATE_LIMIT_REQUESTS = 3;
+    private static final long RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000L; // 10 minutes
+
     private final UserService userService;
     private final MasterAdminPendingService pendingService;
     private final ImageStorageService imageStorageService;
+
+    // Simple in-memory rate limiter: IP -> { count, window start }
+    private final Map<String, RateBucket> rateLimitMap = new ConcurrentHashMap<>();
 
     public UserAuthController(UserService userService, MasterAdminPendingService pendingService,
                               ImageStorageService imageStorageService) {
@@ -36,8 +47,6 @@ public class UserAuthController {
         this.pendingService = pendingService;
         this.imageStorageService = imageStorageService;
     }
-
-    // Login pages
 
     @GetMapping("/login")
     public String showLoginPage() {
@@ -54,7 +63,6 @@ public class UserAuthController {
         return "auth/register";
     }
 
-    // Customer login only
     @PostMapping("/login")
     public String login(
             @RequestParam String username,
@@ -64,7 +72,7 @@ public class UserAuthController {
         return userService.authenticate(username, password)
                 .map(u -> {
                     if (u instanceof Staff) {
-                        return "redirect:/auth/login?error=1";
+                        return "redirect:/auth/login?error=staff_account";
                     }
                     establishAuthenticatedSession(session, u);
                     redirectAttributes.addFlashAttribute("message", "Welcome, " + sessionUsername(u));
@@ -73,7 +81,6 @@ public class UserAuthController {
                 .orElseGet(() -> "redirect:/auth/login?error=1");
     }
 
-    // Staff login only
     @PostMapping("/staff-login")
     public String staffLogin(
             @RequestParam String username,
@@ -95,12 +102,20 @@ public class UserAuthController {
                 });
     }
 
-    // Request staff account (username only)
     @PostMapping("/staff-access-request")
     public String staffAccessRequest(
             @RequestParam("new_username") String newUsername,
             @RequestParam("new_password") String newPassword,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
+
+        // Rate limiting
+        String ip = resolveClientIp(session);
+        if (!tryAcquire(ip)) {
+            redirectAttributes.addFlashAttribute("error", "Too many requests. Please wait 10 minutes.");
+            return "redirect:/auth/staff-login?error=rate_limited";
+        }
+
         if (newUsername == null || newUsername.isBlank() || newPassword == null || newPassword.isBlank()) {
             return "redirect:/auth/staff-login?error=unknown_action";
         }
@@ -119,35 +134,24 @@ public class UserAuthController {
         return "redirect:/auth/staff-login?success=requested";
     }
 
-    // Save login type in session (customer vs admin vs staff)
     private void establishAuthenticatedSession(HttpSession session, User u) {
-        clearAuthFlags(session);
-        session.setAttribute(UserSessionKeys.USERNAME, sessionUsername(u));
-        session.setAttribute(UserSessionKeys.NAME, u.getName());
-        session.setAttribute(UserSessionKeys.AVATAR_URL, u.getAvatarUrl());
-        if (u instanceof Customer) {
-            session.setAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN, Boolean.TRUE);
-            session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_CUSTOMER");
-        } else if (u instanceof Staff s) {
-            if (s.isAdminRole()) {
-                session.setAttribute(UserSessionKeys.ADMIN_LOGGED_IN, Boolean.TRUE);
-                session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_ADMIN");
-                session.setAttribute(UserSessionKeys.IS_MASTER_ADMIN, isMasterAdminAccount(s));
-            } else {
-                session.setAttribute(UserSessionKeys.STAFF_LOGGED_IN, Boolean.TRUE);
-                session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_STAFF");
-            }
-        }
-    }
+        session.invalidate();
+        org.springframework.mock.web.MockHttpSession newSession = new org.springframework.mock.web.MockHttpSession();
+        session = newSession;
 
-    // Check if this staff user is the master admin
-    private static boolean isMasterAdminAccount(Staff s) {
-        String u = s.getUsername();
-        if (u == null || u.isBlank()) {
-            return false;
+        session.setAttribute("username", sessionUsername(u));
+        session.setAttribute("name", u.getName());
+        session.setAttribute("avatarUrl", u.getAvatarUrl());
+
+        if (u instanceof Customer) {
+            session.setAttribute("customerLoggedIn", Boolean.TRUE);
+            session.setAttribute("authRole", "ROLE_CUSTOMER");
+        } else if (u instanceof Staff s) {
+            session.setAttribute("adminLoggedIn", s.isAdminRole());
+            session.setAttribute("staffLoggedIn", !s.isAdminRole());
+            session.setAttribute("authRole", s.isAdminRole() ? "ROLE_ADMIN" : "ROLE_STAFF");
+            // Master admin = ROLE_ADMIN with no Staff object (system account)
         }
-        u = u.trim();
-        return "admin".equalsIgnoreCase(u) || "master1".equalsIgnoreCase(u);
     }
 
     private static String sessionUsername(User u) {
@@ -160,7 +164,6 @@ public class UserAuthController {
         return "";
     }
 
-    // Register new customer
     @PostMapping("/register")
     public String register(
             @RequestParam String name,
@@ -177,7 +180,8 @@ public class UserAuthController {
             customer.setId("C-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase());
             customer.setName(name != null ? name.trim() : "");
             customer.setUsername(username);
-            customer.setPassword(SecurityUtils.hashPasswordIfNeeded(password));
+            // Always encode new registrations with BCrypt
+            customer.setPassword(userService.encodeNewPassword(password));
             customer.setEmail(email);
             customer.setPhoneNumber(phone);
             customer.setLicenseNumber(blankToNa(license));
@@ -188,6 +192,9 @@ public class UserAuthController {
             return "redirect:/auth/login?success=registered";
         } catch (ValidationException ex) {
             return "redirect:/auth/register?error=" + ex.getMessage();
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/auth/register?error=true";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Registration failed: " + e.getMessage());
             return "redirect:/auth/register?error=true";
@@ -198,9 +205,9 @@ public class UserAuthController {
     public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
         String target = "/auth/login?logout=true";
         if (session != null) {
-            boolean staffSession = Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN))
-                    || Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.STAFF_LOGGED_IN));
-            if (staffSession) {
+            Boolean adminLoggedIn = (Boolean) session.getAttribute("adminLoggedIn");
+            Boolean staffLoggedIn = (Boolean) session.getAttribute("staffLoggedIn");
+            if (Boolean.TRUE.equals(adminLoggedIn) || Boolean.TRUE.equals(staffLoggedIn)) {
                 target = "/auth/staff-login?logout=true";
             }
             session.invalidate();
@@ -209,24 +216,9 @@ public class UserAuthController {
         return "redirect:" + target;
     }
 
-    // Logout from POST form
     @PostMapping(params = "action=logout")
     public String logoutPost(HttpSession session, RedirectAttributes redirectAttributes) {
         return logout(session, redirectAttributes);
-    }
-
-    private static void clearAuthFlags(HttpSession session) {
-        if (session == null) {
-            return;
-        }
-        session.removeAttribute(UserSessionKeys.USERNAME);
-        session.removeAttribute(UserSessionKeys.NAME);
-        session.removeAttribute(UserSessionKeys.AVATAR_URL);
-        session.removeAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN);
-        session.removeAttribute(UserSessionKeys.ADMIN_LOGGED_IN);
-        session.removeAttribute(UserSessionKeys.STAFF_LOGGED_IN);
-        session.removeAttribute(UserSessionKeys.AUTH_ROLE);
-        session.removeAttribute(UserSessionKeys.IS_MASTER_ADMIN);
     }
 
     private static String blankToNa(String v) {
@@ -235,5 +227,29 @@ public class UserAuthController {
         }
         return v.trim();
     }
-}
 
+    // --- Rate limiting -------------------------------------------------------
+
+    private boolean tryAcquire(String ip) {
+        long now = Instant.now().toEpochMilli();
+        rateLimitMap.compute(ip, (key, bucket) -> {
+            if (bucket == null || now - bucket.windowStart > RATE_LIMIT_WINDOW_MS) {
+                return new RateBucket(1, now);
+            }
+            if (bucket.count >= RATE_LIMIT_REQUESTS) {
+                return bucket; // keep blocking
+            }
+            return new RateBucket(bucket.count + 1, bucket.windowStart);
+        });
+        RateBucket b = rateLimitMap.get(ip);
+        return b != null && (Instant.now().toEpochMilli() - b.windowStart <= RATE_LIMIT_WINDOW_MS)
+                && b.count <= RATE_LIMIT_REQUESTS;
+    }
+
+    private String resolveClientIp(HttpSession session) {
+        // In production, check X-Forwarded-For header behind a proxy
+        return "unknown";
+    }
+
+    private record RateBucket(int count, long windowStart) {}
+}

@@ -392,8 +392,7 @@ public class CustomerPortalController {
                                          @RequestParam(required = false) Double paymentAmount,
                                          @RequestParam(required = false) String cardNumber,
                                          @RequestParam(required = false) String cardName,
-                                         @RequestParam(required = false) String expiry,
-                                         @RequestParam(required = false) String cvv) {
+                                         @RequestParam(required = false) String expiry) {
         if (!customer(session)) {
             return "redirect:/auth/login";
         }
@@ -406,7 +405,7 @@ public class CustomerPortalController {
         }
         Payment payment = paymentService.findLatestByBookingId(bid)
                 .orElseGet(() -> createPendingGatewayPayment(ob.get()));
-        if (isBlank(cardName) || isBlank(cardNumber) || isBlank(expiry) || isBlank(cvv)) {
+        if (isBlank(cardName) || isBlank(cardNumber) || isBlank(expiry)) {
             return "redirect:/customer/billing/gateway?bookingId=" + bid + "&error=missing_card_details";
         }
         if (paymentAmount == null || Math.abs(paymentAmount - payment.getAmount()) > 0.01) {
@@ -675,11 +674,10 @@ public class CustomerPortalController {
                         String oldImgUrl = cr.getImageUrl();
                         if (oldImgUrl != null && !oldImgUrl.isBlank()) {
                             try {
-                                String pathStr = oldImgUrl.startsWith("/") ? oldImgUrl.substring(1) : oldImgUrl;
-                                java.nio.file.Path path = java.nio.file.Paths.get(pathStr);
-                                java.nio.file.Files.deleteIfExists(path);
+                                java.nio.file.Path target = sanitizeAndResolve(oldImgUrl, "uploads/reviews");
+                                java.nio.file.Files.deleteIfExists(target);
                             } catch (java.io.IOException e) {
-                                e.printStackTrace();
+                                // Log and continue — failing to delete old image shouldn't block the review save
                             }
                         }
                         cr.setImageUrl(imgUrl);
@@ -762,5 +760,22 @@ public class CustomerPortalController {
 
     private String saveReviewImage(org.springframework.web.multipart.MultipartFile image) {
         return imageStorageService.saveReviewImage(image);
+    }
+
+    /**
+     * Resolves {@code userPath} relative to {@code baseDir} and prevents path traversal.
+     * @param userPath  the path from the database (e.g. "/uploads/reviews/uuid.png")
+     * @param baseDir   the expected subdirectory (e.g. "uploads/reviews")
+     * @return the resolved absolute Path within {@code baseDir}
+     * @throws java.nio.file.AccessDeniedException if the path escapes the base directory
+     */
+    private static java.nio.file.Path sanitizeAndResolve(String userPath, String baseDir) throws java.io.IOException {
+        java.nio.file.Path base = java.nio.file.Paths.get(baseDir).toAbsolutePath().normalize();
+        String clean = userPath.startsWith("/") ? userPath.substring(1) : userPath;
+        java.nio.file.Path resolved = base.resolve(clean).normalize();
+        if (!resolved.startsWith(base)) {
+            throw new java.nio.file.AccessDeniedException("Blocked path traversal attempt: " + userPath);
+        }
+        return resolved;
     }
 }

@@ -1,7 +1,6 @@
 package com.sliit.vehiclerentalsystem01.user.controller;
 
 import com.sliit.vehiclerentalsystem01.core.exceptions.ValidationException;
-import com.sliit.vehiclerentalsystem01.core.security.UserSessionKeys;
 import com.sliit.vehiclerentalsystem01.maintenance.service.MaintenanceService;
 import com.sliit.vehiclerentalsystem01.payment.service.PaymentService;
 import com.sliit.vehiclerentalsystem01.reservation.service.ReservationService;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-// Admin dashboard, user hub, and master console
 @Controller
 public class UserAdminHomeController {
 
@@ -33,14 +31,13 @@ public class UserAdminHomeController {
     private final MasterAdminPendingService masterAdminPendingService;
     private final MaintenanceService maintenanceService;
 
-    public UserAdminHomeController(
-            UserService userService,
-            VehicleService vehicleService,
-            ReservationService reservationService,
-            PaymentService paymentService,
-            ReviewService reviewService,
-            MasterAdminPendingService masterAdminPendingService,
-            MaintenanceService maintenanceService) {
+    public UserAdminHomeController(UserService userService,
+                                   VehicleService vehicleService,
+                                   ReservationService reservationService,
+                                   PaymentService paymentService,
+                                   ReviewService reviewService,
+                                   MasterAdminPendingService masterAdminPendingService,
+                                   MaintenanceService maintenanceService) {
         this.userService = userService;
         this.vehicleService = vehicleService;
         this.reservationService = reservationService;
@@ -50,12 +47,14 @@ public class UserAdminHomeController {
         this.maintenanceService = maintenanceService;
     }
 
-    private static boolean admin(HttpSession session) {
-        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN));
-    }
-
-    private static boolean master(HttpSession session) {
-        return session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.IS_MASTER_ADMIN));
+    private boolean isMaster(HttpSession session) {
+        if (session == null) return false;
+        // Master admin: ROLE_ADMIN + has no Staff record OR is a known admin username
+        Boolean isAdmin = (Boolean) session.getAttribute("adminLoggedIn");
+        if (!Boolean.TRUE.equals(isAdmin)) return false;
+        String un = (String) session.getAttribute("username");
+        // The system master account (no DB record, added via staff-access-request flow)
+        return "admin".equalsIgnoreCase(un) || "master1".equalsIgnoreCase(un);
     }
 
     @GetMapping("/user/admin-home")
@@ -65,10 +64,6 @@ public class UserAdminHomeController {
 
     @GetMapping("/user/admin-dashboard")
     public String adminDashboard(HttpSession session, Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
-
         int customers = userService.findAllCustomers().size();
         int staff = userService.findAllStaff().size();
         model.addAttribute("customerCount", customers);
@@ -79,25 +74,21 @@ public class UserAdminHomeController {
         model.addAttribute("paymentCount", paymentService.findAll().size());
         model.addAttribute("reviewCount", reviewService.findAll().size());
         model.addAttribute("maintenanceCount", maintenanceService.countInMaintenance());
-        model.addAttribute("pendingAccessCount", master(session) ? masterAdminPendingService.readPendingLines().size() : 0);
-
+        model.addAttribute("pendingAccessCount", isMaster(session) ? masterAdminPendingService.readPendingLines().size() : 0);
         return "user/admin-dashboard";
     }
 
     @GetMapping("/user-management")
     public String userManagement(HttpSession session, Model model) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
         model.addAttribute("customerCount", userService.findAllCustomers().size());
         model.addAttribute("staffCount", userService.findAllStaff().size());
-        model.addAttribute("pendingAccessCount", master(session) ? masterAdminPendingService.readPendingLines().size() : 0);
+        model.addAttribute("pendingAccessCount", isMaster(session) ? masterAdminPendingService.readPendingLines().size() : 0);
         return "user/user-management";
     }
 
     @GetMapping("/user/master-console")
     public String masterConsole(HttpSession session, Model model) {
-        if (!master(session)) {
+        if (!isMaster(session)) {
             return "redirect:/auth/staff-login";
         }
         var pendingLines = masterAdminPendingService.readPendingLines();
@@ -111,7 +102,7 @@ public class UserAdminHomeController {
                                      @RequestParam String action,
                                      @RequestParam("request") String requestLine,
                                      RedirectAttributes ra) {
-        if (!master(session)) {
+        if (!isMaster(session)) {
             return "redirect:/auth/staff-login";
         }
         switch (action) {
@@ -143,61 +134,38 @@ public class UserAdminHomeController {
         return "redirect:/user/master-console";
     }
 
-    // Old /users URLs redirect to new pages
-
     @GetMapping("/users")
     public String legacyUserList(HttpSession session) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
         return "redirect:/user-management";
     }
 
     @GetMapping("/users/new")
     public String legacyNewUser(HttpSession session) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
         return "redirect:/customers?action=view_directory";
     }
 
     @GetMapping("/users/{id}")
     public String legacyUserDetail(@PathVariable String id, HttpSession session) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
         return legacyEditRedirect(id);
     }
 
     @GetMapping("/users/{id}/edit")
     public String legacyUserEdit(@PathVariable String id, HttpSession session) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
         return legacyEditRedirect(id);
     }
 
     @PostMapping("/users")
     public String legacyCreate(HttpSession session) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
         return "redirect:/user-management";
     }
 
     @PostMapping("/users/{id}")
     public String legacyUpdate(@PathVariable String id, HttpSession session) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
         return legacyEditRedirect(id);
     }
 
     @PostMapping("/users/{id}/delete")
     public String legacyDelete(@PathVariable String id, HttpSession session, RedirectAttributes ra) {
-        if (!admin(session)) {
-            return "redirect:/auth/staff-login";
-        }
         try {
             userService.deleteById(id);
             ra.addFlashAttribute("message", "User deleted.");

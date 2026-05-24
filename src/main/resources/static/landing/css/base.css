@@ -16,7 +16,8 @@ body.index-landing {
   letter-spacing: var(--da-track-body);
   color: var(--da-text);
   background-color: #050508;
-  background-image: radial-gradient(circle at 100% 0%, rgba(58, 58, 255, 0.12) 0%, rgba(76, 29, 149, 0.08) 40%, #050508 80%);
+  /* Night vehicle theme - warm amber/orange gradient */
+  background-image: radial-gradient(circle at 100% 0%, rgba(201, 169, 98, 0.15) 0%, rgba(120, 80, 30, 0.1) 40%, #050508 80%);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;

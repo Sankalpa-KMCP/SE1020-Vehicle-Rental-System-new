@@ -1,20 +1,50 @@
 package com.sliit.vehiclerentalsystem01.core.security;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Zero-dependency password hashing utilities.
+ * Password utilities for both legacy SHA-256 and BCrypt migration.
+ *
+ * <p>Migration path: existing SHA-256-hex passwords are accepted during login.
+ * On first successful login the plain text is re-hashed with BCrypt and stored
+ * back to users.txt. New registrations always use BCrypt.
+ *
+ * @see AppUserDetailsService  Spring Security integration
+ * @see com.sliit.vehiclerentalsystem01.user.service.UserServiceImpl  BCrypt migration trigger
  */
 public final class SecurityUtils {
 
     private static final int SHA256_HEX_LENGTH = 64;
 
-    private SecurityUtils() {
+    private SecurityUtils() {}
+
+    // --- BCrypt delegation ---------------------------------------------------
+
+    /** Encode a plain-text password with BCrypt (Spring Security's encoder injected via static holder). */
+    public static String encodeBCrypt(String plainText, PasswordEncoder encoder) {
+        return encoder.encode(plainText);
     }
 
-    public static String hashPassword(String plainText) {
+    /**
+     * Verify a plain-text password against a BCrypt hash.
+     * BCrypt hashes start with "$2" (a, b, or y/a/$2).
+     */
+    public static boolean matchesBCrypt(String plainText, String encoded, PasswordEncoder encoder) {
+        return encoder.matches(plainText, encoded);
+    }
+
+    /** True when the stored value looks like a BCrypt hash. */
+    public static boolean isBCrypt(String value) {
+        return value != null && value.startsWith("$2");
+    }
+
+    // --- Legacy SHA-256 ------------------------------------------------------
+
+    public static String sha256Hex(String plainText) {
         if (plainText == null) {
             plainText = "";
         }
@@ -49,6 +79,11 @@ public final class SecurityUtils {
         return true;
     }
 
+    /**
+     * Legacy hash-or-pass through. Prefer {@link #encodeBCrypt} for new passwords.
+     * @deprecated use BCrypt exclusively
+     */
+    @Deprecated
     public static String hashPasswordIfNeeded(String password) {
         if (password == null || password.isBlank()) {
             return "";
@@ -57,10 +92,14 @@ public final class SecurityUtils {
         if (isSha256Hex(trimmed)) {
             return trimmed;
         }
-        return hashPassword(password);
+        return sha256Hex(password);
     }
 
-    /** Returns true when {@code plainPassword} matches {@code storedPassword} (plain or SHA-256 hex). */
+    /**
+     * Legacy SHA-256 verification. Prefer {@link #matchesBCrypt} for BCrypt hashes.
+     * @deprecated use BCrypt exclusively
+     */
+    @Deprecated
     public static boolean verifyPassword(String plainPassword, String storedPassword) {
         if (plainPassword == null || storedPassword == null) {
             return false;
@@ -70,9 +109,11 @@ public final class SecurityUtils {
         if (plain.isEmpty() || stored.isEmpty()) {
             return false;
         }
-        String hashedInput = hashPassword(plain);
+        if (isBCrypt(stored)) {
+            return false; // call matchesBCrypt instead
+        }
         if (isSha256Hex(stored)) {
-            return hashedInput.equalsIgnoreCase(stored);
+            return sha256Hex(plain).equalsIgnoreCase(stored);
         }
         return plain.equals(stored);
     }

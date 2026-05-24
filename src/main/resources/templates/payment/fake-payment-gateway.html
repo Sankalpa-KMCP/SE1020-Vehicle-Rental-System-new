@@ -66,10 +66,7 @@
                     <label for="expiry">Expiry date</label>
                     <input id="expiry" type="text" name="expiry" maxlength="5" required autocomplete="cc-exp" placeholder="MM/YY" class="cp-input"/>
                 </div>
-                <div class="cp-field">
-                    <label for="cvv">CVV</label>
-                    <input id="cvv" type="text" name="cvv" inputmode="numeric" maxlength="4" required autocomplete="cc-csc" placeholder="3 or 4 digits" class="cp-input"/>
-                </div>
+                <!-- CVV removed: never store or transmit card verification values in this application -->
                 <div class="cp-field cp-field--full">
                     <label for="paymentAmount">Amount to pay (LKR)</label>
                     <input id="paymentAmount" type="number" name="paymentAmount" min="0" step="0.01" required th:value="${payment.amount}" class="cp-input"/>
