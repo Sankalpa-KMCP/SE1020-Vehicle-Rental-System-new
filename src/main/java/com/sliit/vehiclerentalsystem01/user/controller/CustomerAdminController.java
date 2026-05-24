@@ -153,8 +153,11 @@ public class CustomerAdminController {
 
             return "user/customer-directory";
         } catch (Exception e) {
-            model.addAttribute("error", "Error loading customer data: " + e.getMessage());
-            return "user/error";
+            model.addAttribute("status", 500);
+            model.addAttribute("errorTitle", "Customer Directory Error");
+            model.addAttribute("errorMessage", "Error loading customer data: " + e.getMessage());
+            model.addAttribute("pageTitle", "Error | DriveAway");
+            return "error";
         }
     }
 
