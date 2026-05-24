@@ -118,27 +118,34 @@ public class WebUIController {
     private void applyLandingNav(HttpSession session, Model model) {
         String displayName = "";
         String userRole = "";
+        String avatarUrl = null;
 
         if (session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN))) {
-            Object name = session.getAttribute("name");
+            Object name = session.getAttribute(UserSessionKeys.NAME);
             displayName = name != null ? name.toString() : "";
             if (displayName.isBlank()) {
                 Object u = session.getAttribute(UserSessionKeys.USERNAME);
                 displayName = u != null ? u.toString() : "Customer";
             }
             userRole = "customer";
+            Object avatar = session.getAttribute(UserSessionKeys.AVATAR_URL);
+            avatarUrl = avatar != null ? avatar.toString() : null;
         } else if (session != null && (Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.STAFF_LOGGED_IN))
                 || Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.ADMIN_LOGGED_IN)))) {
-            Object name = session.getAttribute("name");
+            Object name = session.getAttribute(UserSessionKeys.NAME);
             displayName = name != null ? name.toString() : "";
             if (displayName.isBlank()) {
-                displayName = "Staff";
+                Object u = session.getAttribute(UserSessionKeys.USERNAME);
+                displayName = u != null ? u.toString() : "Staff";
             }
             userRole = "staff";
+            Object avatar = session.getAttribute(UserSessionKeys.AVATAR_URL);
+            avatarUrl = avatar != null ? avatar.toString() : null;
         }
 
         model.addAttribute("displayName", displayName);
         model.addAttribute("userRole", userRole);
+        model.addAttribute("avatarUrl", avatarUrl);
     }
 
     private List<FleetPreviewItem> buildFleetPreview(int max) {
@@ -253,9 +260,6 @@ public class WebUIController {
     }
 
     private void applyPublicNavDisplayName(HttpSession session, Model model) {
-        if (session != null && Boolean.TRUE.equals(session.getAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN))) {
-            Object u = session.getAttribute(UserSessionKeys.USERNAME);
-            model.addAttribute("displayName", u != null ? u.toString() : "Customer");
-        }
+        applyLandingNav(session, model);
     }
 }

@@ -697,9 +697,9 @@
     <section class="hero" id="hero3d">
         <div class="hero-grid">
             <div class="hero-copy">
-                <span class="eyebrow"><i class="ph-bold ph-sparkle"></i> Private Client Portal</span>
-                <h1>Premium, colorful, and finally easy to read.</h1>
-                <p>The page is now organized so the eye lands in the right order: what this place is, what to do first, what is available now, and where to go next. The richer color comes from clear service zones, not random decoration.</p>
+                <span class="eyebrow"><i class="ph-bold ph-car"></i> Welcome Back, <span th:text="${firstName}">Customer</span></span>
+                <h1>Your Premium Rental Experience.</h1>
+                <p>Manage your reservations, explore our luxurious fleet, and handle payments seamlessly from your personalized dashboard. Everything you need for your next journey is right here.</p>
                 <div class="hero-actions">
                     <a th:href="@{/customer/fleet}" class="btn-main"><i class="ph-bold ph-steering-wheel"></i> 1. Browse Fleet</a>
                     <a th:href="@{/customer/bookings}" class="btn-alt"><i class="ph-bold ph-calendar-check"></i> 2. Manage Booking</a>
@@ -708,7 +708,7 @@
             </div>
 
             <aside class="flow-panel" data-tilt>
-                <h3>How this portal works</h3>
+                <h3>Quick Start Guide</h3>
                 <div class="flow-list">
                     <div class="flow-step">
                         <div class="flow-num">1</div>
@@ -755,28 +755,7 @@
         </div>
     </section>
 
-    <section class="summary-strip">
-        <article class="summary-card summary-card--gold" data-tilt>
-            <span class="label">Start Here</span>
-            <p class="value">Fleet</p>
-            <p>Best place to begin if you are deciding what to rent next.</p>
-        </article>
-        <article class="summary-card summary-card--emerald" data-tilt>
-            <span class="label">Next Priority</span>
-            <p class="value">Bookings</p>
-            <p>Check approvals, requested edits, and upcoming reservations.</p>
-        </article>
-        <article class="summary-card summary-card--wine" data-tilt>
-            <span class="label">Final Step</span>
-            <p class="value">Billing</p>
-            <p>Pay only when the booking is ready, without guessing where to go.</p>
-        </article>
-        <article class="summary-card summary-card--plum" data-tilt>
-            <span class="label">Trust Layer</span>
-            <p class="value" th:text="${verified} ? 'Verified' : 'Complete Profile'">Verified</p>
-            <p>Your profile and documents stay visible as part of the journey.</p>
-        </article>
-    </section>
+    <!-- Removed redundant summary strip to declutter and optimize -->
 
     <section class="section" th:if="${bookingNotices != null and !bookingNotices.isEmpty()}">
         <div class="section-head">
@@ -793,8 +772,8 @@
     <section class="section">
         <div class="section-head">
             <div>
-                <h2>Main Modules</h2>
-                <p>Each area has a distinct color mood so it is easier to scan and remember.</p>
+                <h2>Dashboard Actions</h2>
+                <p>Quick access to all your account services and tools.</p>
             </div>
         </div>
         <div class="action-grid">
@@ -802,7 +781,7 @@
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-car-profile"></i></span>
                     <h3>Browse Fleet</h3>
-                    <p>See available vehicles first and move directly into reservation creation.</p>
+                    <p>View our available vehicles and make a new reservation instantly.</p>
                 </div>
                 <span class="go">Open fleet</span>
             </a>
@@ -810,7 +789,7 @@
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-calendar-check"></i></span>
                     <h3>Manage Bookings</h3>
-                    <p>Review approval state, trip dates, and any change requests in one view.</p>
+                    <p>Review approval states, trip dates, and request changes easily.</p>
                 </div>
                 <span class="go">Open bookings</span>
             </a>
@@ -818,7 +797,7 @@
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-wallet"></i></span>
                     <h3>Billing & Payments</h3>
-                    <p>Finish the payment step once a reservation is confirmed and ready.</p>
+                    <p>Complete payments for your confirmed reservations securely.</p>
                 </div>
                 <span class="go">Open billing</span>
             </a>
@@ -826,7 +805,7 @@
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-identification-card"></i></span>
                     <h3>Profile Settings</h3>
-                    <p>Keep your identity details, contact data, and verification documents current.</p>
+                    <p>Update your contact information and verification documents.</p>
                 </div>
                 <span class="go">Open profile</span>
             </a>
@@ -834,7 +813,7 @@
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-star"></i></span>
                     <h3>Reviews</h3>
-                    <p>Share your experience and manage the reviews linked to your trips.</p>
+                    <p>Share your rental experience and view past feedback.</p>
                 </div>
                 <span class="go">Open reviews</span>
             </a>
@@ -842,7 +821,7 @@
                 <div>
                     <span class="action__icon"><i class="ph-bold ph-headset"></i></span>
                     <h3>Support</h3>
-                    <p>Reach the help path quickly if you hit a vehicle, booking, or payment issue.</p>
+                    <p>Contact our staff for assistance with reservations or payments.</p>
                 </div>
                 <span class="go">Open support</span>
             </a>
@@ -852,8 +831,8 @@
     <section class="section" th:if="${featuredVehicles != null and !featuredVehicles.isEmpty()}">
         <div class="section-head">
             <div>
-                <h2>Curated Fleet Preview</h2>
-                <p>Quick showroom picks so the next action feels obvious.</p>
+                <h2>Featured Vehicles</h2>
+                <p>Explore our premium selection of available vehicles ready for your next trip.</p>
             </div>
         </div>
         <div class="fleet-strip">
@@ -912,18 +891,32 @@
             el.style.transform = '';
         }
 
+        let heroTicking = false;
         hero.addEventListener('mousemove', function (e) {
             if (e.target.closest('a, button, input, select, textarea')) return;
-            tilt(hero, e.clientX, e.clientY, 7);
+            if (!heroTicking) {
+                window.requestAnimationFrame(function () {
+                    tilt(hero, e.clientX, e.clientY, 7);
+                    heroTicking = false;
+                });
+                heroTicking = true;
+            }
         });
         hero.addEventListener('mouseleave', function () {
             reset(hero);
         });
 
         document.querySelectorAll('[data-tilt]').forEach(function (item) {
+            let itemTicking = false;
             item.addEventListener('mousemove', function (e) {
                 if (e.target.closest('a, button, input, select, textarea')) return;
-                tilt(item, e.clientX, e.clientY, 5);
+                if (!itemTicking) {
+                    window.requestAnimationFrame(function () {
+                        tilt(item, e.clientX, e.clientY, 5);
+                        itemTicking = false;
+                    });
+                    itemTicking = true;
+                }
             });
             item.addEventListener('mouseleave', function () {
                 reset(item);

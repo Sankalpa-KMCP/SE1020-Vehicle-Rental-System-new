@@ -112,7 +112,7 @@
 
   <div class="admin-sidebar__footer">
     <span class="admin-sidebar__footer-text">DriveAway Rentals</span>
-    <span class="admin-sidebar__footer-user" th:text="${session.username != null ? session.username : 'Admin'}">Admin</span>
+    <span class="admin-sidebar__footer-user" th:text="${session.name != null ? session.name : (session.username != null ? session.username : 'Admin')}">Admin</span>
   </div>
 </aside>
 
@@ -160,9 +160,10 @@
   <div class="admin-topbar__right">
     <div class="admin-topbar__user">
       <span class="admin-topbar__user-avatar">
-        <i class="ph-bold ph-user"></i>
+        <img th:if="${session.avatarUrl != null}" th:src="${session.avatarUrl}" alt="Avatar"/>
+        <i th:unless="${session.avatarUrl != null}" class="ph-bold ph-user"></i>
       </span>
-      <span th:text="${session.username != null ? session.username : 'Admin'}">Admin</span>
+      <span th:text="${session.name != null ? session.name : (session.username != null ? session.username : 'Admin')}">Admin</span>
     </div>
     <form th:action="@{/auth}" method="post" class="m-0">
       <input type="hidden" name="action" value="logout"/>

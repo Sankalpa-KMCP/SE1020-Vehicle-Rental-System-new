@@ -389,6 +389,14 @@
   border-radius: var(--da-radius-full);
 }
 
+.da-nav__user-avatar {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
 .da-nav__user-name { font-weight: 500; }
 
 .da-nav__menu-btn {

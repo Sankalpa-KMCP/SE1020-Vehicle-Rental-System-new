@@ -17,7 +17,31 @@
       <a th:href="@{/public/about}" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">About</a>
       <a th:href="@{/public/contact}" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">Contact</a>
     </div>
-    <div class="hidden md:flex items-center gap-5">
+    <div class="hidden md:flex items-center gap-5" th:if="${session.customerLoggedIn == true}">
+      <div class="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2">
+        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 overflow-hidden">
+          <img th:if="${avatarUrl != null ? avatarUrl : session.avatarUrl} != null" th:src="${avatarUrl != null ? avatarUrl : session.avatarUrl}" class="h-9 w-9 rounded-full object-cover" alt="Avatar"/>
+          <i th:unless="${avatarUrl != null ? avatarUrl : session.avatarUrl} != null" class="ph-bold ph-user text-lg text-blue-600"></i>
+        </div>
+        <span class="text-sm font-bold text-gray-800" th:text="${displayName != null ? displayName : (session.name != null ? session.name : (session.username != null ? session.username : 'Customer'))}">name</span>
+      </div>
+      <a th:href="@{/customer/home}" class="bg-[#0D6EFD] text-white font-bold py-3 px-8 rounded-2xl hover:bg-blue-700 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-[#0D6EFD]/35 tracking-wide">
+        Dashboard
+      </a>
+    </div>
+    <div class="hidden md:flex items-center gap-5" th:if="${(session.staffLoggedIn == true) or (session.adminLoggedIn == true)}">
+      <div class="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2">
+        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-rose-100 overflow-hidden">
+          <img th:if="${avatarUrl != null ? avatarUrl : session.avatarUrl} != null" th:src="${avatarUrl != null ? avatarUrl : session.avatarUrl}" class="h-9 w-9 rounded-full object-cover" alt="Avatar"/>
+          <i th:unless="${avatarUrl != null ? avatarUrl : session.avatarUrl} != null" class="ph-bold ph-user text-lg text-rose-600"></i>
+        </div>
+        <span class="text-sm font-bold text-gray-800" th:text="${displayName != null ? displayName : (session.name != null ? session.name : (session.username != null ? session.username : 'Staff'))}">staff</span>
+      </div>
+      <a th:href="@{/dashboard}" class="bg-rose-600 text-white font-bold py-3 px-8 rounded-2xl hover:bg-rose-700 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-rose-600/35 tracking-wide">
+        Staff Portal
+      </a>
+    </div>
+    <div class="hidden md:flex items-center gap-5" th:unless="${session.customerLoggedIn == true or session.staffLoggedIn == true or session.adminLoggedIn == true}">
       <a th:href="@{/auth/login}" class="text-base font-semibold text-gray-600 hover:text-black transition-colors">Sign In</a>
       <a th:href="@{/auth/register}" class="bg-[#0D6EFD] text-white font-bold py-3 px-8 rounded-2xl hover:bg-blue-700 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-[#0D6EFD]/30 tracking-wide">
         Register
@@ -33,12 +57,26 @@
       <a th:href="|@{/}#how-it-works|" class="text-base font-semibold text-gray-600 hover:text-black py-2">How it Works</a>
       <a th:href="|@{/}#testimonials|" class="text-base font-semibold text-gray-600 hover:text-black py-2">Reviews</a>
       <a th:href="@{/public/about}" class="text-base font-semibold text-gray-600 hover:text-black py-2">About</a>
-       <a th:href="@{/public/contact}" class="text-base font-semibold text-gray-600 hover:text-black py-2">Contact</a>
-       <hr class="my-2 border-gray-200">
-       <a th:href="@{/auth/login}" class="text-base font-semibold text-gray-600 py-2">Sign In</a>
-       <a th:href="@{/auth/register}" class="bg-[#0D6EFD] text-white font-bold py-3 rounded-2xl text-center">Register</a>
-    </div>
-  </div>
+      <a th:href="@{/public/contact}" class="text-base font-semibold text-gray-600 hover:text-black py-2">Contact</a>
+      <hr class="my-2 border-gray-200">
+      <th:block th:if="${session.customerLoggedIn == true}">
+        <div class="flex items-center gap-3 py-2 px-1">
+          <img th:if="${avatarUrl != null ? avatarUrl : session.avatarUrl} != null" th:src="${avatarUrl != null ? avatarUrl : session.avatarUrl}" class="h-9 w-9 rounded-full object-cover" alt="Avatar"/>
+          <span class="text-base font-bold text-gray-800" th:text="${displayName != null ? displayName : (session.name != null ? session.name : (session.username != null ? session.username : 'Customer'))}">Customer</span>
+        </div>
+        <a th:href="@{/customer/home}" class="bg-[#0D6EFD] text-white font-bold py-3 rounded-2xl text-center block">Dashboard</a>
+      </th:block>
+      <th:block th:if="${(session.staffLoggedIn == true) or (session.adminLoggedIn == true)}">
+        <div class="flex items-center gap-3 py-2 px-1">
+          <img th:if="${avatarUrl != null ? avatarUrl : session.avatarUrl} != null" th:src="${avatarUrl != null ? avatarUrl : session.avatarUrl}" class="h-9 w-9 rounded-full object-cover" alt="Avatar"/>
+          <span class="text-base font-bold text-gray-800" th:text="${displayName != null ? displayName : (session.name != null ? session.name : (session.username != null ? session.username : 'Staff'))}">Staff</span>
+        </div>
+        <a th:href="@{/dashboard}" class="bg-rose-600 text-white font-bold py-3 rounded-2xl text-center block">Staff Portal</a>
+      </th:block>
+      <th:block th:unless="${session.customerLoggedIn == true or session.staffLoggedIn == true or session.adminLoggedIn == true}">
+        <a th:href="@{/auth/login}" class="text-base font-semibold text-gray-600 py-2">Sign In</a>
+        <a th:href="@{/auth/register}" class="bg-[#0D6EFD] text-white font-bold py-3 rounded-2xl text-center">Register</a>
+      </th:block>
 </nav>
 <script>
   document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {

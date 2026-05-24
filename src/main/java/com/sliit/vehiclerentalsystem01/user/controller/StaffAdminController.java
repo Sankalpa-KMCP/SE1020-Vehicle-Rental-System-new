@@ -106,6 +106,11 @@ public class StaffAdminController {
             imageStorageService.attachAvatar(updated, avatarImage);
             try {
                 userService.save(updated);
+                String sessionUser = (String) session.getAttribute(UserSessionKeys.USERNAME);
+                if (sessionUser != null && sessionUser.equalsIgnoreCase(updated.getUsername())) {
+                    session.setAttribute(UserSessionKeys.NAME, updated.getName());
+                    session.setAttribute(UserSessionKeys.AVATAR_URL, updated.getAvatarUrl());
+                }
             } catch (ValidationException ex) {
                 return "redirect:/staff?action=edit&id=" + id + "&error=" + ex.getMessage();
             }

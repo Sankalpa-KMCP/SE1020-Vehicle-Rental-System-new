@@ -26,7 +26,8 @@
 
         <div class="da-nav__actions" th:if="${!#strings.isEmpty(userRole)}">
             <span class="da-nav__user">
-                <span class="da-tag__dot" aria-hidden="true"></span>
+                <img th:if="${avatarUrl != null}" th:src="${avatarUrl}" class="da-nav__user-avatar" alt="Avatar"/>
+                <span th:unless="${avatarUrl != null}" class="da-tag__dot" aria-hidden="true"></span>
                 <span class="da-nav__user-name" th:text="${displayName}">User</span>
             </span>
             <a th:if="${userRole == 'customer'}" th:href="@{/customer/home}" class="da-btn da-btn--primary transition-link">

@@ -12,6 +12,8 @@ public final class UserSessionKeys {
     public static final String AUTH_ROLE = "authRole";
     /** Optional elevated session for master admin console. */
     public static final String IS_MASTER_ADMIN = "isMasterAdmin";
+    public static final String NAME = "name";
+    public static final String AVATAR_URL = "avatarUrl";
 
     private UserSessionKeys() {
     }

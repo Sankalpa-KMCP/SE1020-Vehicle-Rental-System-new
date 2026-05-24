@@ -123,6 +123,8 @@ public class UserAuthController {
     private void establishAuthenticatedSession(HttpSession session, User u) {
         clearAuthFlags(session);
         session.setAttribute(UserSessionKeys.USERNAME, sessionUsername(u));
+        session.setAttribute(UserSessionKeys.NAME, u.getName());
+        session.setAttribute(UserSessionKeys.AVATAR_URL, u.getAvatarUrl());
         if (u instanceof Customer) {
             session.setAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN, Boolean.TRUE);
             session.setAttribute(UserSessionKeys.AUTH_ROLE, "ROLE_CUSTOMER");
@@ -218,6 +220,8 @@ public class UserAuthController {
             return;
         }
         session.removeAttribute(UserSessionKeys.USERNAME);
+        session.removeAttribute(UserSessionKeys.NAME);
+        session.removeAttribute(UserSessionKeys.AVATAR_URL);
         session.removeAttribute(UserSessionKeys.CUSTOMER_LOGGED_IN);
         session.removeAttribute(UserSessionKeys.ADMIN_LOGGED_IN);
         session.removeAttribute(UserSessionKeys.STAFF_LOGGED_IN);

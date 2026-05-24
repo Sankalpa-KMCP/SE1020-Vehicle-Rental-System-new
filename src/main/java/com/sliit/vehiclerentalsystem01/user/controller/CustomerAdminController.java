@@ -244,6 +244,10 @@ public class CustomerAdminController {
                 existing.setFullName(name);
                 imageStorageService.attachAvatar(existing, avatarImage);
                 userService.save(existing);
+                if (!isAdmin) {
+                    session.setAttribute(UserSessionKeys.NAME, existing.getName());
+                    session.setAttribute(UserSessionKeys.AVATAR_URL, existing.getAvatarUrl());
+                }
                 return isAdmin
                         ? "redirect:/customers?action=view_directory&msg=updated"
                         : "redirect:/customer/home?msg=updated";

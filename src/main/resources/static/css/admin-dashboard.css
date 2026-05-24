@@ -574,6 +574,13 @@ html:not(.sidebar-collapsed) .admin-sidebar__link:active {
   background: linear-gradient(135deg, var(--admin-navy-mid), var(--admin-gold));
   color: #fff;
   font-size: 0.75rem;
+  overflow: hidden;
+}
+
+.admin-topbar__user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .admin-topbar__logout {
